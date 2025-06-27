@@ -1,0 +1,408 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Enable activity tracking</title>
+</head>
+<body>
+<p>Businesses like to know what visitors are doing on their sites. Data about how visitors browse their site tells marketers which features are most vital, and lets them personalize content and marketing for specific contacts.</p>
+<p>Let’s examine how to enable standard activity tracking in Xperience by Kentico and show or hide tracking scripts depending on the visitor’s cookie level.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <em>Consents</em> section of the <a href="/guides/development/data-protection">Data protection series</a>.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="enable-tracking">Enable tracking</h2>
+<p>Xperience’s activity tracking features help you monitor the actions of visitors on your site.</p>
+<ul>
+<li>Visitors correspond to <code>ContactInfo</code> objects, which represent rows in the <em>OM_Contact</em> table of the database.</li>
+<li>The actions visitors take on the site correspond to <code>ActivityInfo</code> objects, which represent rows in the <em>OM_Activity</em> table.</li>
+</ul>
+<p>Xperience tracks form submit activities automatically. If no contact exists when a visitor submits a form, the system will create a new contact associated with their submission.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Legitimate interest</strong></p>
+<p>It is important to ensure that one of the following conditions is met:</p>
+<ol type="1">
+<li>Forms only collect data that legally qualifies as legitimate interest.</li>
+<li>Visitors who have not consented to the storage of their personal information are unable to submit forms.
+<div>
+<div>
+
+</div>
+<div>
+This series includes <a href="/guides/development/activities-and-marketing/hide-builder-content-from-visitors-who-have-not-consented-to-tracking">an example of this</a>.
+</div>
+</div>
+</li>
+</ol>
+</div>
+
+<p>Other activity types, however, require you to enable tracking during the application’s initialization.</p>
+<ol type="1">
+<li>
+<em>Landing page</em> - logs the first page a visitor opens when viewing the website, typically the destination of a link clicked by the visitor.</li>
+<li>
+<em>Page visit</em> - logs a page the visitor has viewed while traversing the website.</li>
+</ol>
+<p>To track these types of activities, follow the steps outlined on the <em><a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities#enable-the-activity-tracking-feature">Set up activities</a></em> documentation page.</p>
+
+<div>
+
+</div>
+<div>
+<p>Once you enable activity tracking, Xperience will log the <em>Landing page</em> and <em>Page visit</em> activities for anyone who visits pages where the tracking script is present.</p>
+</div>
+
+<h2 id="add-a-view-component">Add a view component</h2>
+<p>To avoid legal issues related to tracking consent, you must modify the layout view to render Xperience’s tracking script only when the contact has consented to tracking.</p>
+<p>To avoid embedding business logic in the view, you can create a method that determines whether the current contact has consented to tracking, and use it in a view component that conditionally renders the script.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Tracking consent</strong></p>
+<p>This section assumes that you have completed the training guides in the <a href="/guides/development/data-protection"><em>Data protection</em> section</a>. If not, make sure consents have been configured to set the <em>CMSCookieLevel</em> to <em>All</em> (1000) or higher only when the visitor has consented to marketing tracking.</p>
+</div>
+
+<h3 id="create-a-method-to-check-the-cookie-level">Create a method to check the cookie level</h3>
+<p>The view component needs to check whether or not the current contact can be tracked. However, this functionality will be used in more places than just the view component, over the course of this series, so let’s create a reusable method for it.</p>
+<ol type="1">
+<li>
+<p>In the <em>TrainingGuides.Web/Features/DataProtection/Services/CookieConsentService.cs</em> class created in the <a href="/guides/development/data-protection"><em>Data protection</em> training guides</a>, add a new boolean method called <code>CurrentContactCanBeTracked</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you have not completed the data protection series, you can create a new service and register it with dependency injection.</p>
+</div>
+</li>
+<li><p>Use dependency injection to resolve an <code>ICurrentCookieLevelProvider</code> object, and use it to retrieve the current cookie level.</p></li>
+<li><p>If the cookie level is greater than or equal to 1000, return <code>true</code>.</p></li>
+<li>
+<p>Otherwise, return <code>false</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieConsentService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ /// &lt;summary&gt;
+ /// Checks if the current contact's CMSCookieLevel is All (1000) or higher
+ /// &lt;/summary&gt;
+ /// &lt;returns&gt;True if CMSCookieLevel is greater than or equal to 1000, false otherwise&lt;/returns&gt;
+ public bool CurrentContactCanBeTracked() =&gt;
+     cookieLevelProvider.GetCurrentCookieLevel() &gt;= 1000;
+ ...
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+Alternatively, if you’ve completed the data protection series, you can check the value of the more granular <code>trainingguides.cookieconsentlevel</code> cookie. You can access its name in code through the <code>CookieNames.COOKIE_CONSENT_LEVEL</code> constant and compare its value to those in the <code>CookieConsentLevel</code> enumeration.
+</div>
+</li>
+<li>
+<p>Add a corresponding signature to the ICookieConsentService interface.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ICookieConsentService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ public interface ICookieConsentService
+ {
+     ...
+     bool CurrentContactCanBeTracked();
+     ...
+ }
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="add-a-view-model">Add a view model</h3>
+<p>The view component that conditionally renders the tracking script will be simple— it only needs to know if the script tags should be written to the page’s markup or not.</p>
+<p>In theory, a simple boolean could be used as the model for its view. However, to make the code more readable and allow greater flexibility, create a view model with a boolean property.</p>
+
+<div>
+
+</div>
+<div>
+<p>Xperience’s <code>ActivityLoggingScriptV2</code> extension takes optional parameters that could correspond to view model properties, if your scenario requires more flexibility.</p>
+</div>
+
+<ol type="1">
+<li><p>Create the following folder structure in the <em>TrainingGuides.Web</em> project: <em>~/Features/Activities/ViewComponents/Shared</em></p></li>
+<li>
+<p>Add a new file called <em>ContactTrackingAllowedViewModel.cs</em> in the <em>Shared</em> folder.</p>
+
+<div>
+
+</div>
+<div>
+<p>Over the course of this series, the view model will be shared across multiple view components.</p>
+</div>
+</li>
+<li><p>Define a boolean property to indicate whether or not tracking is allowed.</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactTrackingAllowedViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Activities.ViewComponents.Shared;
+
+public class ContactTrackingAllowedViewModel
+{
+    public bool ContactTrackingAllowed { get; set; } = false;
+}
+</code></pre>
+</div>
+
+<h4 id="define-the-view-component">Define the view component</h4>
+<p>Now define the view component class that will use the <code>CurrentContactCanBeTracked</code> method from earlier to determine whether the tracking scripts should be rendered.</p>
+<ol type="1">
+<li>Add a new folder called <em>TrackingScripts</em> to the <em>TrainingGuides.Web/Features/Activities/ViewComponents</em> directory.</li>
+<li>Create a new file called <em>TrackingScriptsViewComponent.cs</em>.</li>
+<li>Use constructor injection to attain an <code>ICookieConsentservice</code> object.</li>
+<li>In the <em>Invoke</em> method, define a new <code>ContactTrackingAllowedViewModel</code>  that uses <code>CurrentContactCanBeTracked</code> method created in the <a href="#create-a-method-to-check-the-cookie-level">previous step</a> to set its <code>ContactTrackingAllowed</code> property.</li>
+<li>Return a view, providing the path to a file you will create in the next section and the view model.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrackingScriptsViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides.Web.Features.Activities.ViewComponents.Shared;
+using TrainingGuides.Web.Features.DataProtection.Services;
+
+namespace TrainingGuides.Web.Features.Activities.ViewComponents.TrackingScripts;
+
+public class TrackingScriptsViewComponent : ViewComponent
+{
+    private readonly ICookieConsentService cookieConsentService;
+
+    public TrackingScriptsViewComponent(ICookieConsentService cookieConsentService)
+    {
+        this.cookieConsentService = cookieConsentService;
+    }
+
+    public IViewComponentResult Invoke()
+    {
+        var model = new ContactTrackingAllowedViewModel()
+        {
+            ContactTrackingAllowed = cookieConsentService.CurrentContactCanBeTracked()
+        };
+
+        return View("~/Features/Activities/ViewComponents/TrackingScripts/TrackingScripts.cshtml", model);
+    }
+}
+
+</code></pre>
+</div>
+
+<h3 id="implement-a-view">Implement a view</h3>
+<p>With the view component’s Invoke method handling the majority of the work, the view model must simply react to the provided model.</p>
+<ol type="1">
+<li>Define a file in the <em>TrackingScripts</em>folder called <em>TrackingScripts.cshtml</em>.</li>
+<li>Set the view’s model to <code>ContactTrackingAllowedViewModel</code>.</li>
+<li>Within an if statement that check’s the model’s <code>ContactTrackingAllowed</code> property, use Xperience’s <code>ActivityLoggingScriptV2</code> extension method to render tracking scripts to the page’s HTML.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>TrackingScripts.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using TrainingGuides.Web.Features.Activities.ViewComponents.Shared
+@using Kentico.Activities.Web.Mvc
+
+@model ContactTrackingAllowedViewModel
+
+@if (Model.ContactTrackingAllowed)
+{
+    @Html.Kentico().ActivityLoggingScriptV2();
+}
+
+</code></pre>
+</div>
+
+<h2 id="add-the-tracking-script-to-layout-view">Add the tracking script to Layout view</h2>
+<p>This registered service allows you to evaluate whether the current visitor has consented to tracking in the layout view. You can use it to render the tracking script accordingly.</p>
+<ol type="1">
+<li>
+<p>Ensure that the <em>TrainingGuides.Web</em>namespace is included among the tag helpers in your <em>_ViewImports.cshtml</em> file.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_ViewImports.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ @addTagHelper *, TrainingGuides.Web
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Open <em>~/Views/Shared/_Layout.cshtml</em> and add a <code>@using</code> directive for <code>TrainingGuides.Web.Features.Activities.ViewComponents.TrackingScripts</code>.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ @using TrainingGuides.Web.Features.Activities.ViewComponents.TrackingScripts
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Include <code>TrackingScriptsViewComponent</code> at the end of the header with the tag helper <code>&lt;vc:tracking-scripts/&gt;</code> .</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...     
+     &lt;vc:tracking-scripts/&gt;
+ &lt;/head&gt;
+ ...
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<p>Thanks to the logic in the view component’s <code>Invoke</code> method, <em>Landing page</em> and <em>Page visit</em> activities will not be logged for visitors who have not consented to tracking.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>Xperience now tracks standard activities, and <a href="/guides/development/activities-and-marketing/log-custom-activities">the next guide in this series</a> will expand this to include custom activities. It will go over creating custom activity types, and logging them with both client-side and server-side approaches.</p>
+
+</body>
+</html>

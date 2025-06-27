@@ -1,0 +1,1893 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Implement a member registration widget</title>
+</head>
+<body>
+<p>Many websites allow visitors to register and log in for exclusive access to premium content. You can add this functionality to your website channels in Xperience by Kentico by implementing <a href="/documentation/business-users/members">Members</a> in your site.</p>
+<p>Let’s dive into the first step of this process, expanding upon the standard approach by creating a <strong>reusable widget</strong> that allows members to register via <a href="/documentation/developers-and-admins/development/registration-and-authentication/forms-authentication">Forms authentication</a>. It also includes an overview of how to apply the same approach to a <a href="#apply-the-same-approach-to-authentication">Sign-in widget</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Integrating the registration form into a widget requires extra complexity compared to using a standard routed MVC view.</p>
+<p>The registration widget will allow editors to do the following:</p>
+<ul>
+<li>Easily link to a registration page from components like the <em>Page selector</em>, <em>Combined content selector</em>, and <em>Rich text editor</em>.</li>
+<li>Seamlessly integrate the registration form into relevant pages, such as landing pages for campaigns driving member registration.</li>
+<li>Configure the design of the components, for example, deciding which fields the form should include and defining custom field labels.</li>
+</ul>
+<p>However, it requires extra development. The widget uses hidden form fields to make sure its configuration persists through server-side validation.</p>
+<p>To see simpler examples using standard MVC routed views for membership functionality, check out the following resources:</p>
+<ul>
+<li>The <a href="https://github.com/Kentico/community-portal/tree/e7c0d98cf533899ec79f7a1389bf280b54dbddd2/src/Kentico.Community.Portal.Web/Features/Registration" target="_blank">Xperience by Kentico Community Portal</a> on GitHub.</li>
+<li>The <strong>Dancing Goat</strong> sample project, available through the <code>Kentico.Xperience.Templates</code> <em>.NET Templates</em> package.</li>
+</ul>
+</div>
+
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity" target="_blank">.NET Identity</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>Experience with <a href="/guides/development/page-builder/build-simple-cta-widget">Widgets</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="examine-the-requirements">Examine the requirements</h2>
+<p>For this guide’s example, imagine you have the following requirements for member registration:</p>
+<ol type="1">
+<li>A visitor can fill out a form to become a member and create an account.</li>
+<li>If a member shares their full name, they can choose the display order.</li>
+<li>Editors can include the registration form in campaign landing pages.</li>
+<li>Editors can specify their own labels for the fields in each language.</li>
+<li>Editors can choose to display the form with only required fields, or to include optional fields.</li>
+</ol>
+<p>You can <a href="/documentation/developers-and-admins/development/registration-and-authentication/add-fields-to-member-objects">extend the member class with custom fields</a> to handle the name order requirement.</p>
+<p>All of the requirements regarding editors’ control of the registration forms can be met by making the registration form a <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder">widget</a>: editors can place the widget on Page Builder zones in landing pages and use widget properties to configure the labels and fields to display in the registration form.</p>
+<h2 id="extend-the-member-class">Extend the Member class</h2>
+<p>To start, let’s <a href="/documentation/developers-and-admins/development/registration-and-authentication/add-fields-to-member-objects">add custom fields</a> that allow members to configure the order of their full names. While we’re at it, we’ll also add a field to mirror the “favorite coffee” example from our <a href="/guides/development/customizations-and-integrations/add-custom-contact-field">training guide about customizing contacts</a>.</p>
+<h3 id="define-the-module-fields">Define the module fields</h3>
+<p>Navigate to the <strong>Modules</strong> application in Xperience, and edit the <strong>Membership</strong> module. Choose <strong>Classes → Member → Database columns</strong>. Add text fields for the given name, family name, and favorite coffee of your members, along with a boolean field to indicate if the family name should go first.</p>
+<ul>
+<li>Given name
+<ul>
+<li>
+<strong>Field name</strong>: GuidesMemberGivenName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 100</li>
+<li>
+<strong>Required</strong>: False (disabled)</li>
+</ul>
+</li>
+<li>Family name
+<ul>
+<li>
+<strong>Field name</strong>: GuidesMemberFamilyName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 100</li>
+<li>
+<strong>Required</strong>: False (disabled)</li>
+</ul>
+</li>
+<li>Family name first
+<ul>
+<li>
+<strong>Field name</strong>: GuidesMemberFamilyNameFirst</li>
+<li>
+<strong>Data type</strong>: Boolean (Yes/No)</li>
+<li>
+<strong>Required</strong>: False (disabled)</li>
+<li>
+<strong>Default value</strong>: False (disabled)</li>
+</ul>
+</li>
+<li>Favorite coffee
+<ul>
+<li>
+<strong>Field name</strong>: GuidesMemberFavoriteCoffee</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 100</li>
+<li>
+<strong>Required</strong>: False (disabled)</li>
+</ul>
+</li>
+</ul>
+<p>Now, these custom columns exist in the database. You can read and manipulate them using the <code>GetValue</code> and <code>SetValue</code> methods of a <code>MemberInfo</code> object in code.</p>
+<h3 id="adjust-the-ui">Adjust the UI</h3>
+<p>While we can access our custom fields in code, they will not show up in the Xperience admin UI without further adjustment.</p>
+<p>After defining the fields in the <strong>Modules</strong> application, switch to the <strong>UI forms</strong> tab of the <em>Member</em> class and click on the <strong>Edit</strong> form. On its <strong>Fields</strong> tab, add a <strong>New field</strong> for each of the database columns you created previously, defining appropriate captions and form components.</p>
+<p></p>
+<h3 id="extend-the-applicationuser-class">Extend the ApplicationUser class</h3>
+<p>Xperience comes with a class called <code>ApplicationUser</code> out of the box, which ties the Xperience <code>MemberInfo</code> object to <a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity" target="_blank">.NET Identity</a>. However, this class is in an assembly and cannot be directly modified.</p>
+<p>To add our custom fields and any other functionality, we need to extend this class.</p>
+<p>Start by creating a folder called <em>Membership</em> under the <em>Features</em> folder of the <em>TrainingGuides.Web</em> project. Here you can extend <code>ApplicationUser</code> with a new class called <code>GuidesMember</code>, featuring properties for our custom fields.</p>
+<p>Then, define methods to map between the custom class and the <code>MemberInfo</code> object from Xperience by Kentico.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GuidesMember.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.Membership;
+using Kentico.Membership;
+
+namespace TrainingGuides.Web.Features.Membership;
+
+public class GuidesMember : ApplicationUser
+{
+    public string GivenName { get; set; } = string.Empty;
+    public string FamilyName { get; set; } = string.Empty;
+    public bool FamilyNameFirst { get; set; } = false;
+    public string FullName =&gt;
+        (GivenName, FamilyName) switch
+        {
+            ("", "") =&gt; string.Empty,
+            (string given, "") =&gt; given,
+            ("", string family) =&gt; family,
+            (string given, string family) =&gt;
+                FamilyNameFirst ? $"{family} {given}" : $"{given} {family}",
+            (null, null) or _ =&gt; string.Empty,
+        };
+
+    public string FavoriteCoffee { get; set; } = string.Empty;
+    public DateTime Created { get; set; }
+
+    public override void MapToMemberInfo(MemberInfo target)
+    {
+        if (target is null)
+        {
+            throw new ArgumentNullException(nameof(target));
+        }
+
+        /*
+         * base.MapToMemberInfo will set target.MemberPassword every time
+         * however we do not want to set it if PasswordHash is null,
+         * and this stores the original so we can revert it
+         */
+        string originalPasswordHash = target.MemberPassword;
+
+        base.MapToMemberInfo(target);
+
+        if (PasswordHash is null)
+        {
+            target.MemberPassword = originalPasswordHash;
+        }
+
+        _ = target.SetValue("GuidesMemberGivenName", GivenName);
+        _ = target.SetValue("GuidesMemberFamilyName", FamilyName);
+        _ = target.SetValue("GuidesMemberFamilyNameFirst", FamilyNameFirst);
+        _ = target.SetValue("GuidesMemberFavoriteCoffee", FavoriteCoffee);
+    }
+
+    public override void MapFromMemberInfo(MemberInfo source)
+    {
+        base.MapFromMemberInfo(source);
+
+        GivenName = source.GetValue("GuidesMemberGivenName", string.Empty);
+        FamilyName = source.GetValue("GuidesMemberFamilyName", string.Empty);
+        FamilyNameFirst = source.GetValue("GuidesMemberFamilyNameFirst", false);
+        FavoriteCoffee = source.GetValue("GuidesMemberFavoriteCoffee", string.Empty);
+        Created = source.MemberCreated;
+    }
+
+    public static GuidesMember FromMemberInfo(MemberInfo memberInfo)
+    {
+        var guidesMember = new GuidesMember();
+        guidesMember.MapFromMemberInfo(memberInfo);
+
+        return guidesMember;
+    }
+}
+
+public static class MemberInfoExtensions
+{
+    public static GuidesMember AsGuidesMember(this MemberInfo member) =&gt;
+        GuidesMember.FromMemberInfo(member);
+}
+</code></pre>
+</div>
+
+<h2 id="set-up-identity">Set up Identity</h2>
+<p>Now, to enable .NET Identity, we need to <a href="/documentation/developers-and-admins/development/registration-and-authentication">Configure registration and authentication</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Membership;
+using Microsoft.AspNetCore.Identity;
+...
+var builder = WebApplication.CreateBuilder(args);
+...
+builder.Services
+    .AddIdentity&lt;GuidesMember, NoOpApplicationRole&gt;(options =&gt;
+    {
+        options.SignIn.RequireConfirmedEmail = false; // Change this to true once you implement email confirmation as a part of the registration process.
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddUserStore&lt;ApplicationUserStore&lt;GuidesMember&gt;&gt;()
+    .AddRoleStore&lt;NoOpApplicationRoleStore&gt;()
+    .AddUserManager&lt;UserManager&lt;GuidesMember&gt;&gt;()
+    .AddSignInManager&lt;SignInManager&lt;GuidesMember&gt;&gt;();
+...
+builder.Services.AddAuthorization();
+...
+// After calling InitKentico and UseStaticFiles
+// Make sure to call the middleware in this order
+// Note that some of these lines are already present in a different order in the main branch.
+app.UseCookiePolicy();
+app.UseAuthentication();
+app.UseKentico();
+app.UseAuthorization();
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Differences in the finished branch code</strong></p>
+<p>If you look at the code in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Program.cs" target="_blank">finished branch of our repository</a>, you’ll notice additional calls, such as <code>AddDefaultTokenProviders</code> and <code>ConfigureApplicationCookie</code>.</p>
+<p>These relate to other adjacent functionality like restricted content and email confirmation as a part of the registration process. You can find working examples of many identity features in the repository, and guides about some of them later in this series.</p>
+</div>
+
+<h2 id="create-a-service">Create a service</h2>
+<p>To contain functionality related to membership operations, such as creating and managing members, let’s make a service.</p>
+<p>Create a <em>Services</em> folder under the <em>Membership</em> folder in your project and add an <code>IMembershipService</code> interface.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IMembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Membership.Services;
+
+/// &lt;summary&gt;
+/// Interface for membership services.
+/// &lt;/summary&gt;
+public interface IMembershipService
+{
+
+}
+</code></pre>
+</div>
+
+<p>Then, add a class to hold implementations of these members, and register the implementation.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Membership.Services;
+
+public class MembershipService : IMembershipService
+{
+
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>~/ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using TrainingGuides.Web.Features.Membership.Services;
+...
+public static void AddTrainingGuidesServices(this IServiceCollection services)
+{
+    ...
+    services.AddScoped&lt;IMembershipService, MembershipService&gt;();
+    ...
+
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Make sure to register your service as <strong>scoped</strong>; some crucial parts of .NET Identity are scoped services, and we’ll want to utilize them in our code.</p>
+</div>
+
+<p>We’ll expand this service as needed throughout the guide, but for now let’s move on to the widget.</p>
+<h2 id="consider-your-regions-data-protection-laws">Consider your region’s data protection laws</h2>
+<p>Since Member objects in Xperience contain personally identifiable information about the humans they represent, real-life implementations of member registration may need to include a <a href="/documentation/developers-and-admins/data-protection/consent-management">consent</a> to store that data if your company does business in a region with laws governing data protection.</p>
+<p>It is likely that this consent will need to be separate and have distinct verbiage from consents related to contact tracking, such as the cookie consents from the <a href="/guides/development/data-protection">Data protection series</a>.</p>
+<p>Managing consents alongside members is outside the scope of this example, but you can find information about working with consents in the Xperience by Kentico <a href="/documentation/developers-and-admins/data-protection/consent-development">documentation</a>.</p>
+<h2 id="craft-the-widget">Craft the widget</h2>
+<p>Let’s start the process of building our registration widget.</p>
+<p>In the <em>TrainingGuides.Web</em> project, create a <em>~/Features/Membership/Widgets/Registration</em> folder. This will contain the files relating to our registration widget.</p>
+<h3 id="define-the-widget-properties">Define the widget properties</h3>
+<p>When creating a widget, it’s helpful to start by considering what editors should be able to configure.</p>
+<p>According to our <a href="#examine-the-requirements">requirements</a>, editors need the ability to display a minimal registration form with only required fields, or a fully detailed form that includes optional fields. They also need to define the form’s labels.</p>
+<p>Let’s say that a <em>minimal</em> registration form contains only <strong>username</strong>, <strong>email</strong>, <strong>password</strong>, and <strong>password confirmation</strong> fields. Add boolean properties to indicate whether to show optional form fields, like those related to the member’s name and favorite coffee.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>RegistrationWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+
+namespace TrainingGuides.Web.Features.Membership.Widgets.Registration;
+
+public class RegistrationWidgetProperties : IWidgetProperties
+{
+    /// &lt;summary&gt;
+    /// Determines whether the widget should display the Given name and Family name fields.
+    /// &lt;/summary&gt;
+    [CheckBoxComponent(
+        Label = "Show name",
+        ExplanationText = "Checkbox that determines if the registration form should display given name and family name fields.",
+        Order = 10)]
+    public bool ShowName { get; set; } = true;
+
+    /// &lt;summary&gt;
+    /// Determines whether the widget should display extra fields.
+    /// &lt;/summary&gt;
+    [CheckBoxComponent(
+        Label = "Show extra fields",
+        ExplanationText = "Checkbox that determines if the registration form should display extra fields.",
+        Order = 20)]
+    public bool ShowExtraFields { get; set; } = true;
+}
+</code></pre>
+</div>
+
+<p>Then, add properties where editors can specify the labels for all of the registration form’s fields, as well as the title of the form and the text of the submit button.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>RegistrationWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Form title    
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "Form title",
+    ExplanationText = "Title to display above the registration form.",
+    Order = 30)]
+public string FormTitle { get; set; } = "Sign up";
+
+/// &lt;summary&gt;
+/// Submit button text   
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "Submit button text",
+    ExplanationText = "Text for the button that submits the registration form.",
+    Order = 40)]
+public string SubmitButtonText { get; set; } = "Submit";
+
+/// &lt;summary&gt;
+/// User name label.
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "User name label",
+    ExplanationText = "Label for the text box where registrants can input their UserName.",
+    Order = 50)]
+public string UserNameLabel { get; set; } = "User name";
+
+/// &lt;summary&gt;
+/// Email address label.
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "Email address label",
+    ExplanationText = "Label for the text box where registrants can input their email address.",
+    Order = 60)]
+public string EmailAddressLabel { get; set; } = "Email address";
+
+/// &lt;summary&gt;
+/// Password label.
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "Password label",
+    ExplanationText = "Label for the text box where registrants can input their password.",
+    Order = 70)]
+public string PasswordLabel { get; set; } = "Password";
+
+/// &lt;summary&gt;
+/// Password label.
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "Confirm password label",
+    ExplanationText = "Label for the text box where registrants can confirm their password.",
+    Order = 80)]
+public string ConfirmPasswordLabel { get; set; } = "Confirm your password";
+
+/// &lt;summary&gt;
+/// Given name label.
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "Given name label",
+    ExplanationText = "Label for the text box where registrants can input their given name.",
+    Order = 90)]
+public string GivenNameLabel { get; set; } = "Given name";
+
+/// &lt;summary&gt;
+/// Family name label.
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "Family name label",
+    ExplanationText = "Label for the text box where registrants can input their family name.",
+    Order = 100)]
+public string FamilyNameLabel { get; set; } = "Family name";
+
+/// &lt;summary&gt;
+/// Label for checkbox that indicates that the family name should display first.
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "'Family name first' checkbox label",
+    ExplanationText = "Label for the checkbox that indicates whether the family name comes before the given name.",
+    Order = 110)]
+public string FamilyNameFirstLabel { get; set; } = "Family name goes first";
+
+/// &lt;summary&gt;
+/// Favorite coffee label.
+/// &lt;/summary&gt;
+[TextInputComponent(
+    Label = "Favorite coffee label",
+    ExplanationText = "Label for the text box where registrants can input their favorite coffee.",
+    Order = 120)]
+public string FavoriteCoffeeLabel { get; set; } = "Favorite coffee";
+...    
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Setting default values for the labels in the default language will save your editors some time.</p>
+</div>
+
+<h3 id="set-up-a-view-model">Set up a view model</h3>
+<p>Now let’s move on to creating a view model for the widget.</p>
+<p>We’re going to use .NET <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/models/validation" target="_blank">Model validation</a> to handle validation of this form, so we’ll need to include properties for the data that visitors will fill in alongside those for managing the widget’s configuration and display.</p>
+<p>It will be useful in other related features (e.g., <a href="/guides/development/members/create-a-profile-page">member profile page</a>) to have a view model class containing all of the custom fields we added to the <em>Member</em> object type. Let’s create a dedicated class for that and have our widget view model inherit from it. Add a <em>Profile</em> folder under <em>Membership</em> and add analogs of the four custom member fields with data annotations.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GuidesMemberProfileViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel.DataAnnotations;
+
+namespace TrainingGuides.Web.Features.Membership.Profile;
+
+public class GuidesMemberProfileViewModel
+{
+    [DataType(DataType.Text)]
+    [MaxLength(50)]
+    [Display(Name = "Given name")]
+    public string GivenName { get; set; } = string.Empty;
+
+    [DataType(DataType.Text)]
+    [MaxLength(50)]
+    [Display(Name = "Family name")]
+    public string FamilyName { get; set; } = string.Empty;
+
+    [Display(Name = "Family name goes first")]
+    public bool FamilyNameFirst { get; set; } = false;
+
+    [DataType(DataType.Text)]
+    [MaxLength(100)]
+    [Display(Name = "Favorite coffee")]
+    public string FavoriteCoffee { get; set; } = string.Empty;
+}
+</code></pre>
+</div>
+
+<p>Now, returning to your registration widget folder, add a widget view model that inherits from <code>GuidesMemberProfileViewModel</code> and also implements the <code>IWidgetViewModel</code> interface.</p>
+<p>Create a view model that meets the following requirements:</p>
+<ol type="1">
+<li>Include an <code>ActionUrl</code> property, which we can use to specify the URL that the registration form should post its data to.</li>
+<li>Include a flag to determine whether or not to display the form.</li>
+<li>Include properties that correspond to those in <em>RegistrationWidgetProperties.cs</em>.</li>
+<li>Define and annotate properties for the member’s username, email, password, and password confirmation.</li>
+<li>Implement the <code>IsMisconfigured</code> property from <code>IWidgetViewModel</code>.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>RegistrationWidgetViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides.Web.Features.Membership.Profile;
+using TrainingGuides.Web.Features.Shared.Models;
+
+namespace TrainingGuides.Web.Features.Membership.Widgets.Registration;
+
+public class RegistrationWidgetViewModel : GuidesMemberProfileViewModel, IWidgetViewModel
+{
+    //WIDGET DISPLAY PROPERTIES
+
+    /// &lt;summary&gt;
+    /// Determines whether the widget is misconfigured.
+    /// &lt;/summary&gt;
+    public bool IsMisconfigured =&gt;
+        string.IsNullOrWhiteSpace(ActionUrl)
+        || string.IsNullOrWhiteSpace(SubmitButtonText)
+        || string.IsNullOrWhiteSpace(UserNameLabel)
+        || string.IsNullOrWhiteSpace(EmailAddressLabel)
+        || string.IsNullOrWhiteSpace(PasswordLabel)
+        || string.IsNullOrWhiteSpace(ConfirmPasswordLabel)
+        || (ShowName &amp;&amp; (string.IsNullOrWhiteSpace(GivenNameLabel) || string.IsNullOrWhiteSpace(FamilyNameLabel) || string.IsNullOrWhiteSpace(FamilyNameFirstLabel)))
+        || (ShowExtraFields &amp;&amp; string.IsNullOrWhiteSpace(FavoriteCoffeeLabel));
+
+    /// &lt;summary&gt;
+    /// The Action URL of the form.
+    /// &lt;/summary&gt;
+    public string ActionUrl { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Form title
+    /// &lt;/summary&gt;
+    public string FormTitle { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Determines whether the widget should display the form.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public bool DisplayForm { get; set; }
+
+    /// &lt;summary&gt;
+    /// Determines whether the widget should display name-related fields.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public bool ShowName { get; set; }
+
+    /// &lt;summary&gt;
+    /// Determines whether the widget should display extra fields.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public bool ShowExtraFields { get; set; }
+
+    /// &lt;summary&gt;
+    /// Submit button text
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string SubmitButtonText { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// User name label.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string UserNameLabel { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Email address label.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string EmailAddressLabel { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Password label.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string PasswordLabel { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Password label.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string ConfirmPasswordLabel { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Given name label.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string GivenNameLabel { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Family name label.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string FamilyNameLabel { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Label for checkbox that indicates that the family name should display first.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string FamilyNameFirstLabel { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Favorite coffee label.
+    /// &lt;/summary&gt;
+    [HiddenInput]
+    public string FavoriteCoffeeLabel { get; set; } = string.Empty;
+
+    //FORM PROPERTIES
+
+    [DataType(DataType.Text)]
+    [Required()]
+    [RegularExpression("^[a-zA-Z0-9_\\-\\.]+$", ErrorMessage = "Please enter a valid username.")]
+    [MaxLength(100)]
+    public string UserName { get; set; } = string.Empty;
+
+    [DataType(DataType.EmailAddress)]
+    [Required()]
+    [EmailAddress()]
+    [MaxLength(254)]
+    public string EmailAddress { get; set; } = string.Empty;
+
+    [DataType(DataType.Password)]
+    [Required()]
+    [MaxLength(100)]
+    public string Password { get; set; } = string.Empty;
+
+    [DataType(DataType.Password)]
+    [Required()]
+    [MaxLength(100)]
+    [Compare(nameof(Password))]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you have any model fields which are not displayed in the form, but which must persist through validation, mark them as <strong>hidden inputs</strong>.</p>
+<p>The form will post to a controller action that validates and returns the model. Any model values which are not included in the POST request will be null after the partial view with the form fields returns from the controller action.</p>
+</div>
+
+<h3 id="create-the-view-component">Create the view component</h3>
+<p>The widget’s view component is responsible for initially populating the view model.</p>
+<p>You can populate most of the view model’s properties from the widget’s properties, but we need new logic for <code>ActionUrl</code>.</p>
+<h4 id="assemble-a-url-for-the-form">Assemble a URL for the form</h4>
+<p>Start with a constant to hold the relative path to the controller action the form will post to. We can use it here, and again in the controller, to centralize the location of the string.</p>
+
+<div>
+
+</div>
+<div>
+<p>For example, in our Training guides repo, we store such constants in <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Helpers/ApplicationConstants.cs" target="_blank">~/Features/Shared/Helpers/ApplicationConstants.cs</a>.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>~/Features/Shared/Helpers/ApplicationConstants.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Shared.Helpers;
+
+internal static class ApplicationConstants
+{
+    //Multilingual
+    public const string LANGUAGE_KEY = "language";
+
+    //Membership
+    ...
+    public const string REGISTER_ACTION_PATH = "/Registration/Register";
+    ...
+}
+</code></pre>
+</div>
+
+<p>Now we need a method to get a full URL based on this relative path. This is something that can be useful in many places, so let’s add a new method called <code>GetAbsoluteUrlForPath</code> to the shared <code>IHttpRequestService</code> implementation.</p>
+<p>For the sake of our controller action, which does not have the same context as pages, we’ll also need to include the language name in the URL even if it is the default language. You can add another method called <code>GetBaseUrlWithLanguage</code>. Use boolean parameters to decide how the method determines the default language, and whether or not to include the language name in the URL for the default language</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IHttpRequestService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Shared.Services;
+
+public interface IHttpRequestService
+{
+    ...
+
+    /// &lt;summary&gt;
+    /// Retrieves Base URL from the current request context. If current site is in a language variant, returns language with the base URL as well
+    /// &lt;/summary&gt;
+    /// &lt;param name="checkDatabaseForDefaultLanguage"&gt;Determines whether to query the database for the default language when it cannot be determined from route data.&lt;/param&gt;
+    /// &lt;param name="alwaysIncludeLanguage"&gt;Determines whether to always include the language in the URL, even if it is the default language.&lt;/param&gt;
+    /// &lt;returns&gt;The base URL in current language variant. (e.g. website.com or website.com/es)&lt;/returns&gt;
+    /// &lt;remarksThis overload exists to avoid adjusting the logic of the original method, which would affect an existing training guide&lt;/remarks&gt;
+    string GetBaseUrlWithLanguage(bool checkDatabaseForDefaultLanguage, bool alwaysIncludeLanguage = false);
+
+    /// &lt;summary&gt;
+    /// Retrieves a full URL for the specified relative path
+    /// &lt;/summary&gt;
+    /// &lt;param name="path"&gt;the relative path.&lt;/param&gt;
+    /// &lt;param name="alwaysIncludeLanguage"&gt;Determines whether to always include the language in the URL, even if it is the default language.&lt;/param&gt;
+    /// &lt;param name="queryString"&gt;Query string to add to the URL.&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    string GetAbsoluteUrlForPath(string path, bool alwaysIncludeLanguage, QueryString? queryString = null);
+
+    /// &lt;summary&gt;
+    /// Combines URL paths
+    /// &lt;/summary&gt;
+    /// &lt;param name="paths"&gt;String paths to combine.&lt;/param&gt;
+    /// &lt;returns&gt;Combined paths&lt;/returns&gt;
+    /// &lt;remarks&gt;Works with or without leading and trailing slashes&lt;/remarks&gt;
+    string CombineUrlPaths(params string[] paths);
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you’ve already completed the <a href="/guides/development/multilingual">multilingual guides</a>, you might already have a different overload of <code>GetBaseUrlWithLanguage</code>.</p>
+<p>Optionally, you can modify the logic of the existing method with optional parameters, rather than creating an overload.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>HttpRequestService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.ContentEngine;
+using CMS.DataEngine;
+using TrainingGuides.Web.Features.Shared.Helpers;
+
+namespace TrainingGuides.Web.Features.Shared.Services;
+
+public class HttpRequestService : IHttpRequestService
+{
+    // Use dependency injection to populate these services
+    private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly IInfoProvider&lt;ContentLanguageInfo&gt; contentLanguageInfoProvider;
+
+    private const string WEB_PAGE_URL_PATHS = "Kentico.WebPageUrlPaths";
+
+    ...
+
+    private HttpRequest RetrieveCurrentRequest() =&gt; httpContextAccessor?.HttpContext?.Request
+            ?? throw new NullReferenceException("Unable to retrieve current request context.");
+
+    private bool IsLanguageDefault(string language)
+    {
+        if (string.IsNullOrWhiteSpace(language))
+            return true;
+
+        // Cache this query in real-world scenarios.
+        string defaultLanguage = contentLanguageInfoProvider.Get()
+            .WhereEquals(nameof(ContentLanguageInfo.ContentLanguageIsDefault), true)
+            .Column(nameof(ContentLanguageInfo.ContentLanguageName))
+            .TopN(1)
+            .GetScalarResult&lt;string&gt;();
+
+        if (string.IsNullOrEmpty(defaultLanguage))
+            return true;
+
+        return defaultLanguage == language;
+    }
+
+    /// &lt;inheritdoc/&gt;
+    public string GetBaseUrlWithLanguage(bool checkDatabaseForDefaultLanguage, bool alwaysIncludeLanguage = false)
+    {
+        var currentRequest = RetrieveCurrentRequest();
+        string language = (string?)currentRequest.RouteValues[ApplicationConstants.LANGUAGE_KEY] ?? string.Empty;
+        var webPageUrlPathList = ((string?)currentRequest.RouteValues[WEB_PAGE_URL_PATHS])?.Split('/').ToList();
+
+        bool notPrimaryLanguage;
+
+        if (checkDatabaseForDefaultLanguage)
+        {
+            notPrimaryLanguage = webPageUrlPathList?.Contains(language) ?? !IsLanguageDefault(language);
+        }
+        else
+        {
+            var newWebPageUrlPathList = webPageUrlPathList ?? [];
+            notPrimaryLanguage = newWebPageUrlPathList.Contains(language);
+        }
+        var url = new UriBuilder(GetBaseUrl(currentRequest))
+        {
+            Path = notPrimaryLanguage || alwaysIncludeLanguage
+                ? $"/{language}"
+                : string.Empty
+        };
+
+        return url.ToString();
+    }
+
+    /// &lt;inheritdoc/&gt;
+    public string GetAbsoluteUrlForPath(string path, bool alwaysIncludeLanguage, QueryString? queryString = null)
+    {
+        // Handle ~ character that represents the root
+        string trimmedPath = path.TrimStart('~');
+
+        // If the path already contains a language name, don't include language name in base url.
+        string baseUrl = StartsWithLanguage(trimmedPath)
+            ? GetBaseUrl()
+            : GetBaseUrlWithLanguage(true, alwaysIncludeLanguage);
+        var fullUrl = new UriBuilder(baseUrl);
+
+        //In case the base URL contains a language, it will count as the path, so we want to concatenate instead of replacing.
+        string newPath = CombineUrlPaths(fullUrl.Path, trimmedPath);
+        fullUrl.Path = newPath;
+
+        if (queryString is not null)
+        {
+            fullUrl.Query = queryString.ToString();
+        }
+
+        return fullUrl.ToString();
+    }
+
+    private bool StartsWithLanguage(string relativePath)
+    {
+        // Cache this query in real-world scenarios.
+        var languageCodes = contentLanguageInfoProvider.Get()
+            .Column(nameof(ContentLanguageInfo.ContentLanguageName))
+            .GetListResult&lt;string&gt;();
+
+        string firstPathSegment = relativePath.TrimStart('/').Split('/')[0];
+
+        return languageCodes.Any(code =&gt; code.Equals(firstPathSegment, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// &lt;inheritdoc/&gt;
+    public string CombineUrlPaths(params string[] paths)
+    {
+        if (paths.Count() == 0)
+        {
+            return string.Empty;
+        }
+
+        var fixedPaths = paths.Select(p =&gt; p.Trim('/'));
+
+        return string.Join("/", fixedPaths.Where(p =&gt; !string.IsNullOrWhiteSpace(p)));
+    }
+
+}
+</code></pre>
+</div>
+
+<h4 id="hide-the-form-from-logged-in-users">Hide the form from logged-in users</h4>
+<p>The new <code>DisplayForm</code> property also needs new logic. We should hide the registration form from members who are already logged in, because they already have accounts, so we need a method in the membership service to determine if the current member is authenticated.</p>
+<p>Add a new method to the membership service that <a href="/documentation/developers-and-admins/development/registration-and-authentication#retrieve-the-currently-authenticated-member">retrieves the current member</a>, then utilize it in a separate boolean method that returns <code>false</code> if no such member is found.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IMembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+/// &lt;summary&gt;
+/// Interface for membership services.
+/// &lt;/summary&gt;
+public interface IMembershipService
+{
+    /// &lt;summary&gt;
+    /// Gets the current member.
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;The current &lt;see cref="GuidesMember"/&gt; if found; otherwise, null.&lt;/returns&gt;
+    Task&lt;GuidesMember?&gt; GetCurrentMember();
+
+    /// &lt;summary&gt;
+    /// Checks if the member is authenticated.
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;True if the member is authenticated; otherwise, false.&lt;/returns&gt;
+    Task&lt;bool&gt; IsMemberAuthenticated();
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Identity;
+...
+public class MembershipService : IMembershipService
+{
+    // User dependency injection to populate these
+    private readonly UserManager&lt;GuidesMember&gt; userManager;
+    private readonly IHttpContextAccessor contextAccessor;
+
+    ...
+    
+    public async Task&lt;GuidesMember?&gt; GetCurrentMember()
+    {
+        var context = contextAccessor.HttpContext;
+        if (context is null)
+        {
+            return null;
+        }
+
+        return await userManager.GetUserAsync(context.User);
+    }
+
+    public async Task&lt;bool&gt; IsMemberAuthenticated()
+    {
+        var member = await GetCurrentMember();
+        return member is not null;
+    }
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The <code>UserManager&lt;T&gt;</code> class is a scoped service, so it’s important to register <code>MembershipService</code> as a scoped service with the DI container.</p>
+</div>
+
+<h4 id="populate-the-view-model">Populate the view model</h4>
+<p>Now you can use these services in your view component to retrieve the action URL and hide the registration form from logged-in members. Add the file in the <em>~/Features/Membership/Widgets/Registration</em> folder.</p>
+<p>Remember to register the widget.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>RegistrationWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.PageBuilder.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides.Web.Features.Membership.Services;
+using TrainingGuides.Web.Features.Membership.Widgets.Registration;
+using TrainingGuides.Web.Features.Shared.Helpers;
+using TrainingGuides.Web.Features.Shared.Services;
+
+[assembly: RegisterWidget(
+    identifier: RegistrationWidgetViewComponent.IDENTIFIER,
+    viewComponentType: typeof(RegistrationWidgetViewComponent),
+    name: "Registration",
+    propertiesType: typeof(RegistrationWidgetProperties),
+    Description = "Displays a registration form for members.",
+    IconClass = "icon-lines-rectangle-o")]
+
+namespace TrainingGuides.Web.Features.Membership.Widgets.Registration;
+public class RegistrationWidgetViewComponent : ViewComponent
+{
+    private readonly IHttpRequestService httpRequestService;
+    private readonly IMembershipService membershipService;
+    public const string IDENTIFIER = "TrainingGuides.RegistrationWidget";
+
+    public RegistrationWidgetViewComponent(IHttpRequestService httpRequestService,
+        IMembershipService membershipService)
+    {
+        this.httpRequestService = httpRequestService;
+        this.membershipService = membershipService;
+    }
+
+    public async Task&lt;RegistrationWidgetViewModel&gt; BuildWidgetViewModel(RegistrationWidgetProperties properties) =&gt;
+        new()
+        {
+            ActionUrl = GetActionUrl(),
+            DisplayForm = !await membershipService.IsMemberAuthenticated(),
+            ShowName = properties.ShowName,
+            ShowExtraFields = properties.ShowExtraFields,
+            FormTitle = properties.FormTitle,
+            SubmitButtonText = properties.SubmitButtonText,
+            UserNameLabel = properties.UserNameLabel,
+            EmailAddressLabel = properties.EmailAddressLabel,
+            PasswordLabel = properties.PasswordLabel,
+            ConfirmPasswordLabel = properties.ConfirmPasswordLabel,
+            GivenNameLabel = properties.GivenNameLabel,
+            FamilyNameLabel = properties.FamilyNameLabel,
+            FamilyNameFirstLabel = properties.FamilyNameFirstLabel,
+            FavoriteCoffeeLabel = properties.FavoriteCoffeeLabel
+        };
+
+    public async Task&lt;IViewComponentResult&gt; InvokeAsync(RegistrationWidgetProperties properties)
+    {
+        var registerModel = await BuildWidgetViewModel(properties);
+
+        return View("~/Features/Membership/Widgets/Registration/RegistrationWidget.cshtml", registerModel);
+    }
+
+    private string GetActionUrl() =&gt; httpRequestService.GetAbsoluteUrlForPath(ApplicationConstants.REGISTER_ACTION_PATH, true);
+
+}
+</code></pre>
+</div>
+
+<h3 id="add-the-widgets-view">Add the widget’s view</h3>
+<p>Now we need to create widget view in the location specified by the view component’s <code>InvokeAsync</code> method.</p>
+<p>Since the widget will use model validation for the form, let’s use a partial view to hold the form, which we can reference from the widget view.</p>
+<p>The widget should only render the registration form if the <code>DisplayForm</code> property is true. In this case we chose to include the title regardless of whether the form displays.</p>
+
+<div>
+
+</div>
+<div>
+<p>Use an AJAX form so that when the endpoint returns a result, it does not replace the entire page on which the form resides.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>RegistrationWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using TrainingGuides.Web.Features.Membership.Widgets.Registration
+@using TrainingGuides.Web.Features.Shared.Helpers
+
+@model RegistrationWidgetViewModel
+
+@{
+    // Using a new guid ensures no conflict if, for some reason, multiple widgets are on the same page.
+    var formDivId = $"registerForm{Guid.NewGuid()}";
+}
+
+@if (Model is null || Model.IsMisconfigured)
+{
+    &lt;tg-page-builder-content&gt;
+        &lt;tg-configure-widget-instructions /&gt;
+    &lt;/tg-page-builder-content&gt;
+    
+    return;
+}
+
+&lt;h3 class="text-center px-2"&gt;@Model.FormTitle&lt;/h3&gt;
+
+@if (Model.DisplayForm)
+{
+    @using (Html.AjaxBeginForm(new AjaxOptions
+    {
+        HttpMethod = "POST",
+        InsertionMode = InsertionMode.Replace,
+        UpdateTargetId = formDivId
+    }, new { action = Model.ActionUrl }))
+    {
+        &lt;div id="@formDivId" class="px-2"&gt;
+            &lt;partial name="~/Features/Membership/Widgets/Registration/RegistrationForm.cshtml" model="Model" /&gt;
+        &lt;/div&gt;
+    }
+}
+</code></pre>
+</div>
+
+<p>Now let’s implement the partial view specified above, containing the form itself.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>RegistrationForm.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using TrainingGuides.Web.Features.Membership.Widgets.Registration
+
+@model RegistrationWidgetViewModel
+
+&lt;div class="form-horizontal"&gt;
+    &lt;div asp-validation-summary="ModelOnly" class="text-danger field-validation-error"&gt;&lt;/div&gt;
+
+    @* Include hidden inputs for widget display. 
+        If server-side validation fails, these values will allow the form to be properly re-rendered. *@
+    &lt;input asp-for="ShowName"&gt;
+    &lt;input asp-for="ShowExtraFields"&gt;
+    &lt;input asp-for="SubmitButtonText"&gt;
+    &lt;input asp-for="UserNameLabel"&gt;
+    &lt;input asp-for="EmailAddressLabel"&gt;
+    &lt;input asp-for="PasswordLabel"&gt;
+    &lt;input asp-for="ConfirmPasswordLabel"&gt;
+    &lt;input asp-for="GivenNameLabel"&gt;
+    &lt;input asp-for="FamilyNameLabel"&gt;
+    &lt;input asp-for="FamilyNameFirstLabel"&gt;
+    &lt;input asp-for="FavoriteCoffeeLabel"&gt;
+
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label for="@nameof(Model.UserName)" class="control-label form-label mt-3"&gt;@Model.UserNameLabel&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="UserName" class="form-control" test-id="userName"&gt;
+            &lt;span asp-validation-for="UserName" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label for="@nameof(Model.EmailAddress)" class="control-label form-label mt-3"&gt;@Model.EmailAddressLabel&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="EmailAddress" class="form-control" test-id="emailAddress"&gt;
+            &lt;span asp-validation-for="EmailAddress" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label for="@nameof(Model.Password)" class="control-label form-label mt-3"&gt;@Model.PasswordLabel&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="Password" class="form-control" test-id="password"&gt;
+            &lt;span asp-validation-for="Password" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label for="@nameof(Model.ConfirmPassword)" class="control-label form-label mt-3"&gt;@Model.ConfirmPasswordLabel&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="ConfirmPassword" class="form-control" test-id="confirmPassword"&gt;
+            &lt;span asp-validation-for="ConfirmPassword" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    @if (Model.ShowName)
+    {
+        &lt;div class="form-group"&gt;
+            &lt;div class="editing-form-label-cell"&gt;
+                &lt;label for="@nameof(Model.GivenName)" class="control-label form-label mt-3"&gt;@Model.GivenNameLabel&lt;/label&gt;
+            &lt;/div&gt;
+            &lt;div class="editing-form-value-cell"&gt;
+                &lt;input asp-for="GivenName" class="form-control" test-id="givenName"&gt;
+                &lt;span asp-validation-for="GivenName" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="form-group"&gt;
+            &lt;div class="editing-form-label-cell"&gt;
+                &lt;label for="@nameof(Model.FamilyName)" class="control-label form-label mt-3"&gt;@Model.FamilyNameLabel&lt;/label&gt;
+            &lt;/div&gt;
+            &lt;div class="editing-form-value-cell"&gt;
+                &lt;input asp-for="FamilyName" class="form-control" test-id="familyName"&gt;
+                &lt;span asp-validation-for="FamilyName" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="form-group"&gt;
+            &lt;div class="editing-form-label-cell"&gt;
+                &lt;label for="@nameof(Model.FamilyNameFirst)" class="control-label form-label mt-3"&gt;@Model.FamilyNameFirstLabel&lt;/label&gt;
+            &lt;/div&gt;
+            &lt;div class="editing-form-value-cell"&gt;
+                &lt;input asp-for="FamilyNameFirst" class="form-check" test-id="familyNameFirst"&gt;
+                &lt;span asp-validation-for="FamilyNameFirst" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    }
+    @if (Model.ShowExtraFields)
+    {
+        &lt;div class="form-group"&gt;
+            &lt;div class="editing-form-label-cell"&gt;
+                &lt;label for="@nameof(Model.FavoriteCoffee)" class="control-label form-label mt-3"&gt;@Model.FavoriteCoffeeLabel&lt;/label&gt;
+            &lt;/div&gt;
+            &lt;div class="editing-form-value-cell"&gt;
+                &lt;input asp-for="FavoriteCoffee" class="form-control" test-id="favoriteCoffee"&gt;
+                &lt;span asp-validation-for="FavoriteCoffee" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    }
+    
+    &lt;div class="text-center"&gt;
+        &lt;button id="register" type="submit" class="btn tg-btn-secondary text-uppercase my-4"&gt;@Model.SubmitButtonText&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+</div>
+
+<h2 id="handle-the-form-data">Handle the form data</h2>
+<p>With the registration widget in place, we can move on to the code that actually creates the member.</p>
+<p>Let’s add some new methods to the <code>MembershipService</code>:</p>
+<ul>
+<li>Create a new member in the Xperience database.
+<ul>
+<li>Make sure that a new member’s username does not collide with another’s email, and vice versa. The registration form should prevent members from submitting usernames containing the ‘@’ character, but we should double check here, in case any future members are created in alternative ways.</li>
+</ul>
+</li>
+<li>Find a member based on email address.
+<ul>
+<li>Wrap the <code>FindByNameAsync</code> method from the user manager class.</li>
+</ul>
+</li>
+<li>Find a member based on username.
+<ul>
+<li>Wrap the <code>FindByEmailAsync</code> method from the user manager class.</li>
+</ul>
+</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IMembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public interface IMembershipService
+{
+    ...
+    /// &lt;summary&gt;
+    /// Creates a new member.
+    /// &lt;/summary&gt;
+    /// &lt;param name="guidesMember"&gt;The member to create.&lt;/param&gt;
+    /// &lt;param name="password"&gt;The password for the member.&lt;/param&gt;
+    /// &lt;returns&gt;The result of the creation operation.&lt;/returns&gt;
+    Task&lt;IdentityResult&gt; CreateMember(GuidesMember guidesMember, string password);    
+
+    /// &lt;summary&gt;
+    /// Finds a member by email.
+    /// &lt;/summary&gt;
+    /// &lt;param name="email"&gt;The email of the member to find.&lt;/param&gt;
+    /// &lt;returns&gt;The &lt;see cref="GuidesMember"/&gt; if found; otherwise, null.&lt;/returns&gt;
+    Task&lt;GuidesMember?&gt; FindMemberByEmail(string email);
+
+    /// &lt;summary&gt;
+    /// Finds a member by username.
+    /// &lt;/summary&gt;
+    /// &lt;param name="userName"&gt;The username of the member to find.&lt;/param&gt;
+    /// &lt;returns&gt;The &lt;see cref="GuidesMember"/&gt; if found; otherwise, null.&lt;/returns&gt;
+    Task&lt;GuidesMember?&gt; FindMemberByName(string userName);
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Localization;
+...
+public class MembershipService : IMembershipService
+{
+    ...
+    // Use dependency injection to populate stringLocalizer.
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+    ...
+    /// &lt;inheritdoc /&gt;
+    public async Task&lt;IdentityResult&gt; CreateMember(GuidesMember guidesMember, string password)
+    {
+        if (guidesMember is null)
+        {
+            return IdentityResult.Failed(new IdentityError
+            {
+                Code = "InvalidMember",
+                Description = stringLocalizer["Invalid data."]
+            });
+        }
+
+        // Uniqueness of username and email are checked automatically given correct configuration, but we need to make sure that one user's username cannot be set to another user's email, or vice versa.
+        if (await UsernameEmailCollision(guidesMember))
+        {
+            return IdentityResult.Failed(new IdentityError
+            {
+                Code = "EmailOrUsernameInUse",
+                Description = stringLocalizer["Email or username already in use."]
+            });
+        }
+
+        return await userManager.CreateAsync(guidesMember, password);
+    }
+
+    private async Task&lt;bool&gt; UsernameEmailCollision(GuidesMember guidesMember)
+    {
+        bool userNameIsExistingEmail = !string.IsNullOrWhiteSpace(guidesMember.UserName)
+            &amp;&amp; guidesMember.UserName.Contains('@')
+            &amp;&amp; (await FindMemberByEmail(guidesMember.UserName)) is not null;
+
+        bool emailIsExistingUserName = !string.IsNullOrWhiteSpace(guidesMember.Email)
+            &amp;&amp; (await FindMemberByName(guidesMember.Email)) is not null;
+
+        return userNameIsExistingEmail || emailIsExistingUserName;
+    }
+    ...
+    /// &lt;inheritdoc /&gt;
+    public async Task&lt;GuidesMember?&gt; FindMemberByName(string userName) =&gt;
+        await userManager.FindByNameAsync(userName);
+
+    /// &lt;inheritdoc /&gt;
+    public async Task&lt;GuidesMember?&gt; FindMemberByEmail(string email) =&gt;
+        await userManager.FindByEmailAsync(email);
+}
+</code></pre>
+</div>
+
+<p>Now we can implement a controller action that handles the POST request from the registration form.</p>
+<p>Start by creating a <em>Controllers</em> folder in the <em>Membership</em> directory and adding a <em>Registration controller</em>.</p>
+<p>Create a <code>Register</code> action using the same path constant from earlier. If the model is not valid, return the form and model so it will display validation messages.</p>
+<p>Then try to create a member in the database with the new method. If it succeeds, return a success message, and otherwise, log an error and return the form again.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>RegistrationController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using CMS.Core;
+using TrainingGuides.Web.Features.Membership.Services;
+using TrainingGuides.Web.Features.Shared.Helpers;
+using TrainingGuides.Web.Features.Membership.Widgets.Registration;
+
+namespace TrainingGuides.Web.Features.Membership.Controllers;
+
+public class RegistrationController : Controller
+{
+    // Use dependency injection to populate these.
+    private readonly IMembershipService membershipService;
+    private readonly IEventLogService log;
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+
+    private const string REGISTRATION_FORM_VIEW_PATH = "~/Features/Membership/Widgets/Registration/RegistrationForm.cshtml";
+
+    [HttpPost($"{{{ApplicationConstants.LANGUAGE_KEY}}}{ApplicationConstants.REGISTER_ACTION_PATH}")]
+    [ValidateAntiForgeryToken]
+    public async Task&lt;IActionResult&gt; Register(RegistrationWidgetViewModel model)
+    {
+        var result = IdentityResult.Failed();
+
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, stringLocalizer["Please fill in all required fields."]);
+            return PartialView(REGISTRATION_FORM_VIEW_PATH, model);
+        }
+
+        // NOTE: This example does not include consent, but in a real-world scenario, you may need to get a member's consent before saving this data.
+        var guidesMember = new GuidesMember
+        {
+            UserName = model.UserName,
+            Email = model.EmailAddress,
+            GivenName = model.GivenName,
+            FamilyName = model.FamilyName,
+            FamilyNameFirst = model.FamilyNameFirst,
+            FavoriteCoffee = model.FavoriteCoffee,
+            Enabled = false
+        };
+        try
+        {
+            result = await membershipService.CreateMember(guidesMember, model.Password);
+        }
+        catch (Exception ex)
+        {
+            log.LogException(nameof(RegistrationController), nameof(Register), ex);
+            result = IdentityResult.Failed([new() { Code = "Failure", Description = stringLocalizer["Registration failed."] }]);
+        }
+
+        if (result.Succeeded)
+        {
+            return Content(stringLocalizer["Success!"]);
+        }
+        else
+        {
+            foreach (string error in result.Errors.Select(e =&gt; e.Description))
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+
+            return PartialView(REGISTRATION_FORM_VIEW_PATH, model);
+        }
+    }
+}
+
+</code></pre>
+</div>
+
+<h2 id="check-your-progress">Check your progress</h2>
+<p>Now you should be able to add the Registration widget to a page with a widget zone and configure its properties.</p>
+
+<p>Once you save the registration widget on a page, you can navigate to the page as a visitor and submit the form. You’ll be able to see the member you created in the <strong>Members</strong> application of the Xperience administration interface.</p>
+<p></p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>Although this guide does not describe how to set up email confirmation as part of the registration process, you can find a working example in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">Training guides repository</a></p>
+<p>Specifically check out:</p>
+<ul>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished/src/TrainingGuides.Web/Features/Membership/Widgets/Registration" target="_blank">The additional files in the Registration widget folder</a></li>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Membership/Controllers/RegistrationController.cs" target="_blank">The new actions in the Registration controller</a></li>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Program.cs" target="_blank">The change to RequireConfirmedEmail in Program.cs</a></li>
+</ul>
+</div>
+
+<h2 id="apply-the-same-approach-to-authentication">Apply the same approach to authentication</h2>
+<p>Now that members can register on your website, you need to implement a way for them to sign in. In our Training guides repository, we demonstrate the sign in utilizing the same approach as for the registration: a widget.</p>
+<p>The process for creating a Sign-in widget is almost identical to the registration functionality we’ve just built.</p>
+<p>You can use an AJAX form and a partial view, so that the context surrounding the widget is not lost when the controller returns the model with validation errors. The key difference is that sign-in forms typically redirect to a new page after successful authentication.</p>
+<p>However, <strong>these two factors introduce a quirk</strong>; if we try to return a redirect, the resulting page will render nested within the element specified as the form’s update target.</p>
+<p>One approach to work around this behavior is to add a flag to the model that indicates if authentication was successful, and return the form with the model.</p>
+<p>Then, in the Sign-in form’s view, you can render a redirect when the successful authentication flag is <code>true</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>AuthenticationController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.ContentEngine;
+using CMS.DataEngine;
+using Kentico.Content.Web.Mvc.Routing;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using TrainingGuides.Web.Features.Membership.Services;
+using TrainingGuides.Web.Features.Membership.Widgets.LinkOrSignOut;
+using TrainingGuides.Web.Features.Membership.Widgets.SignIn;
+using TrainingGuides.Web.Features.Shared.Helpers;
+using TrainingGuides.Web.Features.Shared.Services;
+
+namespace TrainingGuides.Web.Features.Membership.Controllers;
+
+public class AuthenticationController : Controller
+{
+    // Use dependency injection to populate these
+    private readonly IMembershipService membershipService;
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+    private readonly IInfoProvider&lt;ContentLanguageInfo&gt; contentLanguageInfoProvider;
+    private readonly IHttpRequestService httpRequestService;
+
+    private const string SIGN_IN_FAILED = "Your sign-in attempt was not successful. Please try again.";
+
+    ...
+
+    private IActionResult RenderError(SignInWidgetViewModel model)
+    {
+        ModelState.AddModelError(string.Empty, stringLocalizer[SIGN_IN_FAILED]);
+        return PartialView("~/Features/Membership/Widgets/SignIn/SignInForm.cshtml", model);
+    }
+
+    private IActionResult RenderSuccess(string redirectUrl)
+    {
+        var model = new SignInWidgetViewModel
+        {
+            DisplayForm = true,
+            AuthenticationSuccessful = true,
+            RedirectUrl = redirectUrl
+
+        };
+        return PartialView("~/Features/Membership/Widgets/SignIn/SignInForm.cshtml", model);
+    }
+
+    [HttpPost($"{{{ApplicationConstants.LANGUAGE_KEY}}}{ApplicationConstants.AUTHENTICATE_ACTION_PATH}")]
+    [ValidateAntiForgeryToken]
+    public async Task&lt;IActionResult&gt; Authenticate(SignInWidgetViewModel model, [FromQuery(Name = ApplicationConstants.RETURN_URL_PARAMETER)] string returnUrl)
+    {
+        if (!ModelState.IsValid)
+        {
+            return RenderError(model);
+        }
+
+        var signInResult = await membershipService.SignIn(model.UserNameOrEmail, model.Password, model.StaySignedIn);
+
+        string returnPath = string.IsNullOrWhiteSpace(returnUrl)
+            ? (model.DefaultRedirectPageGuid == Guid.Empty
+                ? "/"
+                : (await httpRequestService.GetPageRelativeUrl(model.DefaultRedirectPageGuid, preferredLanguageRetriever.Get())).TrimStart('~'))
+            : EnsureRelativeReturnUrl(returnUrl);
+
+        string absoluteReturnUrl = httpRequestService.GetAbsoluteUrlForPath(returnPath, false);
+
+        return signInResult.Succeeded
+            ? RenderSuccess(absoluteReturnUrl)
+            : RenderError(model);
+    }
+
+    private string EnsureRelativeReturnUrl(string returnUrl) =&gt;
+        returnUrl.StartsWith('/') || returnUrl.StartsWith("~/")
+            ? returnUrl
+            : httpRequestService.ExtractRelativePath(returnUrl);
+
+    ...
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>In the above code, the <code>AuthenticationSuccessful</code> flag in <code>SignInWidgetViewModel</code> indicates that the form should redirect the user when it receives the model.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>SignInForm.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using TrainingGuides.Web.Features.Membership.Widgets.SignIn
+
+@model SignInWidgetViewModel
+
+@if(Model.AuthenticationSuccessful)
+{
+    &lt;script&gt;
+        window.location = "@Model.RedirectUrl";
+    &lt;/script&gt;
+}
+
+&lt;div class="form-horizontal"&gt;
+
+    &lt;div asp-validation-summary="ModelOnly" class="text-danger validation-summary"&gt;&lt;/div&gt;
+
+    @* Include hidden inputs for widget display and links. 
+        If server-side validation fails, these values will allow the form to be properly re-rendered. *@
+    &lt;input asp-for="DefaultRedirectPageGuid"&gt;
+    &lt;input asp-for="DisplayForm"&gt;
+    &lt;input asp-for="SubmitButtonText"&gt;
+    &lt;input asp-for="UserNameOrEmailLabel"&gt;
+    &lt;input asp-for="PasswordLabel"&gt;
+    &lt;input asp-for="StaySignedInLabel"&gt;
+
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label class="control-label form-label mt-3"&gt;@Model.UserNameOrEmailLabel&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="UserNameOrEmail" class="form-control"&gt;
+            &lt;span asp-validation-for="UserNameOrEmail" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label class="control-label form-label mt-3"&gt;@Model.PasswordLabel&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="Password" class="form-control"&gt;
+            &lt;span asp-validation-for="Password" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="mt-3 form-check"&gt;
+        &lt;input asp-for="StaySignedIn" class="form-check-input"&gt;
+        &lt;label class="form-check-label"&gt;@Model.StaySignedInLabel&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div class="text-center"&gt;
+        &lt;button id="signIn" type="submit" class="btn tg-btn-secondary text-uppercase my-4"&gt;@Model.SubmitButtonText&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SignInWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.PageBuilder.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides.Web.Features.Membership.Services;
+using TrainingGuides.Web.Features.Membership.Widgets.SignIn;
+using TrainingGuides.Web.Features.Shared.Helpers;
+using TrainingGuides.Web.Features.Shared.Services;
+
+[assembly: RegisterWidget(
+    identifier: SignInWidgetViewComponent.IDENTIFIER,
+    viewComponentType: typeof(SignInWidgetViewComponent),
+    name: "SignIn",
+    propertiesType: typeof(SignInWidgetProperties),
+    Description = "Displays a sign in form for members.",
+    IconClass = "icon-user")]
+
+namespace TrainingGuides.Web.Features.Membership.Widgets.SignIn;
+public class SignInWidgetViewComponent : ViewComponent
+{
+    private readonly IHttpRequestService httpRequestService;
+    private readonly IMembershipService membershipService;
+
+    public const string IDENTIFIER = "TrainingGuides.SignInWidget";
+
+    public SignInWidgetViewComponent(
+        IHttpRequestService httpRequestService,
+        IMembershipService membershipService)
+    {
+        this.httpRequestService = httpRequestService;
+        this.membershipService = membershipService;
+    }
+
+    public async Task&lt;IViewComponentResult&gt; InvokeAsync(SignInWidgetProperties properties) =&gt;
+        View("~/Features/Membership/Widgets/SignIn/SignInWidget.cshtml", await BuildWidgetViewModel(properties));
+
+    public async Task&lt;SignInWidgetViewModel&gt; BuildWidgetViewModel(SignInWidgetProperties properties) =&gt; new SignInWidgetViewModel
+    {
+        ActionUrl = GetActionUrl(),
+        DefaultRedirectPageGuid = properties.DefaultRedirectPage.FirstOrDefault()?.WebPageGuid ?? Guid.Empty,
+        DisplayForm = !await membershipService.IsMemberAuthenticated(),
+        FormTitle = properties.FormTitle,
+        SubmitButtonText = properties.SubmitButtonText,
+        UserNameOrEmailLabel = properties.UserNameLabel,
+        PasswordLabel = properties.PasswordLabel,
+        StaySignedInLabel = properties.StaySignedInLabel
+    };
+
+    private string GetActionUrl()
+    {
+        return httpRequestService.GetAbsoluteUrlForPath(ApplicationConstants.AUTHENTICATE_ACTION_PATH, true);
+    }
+}
+</code></pre>
+</div>
+
+<p>With this context, try to follow the same process we went through for the registration widget to create a sign-in widget.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you run into any trouble, you can reference the completed implementation in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the training guides repository.</p>
+<p>You may find the following resources particularly helpful:</p>
+<ul>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Services/HttpRequestService.cs" target="_blank">Http request service</a></li>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Membership/Services/MembershipService.cs" target="_blank">Membership service</a></li>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished/src/TrainingGuides.Web/Features/Membership/Widgets/SignIn" target="_blank">Sign-in widget</a></li>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished/src/TrainingGuides.Web/Features/Membership/Widgets/LinkOrSignOut" target="_blank">Link or sign-out widget</a></li>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Membership/Controllers/AuthenticationController.cs" target="_blank">Authentication controller</a></li>
+</ul>
+</div>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/members/map-member-to-contact">next guide in this series</a> will cover the process of creating and maintaining a relationship between members and contacts.</p>
+
+</body>
+</html>

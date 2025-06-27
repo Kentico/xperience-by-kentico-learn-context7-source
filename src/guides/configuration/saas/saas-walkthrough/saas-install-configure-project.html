@@ -1,0 +1,460 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Install, configure and develop a SaaS-ready project</title>
+</head>
+<body>
+<p>Now that you’ve set up your Xperience Portal, let’s prepare your project for Kentico SaaS deployment.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>To follow along, we recommend your machine has the following installed:</p>
+<ul>
+<li><a href="https://dotnet.microsoft.com/en-us/download/dotnet/8.0" target="_blank">.NET 8.0</a></li>
+<li>Microsoft SQL Server 2022 (or compatible version, such as the free <a href="https://www.microsoft.com/en-us/download/details.aspx?id=104781" target="_blank">SQL Server Express Edition</a>)</li>
+<li>an <strong>IDE</strong> that supports ASP.NET Core development, such as <a href="https://visualstudio.microsoft.com/" target="_blank">Visual Studio</a> or <a href="https://code.visualstudio.com/" target="_blank">Visual Studio Code</a>
+</li>
+</ul>
+<h2 id="install-saas-ready-project">Install SaaS-ready project</h2>
+<p>Kentico provides an easy way to ensure all the default configuration is in place with our .NET templates and installation parameters.</p>
+<p>First, <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico#check-your-existing-template-versions">check your existing Kentico template versions</a> and <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico#install-the-required-version-of-templates">install the desired one</a>.</p>
+<p>Then, create a project using the <em>kentico-xperience-sample-mvc</em> template (the Dancing Goat sample site).</p>
+<p>The <a href="/documentation/developers-and-admins/installation#create-a-project"><code>--cloud</code> parameter</a> will automatically add SaaS-specific sample configuration to your newly generated project.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Create a new cloud-ready project</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet new kentico-xperience-sample-mvc --cloud -n DancingGoat.Web
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You can use the <code>--cloud</code> parameter with any of the Kentico templates. For example, for your own project, you may want to use the empty boilerplate (<em>kentico-xperience-mvc</em>) and either develop your project from scratch or migrate your existing solution into it.</p>
+</div>
+
+<h2 id="create-and-connect-the-database">Create and connect the database</h2>
+<p>Obtain a license key from your Xperience Portal (you only need this for local development):</p>
+<ol type="1">
+<li>Navigate to the <strong>License key generator</strong> page.</li>
+<li>Select the Xperience by Kentico version compatible with your project.</li>
+<li>Click <strong>Generate license key</strong>.</li>
+<li>Copy-paste the key and store it in a text file (e.g., <em>license.txt</em>) on your local machine.</li>
+</ol>
+
+
+<div>
+
+</div>
+<div>
+<p>Make sure to <strong>store the key before you click <em>OK</em></strong>. The generated key is NOT stored in the Portal so you will not be able to access it later.</p>
+</div>
+
+<p>Next, obtain the hash string salt for your project from the Xperience Portal dashboard: </p>
+<p></p>
+<p>Run the following command to create and connect a database to your project.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Connect a database</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet kentico-xperience-dbmanager -- -s "&lt;sql_server_name&gt;" -a "dg123*" -d "Xperience.DancingGoat" --hash-string-salt "&lt;your_Xperience_Portal_hash_string_salt&gt;" --license-file "&lt;path_to_your_license_txt_file&gt;"
+</code></pre>
+</div>
+
+<p>Remember to replace the <code>&lt;sql_server_name&gt;</code> and <code>&lt;path_to_your_license_txt_file&gt;</code> placeholders with values relevant to your local environment.</p>
+<p>The <strong>hash string salt value has to match</strong> the value from your Xperience Portal dashboard.</p>
+
+<div>
+
+</div>
+<div>
+<p>For more information about database creation and the command’s parameters, visit <a href="/documentation/developers-and-admins/installation#create-the-project-database">our documentation</a>.</p>
+</div>
+
+<p>After successful database installation, run the project. You should see the Dancing Goat sample site Home page. Visit the <em>/admin</em> path and sing in to the administration to ensure everything installed correctly.</p>
+<p></p>
+<h2 id="enable-continuous-integration-ci---optional">Enable Continuous Integration (CI) - optional</h2>
+<p>Enabling <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> is not a must from the perspective of Kentico SaaS; it’s more of the choice of your project’s development team.</p>
+<p>If you wish to enable CI for your project, sign in to your administration interface, navigate to the <strong>Settings</strong> application (under <strong>Configuration</strong> in the dashboard). Under <strong>Synchronization -&gt; Continuous Integration</strong> check the <strong>Enable Continuous Integration</strong> checkbox.</p>
+<p>Save.</p>
+<p></p>
+<p>Now you can use the <code>--kxp-ci-store</code> and <code>--kxp-ci-restore</code> commands as explained in <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">our documentation</a>.</p>
+<h2 id="examine-and-adjust-the-saas-specific-configuration">Examine and adjust the SaaS-specific configuration</h2>
+<p>Thanks to the <code>--cloud</code> parameter, your new project now includes the necessary NuGet packages, including the <a href="https://www.nuget.org/packages/Kentico.Xperience.Cloud" target="_blank">Kentico.Xperience.Cloud</a> and all the default SaaS-specific configuration:</p>
+<ul>
+<li>
+<em>repository.config</em> - a file holding the default Continuous Deployment (CD) configuration</li>
+<li>
+<em>Program.cs</em> - includes cloud-specific app configurations</li>
+<li>
+<em>Export-DeploymentPackage.ps1</em> - a script to generate the future deployment package</li>
+<li>
+<em>StorageInitializationModule.cs</em> - a file holding the Azure Blob storage mapping</li>
+</ul>
+<p></p>
+<p>Let’s examine the default configuration one-by-one.</p>
+<h3 id="continuous-deployment">Continuous Deployment</h3>
+<p><a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous deployment (CD)</a> in Xperience converts content and objects from the database into XML files. These files are deployed with your code and restored in target environments through automated pipelines. This is a mechanism that Kentico SaaS uses for project data deployment.</p>
+<p>Take a look at the <em>$CDRepository</em> folder and its <em>repository.config</em> file.</p>
+<p>The <em>repository.config</em> holds the default CD configuration in an XML format. It <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">includes and excludes objects</a>, determining which ones will be a part of the deployment in the Xperience portal.</p>
+<p>The object types are identified by their <strong>CI/CD folder names</strong>. Visit <a href="/documentation/developers-and-admins/ci-cd/reference-ci-cd-object-types">our documentation</a> for a list of objects supported by CD, their <a href="/documentation/developers-and-admins/ci-cd/reference-ci-cd-object-types#general">CI/CD folder names</a>, and additional notes.</p>
+<p>Your file right now is set up correctly for the Dancing Goat sample site project and should look like this:</p>
+
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>repository.config</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;RepositoryConfiguration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+
+  &lt;!-- Specifies which types of object operations are performed in the target database when restoring the repository:
+     Create - only creates new objects. Never deletes or modifies existing objects.
+     CreateUpdate - creates new objects and updates existing objects. Never deletes objects.
+       Full - creates new objects, updates existing objects, deletes objects that do not exist in the repository.
+     --&gt;
+  &lt;RestoreMode&gt;CreateUpdate&lt;/RestoreMode&gt;
+
+  &lt;!-- After changing the included or excluded object types, you need to run serialization for all objects to bring
+       the repository folder into the required state. Use the CLI and execute the store command for Continuous Integration or Deployment.
+     Always synchronize the repository.config along with the other content of the repository folder. --&gt;
+
+  &lt;!-- To learn which object types can be used in the IncludedObjectTypes and ExcludedObjectTypes definitions,
+       visit the documentation: https://devnet.kentico.com/CMSPages/DocLinkMapper.ashx?version=xp&amp;link=ci_object_types --&gt;
+
+  &lt;!-- If one or more main object types are specified, only objects of the given type and their child types are processed.
+       All supported object types are included if empty. --&gt;
+  &lt;IncludedObjectTypes&gt;
+    &lt;ObjectType&gt;cms.class&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.consent&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.contenttype&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.contentlanguage&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.scheduledtaskconfiguration&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.settingscategory&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.settingskey&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.user&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.role&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.channel&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.websitechannel&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.websitecaptchasettings&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.contentitem&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.pagetemplateconfiguration&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.contentfolder&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.smartfolder&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.standardmediadimensions&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.workspace&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.workspacedatapermission&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.allowedchildcontenttype&lt;/ObjectType&gt;
+
+    &lt;ObjectType&gt;cms.headlesschannel&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.headlessitem&lt;/ObjectType&gt;
+
+    &lt;ObjectType&gt;media.library&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;media.file&lt;/ObjectType&gt;
+
+    &lt;ObjectType&gt;om.activitytype&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;om.recipientlist&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;om.contactgroup&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;om.customerjourneyhistory&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;om.customerjourney&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;om.customerjourneystage&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.formclass&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.formfeaturedfield&lt;/ObjectType&gt;
+
+    &lt;ObjectType&gt;emaillibrary.emailchannel&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;emaillibrary.emailchannelsender&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;emaillibrary.emailconfiguration&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;emaillibrary.emailtemplatecontenttype&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;emaillibrary.recipientlistsettings&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;emaillibrary.sendconfiguration&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;emaillibrary.emailtemplate&lt;/ObjectType&gt;
+
+    &lt;ObjectType&gt;ma.automationprocess&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;ma.automationstep&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;ma.automationaction&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;ma.automationtemplate&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.objectworkflowtrigger&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.workflowtransition&lt;/ObjectType&gt;
+
+    &lt;ObjectType&gt;cms.webpageitem&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.webpageurlpath&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.webpageformerurlpath&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;om.trackedwebsite&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.form&lt;/ObjectType&gt;
+
+    &lt;ObjectType&gt;cms.contentworkflow&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.contentworkflowcontenttype&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.contentworkflowrole&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.contentworkflowstep&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.contentworkflowsteprole&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.taxonomy&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.tag&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.notificationemailtemplate&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.notificationemail&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.notificationemailform&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.notificationemailuser&lt;/ObjectType&gt;
+
+    &lt;ObjectType&gt;cms.webpagescope&lt;/ObjectType&gt;
+    &lt;ObjectType&gt;cms.webpagescopecontenttype&lt;/ObjectType&gt;
+  &lt;/IncludedObjectTypes&gt;
+
+  &lt;!-- Excluded object types filter the set of included object types. The specified object types are excluded from processing.
+     May include both main and child object types. --&gt;
+  &lt;ExcludedObjectTypes&gt;
+  &lt;/ExcludedObjectTypes&gt;
+
+  &lt;!-- You can exclude objects from processing by adding included or excluded code names for any object type.
+       Use the % wildcard at the start or end of the values to include or exclude multiple objects based on code name prefixes or suffixes.
+       You can add multiple code name values separated by semicolons for each object type. --&gt;
+  &lt;ObjectFilters&gt;
+    &lt;!-- Ensures serialization for reusable field schemas. --&gt;
+    &lt;IncludedCodeNames ObjectType="cms.class"&gt;cms.contentitemcommondata&lt;/IncludedCodeNames&gt;
+    &lt;!-- If one or more code names are included, only objects matching the specified code names are included. Other objects are not processed.
+         All objects are included if empty. --&gt;
+    &lt;!-- &lt;IncludedCodeNames&gt;IncludedCodeNameA;IncludedCodeNameB&lt;/IncludedCodeNames&gt; --&gt;
+    &lt;!-- &lt;IncludedCodeNames ObjectType="ObjectTypeB"&gt;IncludedCodeNamePrefix%;%IncludedCodeNameSuffix&lt;/IncludedCodeNames&gt; --&gt;
+
+    &lt;!-- Excludes license key settings --&gt;
+    &lt;ExcludedCodeNames ObjectType="cms.settingskey"&gt;CMSInstanceFriendlyName;CMSInstanceID&lt;/ExcludedCodeNames&gt;
+
+    &lt;!-- Excluded code names add further filtering for the set of included objects. Objects that match the specified code names are excluded from processing. --&gt;
+  &lt;/ObjectFilters&gt;
+
+&lt;/RepositoryConfiguration&gt;
+</code></pre>
+</div>
+
+<p>For this series, we don’t need to adjust the CD configuration. If you decide to modify the <em>repository.config</em> file in your own project, be careful about including all the necessary objects.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you realize your deployment is missing anything (e.g., can’t see pages), check your <em>repository.config</em>. It may be excluding or including some objects incorrectly.</p>
+</div>
+
+<h3 id="identification-of-your-working-environment">Identification of your working environment</h3>
+<p>Sometimes, you may need to run certain code only in a specific environment. You can do this using the <a href="/documentation/developers-and-admins/configuration/saas-configuration#environment-identification-extension-methods">environment identification extension methods</a>.</p>
+<p>Take a look at the <em>Program.cs</em> file in the root of your project to see an example usage.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+
+// the following code will only execute in cloud (QA, UAT, PROD or custom) environment
+// but never when you run the solution locally
+if (builder.Environment.IsQa()
+    || builder.Environment.IsUat()
+    || builder.Environment.IsProduction()
+    || builder.Environment.IsEnvironment(CloudEnvironments.Custom))
+{
+    builder.Services.AddKenticoCloud(builder.Configuration);
+    builder.Services.AddXperienceCloudSendGrid(builder.Configuration);
+    builder.Services.AddXperienceCloudDataProtection(builder.Configuration);
+}
+
+builder.Services.AddKentico(features =&gt;
+{
+...
+</code></pre>
+</div>
+
+<p>If you run the project locally and place a breakpoint inside the <code>if</code> statement, you can observe that it will never get hit.</p>
+<p>For this series, we don’t need to change this configuration. However, if your Xperience Portal does not have a UAT environment (e.g., subscription Level 1), you can remove the <code>builder.Environment.IsUat()</code> condition.</p>
+<p>If you do make changes, remember to rebuild the solution for them to take effect.</p>
+<h3 id="microsoft-application-insights">Microsoft Application Insights</h3>
+<p>This integration allows you to see errors and warnings from Xperience event log and .NET exceptions (including ones that occur before the Xperience app is fully running) in the Xperience Portal.</p>
+<p>Our generated project already has the <a href="/documentation/developers-and-admins/configuration/saas-configuration#microsoft-application-insights-integration">Microsoft Application Insights enabled</a> - you can see the line of code in the <em>Program.cs</em> file, when building the web application:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+builder.Services.AddXperienceCloudApplicationInsights(builder.Configuration);
+...
+</code></pre>
+</div>
+
+<p>You can turn off the insights entirely by simply removing the line.</p>
+<p>If your project uses client-side telemetry, you can add the logs by following the <a href="https://learn.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core#enable-client-side-telemetry-for-web-applications" target="_blank">Microsoft documentation</a>.</p>
+<p>If you make changes to this setting, rebuild the solution for them to take effect.</p>
+<h3 id="sendgrid-integration">SendGrid integration</h3>
+<p>The <a href="/documentation/developers-and-admins/configuration/email-configuration#managed-sendgrid-integration">SendGrid integration</a> to send emails is also a part of your generated <em>Program.cs</em> file:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+if (builder.Environment.IsQa()
+    || builder.Environment.IsUat()
+    || builder.Environment.IsProduction()
+    || builder.Environment.IsEnvironment(CloudEnvironments.Custom))
+{
+    ...
+    builder.Services.AddXperienceCloudSendGrid(builder.Configuration);
+    ...
+}
+</code></pre>
+</div>
+
+<p>We are using the <a href="#identification-of-your-working-environment">environment identification extension</a> methods mentioned above to enable SendGrid only in the SaaS environment, as it will not work locally.</p>
+<p>Read more about the <a href="/documentation/developers-and-admins/configuration/email-configuration#managed-sendgrid-integration">SendGrid integration in our documentation</a>.</p>
+<h3 id="cloudflare-cdn-configuration">Cloudflare CDN configuration</h3>
+<p>Kentico SaaS integrates with the <a href="/documentation/developers-and-admins/configuration/saas-configuration#cloudflare-cdn">Cloudflare CDN</a> to perform caching.</p>
+<p>For this series, you can stick to the default caching configuration, which you can read more about in <a href="/documentation/developers-and-admins/configuration/saas-configuration#cloudflare-cdn">our documentation</a>.</p>
+<p>If you’d like to override the default caching, you can, for example, set the TTL to a specific number by setting the <em>Cache-Control</em> HTTP header for each HTTP response. See an example in the documentation.</p>
+<h3 id="azure-blob-storage-folder-mapping">Azure Blob storage folder mapping</h3>
+<p>By default, Kentico SaaS uses Azure Blob storage to store media or binary files.</p>
+<p>Any project installed with the <code>--cloud</code> parameter, like ours, contains a <em>StorageInitializationModule.cs</em> file that defines the mapping of the folder where these files are stored.</p>
+<p>Take a look at the <code>OnInit</code> method of your <em>StorageInitializationModule.cs</em> that creates the mapping on application start:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>StorageInitializationModule.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+protected override void OnInit()
+{
+    base.OnInit();
+
+    if (Environment.IsQa() || Environment.IsUat() || Environment.IsProduction())
+    {
+        // Maps the assets directory (e.g. media files) to the Azure storage provider
+        MapAzureStoragePath($"~/assets/");
+    }
+    else
+    {
+        // Maps contents of the assets directory which are not handled by the CD tool (media files)
+        // to the dedicated local folder.
+        MapLocalStoragePath($"~/assets/media");
+    }
+}
+...
+</code></pre>
+</div>
+
+<p>Unless you use a different folder structure for media files than Xperience by Kentico’s default, you don’t need to change this configuration at all.</p>
+<h3 id="custom-static-page-to-display-when-app-is-unavailable">Custom static page to display when app is unavailable</h3>
+<p>In case your app is temporarily offline, it is a good practice to define a <a href="/documentation/developers-and-admins/configuration/saas-configuration#define-a-custom-app-offline-file">custom static page</a> that the visitor will see instead of a default generic page.</p>
+<p>Add this file to your project’s root (including the ’_’ suffix). Feel free to modify the structure or style to your linking or branding needs:</p>
+
+<div>
+<div>
+<div>
+<span>HTML</span>
+</div>
+<strong>app_offline.htm_</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Offline&lt;/title&gt;
+&lt;/head&gt;
+&lt;body style="margin:3em;font-family:sans-serif"&gt;
+  &lt;h2&gt;Offline&lt;/h2&gt;
+  &lt;p&gt;This site is offline for maintenance.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+</div>
+
+<h2 id="develop-your-solution">Develop your solution</h2>
+<p>Your project is now ready from the configuration standpoint.</p>
+<p>If you are following along using the Dancing Goat sample site, there’s no need for any code adjustments at this time. In your own solution, you can now perform any development, adjustments, or data/code migration, before you move to the next step - the initial project deployment.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/configuration/saas/saas-walkthrough/saas-initial-deployment">Deploy your solution to Xperience Portal</a>.</p>
+
+</body>
+</html>

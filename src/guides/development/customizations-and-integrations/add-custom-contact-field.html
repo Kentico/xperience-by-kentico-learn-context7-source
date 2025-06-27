@@ -1,0 +1,492 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Add a custom field to the Contact profile</title>
+</head>
+<body>
+<p><a href="/documentation/business-users/digital-marketing/contact-management">Contact management</a> in Xperience by Kentico is an essential tool of digital marketing for your customers. Each contact represents a visitor and contains information, such as personal details, their consents or activity.</p>
+<p>In Xperience source code, the <code>Contact</code> class has a predefined set of fields to store customer information. But in many cases, your customer needs to track <em>custom domain-specific</em> data about visitors, e.g., their favorite coffee.</p>
+
+<div>
+<p>If you are looking for a way to <strong>extend contact</strong> in Xperience by Kentico <strong>with custom fields</strong>, this guide is for you!</p>
+</div>
+
+<h2 id="overview">Overview</h2>
+<p>You can <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">add custom properties to the contact class</a> using the administration interface.</p>
+<p>To expose the custom fields for editors and marketers, we recommend creating a custom UI page with a new UI form and displaying it on a new tab in the Contact profile.</p>
+<p>This article will guide you step-by-step through the process.</p>
+<p></p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="add-custom-database-columns-to-contact">Add custom database columns to Contact</h2>
+<ol type="1">
+<li>Open the <strong>Modules</strong> application and select the <strong>Contact management</strong> module.</li>
+<li>On the <strong>Classes</strong> tab select the Contact class (code name <strong>OM.Contact</strong>).</li>
+<li>Switch to the <strong>Database columns</strong> tab and add custom fields using the field editor. For our example, let’s add these three fields:
+<ol type="a">
+<li>
+<em>TrainingGuidesContactMemberId</em>
+<ul>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 200</li>
+</ul>
+</li>
+<li>
+<em>TrainingGuidesContactFavoriteCoffee</em>
+<ul>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 200</li>
+</ul>
+</li>
+<li>
+<em>TrainingGuidesContactLastCommunicationDate</em>
+<ul>
+<li>
+<strong>Data type</strong>: Date and time</li>
+</ul>
+</li>
+</ol>
+Make all the fields NOT required (uncheck the <strong>Required</strong> check box).</li>
+</ol>
+
+<div>
+<p><strong>Naming convention for Contact custom field names</strong></p>
+<p>We recommend naming the custom fields <code>&lt;CustomerNamespace&gt;Contact&lt;FieldName&gt;</code>.</p>
+<p>This helps with clarity and the identification of custom fields, both in code and administration. For example, when creating a <a href="#define-your-ui-form">new UI form</a>, Xperience orders them alphabetically.</p>
+</div>
+
+<p>In your Xperience administration, your new fields will appear at the bottom of the list: </p>
+<h2 id="define-your-ui-form">Define your UI form</h2>
+<ol type="1">
+<li>Stay in the Contact class under the <strong>Contact management</strong> module.</li>
+<li>Switch to the <strong>UI forms</strong> tab.</li>
+<li>Click <strong>New UI form</strong> button and fill out:
+<ul>
+<li>
+<strong>UI form name</strong>: Training guides fields edit</li>
+<li>
+<strong>Code name</strong>: TrainingGuidesFieldsEdit</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Leaving <strong>Pre-fill code name automatically</strong> checked will generate the same code name in this case.</p>
+</div>
+</li>
+<li>Click <strong>Save</strong> to create your new UI form.</li>
+<li>Switch to the <strong>Fields</strong> tab in the left menu.</li>
+<li>Add a new UI field for each of your custom Contact fields:
+<ol type="a">
+<li>Click <strong>New field</strong>.</li>
+<li>Select a database column you want to map the field to. The available columns are sorted alphabetically.</li>
+<li>Fill out field settings as desired and hit <strong>Save</strong>.</li>
+</ol>
+If you are following our example, add three fields - one for each of our new database columns.</li>
+</ol>
+
+<div>
+<p>Feel free to play around with different settings (e.g., <strong>Enabled</strong> - checked or unchecked), field order, and using various <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">UI form components</a>.</p>
+<p>You can also define a <strong>Category</strong>, to help organize your form fields. For example, your UI form definition can look like this:</p>
+<p></p>
+<p>which renders for the editor like this:</p>
+<p></p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You may have noticed that out-of-the-box, the <strong>Contact class</strong> already has two forms: <strong>Contact edit</strong> and <strong>Personal details - read only</strong>.</p>
+<p></p>
+<p>The <strong>Contact edit</strong> form allows <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#map-form-submission-to-contact-attributes">mapping form fields to contact attributes</a> and exposing contact fields in the <a href="/documentation/business-users/digital-marketing/contact-groups"><strong>Contact groups</strong></a> application. We will discuss it <a href="#enable-custom-fields-in-contact-groups">later in this guide</a>.</p>
+<p><strong>Personal details - read only</strong> is the form displayed in the contact <strong>Overview</strong> under the <strong>Personal details</strong> section. If you add fields to this form, they will automatically appear there.</p>
+<p>To avoid UI inconsistency, we <strong>do not recommend</strong> this approach.</p>
+<p>Due to a system limitation, you cannot easily add fields to the default edit dialog. It would not be a good UX practice to add fields to the <strong>Personal details</strong> with no control over what fields will render after the user clicks <strong>Edit</strong>.</p>
+</div>
+
+<h2 id="implement-your-new-edit-page">Implement your new edit page</h2>
+<p>You now have a custom UI edit form, holding your custom contact fields. You can display the form to editors by passing its code name to a new <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template">edit page</a> in your code.</p>
+
+<div>
+<p><strong>Store customization files separately</strong></p>
+<p>We recommend storing any files customizing the Xperience administration separate from the channel-specific files. In our <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">Training guides repository</a>, and this guide we use the <em>TrainingGuides.Admin</em> project for this purpose.</p>
+<p>If you are following along using the main branch of our repository and your solution does not contain this project yet, you can follow the steps in the <a href="/guides/development/data-protection/map-consents-to-cookie-levels#set-up-the-project"><em>Set up the project</em> section of this guide</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you are working with more of an enterprise-sized solution, our guide about <a href="/guides/development/get-started/use-abstraction-and-enterprise-level-architecture-in-xperience-projects">utilizing Clean architecture in Xperience projects</a> may be interesting to you.</p>
+</div>
+
+<ol type="1">
+<li><p>In your source code, navigate to your administration customization project (e.g. <em>TrainingGuides.Admin</em>).</p></li>
+<li><p>In <em>Pages</em> folder, create a new class file, <em>ContactCustomFieldsEditPage.cs</em>.</p></li>
+<li>
+<p>Implement your custom edit UI page:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactCustomFieldsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.ContactManagement;
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.Base.Forms;
+using Kentico.Xperience.Admin.DigitalMarketing.UIPages;
+using TrainingGuides.Admin.Pages;
+
+// Register the page as using EDIT template, under "Custom fields" name.
+// parentType and order attributes determine it's position in the UI.
+// See more details in the next section, under the code sample.
+[assembly: UIPage(
+    parentType: typeof(ContactEditSection),
+    slug: "training-guides-fields-edit",
+    uiPageType: typeof(ContactCustomFieldsEditPage),
+    name: "Custom fields",
+    templateName: TemplateNames.EDIT,
+    order: 150)]
+
+namespace TrainingGuides.Admin.Pages;
+
+// All edit pages inherit from the InfoEditPage&lt;TInfo&gt; base class.
+// Substitute TInfo with the ContactInfo class - to tell Xperience this is to edit the Contact object type.
+public class ContactCustomFieldsEditPage : InfoEditPage&lt;ContactInfo&gt;
+{
+    // Holds the ID of the edited contact.
+    // Needs to be decorated with the PageParameter attribute to propagate
+    // contact ID from the request path to the configuration of the page.
+    [PageParameter(typeof(IntPageModelBinder))]
+    public override int ObjectId { get; set; }
+
+    // Mandatory constructor providing required services via dependency injection.
+    public ContactCustomFieldsEditPage(
+        IFormComponentMapper formComponentMapper,
+        IFormDataBinder formDataBinder) : base(formComponentMapper, formDataBinder)
+    { }
+
+    public override Task ConfigurePage()
+    {
+        // Assign your 'TrainingGuidesFieldsEdit' UI form code name to the page. The assignment is case-insensitive.
+        PageConfiguration.UIFormName = "trainingguidesfieldsedit";
+        return base.ConfigurePage();
+    }
+}
+</code></pre>
+</div>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>For more details about implementing Edit UI page template visit <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template">this page in our documentation</a>.</p>
+</div>
+
+<h3 id="specify-the-page-tab-position-in-the-ui-tree">Specify the page tab position in the UI tree</h3>
+Take a look at the page registration from the code sample above:
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactCustomFieldsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+[assembly: UIPage(
+        parentType: typeof(ContactEditSection),
+        slug: "training-guides-fields-edit",
+        uiPageType: typeof(ContactCustomFieldsEditPage),
+        name: "Custom fields",
+        templateName: TemplateNames.EDIT,
+        order: 150)]
+...
+</code></pre>
+</div>
+
+<p>We’ve decided to render our <em>Custom fields</em> page tab between the <strong>Overview</strong> and <strong>Activities</strong> tabs in the Contact profile:</p>
+<p></p>
+<p>When adding a page to an existing structure, you can achieve this by setting <code>parentType</code> to an existing application page. In this case, the <code>ContactEditSection</code> type.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can find the code name of an existing application page in the <strong>UI tree</strong> under <strong>System</strong> application. For more guidance see <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages#register-new-pages-under-existing-application-pages">this page</a>.</p>
+</div>
+
+<p>If you register a UI page without specifying <code>order</code>, Xperience will place the new page tab last.</p>
+<p>By default, the <code>order</code> of existing pages is set in increments of 100. In our example, we set <code>order: 150</code> to place the <strong>Custom fields</strong> page tab between the <strong>Overview</strong> (100) and <strong>Activities</strong> (200) tabs.</p>
+
+<div>
+
+</div>
+<div>
+<p>Find more details about UI page registration parameters on <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages#register-ui-pages">this page of our documentation</a>.</p>
+</div>
+
+<p>Now, when you build your solution and open a profile of any contact in your Xperience administration, you should be able to see your new UI form in a custom tab, as illustrated in this video:</p>
+
+<p>Additionally, if you navigate to <strong>System → UI tree</strong>, you should be able to see your page in the UI tree structure: </p>
+<h3 id="customize-the-form-fields">Customize the form fields</h3>
+<p>In some cases, you will need to show values that are based on contact data but <em>not directly tied to a database column</em>. Maybe the editors don’t care about the contact <strong>Member Id</strong> you created earlier. Instead they only need to know whether the contact is a member or not.</p>
+<p>Let’s modify the form to replace the editable <strong>Member Id</strong> with a readonly flag <strong>Is a member: Yes/No</strong>.</p>
+<p></p>
+<ol type="1">
+<li><p>Navigate to your <strong>Training guides fields edit</strong> form in your Xperience administration (<strong>Modules → Contact management → Classes → Contact management → Contact → UI Forms → Training guides fields edit</strong>).</p></li>
+<li><p>In the <strong>Fields</strong> tab, remove the <strong>Member Id</strong> field.</p></li>
+<li><p>Add a new field. In the <strong>Database column</strong> select, pick <strong>New field without database column</strong>. </p></li>
+<li>
+<p>Fill out the following:</p>
+<ul>
+<li>
+<strong>Field name</strong>: TrainingGuidesContactIsMember</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Field caption</strong>: Is a member</li>
+<li>
+<strong>Form component</strong>: Text with label (as the value is supposed to be readonly)</li>
+</ul>
+</li>
+<li><p>Save and optionally drag and drop the new field to your desired position (e.g. the top).</p></li>
+<li><p>Open your <em>ContactCustomFieldsEditPage.cs</em> file.</p></li>
+<li>
+<p>Define constants to hold the names of the custom fields.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactCustomFieldsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+private const string CONTACT_IS_MEMBER_FIELD_NAME = "TrainingGuidesContactIsMember";
+private const string CONTACT_MEMBER_ID_FIELD_NAME = "TrainingGuidesContactMemberId";
+...
+</code></pre>
+</div>
+</li>
+<li>
+<p>Add a <code>GetFormItems</code> method override:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactCustomFieldsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+protected override async Task&lt;ICollection&lt;IFormItem&gt;&gt; GetFormItems()
+{
+    // Retrieve form items.
+    var items = await base.GetFormItems();
+    // Return a method call that modified the form items. Implemented in the next step.
+    return SetContactIsMember(items);
+}
+...
+</code></pre>
+</div>
+</li>
+<li>
+<p>Implement <code>SetContactIsMember(items)</code> method:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactCustomFieldsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Sets the value of the "Is a member" field based on the value of the "Member ID" field.
+/// &lt;/summary&gt;
+/// &lt;param name="items"&gt;Collection of form items&lt;/param&gt;
+/// &lt;returns&gt;The updated collection of items&lt;/returns&gt;
+private ICollection&lt;IFormItem&gt; SetContactIsMember(ICollection&lt;IFormItem&gt; items)
+{
+    // Retrieve the 'Is a member' field.
+    var contactIsMemberField = items.OfType&lt;IFormComponent&gt;()
+        .FirstOrDefault(i =&gt; i.Name == CONTACT_IS_MEMBER_FIELD_NAME) as TextWithLabelComponent;
+    // Calculate the string value of 'Is a member' field, based on the 'Member Id' value.
+    // GetContactMemberId() implemented in the next step.
+    string contactIsMember = string.IsNullOrEmpty(GetContactMemberId())
+        ? "No"
+        : "Yes";
+
+    // Set the new value to the 'Is a member' field.
+    contactIsMemberField?.SetValue(contactIsMember);
+
+    return items;
+}
+...
+</code></pre>
+</div>
+</li>
+<li>
+<p>Implement <code>GetContactMemberId()</code> to retrieve the value of <em>TrainingGuidesContactMemberId</em> field:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactCustomFieldsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+// Inject contactInfoProvider.
+private readonly IInfoProvider&lt;ContactInfo&gt; contactInfoProvider;
+
+public ContactCustomFieldsEditPage(
+    IFormComponentMapper formComponentMapper,
+    IFormDataBinder formDataBinder,
+    IInfoProvider&lt;ContactInfo&gt; contactInfoProvider)
+            : base(formComponentMapper, formDataBinder)
+{
+    this.contactInfoProvider = contactInfoProvider;
+}
+
+...
+// Use contactInfoProvider to retrieve the current Contact
+// and get the value of the TrainingGuidesContactMemberId field.
+private string? GetContactMemberId() =&gt;
+    contactInfoProvider.Get()
+        .WhereEquals(nameof(ContactInfo.ContactID), ObjectId)
+        .FirstOrDefault()
+        ?.GetValue(CONTACT_MEMBER_ID_FIELD_NAME) as string;
+...
+</code></pre>
+</div>
+</li>
+<li>
+<p>Build your solution. If you followed along, your page in Contact profile should now look similar to this:</p>
+<p></p>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>See the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Admin/Pages/ContactCustomFieldsEditPage.cs" target="_blank">full ContactCustomFieldsEditPage.cs file</a> in our Training guides repository for your reference.</p>
+</div>
+
+<h2 id="enable-custom-fields-in-contact-groups">Enable custom fields in Contact groups</h2>
+<p><a href="/documentation/business-users/digital-marketing/contact-groups">Contact groups</a> allow to editors organize contacts by defining custom conditions.</p>
+<p>Since the <a href="/documentation/changelog#refresh-may-16-2024">29.1.0 Xperience by Kentico refresh</a>, the editor can set up a new condition, <strong>‘Contact has value in field’</strong>.</p>
+<p>Your contact fields are not yet available for the editor to utilize in this condition. To expose them, you need to add your custom fields to the <strong>Contact edit</strong> form.</p>
+<ol type="1">
+<li><p>Navigate to the <strong>Contact edit</strong> form in your Xperience administration (<strong>Modules → Contact management → Classes → Contact management → Contact → UI Forms → Contact edit</strong>).</p></li>
+<li>
+<p>Add your fields one by one.</p>
+
+<div>
+<p>When assigning a <strong>Database column</strong>, the available fields are ordered alphabetically.</p>
+<p>The <strong>Field caption</strong> is what the editors will see in the <strong>Contact groups</strong> application as a field identifier. The other settings don’t affect the Contact groups conditions.</p>
+</div>
+</li>
+</ol>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>String values only</strong></p>
+<p>The system currently only supports string (Text) fields in the <strong>Contact has value in field</strong> condition.</p>
+<p>For example, despite adding both <em>TrainingGuidesContactFavoriteCoffee</em> and <em>TrainingGuidesContactLastCommunitationDate</em> fields to the <strong>Contact edit</strong>, only the <em>TrainingGuidesContactFavoriteCoffee</em> field will be available in the <strong>Contact groups</strong> condition.</p>
+</div>
+
+<h2 id="whats-next">What’s next</h2>
+<p>You now have the tools to add custom fields to Contact and expose them to the editor. You also know how to create a custom UI page displaying a custom UI form.</p>
+<p>In this guide, we created a page using the <em>edit UI page template</em>. <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates">On this page</a>, you can read more about other available templates, their methods, and usage.</p>
+<p>If you are interested in learning how to create a custom class in Xperience rather than just extending system objects, take a look at <a href="/guides/development/customizations-and-integrations/create-basic-module">our custom module guides</a>. Over the course of four guides, the series shows how to build a custom “settings” module.</p>
+
+</body>
+</html>

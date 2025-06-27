@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Set up an Xperience by Kentico project</title>
+</head>
+<body>
+<p>Before you begin building the site, you need to set up an Xperience project.</p>
+<p>Xperience provides <a href="https://docs.microsoft.com/en-us/dotnet/core/tools/custom-templates" target="_blank">.NET project templates</a> you can install via the <a href="https://docs.microsoft.com/en-us/dotnet/core/tools/" target="_blank">.NET command-line tool</a> (included with the .NET SDK).</p>
+<p>A template is a great place to start because it comes with:</p>
+<ul>
+<li>all required Xperience NuGet package dependencies</li>
+<li>the startup class, configured according to Xperience requirements (registered services and middleware)</li>
+<li>automatic database connection configuration</li>
+</ul>
+<h2 id="install-the-xperience-project-templates-package">Install the Xperience project templates package</h2>
+
+<div>
+<p>We will work with the <strong>Xperience by Kentico version 29.3.0</strong> in this series.</p>
+<p>If you have previously installed other versions of Xperience on your machine, we recommend <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico#check-your-existing-template-versions">clearing any unwanted templates</a> first.</p>
+</div>
+
+<p>Run the following command in your command line prompt:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Install project templates</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet new install kentico.xperience.templates::29.3.0 --force
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you have other Xperience templates on your machine (for example after playing around with the latest version), the <code>--force</code> parameter will ensure the 29.3.0 version gets installed correctly.</p>
+</div>
+
+<p>You should see an output showing you have successfully installed three project templates on your computer:</p>
+<p></p>
+<h2 id="create-a-project">Create a project</h2>
+<p>Let’s use the <strong>Boilerplate</strong> template (<code>kentico-xperience-mvc</code>) to create an empty project called <em>Kickstart.Web</em>.</p>
+<p>Navigate to your desired project directory and add the following folder structure: <em>~/src/Kickstart.Web</em>.</p>
+
+<div>
+
+</div>
+<div>
+<p>The <em>src</em> folder will hold the .NET solution.</p>
+<p>The <em>Kickstart.Web</em> will contain the top-level MVC project responsible for the site presentation.</p>
+</div>
+
+<p>Navigate to the <em>Kickstart.Web</em> directory in your command line tool and create your new project:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Create a new project</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet new kentico-xperience-mvc -n Kickstart.Web
+</code></pre>
+</div>
+
+<p>You will encounter the following prompt during the project creation:</p>
+
+<div>
+<pre><code>
+Template is configured to run the following action: 
+Description: Restore tools required for this project configuration.
+Manual instructions: Run 'dotnet tool restore'
+Actual command: dotnet tool restore
+Do you want to run this action [Y(yes)|N(no)]?
+</code></pre>
+</div>
+
+<p>Agree by typing <code>Y</code>.</p>
+<p>After the successful run, you should see a new .NET project generated in your Kickstart.Web directory.</p>
+<p></p>
+<h3 id="add-a-solution">Add a solution</h3>
+<p>Adding a solution file will allow other projects to work in tandem with <em>Kickstart.Web</em> and keep things organized.</p>
+<p>You can add a solution <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-sln" target="_blank">via the .NET CLI</a> or using an IDE of your choice.</p>
+
+<div>
+
+</div>
+<div>
+<p>Some IDEs, like Visual Studio or Visual Studio Code with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit" target="_blank">C# Dev Kit extension</a>, will generate the solution file automatically after you open the project. We recommend saving it in the <em>src</em> folder, one level up from <em>Kickstart.Web</em>.</p>
+<p>For example, if you are using Visual Studio:</p>
+<ol type="1">
+<li>Open <em>Kickstart.Web.csproj</em> in Visual Studio, and highlight the auto-generated solution in the solution explorer.</li>
+<li>Click on <em>File</em>, and choose <strong>Save Kickstart.Web.sln as</strong> from the dropdown.</li>
+<li>Navigate to the <em>src</em> folder, and rename the file to <em>Kickstart.sln</em>, then click <strong>Save</strong>.</li>
+</ol>
+</div>
+
+
+<p><strong>Adjust the target framework</strong></p>
+<p>The installed template targets .NET 6 by default. Before proceeding with this series, <a href="https://learn.microsoft.com/en-us/visualstudio/ide/visual-studio-multi-targeting-overview?view=vs-2022#change-the-target-framework" target="_blank">change the target framework</a> to <strong>.NET 8</strong>.</p>
+
+<h2 id="assign-a-license">Assign a license</h2>
+<p>In the <em>src</em> directory, create a new folder called <em>License</em>.</p>
+<p>Add a file called <em>license.txt</em> with the content of a valid localhost license key.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Getting your license key</strong></p>
+<p>You can obtain the license key from your agency, supervisor, or team lead.</p>
+<p>Alternatively, you can create an account at the <a href="https://client.kentico.com/" target="_blank">Client Portal</a>, and generate a <a href="https://client.kentico.com/evaluation-keys" target="_blank">temporary key</a> valid for 30 days.</p>
+
+<p>Learn more about licensing in our <a href="/documentation/developers-and-admins/installation/licenses">documentation</a>.</p>
+</div>
+
+<h2 id="connect-the-database">Connect the database</h2>
+<p>The last thing we need is to set up the database.</p>
+<p>Run this command from the <em>~/src/Kickstart.Web</em> directory:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Create project database</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet kentico-xperience-dbmanager -- -s "&lt;sql_server_name&gt;" -a "kickstart" -d "Xperience.Kickstart" --license-file "..\License\license.txt"
+
+</code></pre>
+</div>
+
+
+<div>
+<p>Remember to substitute the <code>&lt;sql_server_name&gt;</code> placeholder for your SQL server name.</p>
+</div>
+
+<p>In this example, we are using the following parameters:</p>
+<ul>
+<li>
+<code>-s</code> specifies the SQL server for the new database.</li>
+<li>
+<code>-a</code> sets the password for the <em>administrator</em> account.</li>
+<li>
+<code>-d</code> names the database in your SQL Server.</li>
+<li>
+<code>--license-file</code> specifies the path to a text file containing your license key.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Run <code>dotnet kentico-xperience-dbmanager -- --help</code> to see the complete list of available commands.</p>
+<p>For more details about parameters and configuration options, visit our <a href="/documentation/developers-and-admins/installation#create-the-project-database">documentation</a>.</p>
+</div>
+
+<p>That’s it for the installation process. You now have a basic project with a database on your machine.</p>
+<h2 id="set-up-local-hosting">Set up local hosting</h2>
+<p>When developing websites, you often need to build and test code changes quickly. For this reason, it’s helpful to have the site hosted locally on your machine. In this aspect, ASP.NET Core is very flexible, as it supports multiple hosting options.</p>
+<p>We’ll use the <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-8.0" target="_blank">Kestrel web server</a> to host our application. Kestrel is cross-platform and comes included by default with .NET installations. To launch the installed website, execute the following command in the <em>~/src/Kickstart.Web</em> directory:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet run
+
+</code></pre>
+</div>
+
+
+<div>
+<p>Alternatively, you may be able to run the <code>dotnet run</code> command directly from your IDE.</p>
+</div>
+
+<p>You should see output similar to the following in the terminal:</p>
+
+<div>
+<pre><code>
+
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:33328
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: &lt;path_to_project_directory&gt;
+
+</code></pre>
+</div>
+
+<p>Enter the URL from the second line into your browser (in our case, <em>http://localhost:33328</em>) to view your site.</p>
+<p>When the site loads, you should see a message that says something like this:</p>
+<p><code>The Kickstart.Web site has not been configured yet.</code></p>
+<p>There’s not much to see yet, but we’ll get to that in the following steps. For now, you can take a look at the Xperience administration:</p>
+<p>Add <em>/admin</em> to your site’s URL and sign in using the default <em>administrator</em> account and the password <em>‘kickstart’</em>, as you specified when installing the project database.</p>
+
+
+<div>
+<p><strong>Useful resources for your reference</strong></p>
+<p>Take a look at <a href="/guides/administration-interface-basics">Administration interface basics</a> – a short overview of the Xperience administration and its common navigation and interaction patterns.</p>
+<p>Watch <a href="https://www.youtube.com/watch?v=Uyr0J6Ws4R8&amp;ab_channel=Kentico" target="_blank">this video</a> for a quick walkthrough on installing Xperience by Kentico.</p>
+<p>Check out our <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico">Install a specific version of Xperience by Kentico</a> guide to learn how to manage different Xperience template versions on your machine.</p>
+<p>Explore the <a href="https://github.com/Kentico/xperience-by-kentico-manager" target="_blank">Xperience Manager</a> tool, which can help you simplify installing and managing Xperience by Kentico instances in future projects.</p>
+</div>
+
+<p>Now, let’s continue with the next step, where you will learn how to create a reusable content type, an essential building block in developing multichannel experiences with Xperience by Kentico.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/create-a-reusable-content-type">Create a reusable content type</a></p>
+
+</body>
+</html>

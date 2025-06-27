@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Data erasers - Clear contact information from the site</title>
+</head>
+<body>
+<p>Some data protection laws require site owners to comply when visitors request that their personal data be removed from the application. Data erasers are used to delete or anonymize a visitor’s data. They are called from the <strong>Right to be forgotten</strong> tab in the <strong>Data protection</strong> app of the Xperience by Kentico administration. Let’s examine the process of writing a data eraser.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <a href="/guides/development/data-protection">earlier guides in the series</a>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>The example presented in this <a href="/guides/development/data-protection">Data protection guide series</a> is a <strong>valid implementation of data protection for <a href="/documentation/business-users/digital-marketing/contact-management">Contacts</a></strong> in Xperience by Kentico. (Note that it does not cover the collection and erasure of <a href="/documentation/business-users/members">Members</a> and their associated data.)</p>
+<p>You can copy-paste the code samples into your own solution.</p>
+<p>However, if you choose to do so, <strong>make sure to consult your legal team</strong> to determine whether the implementation, texts, and consent levels <strong>meet the requirements of your region and market</strong>.</p>
+</div>
+
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="add-a-data-eraser">Add a data eraser</h2>
+<p>This example’s data eraser is similar in some ways to the data collector from <a href="/guides/development/data-protection/data-collectors-find-contact-personal-data#collect-data">earlier</a>, but it differs in a few key ways. Firstly, you don’t need to choose between different types of data writers in a data eraser because you are deleting it rather than compiling it for display. This means you don’t need to move the erasure logic into a separate file, as with the data collector.</p>
+<p>This data eraser will follow the same principle as the <a href="/documentation/developers-and-admins/data-protection/personal-data-erasure#create-the-data-eraser">documentation example</a>, but it will include additional options for deleting form data and form submission activities.</p>
+<p>Unlike the data collector, this class does not need collections of <code>CollectedColumn</code> objects. It will simply delete the objects rather than display specific fields.</p>
+
+<div>
+
+</div>
+<div>
+<p>Alternatively, you can make a data eraser that only anonymizes objects (overwrites columns with personal identifying information with anonymous values) instead of deleting them. If you decide to anonymize certain object types, you can take a similar approach and specify which columns you want to anonymize.</p>
+</div>
+
+<ol type="1">
+<li><p>Create a new <em>Erasers</em> folder in <em>TrainingGuides.Web/Features/DataProtection</em> and add a new file called <code>ContactDataEraser.cs</code>.</p></li>
+<li><p>Use the <code>FormCollectionService</code> from <a href="/guides/development/data-protection/data-collectors-find-contact-personal-data#collect-data">earlier</a> to retrieve forms and form submissions.</p></li>
+<li>
+<p>Include methods to delete form submission activities, all activities, contacts, and submitted form data.</p>
+
+<div>
+
+</div>
+<div>
+<p>These methods correspond to the configuration options that users can choose on the <strong>Right to be forgotten</strong> tab of the <strong>Data protection</strong> application. You must check this configuration in each method to decide whether the object type should actually be deleted.</p>
+</div>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactDataEraser.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.Activities;
+using CMS.Base;
+using CMS.ContactManagement;
+using CMS.DataEngine;
+using CMS.DataProtection;
+using CMS.Helpers;
+using CMS.OnlineForms;
+using TrainingGuides.Web.Features.DataProtection.Collectors;
+using TrainingGuides.Web.Features.DataProtection.Services;
+
+namespace TrainingGuides.Web.Features.DataProtection.Erasers;
+
+public class ContactDataEraser : IPersonalDataEraser
+{
+    private readonly IFormCollectionService formCollectionService;
+    private readonly Dictionary&lt;Guid, FormDefinition&gt; forms;
+
+    private readonly IInfoProvider&lt;ContactInfo&gt; contactInfoProvider;
+    private readonly IInfoProvider&lt;ActivityInfo&gt; activityInfoProvider;
+    private readonly IInfoProvider&lt;ConsentAgreementInfo&gt; consentAgreementInfoProvider;
+    private readonly IInfoProvider&lt;BizFormInfo&gt; bizFormInfoProvider;
+
+    public ContactDataEraser(IFormCollectionService formCollectionService,
+        IInfoProvider&lt;ContactInfo&gt; contactInfoProvider,
+        IInfoProvider&lt;ActivityInfo&gt; activityInfoProvider,
+        IInfoProvider&lt;ConsentAgreementInfo&gt; consentAgreementInfoProvider,
+        IInfoProvider&lt;BizFormInfo&gt; bizFormInfoProvider)
+    {
+        this.formCollectionService = formCollectionService;
+
+        this.contactInfoProvider = contactInfoProvider;
+        this.activityInfoProvider = activityInfoProvider;
+        this.consentAgreementInfoProvider = consentAgreementInfoProvider;
+        this.bizFormInfoProvider = bizFormInfoProvider;
+
+        forms = this.formCollectionService.GetForms();
+    }
+
+    public void Erase(IEnumerable&lt;BaseInfo&gt; identities, IDictionary&lt;string, object&gt; configuration)
+    {
+        var contacts = identities.OfType&lt;ContactInfo&gt;().ToList();
+
+        if (!contacts.Any())
+        {
+            return;
+        }
+
+        var contactIds = contacts.Select(c =&gt; c.ContactID).ToList();
+        var contactEmails = contacts.Select(c =&gt; c.ContactEmail).ToList();
+
+        using (new CMSActionContext())
+        {
+            DeleteSubmittedFormsActivities(contactIds, configuration);
+            DeleteActivities(contactIds, configuration);
+            DeleteContacts(contacts, configuration);
+            DeleteSiteSubmittedFormsData(contactEmails, contactIds, configuration);
+        }
+    }
+
+    private void DeleteSubmittedFormsActivities(ICollection&lt;int&gt; contactIds,
+        IDictionary&lt;string, object&gt; configuration)
+    {
+        if (configuration.TryGetValue("DeleteSubmittedFormsActivities", out object? deleteSubmittedFormsActivities)
+            &amp;&amp; ValidationHelper.GetBoolean(deleteSubmittedFormsActivities, false))
+        {
+            activityInfoProvider.BulkDelete(new WhereCondition()
+                .WhereEquals("ActivityType", PredefinedActivityType.BIZFORM_SUBMIT)
+                .WhereIn("ActivityContactID", contactIds));
+        }
+    }
+
+    private void DeleteSiteSubmittedFormsData(ICollection&lt;string&gt; emails, ICollection&lt;int&gt; contactIDs,
+        IDictionary&lt;string, object&gt; configuration)
+    {
+        if (configuration.TryGetValue("DeleteSubmittedFormsData", out object? deleteSubmittedForms)
+            &amp;&amp; ValidationHelper.GetBoolean(deleteSubmittedForms, false))
+        {
+            var consentAgreementGuids = consentAgreementInfoProvider.Get()
+                .Columns("ConsentAgreementGuid")
+                .WhereIn("ConsentAgreementContactID", contactIDs);
+
+            var formClasses = bizFormInfoProvider.Get()
+                .Source(s =&gt; s.LeftJoin&lt;DataClassInfo&gt;("CMS_Form.FormClassID", "ClassID"))
+                .WhereIn("FormGUID", forms.Select(pair =&gt; pair.Key).ToList());
+
+            formClasses.ForEachRow(row =&gt;
+            {
+                var bizForm = new BizFormInfo(row);
+                var formDefinition = forms[bizForm.FormGUID];
+
+                var bizFormItems = formCollectionService.GetBizFormItems(emails, consentAgreementGuids, row, formDefinition);
+
+                foreach (var bizFormItem in bizFormItems)
+                {
+                    bizFormItem.Delete();
+                }
+            });
+        }
+    }
+
+    private void DeleteActivities(List&lt;int&gt; contactIds, IDictionary&lt;string, object&gt; configuration)
+    {
+        if (configuration.TryGetValue("DeleteActivities", out object? deleteActivities)
+            &amp;&amp; ValidationHelper.GetBoolean(deleteActivities, false))
+        {
+            activityInfoProvider.BulkDelete(
+                new WhereCondition().WhereIn("ActivityContactID", contactIds));
+        }
+    }
+
+    private void DeleteContacts(IEnumerable&lt;ContactInfo&gt; contacts, IDictionary&lt;string, object&gt; configuration)
+    {
+        if (configuration.TryGetValue("DeleteContacts", out object? deleteContacts) &amp;&amp;
+            ValidationHelper.GetBoolean(deleteContacts, false))
+        {
+            foreach (var contactInfo in contacts.Where(contact =&gt; contact.ContactID &gt; 0))
+            {
+                contactInfoProvider.Delete(contactInfo);
+            }
+        }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Keep in mind that your eraser needs to clear or anonymize <strong>all object types</strong> that store or reference visitor data in any way to comply with data protection laws. This example does not cover any custom logic specific to your solution.</p>
+</div>
+
+<h2 id="register-the-eraser">Register the eraser</h2>
+<p>To complete this example, register the data eraser so that it is invoked by the system on the <strong>Right to be forgotten</strong> tab of the <strong>Data protection</strong> application in Xperience.</p>
+<p>Open the <code>DataProtectionRegistrationModule.cs</code> file, and add the following line to the <code>OnInit</code> method.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>DataProtectionRegistrationModule.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+// Adds the ContactDataEraser to the collection of registered personal data erasers
+PersonalDataEraserRegister.Instance.Add(ActivatorUtilities.CreateInstance&lt;ContactDataEraser&gt;(serviceProvider));
+...
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This code will fit anywhere within the scope of the method, though it may be best to put it after the existing code from earlier in this series in order to mirror the ordering of the data protection UI and the order in which the data eraser is called in relation to the identity collector.</p>
+</div>
+
+<p>Now, you can open the <strong>Data protection</strong> application from the <strong>Configuration</strong> category of the administration interface. On the <strong>Right to be forgotten</strong> tab, you can enter the email of a known contact and choose which data to delete, and Xperience will use the <code>ContactDataEraser</code> to remove their information from the system, as shown in the video below:</p>
+
+
+</body>
+</html>

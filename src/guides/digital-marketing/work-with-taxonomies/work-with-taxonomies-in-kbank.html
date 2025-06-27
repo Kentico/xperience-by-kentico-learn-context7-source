@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Work with taxonomies in Kbank</title>
+</head>
+<body>
+<p>In the previous guide, we explored <a href="/guides/digital-marketing/work-with-taxonomies/taxonomies">taxonomies in Xperience</a>. This guide will show you practical examples of how to work with Taxonomies.</p>
+
+<div>
+<p>Prerequisites:</p>
+<ul>
+<li>Know what <a href="/guides/digital-marketing/work-with-taxonomies/taxonomies">taxonomies</a> mean.</li>
+<li>Have a Kbank demo site running, if you want to tag along the examples. You can <a href="www.kentico.com/services/training/training-website-requests" target="_blank">request the demo website here</a>.</li>
+</ul>
+</div>
+
+<h2 id="add-or-update-taxonomy-tags">Add or update taxonomy tags</h2>
+<h3 id="create-a-new-tag">Create a new tag</h3>
+<p>To add a tag, go to the <strong>Taxonomies</strong> application and add a <strong>New taxonomy</strong>. Then, fill in the <strong>Taxonomy name</strong> and add a <strong>Description</strong> to describe the tag or its usage in more detail to help your colleagues understand its meaning or implications.</p>
+<p></p>
+<p>Unless you want to customize the <strong>Identifier</strong>, keep it as it is. Xperience creates the identifier automatically from the tag name.</p>
+<h3 id="update-a-tag">Update a tag</h3>
+<p>Imagine you are an editor responsible for your company’s article section. You already created some tags, but then realized you need to rewrite one tag’s name.</p>
+<p>To update the tag, find it in the tag tree in the <strong>Taxonomies</strong> application. Open the tag and adjust what you need, such as the tag name.</p>
+
+<div>
+<p>If you already used the tag somewhere, reconsider changing the <strong>Identifier</strong>. The identifier is a developer-friendly name similar to a code name, and you should treat it with care. Changing it can break some functionality you don’t know about.</p>
+</div>
+
+<h3 id="remove-a-tag">Remove a tag</h3>
+<p>If you need to remove a tag, for example, you realize you created a duplicate of an already existing tag, you can do so in the respective tag tree. Open the <em>three-dot menu</em> on the right side of the tag and select <strong>Delete</strong>.</p>
+<p></p>
+
+<div>
+<p>Like changing the <strong>Identifier</strong> mentioned above, removing a tag can break an existing functionality you don’t know about.</p>
+</div>
+
+<h2 id="work-with-tag-trees">Work with tag trees</h2>
+<h3 id="configure-parent-child-relationship">Configure parent-child relationship</h3>
+<p>Xperience by Kentico allows you to sort tags within a taxonomy into a hierarchy of tags.</p>
+<p>Let’s follow up on the previous example and create a tag tree, which we’ll use to define article types. We want to add four children tags for our parent <em>Article type</em> tag.</p>
+<p>Choose the <em>Article type</em> taxonomy in the taxonomy list. In the left tree, you see the <em>Article type</em> is selected. If you have more subcategories in your tag tree, just select the one you want to add the new child tag to.</p>
+<p>Adding a new tag will create the child tag for the tag selected in the tree. Fill in the <strong>Name</strong>, <strong>Description</strong> or other requested fields. Now, if you just <strong>Save</strong> the tag, Xperience creates it and nothing else happens. But we want to create three more tags, so let’s select <strong>Save and create another</strong>. Xperience saves the new tag and immediately creates a new one on the same hierarchy level.</p>
+<p></p>
+<h3 id="move-tags-in-the-tree-hierarchy">Move tags in the tree hierarchy</h3>
+<p>Sometimes, you need to move tags into another part of a hierarchy tree. For example, the <em>Press release</em> contains several articles about company’s charity activities. So you want to create a charity tag to filter the <em>Press release</em> articles even more. But you created the tag on the same level and now you need to move it under the <em>Press release</em>.</p>
+<p>To move the tag, grab it by the grip dots icon on the left and drag and drop it where you want this tag to be in the tree.</p>
+<p></p>
+<p>You can move the tag to different levels of the hierarchy or even create a new one, as you can see in the image below. Just move the tag more to the left to cover the <em>arrow in the box</em> icon. The grey box indicates the tag <em>Press release</em> will be a child to the <em>Interview</em> tag.</p>
+<p></p>
+<p></p>
+<h2 id="translate-tags-across-different-languages">Translate tags across different languages</h2>
+<p>Translating tags in Xperience is easy; you can add all languages variants at one place in the <strong>Taxonomies</strong> application. Taxonomies don’t have the same properties as <a href="/guides/digital-marketing/work-with-multilingual">multilingual content</a>, however, it doesn’t mean you cannot translate them.</p>
+<p>Find the tag you want to translate in the <strong>Taxonomies</strong> application. Add translations to languages you need and save the changes.</p>
+<p></p>
+<p>The translations will show in the respective language variants of content automatically. If the tag is not translated to the target language, Xperience will show the default language.</p>
+<p></p>
+<p></p>
+<h2 id="use-tags-to-filter-categories-in-the-article-list-widget">Use tags to filter categories in the Article list widget</h2>
+<p>Let’s see one more practical example of how to use taxonomies, this time in Page Builder.</p>
+<p>Find the <em>News</em> page in the content tree in the <em>Personal banking</em> channel. Edit the page to make changes. Find the <strong>Article list</strong> widget in the <strong>Page Builder</strong> and open the widget’s <strong>properties</strong>.</p>
+<p>As shown in the image below, you can filter the displayed articles by choosing the appropriate tags.</p>
+<p></p>
+<p>If you try this in the demo Kbank site, you can play around and see how Xperience immediately shows articles with your selected tags.</p>
+<h2 id="to-sum-up">To sum up</h2>
+<p>If you tried the examples on your instance of demo Kbank site, you now know how to create tags and whole taxonomy trees. You are also able to move the tags in the trees, adjust or remove the tags, and are aware of possible complications the changes may bring.</p>
+
+</body>
+</html>

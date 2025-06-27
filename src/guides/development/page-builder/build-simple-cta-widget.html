@@ -1,0 +1,993 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Build a simple call-to-action widget</title>
+</head>
+<body>
+<p><a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder">Widgets</a> are Page Builder components of the smallest granularity. While <a href="/guides/development/page-builder/implement-flexible-sections">sections, discussed previously</a>, serve primarily to change the page layout and appearance, widgets are a tool for your editors to display and style structured data or take input from the live site visitor.</p>
+<p>Next, let’s create a simple <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder#widgets-based-on-a-view-component">widget based on a view component</a> - a <strong>Simple call to action (CTA) widget</strong>.</p>
+<p>Editors can use the widget anywhere they need a stand-alone CTA button. For example, the “Contact us” or the “View downloads” button from the mockups we talked about in the <a href="/guides/development/page-builder/meet-requirements-with-page-builder">beginning of this Page Builder series</a>:</p>
+<p></p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This guide assumes you have:</p>
+<ul>
+<li>basic knowledge of C# and .NET framework concepts</li>
+<li>familiarity with the basics of <a href="/documentation/developers-and-admins/development/builders/page-builder"><em>Page Builder</em></a> in Xperience by Kentico</li>
+</ul>
+<p>To follow along with the example in this guide, the main branch of our <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">training guides repository</a> is a great starting point. If you have already been using the repository to follow along with earlier guides in this series, you are at the perfect spot.</p>
+<p>Our .NET solution contains two projects. In this guide we will be working solely in the <em>TrainingGuides.Web</em>, so you can assume that being the root at all times.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you are working on your own project, make sure your instance of Xperience by Kentico is <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico">version 29.6.1 or higher</a>.</p>
+<p>The code samples in this guide are for .NET 8 only.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>To see finished implementation of Simple CTA widget, check out <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished/src/TrainingGuides.Web/Features/LandingPages/Widgets/SimpleCallToAction" target="_blank">this folder in the finished branch of our repository</a>.</p>
+<p>If you browse the repository, you may notice another Call to action widget, similar to this Simple CTA. It is different example of the CTA button, as seen in the Kbank demo site, unrelated to this guide.</p>
+</div>
+
+<h2 id="understand-the-requirements">Understand the requirements</h2>
+<p>Editor working with the Simple CTA widget should be able to:</p>
+<ul>
+<li>set the call to action text (e.g., <strong>Contact us</strong>)</li>
+<li>configure whether the button click navigates to a page or an external link</li>
+<li>select an existing page, or paste in an external link to navigate to</li>
+<li>choose whether or not the target opens in a new browser tab</li>
+</ul>
+
+<h2 id="implement-the-widget">Implement the widget</h2>
+
+<p>From an editor’s perspective, the widget has two parts:</p>
+<ul>
+<li>
+<strong>UI component</strong> - the button that renders on the page.</li>
+<li>
+<strong>configurable properties</strong> - a form the editor can access by clicking on the gear icon of the widget</li>
+</ul>
+<p>From a developer’s perspective, the widget will consist of four files:</p>
+<ul>
+<li>
+<strong>properties</strong> - defines the configurable properties form, for the editor to interact with</li>
+<li>
+<strong>view component</strong> - defines how the property values affect the widget behavior and how they map to the widget view model</li>
+<li>
+<strong>view model</strong> - the data model for the widget view to render</li>
+<li>
+<strong>view</strong> - razor view of the widget. It renders in the result webpage for visitors. Editors can also see it in the Page Builder view and page preview in the Xperience administration.</li>
+</ul>
+
+<p>Start by preparing your folder structure:</p>
+<ol type="1">
+<li>Create a new <em>Widgets</em> folder inside <em>~/Features/LandingPages</em>. Here you can place any future widgets related to the Landing pages feature.</li>
+<li>Inside the <em>Widgets</em> folder, create a <em>SimpleCallToAction</em> folder to hold your new widget’s files.</li>
+</ol>
+<h3 id="define-widget-properties">Define widget properties</h3>
+<p>Based on our <a href="/guides/development/page-builder/build-simple-cta-widget#understand-the-requirements">specification</a>, the Simple CTA button needs five configurable properties for the editor:</p>
+<ol type="1">
+<li>
+<strong>Call to action text</strong> - text field to enter the button text</li>
+<li>
+<strong>Target content</strong> - selector for the editor to chose type of target (page or an external link)</li>
+<li>
+<strong>Target page</strong> - page selector, shown only if the editor choses to target page</li>
+<li>
+<strong>Absolute URL</strong> - text field to paste in target URL, shown only if the editor targets external link</li>
+<li>
+<strong>Open in new tab</strong> - checkbox to open the target in the new tab</li>
+</ol>
+<p>To define the configurable properties, we will use the set of existing <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">Xperience admin UI form components</a>.</p>
+<ol type="1">
+<li>First, create a <em>SimpleCallToActionWidgetProperties.cs</em> file in your <em>SimpleCallToAction</em> folder, to hold your property definitions.
+
+<div>
+
+</div>
+<div>
+<p>Based on this file, Xperience will know how to render the UI controls in the administration interface.</p>
+</div>
+</li>
+<li>Define a <code>SimpleCallToActionWidgetProperties</code> class that extends <code>IWidgetProperties</code>.
+
+<div>
+
+</div>
+<div>
+<p>The <code>IWidgetProperties</code> interface comes with the Xperience by Kentico out-of-box.</p>
+</div>
+</li>
+<li>Inside the class, define your properties. They will hold the values of your future UI controls:
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SimpleCallToActionWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+using Kentico.Xperience.Admin.Websites.FormAnnotations;
+using TrainingGuides.Web.Features.Shared.OptionProviders;
+
+namespace TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
+
+public class SimpleCallToActionWidgetProperties : IWidgetProperties
+{
+    public string Text { get; set; } = string.Empty;
+    public string TargetContent { get; set; } = nameof(TargetContentOption.Page);
+    public IEnumerable&lt;WebPageRelatedItem&gt; TargetContentPage { get; set; } = Enumerable.Empty&lt;WebPageRelatedItem&gt;();
+    public string TargetContentAbsoluteUrl { get; set; } = string.Empty;
+    public bool OpenInNewTab { get; set; } = false;
+}   
+</code></pre>
+</div>
+</li>
+</ol>
+<p>Next, we will add the UI form components. To do this, you need to decorate each property with an attribute, based on what <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">component</a> you wish to render. Let’s look at the properties one by one.</p>
+<h4 id="call-to-action-text">Call to action text</h4>
+<p>Use <code>TextInputComponent</code> attribute, to render a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#text-input">text input</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    [TextInputComponent(
+        Label = "Call to action text",
+        ExplanationText = "Add your call to action. Keep it under 30 characters.",
+        Order = 10)]
+    public string Text { get; set; } = string.Empty;
+</code></pre>
+</div>
+
+<p>Take a closer look at the parameters:</p>
+<ul>
+<li>
+<code>Label</code> displays before the input field.</li>
+<li>
+<code>ExplanationText</code> displays underneath as an additional description for the editor.</li>
+<li>
+<code>Order</code> determines the placing of the UI control on the form.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Always aim to provide a meaningful label for your UI controls. Based on your use case, consider adding a concise and relevant explanation text as well.</p>
+</div>
+
+<h4 id="target-content">Target content</h4>
+
+<p>Editors will use this property to decide the type of target: <strong>page</strong> or <strong>absolute URL</strong>.</p>
+<p>At the moment, you only need two types, but it is likely you will have to add more options over time (e.g., asset). Choosing a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#dropdown-selector">dropdown selector component</a> for this property ensures you can expand the options later, without changing the UI.</p>
+<p>Another advantage of a dropdown component is that it supports dynamic options mapping, as described <a href="/guides/development/page-builder/map-enum-to-dropdown">earlier in this series</a>.</p>
+
+<ol type="1">
+<li><p>Decorate the <strong>TargetContent</strong> property with the <code>DropDownComponent</code> attribute.</p></li>
+<li><p>Set <code>Label</code>, <code>ExplanationText</code> and <code>Order</code>.</p></li>
+<li>
+<p>Fill the dropdown with data.</p>
+
+<div>
+
+</div>
+<div>
+<p>In this guide, we are using the <code>DropdownEnumOptionProvider</code> from <a href="/guides/development/page-builder/map-enum-to-dropdown">earlier in this series</a>, which is the recommended way.</p>
+<p>Alternatively, you can skip sub-steps <em>a.</em> through <em>c.</em> and assign dropdown options as a string instead: <code>Options = "Page;Page\r\nAbsoluteUrl;Absolute URL"</code></p>
+</div>
+
+<ol type="1">
+<li>
+<p>Define a new enumeration in the <em>SimpleCallToActionWidgetProperties.cs</em> file, underneath the <code>SimpleCallToActionWidgetProperties</code> class:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SimpleCallToActionWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class SimpleCallToActionWidgetProperties : IWidgetProperties
+{
+    ...
+}
+
+public enum TargetContentOption
+{
+    [Description("Page")]
+    Page,
+    [Description("Absolute URL")]
+    AbsoluteUrl
+}
+</code></pre>
+</div>
+</li>
+<li><p>Assign <code>DataProviderType</code>, using the <code>DropdownEnumOptionProvider</code> and your new <code>TargetContentOption</code> enumeration.</p></li>
+<li><p>Make <code>TargetContentOption.Page</code> the default value.</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+[DropDownComponent(
+    Label = "Target content",
+    ExplanationText = "Select what happens when a visitor clicks your button.",
+    DataProviderType = typeof(DropdownEnumOptionProvider&lt;TargetContentOption&gt;),
+    Order = 20)]
+public string TargetContent { get; set; } = nameof(TargetContentOption.Page);
+</code></pre>
+</div>
+</li>
+</ol>
+<h4 id="target-page">Target page</h4>
+<ol type="1">
+<li>Use a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#page-selector">page selector</a> for <strong>Target page</strong>.</li>
+<li>Set <code>MaximumPages = 1</code> to allow editor only pick <strong>one page at the time</strong>.</li>
+<li>Add a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-visibility-conditions">visibility condition</a> (<code>VisibleIfEqualTo</code>) to ensure, that <strong>Target page</strong> property only renders if the editor set the <strong>Target content</strong> to <code>TargetContentOption.Page</code>.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+[WebPageSelectorComponent(
+    Label = "Target page",
+    ExplanationText = "Select the page in the tree.",
+    MaximumPages = 1,
+    Order = 30)]
+[VisibleIfEqualTo(nameof(TargetContent), nameof(TargetContentOption.Page), StringComparison.OrdinalIgnoreCase)]
+public IEnumerable&lt;WebPageRelatedItem&gt; TargetContentPage { get; set; } = Enumerable.Empty&lt;WebPageRelatedItem&gt;();
+</code></pre>
+</div>
+
+<h4 id="absolute-url">Absolute URL</h4>
+<ol type="1">
+<li><p>Like the <strong>Call to action text</strong> above, make the <strong>Absolute URL</strong> property a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#text-input">text input</a>.</p></li>
+<li><p>Add a <code>VisibleIfEqualTo</code> <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-visibility-conditions">visibility condition</a> to only show the field if the editor sets the <strong>Target content</strong> to <code>TargetContentOption.AbsoluteUrl</code>.</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+[TextInputComponent(
+    Label = "Absolute URL",
+    ExplanationText = "Add a hyperlink to an external site, or use the product's URL + anchor tag # for referencing an anchor on the page, for example, \"https://your-doma.in/contact-us#form\"",
+    Order = 40)]
+[VisibleIfEqualTo(nameof(TargetContent), nameof(TargetContentOption.AbsoluteUrl), StringComparison.OrdinalIgnoreCase)]
+public string TargetContentAbsoluteUrl { get; set; } = string.Empty;
+</code></pre>
+</div>
+
+<h4 id="open-in-new-tab">Open in new tab</h4>
+<p>Our last property is a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">checkbox component</a> with a <code>bool</code> value. Set its default value to unchecked (<code>false</code>). This way, unless the editor changes it, the target will open in the same browser tab.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+[CheckBoxComponent(
+    Label = "Open in new tab",
+    Order = 50)]
+public bool OpenInNewTab { get; set; } = false;
+</code></pre>
+</div>
+
+<p>Here is the complete <em>SimpleCallToActionWidgetProperties.cs</em> file for your reference:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SimpleCallToActionWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+using Kentico.Xperience.Admin.Websites.FormAnnotations;
+using TrainingGuides.Web.Features.Shared.OptionProviders;
+
+namespace TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
+
+public class SimpleCallToActionWidgetProperties : IWidgetProperties
+{
+    [TextInputComponent(
+        Label = "Call to action text",
+        ExplanationText = "Add your call to action. Keep it under 30 characters.",
+        Order = 10)]
+    public string Text { get; set; } = string.Empty;
+
+    [DropDownComponent(
+        Label = "Target content",
+        ExplanationText = "Select what happens when a visitor clicks your button.",
+        DataProviderType = typeof(DropdownEnumOptionProvider&lt;TargetContentOption&gt;),
+        Order = 20)]
+    public string TargetContent { get; set; } = nameof(TargetContentOption.Page);
+
+    [WebPageSelectorComponent(
+        Label = "Target page",
+        ExplanationText = "Select the page in the tree.",
+        MaximumPages = 1,
+        Order = 30)]
+    [VisibleIfEqualTo(nameof(TargetContent), nameof(TargetContentOption.Page), StringComparison.OrdinalIgnoreCase)]
+    public IEnumerable&lt;WebPageRelatedItem&gt; TargetContentPage { get; set; } = Enumerable.Empty&lt;WebPageRelatedItem&gt;();
+
+    [TextInputComponent(
+        Label = "Absolute URL",
+        ExplanationText = "Add a hyperlink to an external site, or use the product's URL + anchor tag # for referencing an anchor on the page, for example, \"https://your-doma.in/contact-us#form\"",
+        Order = 40)]
+    [VisibleIfEqualTo(nameof(TargetContent), nameof(TargetContentOption.AbsoluteUrl), StringComparison.OrdinalIgnoreCase)]
+    public string TargetContentAbsoluteUrl { get; set; } = string.Empty;
+
+    [CheckBoxComponent(
+        Label = "Open in new tab",
+        Order = 50)]
+    public bool OpenInNewTab { get; set; } = false;
+}
+
+public enum TargetContentOption
+{
+    [Description("Page")]
+    Page,
+    [Description("Absolute URL")]
+    AbsoluteUrl
+}
+</code></pre>
+</div>
+
+<h3 id="implement-widget-component">Implement widget component</h3>
+<p>The next step is to define the behavior and visual design of the widget. Let’s implement widget view model, view and view component.</p>
+<p></p>
+<h4 id="create-view-model">Create view model</h4>
+<ol type="1">
+<li>Create a new <code>SimpleCallToActionWidgetViewModel</code> class in your <em>SimpleCallToAction</em> folder.</li>
+<li>From the UI perspective, the widget needs only three properties:
+<ul>
+<li>
+<code>Text</code>: call to action text to render (e.g., Contact us)</li>
+<li>
+<code>Url</code>: where navigate after button click</li>
+<li>
+<code>OpenInNewTab</code>: how to open the target Url</li>
+</ul>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SimpleCallToActionWidgetViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
+
+public class SimpleCallToActionWidgetViewModel
+{
+    public string Text { get; set; } = string.Empty;
+    public string Url { get; set; } = string.Empty;
+    public bool OpenInNewTab { get; set; } = false;
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Notice that the view model properties don’t exactly mirror the widget properties. The purpose of the widget properties is to gather data from editors. These go through processing in the view component and the view model should include only data that is going to be displayed in the resulting view.</p>
+<p>For example, in our case, there is no need for two separate properties for a page and an external link in the view model. The button only needs a target URL to navigate to.</p>
+</div>
+
+<h4 id="create-view">Create view</h4>
+<ol type="1">
+<li><p>Add new view file, called <em>SimpleCallToActionWidget.cshtml</em>, in your <em>SimpleCallToAction</em> folder.</p></li>
+<li>
+<p>Set your <a href="/guides/development/page-builder/build-simple-cta-widget#create-view-model"><code>SimpleCallToActionWidgetViewModel</code></a> as the <code>model</code>.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>SimpleCallToActionWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction
+@model SimpleCallToActionWidgetViewModel   
+</code></pre>
+</div>
+</li>
+<li>
+<p>Handle the error state of the widget. When either the <code>Text</code>, <code>Url</code> or the whole <code>Model</code> are undefined, let’s show a message to tell the editor something is wrong. Remember, you don’t want to show the message to the website visitor:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>SimpleCallToActionWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...        
+&lt;!-- render this part only if the widget is misconfigured --&gt;
+@if (Model == null || string.IsNullOrWhiteSpace(Model.Text)
+    || string.IsNullOrWhiteSpace(Model.Url))
+{
+    &lt;!-- display the message **only** if the page is in edit, readonly or preview mode in the Xperience administration--&gt;
+    @if (Context.Kentico().PageBuilder().GetMode() == PageBuilderMode.Edit
+        || Context.Kentico().PageBuilder().GetMode() == PageBuilderMode.ReadOnly
+        || Context.Kentico().Preview().Enabled)
+    {
+        &lt;p&gt;
+            This widget needs some setup. Click the &lt;strong&gt;Configure widget&lt;/strong&gt; gear icon in the top right to configure content and design for this widget.
+        &lt;/p&gt;
+    }
+
+    return;
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>As you create more widgets in your project, you’ll notice the error handling in widget views is more or less the same. We recommend extracting the functionality, using for example tag helpers (see <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/LandingPages/Widgets/SimpleCallToAction/SimpleCallToActionWidget.cshtml" target="_blank">the SimpleCallToActionWidget view in the finished branch of our repository</a>).</p>
+</div>
+</li>
+<li>
+<p>Handle the valid state of the widget and render the button using the values from the model:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>SimpleCallToActionWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+@if (Model != null)
+{
+    &lt;div class="text-center"&gt;
+        &lt;a href="@Model.Url" class="btn tg-btn-secondary text-uppercase my-4" target="@(Model.OpenInNewTab ? "_blank" : "")"&gt;
+            @Model.Text
+        &lt;/a&gt;
+    &lt;/div&gt;
+}
+</code></pre>
+</div>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>This code sample takes advantage of classes that exist in our training guides repository, to style the link as a button. Feel free to reuse them or play around with your own styling.</p>
+</div>
+
+<p>If you are following along, your <em>SimpleCallToActionWidget.cshtml</em> should look like this:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>SimpleCallToActionWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction
+@model SimpleCallToActionWidgetViewModel
+    
+@if (Model == null || string.IsNullOrWhiteSpace(Model.Text)
+    || string.IsNullOrWhiteSpace(Model.Url))
+{
+    @if (Context.Kentico().PageBuilder().GetMode() == PageBuilderMode.Edit
+        || Context.Kentico().PageBuilder().GetMode() == PageBuilderMode.ReadOnly
+        || Context.Kentico().Preview().Enabled)
+    {
+        &lt;p&gt;
+            This widget needs some setup. Click the &lt;strong&gt;Configure widget&lt;/strong&gt; gear icon in the top right to configure content and design for this widget.
+        &lt;/p&gt;
+    }
+
+    return;
+}
+@if (Model != null)
+{
+    &lt;div class="text-center"&gt;
+        &lt;a href="@Model.Url"
+        class="btn tg-btn-secondary text-uppercase my-4"
+        target="@(Model.OpenInNewTab ? "_blank" : "")"&gt;
+            @Model.Text
+        &lt;/a&gt;
+    &lt;/div&gt;
+}
+</code></pre>
+</div>
+
+<h4 id="create-view-component">Create view component</h4>
+<ol type="1">
+<li>Add a new <em>SimpleCallToActionWidgetViewComponent.cs</em> file in your <em>SimpleCallToAction</em> folder.</li>
+<li>Create a class with the same name that extends the .NET <code>ViewComponent</code> class.</li>
+<li>Create an <code>InvokeAsync</code> method that
+<ul>
+<li>takes <code>SimpleCallToActionWidgetProperties</code> as a parameter</li>
+<li>creates an instance of <a href="/guides/development/page-builder/build-simple-cta-widget#create-view-model">your view model</a> and fills it with data, based on the values in <code>properties</code>
+</li>
+<li>returns <a href="/guides/development/page-builder/build-simple-cta-widget#create-view">your widget view</a> and passes in the model</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SimpleCallToActionWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc;
+using TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
+
+namespace TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
+
+public class SimpleCallToActionWidgetViewComponent : ViewComponent
+{
+    private readonly IWebPageUrlRetriever webPageUrlRetriever;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+
+    // use dependency injection to access necessary Xperience services
+    public SimpleCallToActionWidgetViewComponent(
+        IWebPageUrlRetriever webPageUrlRetriever,
+        IPreferredLanguageRetriever preferredLanguageRetriever)
+    {
+        this.webPageUrlRetriever = webPageUrlRetriever;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+    }
+
+    public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(SimpleCallToActionWidgetProperties properties)
+    {
+        // figure out what the target URL should be
+        // if the editor sets TargetContent to *Page*, retrieve the page URL, using the GetWebPageUrl function (defined below)
+        // if the editor sets TargetContent to *AbsoluteUrl*, simply read it from the properties parameter
+        string targetUrl = properties.TargetContent switch
+        {
+            nameof(TargetContentOption.Page) =&gt; await GetWebPageUrl(properties.TargetContentPage?.FirstOrDefault()) ?? string.Empty,
+            nameof(TargetContentOption.AbsoluteUrl) =&gt; properties.TargetContentAbsoluteUrl,
+            _ =&gt; string.Empty
+        };
+
+        // fill the model with data:
+        // pass along the call to action Text from *properties*
+        // set the *targetUrl* retrieved above
+        // pass along the *OpenInNewTab* from *properties*
+        var model = new SimpleCallToActionWidgetViewModel()
+        {
+            Text = properties.Text,
+            Url = targetUrl,
+            OpenInNewTab = properties?.OpenInNewTab ?? false,
+        };
+
+        return View("~/Features/LandingPages/Widgets/SimpleCallToAction/SimpleCallToACtionWidget.cshtml", model);
+    }
+
+    // retrieve the URL of a web page retrieved from a page selector control
+    private async Task&lt;string?&gt; GetWebPageUrl(WebPageRelatedItem? webPage) =&gt;
+        webPage != null
+        ? (await webPageUrlRetriever.Retrieve(webPage.WebPageGuid, preferredLanguageRetriever.Get()))
+            .RelativePath
+        : string.Empty;
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Notice the <code>GetWebPageUrl</code> method above.</p>
+<p>When an editor selects a page using <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#page-selector">page selector</a>, the value comes to the view component as a <code>WebPageRelatedItem</code> object. Because the object doesn’t contain the URL of the page, we use <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content/retrieve-page-urls"><code>IWebPageUrlRetriever</code></a> to retrieve it, and the <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content#access-current-preferred-language"><code>IPreferredLanguageRetriever</code></a> to ensure the URL is accurate for the <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages">current site language</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The code here rely on a <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/TrainingGuidesWebPageUrlRetriever.cs" target="_blank">decorated version</a> of <code>IWebPageUrlRetriever</code> that includes exception handling.</p>
+<p>If you do not plan to use a similar customization, make sure to handle errors that the <code>Retrieve</code> method may throw when it cannot find a page.</p>
+</div>
+</li>
+</ol>
+<h2 id="register-the-widget">Register the widget</h2>
+<p>The last piece of the puzzle is to <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder#register-widgets">register your new widget</a> so the Xperience recognizes it.</p>
+<ol type="1">
+<li>
+<p>First, your widget needs an identifier. Add is as a constant in your <code>SimpleCallToActionWidgetViewComponent</code> class:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SimpleCallToActionWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    ...
+    public class SimpleCallToActionWidgetViewComponent : ViewComponent
+    {
+        // new constant
+        public const string IDENTIFIER = "TrainingGuides.SimpleCallToActionWidget";
+
+        private readonly IWebPageUrlRetriever webPageUrlRetriever;
+        private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+        ...
+    }
+</code></pre>
+</div>
+</li>
+<li>
+<p>Use the <code>RegisterWidget</code> assembly attribute to register the widget, using a newly defined <code>IDENTIFIER</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SimpleCallToActionWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using Kentico.PageBuilder.Web.Mvc;
+using TrainingGuides.Web.Features.LandingPages.Widgets.CallToAction;
+using TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
+
+[assembly:
+RegisterWidget(
+    identifier: SimpleCallToActionWidgetViewComponent.IDENTIFIER,
+    viewComponentType: typeof(SimpleCallToActionWidgetViewComponent),
+    name: "Simple call to action",
+    propertiesType: typeof(SimpleCallToActionWidgetProperties),
+    Description = "Displays a call to action button.",
+    IconClass = "icon-bubble")]
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>See more information and individual parameters explanation in <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder#register-widgets">our documentation page about widget registration</a>.</p>
+</div>
+
+<p>Place your registration at the top of your <em>SimpleCallToActionWidgetViewComponent.cs</em> file, after the <code>using</code> statements.</p>
+<p>Your full <em>SimpleCallToActionWidgetViewComponent.cs</em> file should look like this:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SimpleCallToActionWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc;
+using TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
+
+// register Simple call to action widget
+[assembly:
+    RegisterWidget(
+        identifier: SimpleCallToActionWidgetViewComponent.IDENTIFIER,
+        viewComponentType: typeof(SimpleCallToActionWidgetViewComponent),
+        name: "Simple call to action",
+        propertiesType: typeof(SimpleCallToActionWidgetProperties),
+        Description = "Displays a call to action button.",
+        IconClass = "icon-bubble")]
+
+namespace TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
+
+public class SimpleCallToActionWidgetViewComponent : ViewComponent
+{
+    public const string IDENTIFIER = "TrainingGuides.SimpleCallToActionWidget";
+
+    private readonly IWebPageUrlRetriever webPageUrlRetriever;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+
+    public SimpleCallToActionWidgetViewComponent(
+        IWebPageUrlRetriever webPageUrlRetriever,
+        IPreferredLanguageRetriever preferredLanguageRetriever)
+    {
+        this.webPageUrlRetriever = webPageUrlRetriever;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+    }
+
+    public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(SimpleCallToActionWidgetProperties properties)
+    {
+
+        string targetUrl = properties.TargetContent switch
+        {
+            nameof(TargetContentOption.Page) =&gt; await GetWebPageUrl(properties.TargetContentPage?.FirstOrDefault()) ?? string.Empty,
+            nameof(TargetContentOption.AbsoluteUrl) =&gt; properties.TargetContentAbsoluteUrl,
+            _ =&gt; string.Empty
+        };
+
+        var model = new SimpleCallToActionWidgetViewModel()
+        {
+            Text = properties.Text,
+            Url = targetUrl,
+            OpenInNewTab = properties?.OpenInNewTab ?? false,
+        };
+
+        return View("~/Features/LandingPages/Widgets/SimpleCallToAction/SimpleCallToACtionWidget.cshtml", model);
+    }
+
+    private async Task&lt;string?&gt; GetWebPageUrl(WebPageRelatedItem? webPage) =&gt;
+        webPage != null
+        ? (await webPageUrlRetriever.Retrieve(webPage.WebPageGuid, preferredLanguageRetriever.Get()))
+            .RelativePath
+        : string.Empty;
+}
+</code></pre>
+</div>
+</li>
+</ol>
+<h3 id="expose-the-widget-identifier-for-future-reference">Expose the widget identifier for future reference</h3>
+<p>There will be cases in your project when you need to reference the widget by its identifier. For example, when restricting widgets allowed in a particular <a href="/documentation/developers-and-admins/development/reference-tag-helpers#widget-zone">widget zone</a>.</p>
+<p>For this purpose we recommend storing references to all your widgets in one place. In our <em>TrainingGuides.Web</em> project, we keep all Widget identifiers as constants inside a static class called <code>ComponentIdentifiers</code>.</p>
+<ol type="1">
+<li><p>Navigate to <em>ComponentIdentifiers.cs</em> file in the root of the <em>TrainingGuides.Web</em> project.</p></li>
+<li><p>Locate the <code>Widgets</code> class inside the <code>ComponentIdentifiers</code> class.</p></li>
+<li>
+<p>Add a constant referencing <code>SimpleCallToActionWidgetViewComponent.IDENTIFIER</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentIdentifiers.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    ...
+    public static class ComponentIdentifiers
+    {
+        public static class Sections
+        {
+        ...
+        }
+
+        public static class Widgets
+        {
+            ...
+            public const string SIMPLE_CALL_TO_ACTION = SimpleCallToActionWidgetViewComponent.IDENTIFIER;
+        }
+    }
+</code></pre>
+</div>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>Now you can reference Simple call to action widget anywhere in your project as <code>ComponentIdentifiers.Widgets.SIMPLE_CALL_TO_ACTION</code>.</p>
+<p>For example, if you followed <a href="/guides/development/page-builder/implement-flexible-sections#create-a-section-view">the flexible section example from earlier in this series</a>, you can pass something like this into the <code>editable-area-options</code> in the view:</p>
+<div>
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@new EditableAreaOptions()
+{
+    AllowedWidgets = [ComponentIdentifiers.Widgets.SIMPLE_CALL_TO_ACTION]
+}
+</code></pre>
+</div>
+</div>
+</div>
+
+<h2 id="see-the-button-in-action">See the button in action</h2>
+<p>Now that the work is done, it’s time to build your project and enjoy the fruits of your labor. If your implementation is correct and complete, you should be able to log into the administration interface and add a Simple CTA button to the Home page, as you can see in this video.</p>
+
+
+<div>
+
+</div>
+<div>
+<p>If you are not seeing your widget as an option, double-check <a href="/guides/development/page-builder/build-simple-cta-widget#register-the-widget">your widget registration</a> is correct.</p>
+<p>If you are getting an error after adding the widget, see the <strong>Event log</strong> under <strong>Development</strong> in menu on the left for more information.</p>
+</div>
+
+<h2 id="whats-next">What’s next?</h2>
+<p><a href="/guides/development/page-builder/define-advanced-widget">The next guide in this series</a> will explain how to create a more advanced widget, demonstrating their true power.</p>
+
+</body>
+</html>

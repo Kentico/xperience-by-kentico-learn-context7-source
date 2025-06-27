@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create a reusable content type</title>
+</head>
+<body>
+<p>Storing and displaying structured content is one of the fundamental parts of working with any CMS. The structure of your content is determined by your company’s <a href="/guides/architecture/content-modeling/content-modeling-guide">content model</a>, an important part of which is <strong>reusable content</strong>.</p>
+<p>Reusable content items are presentation-agnostic, structured pieces of content, stored in the <strong><a href="/documentation/business-users/content-hub">Content hub</a></strong>. As the name suggests, they are reusable across multiple channels (web pages, emails, and headless channels).</p>
+<p>In this step, we’ll create a <strong>reusable content type</strong> (a template for a reusable content item) in the Xperience administration interface. We’ll then generate a partial class for it in your .NET solution so that we can access and work with it programmatically.</p>
+<h2 id="define-the-content-type-in-the-administration-interface">Define the content type in the administration interface</h2>
+<p>Once you’ve signed in to the Xperience administration, we can get started.</p>
+<h3 id="define-the-content-type">Define the content type</h3>
+<p>From the dashboard, select the <strong>Content types</strong> application under the <strong>Configuration</strong> heading. Then click the <strong>New content type</strong> button and populate the form with the following properties:</p>
+<ul>
+<li><p><strong>Display Name:</strong> Slogan</p></li>
+<li><p><strong>Namespace:</strong> Kickstart</p></li>
+<li><p><strong>Name:</strong> Slogan</p></li>
+<li><p><strong>Icon:</strong> <em>xp-a-lowercase</em> (type ‘lowercase’ in the select list search bar)</p></li>
+<li>
+<p><strong>Use for:</strong> select <strong>Reusable content</strong> from the dropdown</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Reusable content</strong></p>
+<p>Xperience by Kentico allows you to create content that is reusable across multiple channels and channel types. We <strong>highly recommend</strong> the <strong>Reusable content</strong> property setting for any content type created with this intention.</p>
+<p>For example, in this case, you can reference and display the <em>Slogan</em> content type on multiple separate website, headless, and email channels, but it will only live in one place, the <a href="/documentation/business-users/content-hub">Content hub</a>.</p>
+</div>
+</li>
+</ul>
+<h3 id="add-a-field-to-the-content-type">Add a field to the content type</h3>
+<p>After saving your new content type, switch to the <strong>Fields</strong> tab. There you can add a new field to hold the slogan, with the following properties:</p>
+<ul>
+<li>
+<strong>Field name:</strong> SloganText</li>
+<li>
+<strong>Data type:</strong> Text</li>
+<li>
+<strong>Size:</strong> 500</li>
+<li>
+<strong>Required:</strong> True (Enabled)</li>
+<li>
+<strong>Display in editing form:</strong> True (Enabled)</li>
+<li>
+<strong>Field caption:</strong> Slogan</li>
+<li>
+<strong>Form component:</strong> Text input</li>
+</ul>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Naming convention for Content type fields</strong></p>
+<p>We recommend prefixing <em>field names</em> with the content type’s name (e.g. <em>ArticleTitle</em>, <em>ArticleText</em> for an <em>Article</em> content type). This naming convention helps avoid problems when you have to work with multiple content types in code.</p>
+</div>
+
+<h3 id="check-your-progress">Check your progress</h3>
+<p>Now that we’ve gone through the steps to create a <a href="/documentation/business-users/content-hub">reusable content type</a>, let’s make sure everything is working.</p>
+<p>Navigate to the <strong>Content Hub</strong> application (under the <strong>Content management</strong> category) and try to create a new content item. You should see <em>Slogan</em> as one of the available content type options, alongside any additional reusable content types you may have created in your own experimentation:</p>
+<p></p>
+<h2 id="add-the-content-type-to-your-solution">Add the content type to your solution</h2>
+<p>The steps we’ve covered so far allow your editors to create new content items in the Xperience admin UI. However, to work with these content types as strongly-typed objects in code, we need the <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">code generator</a>.</p>
+<p>You can automatically generate classes that correspond to your content types with the <code>dotnet run --kxp-codegen</code> <a href="https://docs.microsoft.com/en-us/dotnet/core/tools/" target="_blank">.NET CLI</a> command.</p>
+
+<div>
+
+</div>
+<div>
+<p>We recommend storing these generated classes in a separate project. With large projects, the separation of concerns into multiple layers helps ensure easier code maintenance in the future.</p>
+</div>
+
+<h3 id="create-a-new-project-for-generated-code">Create a new project for generated code</h3>
+<h4 id="create-a-project">Create a project</h4>
+<p>Open your <em>Kickstart</em> solution with your preferred source code editor, and add a new <em>Class Library</em> project running on .NET 8. Name it <em>Kickstart.Entities</em></p>
+
+<div>
+
+</div>
+<div>
+<p>Depending on your IDE, you may need to manually create a corresponding folder for the project.</p>
+</div>
+
+<p></p>
+<h4 id="reference-the-project">Reference the project</h4>
+<p>Add a reference from the <em>Kicskstart.Web</em> project to the <em>Kickstart.Entities</em> project.</p>
+<p>You can do this by adding a line like <code>&lt;ProjectReference Include="..\Kickstart.Entities\Kickstart.Entities.csproj" /&gt;</code> to the <strong>Kickstart.Web.csproj</strong> file, or through the UI of some editors.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you are using Visual Studio the steps are:</p>
+<ol type="1">
+<li>Right-click on <em>Kickstart.Web</em> in the solution explorer.</li>
+<li>Choose <em>Add → Project reference</em>.</li>
+<li>Select the box for <em>Kickstart.Entities</em>, then click <em>OK</em>.</li>
+</ol>
+</div>
+
+<h4 id="configure-the-project">Configure the project</h4>
+<p>Add the <em>Kentico.Xperience.Core</em> NuGet package to the <em>Kickstart.Entities</em> project. Make sure to match the version of Xperience you installed – <strong>29.3.0</strong> in this case.</p>
+<p>Then edit <em>Kickstart.Entities.csproj</em> to add the <code>CMS.AssemblyDiscoverableAttribute</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>The <code>CMS.AssemblyDiscoverableAttribute</code> allows the Xperience API to recognize and register classes and implementations when the application starts.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>Kickstart.Entities.csproj</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+  &lt;ItemGroup&gt;
+    &lt;AssemblyAttribute Include="CMS.AssemblyDiscoverableAttribute"&gt;
+    &lt;/AssemblyAttribute&gt;
+  &lt;/ItemGroup&gt;
+...
+
+</code></pre>
+</div>
+
+<h3 id="generate-the-class">Generate the class</h3>
+<p>Now let’s dive into generating the code for your new <em>Slogan</em> content type.</p>
+<p>Open a command line in the <em>Kickstart.Web</em> folder and run the following command.</p>
+
+<div>
+<div>
+<div>
+<span>Bash</span>
+</div>
+<strong>Generate code files</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location "../Kickstart.Entities/{type}/{name}" --include "Kickstart.Slogan"
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you’d like to learn more about how to generate classes for different system objects created through the administration interface, we recommend <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">this documentation page</a>. </p>
+<p><a href="/guides/development/get-started/generate-code-for-custom-content-and-data-classes">This video</a> is another great resource that will walk you through some concrete examples.</p>
+</div>
+
+<p>After you successfully run the command above, you will see it created an <em>Slogan.generated.cs</em> file for the <em>Kickstart.Slogan</em> content type, located in the <em>~/ReusableContentTypes/Slogan</em> folder of the <em>Kickstart.Entities</em> project.</p>
+<p>Thanks to the generated class, you can now retrieve and work with any future <em>Slogan</em> content items as described in <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">the documentation</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Code generation is a task that you will likely be performing repeatedly over the course of development.</p>
+<p>Check out our <a href="/guides/development/get-started/automate-regular-tasks-with-powershell-scripts">Automate regular tasks with PowerShell scripts</a> guide to learn how you can automate and optimize this and other similar processes.</p>
+</div>
+
+<p>In the next step we will cover how to create a web channel, in order to display your content.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/add-a-website-channel">Add a website channel</a></p>
+
+</body>
+</html>

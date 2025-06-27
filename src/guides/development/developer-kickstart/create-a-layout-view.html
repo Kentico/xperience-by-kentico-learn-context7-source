@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create a layout view</title>
+</head>
+<body>
+<p>Your project now has a <em>Home</em> page. One last missing piece to set it up correctly is adding Page Builder scripts and styles.</p>
+<p>Using <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/views/layout?view=aspnetcore-8.0" target="_blank">layout views</a> in MVC is a standard practice. They wrap the content of specialized views and often include shared features, like navigation and frequently used styles and scripts.</p>
+<p>Our layout will render the missing Page Builder scripts and styles from the sections included in the template. We will also add Bootstrap styles to our project to give it a nicer look.</p>
+<h2 id="add-the-layout-view">Add the Layout view</h2>
+<p>Create a new <em>~/Views/Shared</em> directory in the root of your <em>Kickstart.Web</em> project. Inside the directory, add a new view called <em>_Layout.cshtml</em>.</p>
+<p>Include a title, heading, and some simple text to make the layout view visually apparent while testing.</p>
+<p>Call <code>@RenderBody()</code> inside the <code>body</code> tag to indicate where the Razor Engine should render the content of the views.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head id="head"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta data-hid="mobile-web-app-capable" name="mobile-web-app-capable" content="yes"&gt;
+    &lt;meta data-hid="author" name="author" content="Kentico software s.r.o."&gt;
+
+    &lt;title&gt;Xperience Kickstart&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;div&gt;
+        &lt;h2&gt;Xperience Kickstart&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        @RenderBody()
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;p&gt;Find more information in the &lt;a href="https://docs.kentico.com/guides/development" target="_blank"&gt;Xperience by Kentico guides&lt;/a&gt;.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+</div>
+
+<h2 id="insert-page-builder-styles-and-scripts">Insert Page Builder styles and scripts</h2>
+<p>Add the <code>page-builder-styles</code> tag helper in the <code>head</code> tag to insert the styles required for Page Builder.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    ...
+    &lt;!-- add Page Builder styles --&gt;
+    &lt;page-builder-styles /&gt;
+    &lt;title&gt;Xperience Kickstart&lt;/title&gt;
+&lt;/head&gt;
+...
+</code></pre>
+</div>
+
+<p>Use the <code>page-builder-scripts</code> tag helper to render scripts required for Page Builder below the page content.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+&lt;body&gt;
+    ...
+    &lt;div&gt;
+        @RenderBody()
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;p&gt;Find more information in the &lt;a href="https://docs.kentico.com/guides/development" target="_blank"&gt;Xperience by Kentico guides&lt;/a&gt;.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;!-- add Page Builder scripts --&gt;
+    &lt;page-builder-scripts /&gt;
+&lt;/body&gt;
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>It is important to place the scripts after the page content. Otherwise, the content may not display until after the scripts finish loading.</p>
+</div>
+
+<h2 id="set-up-templates-to-use-the-layout">Set up templates to use the layout</h2>
+<p>If you run your website now, you’ll see it still only shows your slogan message.</p>
+<p>Since the new layout view lives in a directory different from the <em>Landing page template</em>, the system will <strong>not</strong> use it automatically. Let’s rectify this with a <em>ViewStart</em> file.</p>
+<p><em>ViewStart</em> files specify code that runs at the start of every razor view’s execution.</p>
+<p>Like the <em>ViewImports</em> file, <em>ViewStart</em> files apply only to the folder where they are located and its subfolders. We recommend putting it in the root of the site, and overriding it for specific subdirectories where necessary.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can use the override mechanism to specify a different layout view for specific subfolders.</p>
+</div>
+
+<p>In the root of the <em>Kickstart.Web</em> project, add an empty Razor view called <em>_ViewStart.cshtml</em>.</p>
+<p>Tell the system to use the <em>_Layout</em> view as a layout for all your project’s views.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_ViewStart.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@{ 
+    Layout = "_Layout";
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Layout file path</strong></p>
+<p>Because the layout is in the <em>Views/Shared</em> folder, where MVC automatically looks, you don’t need to provide a full path.</p>
+<p>If you store your layout elsewhere, you have to specify its path, using ~ to represent the root of the project. For example, <code>~/CustomDirectory/CustomViewsFolder/Shared/_Layout.cshtml</code>.</p>
+</div>
+
+<h2 id="check-your-progress">Check your progress</h2>
+<p>Run the site locally and visit the <em>/Home</em> path to see your new layout view <strong>and</strong> the message from the reusable item rendered to the page.</p>
+<p></p>
+<p>To verify that your Page Builder scripts and styles work, navigate to your <strong>Home</strong> page in the <strong>Kickstart pages</strong> channel in the administration UI.</p>
+<p>Now, when you switch to the <strong>Page Builder</strong> tab and click <strong>Edit page</strong>, you should see your Page Builder area from the <a href="/guides/development/developer-kickstart/build-a-page-template#add-the-page-template-view">Landing page template</a>. The <strong>Publish</strong> button in the top-right corner should now be active and working.</p>
+<p></p>
+<p>Go ahead and add some more content to the page. Click the plus button in the middle to add a <a href="/documentation/business-users/rich-text-editor">Rich text</a> widget. You can insert some Lorem ipsum text and and a simple table, like in our example.</p>
+
+
+<div>
+
+</div>
+<div>
+<p>As opposed to the <em>Welcome slogan</em> reusable content item stored in the <a href="/documentation/business-users/content-hub">Content hub</a>, this content is <strong>unstructured</strong>, lives only within the <em>Home page</em>, and cannot be referenced from elsewhere.</p>
+</div>
+
+<h2 id="add-styles-to-your-website">Add styles to your website</h2>
+<p>Let’s make your website look nicer with some styles.</p>
+<p>This step is optional. We will use <a href="https://getbootstrap.com/" target="_blank">Bootstrap</a>, but feel free to use any styles you like.</p>
+<p>You can <a href="https://getbootstrap.com/docs/5.3/getting-started/download/" target="_blank">host Bootstrap files locally</a> or point to an online resource by adding a <code>link</code> tag to your <em>_Layout.cshtml</em> file:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+    &lt;page-builder-styles /&gt;
+    &lt;!-- add bootstrap as an online resource --&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"&gt;
+
+    &lt;title&gt;Xperience Kickstart&lt;/title&gt;
+&lt;/head&gt;
+...
+</code></pre>
+</div>
+
+<p>Now you can use Bootstrap classes to give your layout some shape and color, for example:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+&lt;body&gt;
+    &lt;div class="navbar navbar-primary navbar-expand-sm navbar-dark bg-primary p-3"&gt;
+        &lt;div class="navbar-brand"&gt;
+            &lt;h2&gt;Xperience Kickstart&lt;/h2&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="p-3"&gt;
+        @RenderBody()
+    &lt;/div&gt;
+    &lt;div class="border-top p-3"&gt;
+        &lt;p&gt;Find more information in the &lt;a href="https://docs.kentico.com/guides/development" target="_blank"&gt;Xperience
+                by Kentico
+                guides&lt;/a&gt;.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;page-builder-scripts /&gt;
+&lt;/body&gt;
+</code></pre>
+</div>
+
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>See our <em>_Layout.cshtml</em> in the <a href="https://github.com/Kentico/xperience-by-kentico-kickstart/blob/main/src/Kickstart.Web/Views/Shared/_Layout.cshtml" target="_blank">Kickstart repository</a> for your reference. Note that the file includes a navigation menu, which we will implement in the later steps of this series.</p>
+</div>
+
+<p>Your website will typically need more than one page. In the next step, we’ll add another one, reusing existing content types and adding a simple “Contact us” form.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/add-contact-us-page">Add a Contact us page</a></p>
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Build your first customer journey that works</title>
+</head>
+<body>
+<p>If you’re a marketer juggling multiple priorities, it can be tough to know whether your website content is doing its job. Stop guessing and finally understand how visitors interact with your business. The <strong>Customer journeys</strong> application in Xperience by Kentico help you uncover how visitors move through your site, where they drop off, and what leads them to convert.</p>
+<p>A <strong>customer journey</strong> is a series of touch points (called <strong>stages</strong> in Xperience) that show how a visitor progresses toward a specific goal, such as submitting a form, reading a case study, or requesting a product demo.</p>
+
+<div>
+<p>Want a deeper dive into the theory behind customer journeys? Check out our <a href="/guides/customer-journeys/get-started-with-customer-journeys">Getting started</a></p>
+</div>
+
+<p>This guide will walk through a practical example using the <strong>Kbank Business Banking demo site</strong>. We aim to get at least 50 small business owners to request a loan.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you don’t have your demo site, request the <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Xperience by Kentico - Business Tutorial Kbank demo site</a> through a form at <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Kentico website</a>.</p>
+</div>
+
+<hr>
+<h2 id="walk-in-your-customers-shoes-why-build-a-journey">Walk in your customer’s shoes: why build a journey?</h2>
+<p>Imagine you’re a marketer at a bank tasked with promoting small business loans. Your goal is to help <strong>small business owners</strong> understand the benefits of your offering and encourage them to request an account. The business owners must get at least 50 new account requests, which becomes your ultimate KPI.</p>
+<p>To support the campaign, you’ve created a dedicated <strong>landing page</strong>, a <strong>form</strong> where customer can request the account, and a <strong>case study</strong> that highlights how your services helped another small business succeed. You also have a <strong>follow-up email</strong> with a downloadable case study and links to more details. It’s a solid content mix but how do you know if it’s actually working?</p>
+<p>That’s where the <strong>Customer journey</strong> application comes in. By mapping these content pieces as stages in a journey from the campaign landing page all the way to the final form submission, you can measure how many people engage with each step. More importantly, you can <strong>see where they drop off</strong>. This lets you pinpoint which content resonates with your audience, and which pieces may need a tweak to keep the momentum going.</p>
+
+<div>
+
+</div>
+<div>
+<p>The Kbank Business Banking site is just a demo website that we use to show you how the <strong>Customer journeys</strong> application works. We’re not trying to teach you the perfect marketing strategy, which resources you’ll need to execute perfect digital marketing campaign, or tell you what your customer journey should look like.</p>
+<p>Instead, think of this guide as a hands-on tutorial. You’ll learn how to set up journeys, define stages, and read the results so you can apply the same process to your own campaigns, content, and goals. It also means that some of the object “names”, for example, forms, might differ from how you will name them in a real life.</p>
+</div>
+
+<h2 id="step-1-start-with-the-end-in-mind">Step 1: Start with the end in mind</h2>
+<p>Let’s start with the most important indicator for the Kbank business, the final conversion point: a user submitting the <strong>Small Business Loan Request</strong> form.</p>
+<ol type="1">
+<li>Open the <strong>Customer journeys</strong> application in Xperience by Kentico and Create <strong>New journey</strong>.</li>
+<li>Edit the auto-generated name to, for example: <em>Small business loan - demo</em> and <strong>Save</strong> your changes.</li>
+<li>Use the <strong>Stage</strong> button to create new touch point.</li>
+<li>Name this <em>stage</em> appropriately, for example: <em>Requested Small Business Loan</em>.</li>
+<li>Set the KPI target to <em>50</em> conversions.</li>
+<li>Use the <strong>Condition</strong> button to create condition.</li>
+<li>Then, <strong>add a condition group</strong>.</li>
+<li>From the list of options, use the built-in condition rule: <em>Contact has submitted form</em>.</li>
+<li>Select the <em>Small Business Loan</em> form.</li>
+<li>
+<strong>Apply</strong> and <strong>Save</strong> your changes.</li>
+</ol>
+<p></p>
+
+<div>
+<p><strong>Why this stage matters:</strong>   This final stage represents your <strong>business goal</strong> requested by the business owner. You should design everything else in the journey to get people to this stage. Measuring conversions helps you align your marketing content with real outcomes. It’s the clearest indicator that your digital marketing efforts are turning interest into real leads and that you’re delivering.</p>
+</div>
+
+
+<div>
+<p><strong>Watch for low form completions.</strong></p>
+<p>Once completed, the <em>campaign journey</em> will show you drop-off between individual stages. If you see a drop off before this final stage, meaning customer don’t submit the form, consider whether your form is too long, unclear, or unappealing. Try optimizing the form design, headline, or incentives.</p>
+</div>
+
+<h2 id="step-2-track-the-page-before-the-form">Step 2: Track the page before the form</h2>
+<p>Most visitors don’t land on just a form. They’ll likely end on a page that hosts the request form. Let’s create a touchpoint for this page as well.</p>
+<ol type="1">
+<li>Add new <strong>Stage</strong>.</li>
+<li>Name the stage, for example: <em>Visited Download case study</em> page.</li>
+<li>Set the KPI target to <em>75</em> visits.</li>
+<li>Use the built-in condition rule: <em>Contact has visited page</em>.</li>
+<li>Select the <strong>Business banking</strong> channel, and from the content tree, choose the <em>Download SMB case study</em> page in the <em>Campaign assets &gt; Downloadables</em> subfolder.</li>
+<li>Apply the condition and rearrange the stages using drag and drop.</li>
+</ol>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Why this stage matters:</strong></p>
+<p>This step shows intent. If users are visiting the loan page but not submitting the form, it can indicate confusion or friction. To mitigate the drop-off, improve clarity or create more persuasive content to meet your visitor’s expectations.</p>
+</div>
+
+
+<div>
+<p><strong>Watch for a high drop-off after this page</strong>.   This may signal that your content isn’t convincing enough or that the Call to action buttons are unclear. Check the loading speed, clarity of the message, and whether the value promoted by this page is obvious.</p>
+</div>
+
+<h2 id="step-3-measure-traffic-from-your-landing-page">Step 3: Measure traffic from your landing page</h2>
+<p>Let’s trace users to a <em>campaign page</em> your team created to capture leads.</p>
+<ol type="1">
+<li>Add a new stage: <em>Visited Small Business Loan Campaign Page</em>.</li>
+<li>Set the KPI target to <em>1,000</em> page visits.</li>
+<li>Add a built-in condition rule <strong>Contact has visited page</strong> and ensure you’ve selected the <em>Business Banking</em> channel.</li>
+<li>Select the <em>SMB Loan campaign</em> page in the <em>Campaign pages</em> folder in the content tree.</li>
+<li>Click <strong>Apply</strong> and reorder the journey.</li>
+</ol>
+<p></p>
+
+<div>
+<p><strong>Why this stage matters:</strong></p>
+<p>This is your campaign launchpad. It’s where ads, personalized content across your website, emails, and social traffic converge. If this page isn’t performing, you lose customers before they begin exploring. It’s your first impression.</p>
+</div>
+
+
+<div>
+<p><strong>Watch for low traffic here.</strong>   Drop-off between this stage and the following touch point may suggest problems with your promotion strategy. Review how you drive traffic through personalized content, ads, emails, or social posts.</p>
+</div>
+
+<h2 id="step-4-track-interest-in-deeper-content">Step 4: Track interest in deeper content</h2>
+<p>The campaign landing page features a <strong>case study</strong>. Let’s measure how many people show interest by requesting it.</p>
+<ol type="1">
+<li>Add a new stage: <em>Requested Case Study</em>.</li>
+<li>KPI target: <em>300</em> form submission.</li>
+<li>Set <strong>Condition</strong> to <strong>Form submitted</strong>: <em>Loan for small businesses</em>.</li>
+<li>
+<strong>Apply</strong>, arrange the journey steps and <strong>Save</strong> your journey.</li>
+</ol>
+<p></p>
+
+<div>
+<p><strong>Why this stage matters:</strong>  </p>
+<p>Case studies build trust and credibility. If users take the time to fill out a form to request one, they’re clearly engaged and see value in what you offer. It also shows that they’re moving beyond curiosity into evaluation.</p>
+</div>
+
+
+<div>
+<p><strong>Low interest here could mean your offer isn’t strong enough.</strong>  </p>
+<p>Ensure that the content on the page clearly explains the value of the case study. Add testimonials or highlight results upfront.</p>
+</div>
+
+<h2 id="step-5-measure-email-engagement">Step 5: Measure email engagement</h2>
+<p>After submitting the case study form, users receive an email with a download link. Let’s see who clicks.</p>
+<ol type="1">
+<li>Add a stage: <em>Clicked Link in Case Study Email</em>.</li>
+<li>KPI: <em>`</em>100* clicks.</li>
+<li>Use the built-in condition: <strong>Contact has clicked on a link with a URL</strong>.</li>
+<li>Configure the condition to link <strong>contains</strong> with value: <em>download-smb-case-study</em> (The value represents the URL slug of the target page.)</li>
+<li>
+<strong>Email</strong>: <em>SMB Kbank Jumpstart Loan</em>.  </li>
+<li>Apply the condition.</li>
+</ol>
+<p></p>
+
+<div>
+<p><strong>Why this stage matters:</strong>  </p>
+<p>Email engagement tells you how well your follow-up content works. If they open the email and click, you’ve successfully extended the journey. If not, you might need to rethink the subject line, timing or its content.</p>
+</div>
+
+
+<div>
+<p><strong>Poor email click-through rates?</strong></p>
+<p>Review your subject line, email layout, and clarity of the call-to-action.</p>
+</div>
+
+<h2 id="step-6-track-who-downloads-the-case-study">Step 6: Track who downloads the case study</h2>
+<p>Last, let’s track who reaches the final destination: downloading the case study from the website.</p>
+<ol type="1">
+<li>Add the last stage: <em>Downloaded the Case Study</em>
+</li>
+<li>KPI: <em>75</em> downloads</li>
+<li>Use the built-in <strong>Contact has performed custom activity</strong>
+</li>
+<li>Select <strong>Custom activity</strong> <em>Sample File Download</em> (The <strong>Sample File Download</strong> and other conditions in the dropdown selector were custom-built for the demo website. Your website options might vary)</li>
+<li>Specify that the activity <strong>contains</strong> value: <em>download-smb-case-study</em> (Targeting the value of the logged activity was custom built for the Kbank demo site; your website options might vary.)</li>
+<li>Apply and save.</li>
+</ol>
+<p></p>
+
+<div>
+<p><strong>Why this stage matters:</strong>  </p>
+<p>This is your moment of truth. It’s the clearest sign of real interest in your product or service. If many users stop just short of this step, it may indicate a technical issue or a misalignment in expectations.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>If people don’t reach this step:</strong></p>
+<p>Double-check that the email link works, the download page loads correctly, the user action logs, and your messaging stays consistent throughout the journey.</p>
+</div>
+
+<h2 id="see-the-full-journey-and-find-drop-offs">See the full journey and find drop-offs</h2>
+<p>Once you <strong>save</strong> and preview your complete journey using the <strong>Journey</strong> view, Xperience by Kentico will calculate the data. You’ll see each stage with conversion counts and drop-off percentages.</p>
+<p></p>
+<p>Use this view to:</p>
+<ul>
+<li>
+<strong>Spot weak links</strong> between touchpoints.</li>
+<li>
+<strong>Identify content gaps</strong> or unclear CTAs.</li>
+<li>
+<strong>Prioritize improvements</strong> that will increase conversions.</li>
+</ul>
+<h2 id="what-next">What next?</h2>
+<p>Building a customer journey isn’t just a technical exercise, it’s a strategic one. With just a few stages, you can:</p>
+<ul>
+<li>Uncover where visitors lose interest</li>
+<li>Validate whether your content supports your goals</li>
+<li>Make smarter decisions based on actual behavior</li>
+</ul>
+<p>To explore what you should do before building the journey in Xperience, check out the full <a href="https://docs.kentico.com/guides/customer-journeys">Customer Journeys Getting Started series</a>.</p>
+<p>You’re not just creating a diagram. You’re making a map that leads your customers to value and your business to results.</p>
+
+</body>
+</html>

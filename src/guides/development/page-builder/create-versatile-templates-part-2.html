@@ -1,0 +1,1238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create versatile page templates, part 2</title>
+</head>
+<body>
+<p>So far, we have <a href="/guides/development/page-builder/create-versatile-templates-part-1">walked through</a> the steps of creating a page template that displays structured product data with different styling options.</p>
+<p>Next, let’s make the template truly flexible by adding the option to dynamically add <a href="/documentation/developers-and-admins/development/builders/page-builder/create-pages-with-editable-areas">Editable areas</a> to the template based on configurable properties.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This is the second part of the guide on page templates, and requires that you complete <a href="/guides/development/page-builder/create-versatile-templates-part-1">Part 1</a> first in order to properly follow along.</p>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="enable-widgets-on-the-template">Enable widgets on the template</h2>
+<p>Let’s start by adding a single conditional <em>editable area</em> to the template. This will allow editors to put widgets on the page if a certain checkbox is enabled. Afterward, we can expand the functionality for more flexibility.</p>
+<h3 id="add-a-new-checkbox-to-the-template-properties">Add a new checkbox to the template properties</h3>
+<ol type="1">
+<li>Add a new boolean property called <code>UsePageBuilder</code> to the <code>ProductPagePageTemplateProperties</code> class found in the <em>~/Features/Products</em> folder.</li>
+<li>Make it default to <code>false</code> so that the template automatically uses the standard product layout.</li>
+<li>Apply the <code>CheckBoxComponent</code> attribute to assign a check box control to the field in the template properties dialog, and set its <code>Order</code> to 10 so it appears before the other properties.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPagePageTemplateProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ namespace TrainingGuides.Web.Features.Products;
+
+ public class ProductPagePageTemplateProperties : IPageTemplateProperties
+ {
+     [CheckBoxComponent(
+     Label = "Use Page Builder",
+     ExplanationText = "Check to configure an advanced Page Builder template. Un-check to use the standard product layout.",
+     Order = 10)]
+     public bool UsePageBuilder { get; set; } = false;
+ ...
+</code></pre>
+</div>
+</li>
+</ol>
+<h3 id="include-an-editable-area-in-the-template-view">Include an editable area in the template view</h3>
+<ol type="1">
+<li>Open the <em>ProductPagePageTemplate.cs</em> file in the same folder.</li>
+<li>Cut all of the code within the scope of the first <code>tg-component-style</code> tag, and paste it in a text file for later copying.</li>
+<li>After the first <code>tg-component-style</code> tag, add an <code>if</code> statement.</li>
+<li>Check the value of the new <code>UsePageBuilder</code> property. If it is true, render an editable area with the identifier <code>areaMain</code>.
+
+<div>
+
+</div>
+<div>
+The <code>areaMain</code> identifier matches other templates used on this site. Using consistent identifiers makes switching templates on a page and transferring Page Builder data easier.
+</div>
+
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     &lt;tg-component-style color-scheme="@Model.Properties.ColorScheme" corner-style="@Model.Properties.CornerStyle"&gt;
+         @if(Model.Properties.UsePageBuilder)
+         {
+             &lt;editable-area area-identifier="areaMain" /&gt;
+         }
+     &lt;/tg-component-style&gt;
+     ...
+ </code></pre>
+</div>
+</li>
+<li>Add an <code>else</code> statement, and paste the code from the text file within its scope.
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     else
+     {
+         &lt;div class="tg-padding-big"&gt;
+             &lt;div class="row"&gt;
+                 &lt;div class="col align-self-center"&gt;
+                     &lt;h3&gt;@templateModel.NameHtml&lt;/h3&gt;
+                     &lt;p&gt;@templateModel.ShortDescriptionHtml&lt;/p&gt;
+                 &lt;/div&gt;
+
+                 &lt;tg-styled-image src="@templateModel.Media.FirstOrDefault()?.FilePath" alt="@templateModel.Media.FirstOrDefault()?.Description" corner-style="@Model.Properties.CornerStyle" class="col c-product-img object-fit-cover" /&gt;
+             &lt;/div&gt;
+             &lt;div class="row"&gt;
+                 &lt;div class="c-pricelist"&gt;                        
+                     &lt;div class="col"&gt;
+                         &lt;tg-component-style color-scheme="@ColorSchemeOption.Light1" corner-style="@Model.Properties.CornerStyle"  class="c-table"&gt;
+                             @foreach (var feature in templateModel.Features)
+                             {
+                                 &lt;div class="c-table_row"&gt;
+                                     &lt;div class="c-table_cell"&gt;&lt;div class="c-table_cell"&gt;@feature.LabelHtml&lt;/div&gt;&lt;/div&gt;
+                                     &lt;div class="c-table_cell text-end"&gt;
+                                         &lt;tg-product-feature-value feature="@feature"/&gt;
+                                     &lt;/div&gt;
+                                 &lt;/div&gt;
+                             }
+                         &lt;/tg-component-style&gt;
+                     &lt;/div&gt;
+                 &lt;/div&gt;
+             &lt;/div&gt;
+         &lt;/div&gt;
+     }
+     ...
+ </code></pre>
+</div>
+</li>
+</ol>
+The resulting view should look like this:
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using Microsoft.AspNetCore.Html
+@using System.Globalization
+@using TrainingGuides.Web.Features.Products
+@using TrainingGuides.Web.Features.Products.Models
+@using TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme
+
+@model TemplateViewModel&lt;ProductPagePageTemplateProperties&gt;
+
+@{
+    var templateModel = Model.GetTemplateModel&lt;ProductPageViewModel&gt;();
+}
+&lt;tg-component-style color-scheme="@Model.Properties.ColorScheme" corner-style="@Model.Properties.CornerStyle"&gt;
+    @if(Model.Properties.UsePageBuilder)
+    {
+        &lt;editable-area area-identifier="areaMain" /&gt;
+    }
+    else
+    {
+        &lt;div class="tg-padding-big"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col align-self-center"&gt;
+                    &lt;h3&gt;@templateModel.NameHtml&lt;/h3&gt;
+                    &lt;p&gt;@templateModel.ShortDescriptionHtml&lt;/p&gt;
+                &lt;/div&gt;
+
+                &lt;tg-styled-image src="@templateModel.Media.FirstOrDefault()?.FilePath" alt="@templateModel.Media.FirstOrDefault()?.Description" corner-style="@Model.Properties.CornerStyle" class="col c-product-img object-fit-cover" /&gt;
+            &lt;/div&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="c-pricelist"&gt;
+                    &lt;div class="col"&gt;
+                        &lt;tg-component-style color-scheme="@ColorSchemeOption.Light1" corner-style="@Model.Properties.CornerStyle"  class="c-table"&gt;
+                            @foreach (var feature in templateModel.Features)
+                            {
+                                &lt;div class="c-table_row"&gt;
+                                    &lt;div class="c-table_cell"&gt;&lt;div class="c-table_cell"&gt;@feature.LabelHtml&lt;/div&gt;&lt;/div&gt;
+                                    &lt;div class="c-table_cell text-end"&gt;
+                                        &lt;tg-product-feature-value feature="@feature"/&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            }
+                        &lt;/tg-component-style&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    }
+&lt;/tg-component-style&gt;
+</code></pre>
+</div>
+
+<h3 id="check-your-progress">Check your progress</h3>
+<p>Now, if you log in to the Xperience admin and apply this template to one of the pages under <em>Store</em> in the <em>Training guides pages</em> channel, you’ll see a new checkbox in the properties.</p>
+<p></p>
+<p>If you tick the box and click apply, the standard product content should disappear. It will be replaced with an editable area, where you can add and drag widgets.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>If you un-tick the property, you may see a warning telling you that any content in the removed editable area will be lost upon saving.</p>
+</div>
+
+<h2 id="flesh-out-the-functionality">Flesh out the functionality</h2>
+<p>An editable area is fairly flexible on its own, especially if you have multiple options for sections and lots of widgets, but let’s try to make it even more versatile.</p>
+<p>We’ll create a view component that uses template properties to determine the number of columns the template has, and how they are laid out.</p>
+<h3 id="expand-the-template-properties">Expand the template properties</h3>
+<ol type="1">
+<li>Create a new folder, <em>~/Features/Shared/OptionProviders/ColumnLayout</em>.</li>
+<li>Add an enumeration called <code>ColumnLayoutOption</code>, with options for different layouts with one, two, and three columns.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ColumnLayoutOption.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using System.ComponentModel;
+
+ namespace TrainingGuides.Web.Features.Shared.OptionProviders.ColumnLayout;
+
+ public enum ColumnLayoutOption
+ {
+     [Description("One column")]
+     OneColumn = 0,
+     [Description("Two columns")]
+     TwoColumnEven = 1,
+     [Description("Two columns - Lg/Sm")]
+     TwoColumnLgSm = 2,
+     [Description("Two columns - Sm/Lg")]
+     TwoColumnSmLg = 3,
+     [Description("Three columns")]
+     ThreeColumnEven = 4,
+     [Description("Three columns - Sm/Lg/Sm")]
+     ThreeColumnSmLgSm = 5,
+ }
+</code></pre>
+</div>
+</li>
+<li>Return to the <em>~/Features/Products/ProductPagePageTemplateProperties</em> file and add a new string property to represent the column layout.
+<ol type="1">
+<li>Set the property to use a dropdown component, supplied by our new enumeration.</li>
+<li>Add a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-visibility-conditions">visibility condition</a> to ensure that it only appears if the <code>UsePageBuilder</code> property’s checkbox is true (enabled).
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPagePageTemplateProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ [DropDownComponent(
+     Label = "Column layout",
+     ExplanationText = "Select the layout of the editable areas in the template.",
+     DataProviderType = typeof(DropdownEnumOptionProvider&lt;ColumnLayoutOption&gt;),
+     Order = 40)]
+ [VisibleIfTrue(nameof(UsePageBuilder))]
+ public string ColumnLayout { get; set; } = nameof(ColumnLayoutOption.OneColumn);
+ ...
+ </code></pre>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+<p>Now, if you sign in to the system, you should see the new checkbox appear in the template properties of any page using this template, but only if the checkbox property to use Page Builder is enabled. At this point, the new property won’t do anything, so let’s change that.</p>
+
+<h3 id="add-supporting-entities-for-the-view-component">Add supporting entities for the view component</h3>
+<ol type="1">
+<li>If the <em>~/Features/Shared</em> folder does not contain a <em>ViewComponents</em> folder, create it.</li>
+<li>Add a new class called <code>PageBuilderColumnViewModel</code>, with properties for the CSS class of the column, its identifier, and an <code>EditableAreaOptions</code> object.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderColumnViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     using Kentico.PageBuilder.Web.Mvc;
+
+     namespace TrainingGuides.Web.Features.Shared.ViewComponents;
+
+     public class PageBuilderColumnViewModel
+     {
+         public string CssClass { get; set; } = string.Empty;
+         public string Identifier { get; set; } = string.Empty;
+         public EditableAreaOptions? EditableAreaOptions { get; set; }
+     }
+ </code></pre>
+</div>
+</li>
+<li>Add a new ViewComponent called <code>PageBuilderColumnsViewComponent</code>.</li>
+<li>Add a <code>PageBuilderColumnsViewModel</code> class, containing a collection of <code>PageBuilderColumnViewModel</code> objects.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderColumnsViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     namespace TrainingGuides.Web.Features.Shared.ViewComponents;
+
+     public class PageBuilderColumnsViewModel
+     {
+         public IEnumerable&lt;PageBuilderColumnViewModel&gt; PageBuilderColumns = Enumerable.Empty&lt;PageBuilderColumnViewModel&gt;();
+     }
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="implement-the-view-component-logic">Implement the view component logic</h3>
+<p>Now it’s time to implement the view component. Let’s give the template a limit of three columns. It’s rare to see web pages with more than three columns, and if editors need more columns than that, they can use multi-column Page Builder sections within the template columns.</p>
+<ol type="1">
+<li>
+<p>Open <em>PageBuilderColumnsViewComponent.cs</em> and add constants to the view component, representing the identifiers used when rendering <em>editable areas</em>, along with bootstrap classes for managing the sizes of the columns.</p>
+
+<div>
+
+</div>
+<div>
+Bootstrap is already included in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">training guides repository</a>.
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderColumnsViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     private const string AREA_MAIN = "areaMain";
+     private const string AREA_SECONDARY = "areaSecondary";
+     private const string AREA_TERTIARY = "areaTertiary";
+
+     private const string COL_XS = "col-md-3";
+     private const string COL_S = "col-md-4";
+     private const string COL_M = "col-md-6";
+     private const string COL_L = "col-md-8";
+     private const string COL = "col-md";
+     ...
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Use properties to access the identifier constants.</p>
+
+<div>
+
+</div>
+<div>
+This will allow for more complicated logic in the future. <a href="/guides/development/page-builder/implement-flexible-sections">Later on in the series</a>, we will modify this view component to work with <a href="/documentation/developers-and-admins/development/builders/page-builder#widget-zones">widget zones</a> for <a href="/documentation/developers-and-admins/development/builders/page-builder/sections-for-page-builder">Page Builder sections</a>.
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderColumnsViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+
+     private string MainIdentifier
+     {
+         get =&gt; AREA_MAIN;
+         set { }
+     }
+
+     private string SecondaryIdentifier
+     {
+         get =&gt; AREA_SECONDARY;
+         set { }
+     }
+
+     private string TertiaryIdentifier
+     {
+         get =&gt; AREA_TERTIARY;
+         set { }
+     }
+     ...
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Add a method that takes a <code>ColumnLayoutOption</code> parameter and uses it to determine the number of columns associated with the option.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderColumnsViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     private int GetNumberOfColumns(ColumnLayoutOption columnLayoutOption) =&gt; columnLayoutOption switch
+     {
+
+         ColumnLayoutOption.TwoColumnEven or
+         ColumnLayoutOption.TwoColumnLgSm or
+         ColumnLayoutOption.TwoColumnSmLg
+         =&gt; 2,
+         ColumnLayoutOption.ThreeColumnEven or
+         ColumnLayoutOption.ThreeColumnSmLgSm
+         =&gt; 3,
+         ColumnLayoutOption.OneColumn or
+         _
+         =&gt; 1
+     };
+     ...
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Define a method that returns a <code>PageBuilderColumnViewModel</code> based on the index of the column, the selected <code>ColumnLayoutOption</code>, and an <code>EditableAreaOptions</code> object.</p>
+<ol type="1">
+<li>Assign bootstrap column classes according to the sizes dictated in the option’s name.</li>
+<li>For layout options where the columns are not the same width, apply the main identifier if it is the largest one.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderColumnsViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ private PageBuilderColumnViewModel GetColumn(int columnIndex, ColumnLayoutOption columnLayoutOption, EditableAreaOptions editableAreaOptions)
+ {
+     string cssClass = string.Empty;
+     string columnIdentifier;
+
+     switch (columnLayoutOption)
+     {
+         case ColumnLayoutOption.TwoColumnEven:
+             //first column is main
+             cssClass = COL_M;
+             columnIdentifier = columnIndex == 0 ? MainIdentifier : SecondaryIdentifier;
+             break;
+         case ColumnLayoutOption.TwoColumnLgSm:
+             //first column is main
+             if (columnIndex == 0)
+             {
+                 cssClass += COL_L;
+                 columnIdentifier = MainIdentifier;
+             }
+             else
+             {
+                 cssClass += COL_S;
+                 columnIdentifier = SecondaryIdentifier;
+             }
+             break;
+         case ColumnLayoutOption.TwoColumnSmLg:
+             //second column is main
+             if (columnIndex == 0)
+             {
+                 cssClass += COL_S;
+                 columnIdentifier = SecondaryIdentifier;
+             }
+             else
+             {
+                 cssClass += COL_L;
+                 columnIdentifier = MainIdentifier;
+             }
+             break;
+         case ColumnLayoutOption.ThreeColumnEven:
+             //middle column is main
+             cssClass += COL_S;
+             columnIdentifier = columnIndex == 1
+                 ? MainIdentifier
+                 : columnIndex == 0 ?
+                     SecondaryIdentifier : TertiaryIdentifier;
+             break;
+         case ColumnLayoutOption.ThreeColumnSmLgSm:
+             //middle column is main
+             if (columnIndex == 1)
+             {
+                 cssClass += COL_M;
+                 columnIdentifier = MainIdentifier;
+             }
+             else
+             {
+                 cssClass += COL_XS;
+                 columnIdentifier = columnIndex == 0 ?
+                     SecondaryIdentifier : TertiaryIdentifier;
+             }
+             break;
+         case ColumnLayoutOption.OneColumn:
+         default:
+             //sole column is main
+             columnIdentifier = MainIdentifier;
+             cssClass += COL;
+             break;
+     }
+
+     return new PageBuilderColumnViewModel
+     {
+         CssClass = cssClass,
+         Identifier = columnIdentifier,
+         EditableAreaOptions = editableAreaOptions
+     };
+ }
+ ...
+ </code></pre>
+</div>
+</li>
+</ol>
+</li>
+<li>
+<p>Implement the <code>Invoke</code> method with <code>ColumnLayoutOption</code> and <code>EditableAreaOptions</code> parameters.</p>
+<ol type="1">
+<li>Use the <code>GetNumberOfColumns</code> method to construct a <code>for</code> loop. In the loop, assemble a list of <code>PageBuilderColumn</code> view models using the <code>GetColumn</code> method and the current index within the loop.</li>
+<li>Use the list to create a <code>PageBuilderColumnsViewModel</code> and pass it to a view at the path <em>~/Features/Shared/ViewComponents/PageBuilderColumns.cshtml</em>.
+
+<div>
+
+</div>
+<div>
+The <code>PageBuilderColumns</code> view doesn’t exist yet, but don’t worry. We’ll add it in the next section.
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderColumnsViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ public IViewComponentResult Invoke(ColumnLayoutOption columnLayoutOption,
+     EditableAreaOptions editableAreaOptions)
+ {
+     int numberOfColumns = GetNumberOfColumns(columnLayoutOption);
+     var columns = new List&lt;PageBuilderColumnViewModel&gt;();
+     for (int index = 0; index &lt; numberOfColumns; index++)
+     {
+         columns.Add(GetColumn(index, columnLayoutOption, editableAreaOptions));
+     }
+
+     var model = new PageBuilderColumnsViewModel
+     {
+         PageBuilderColumns = columns,
+     };
+
+     return View("~/Features/Shared/ViewComponents/PageBuilderColumns.cshtml", model);
+ }
+ ...
+ </code></pre>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+The ViewComponent should look like this:
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderColumnsViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using Kentico.PageBuilder.Web.Mvc;
+    using Microsoft.AspNetCore.Mvc;
+    using TrainingGuides.Web.Features.Shared.OptionProviders.ColumnLayout;
+
+    namespace TrainingGuides.Web.Features.Shared.ViewComponents;
+
+    public class PageBuilderColumnsViewComponent : ViewComponent
+    {
+        private const string AREA_MAIN = "areaMain";
+        private const string AREA_SECONDARY = "areaSecondary";
+        private const string AREA_TERTIARY = "areaTertiary";
+
+        private const string COL_XS = "col-md-3";
+        private const string COL_S = "col-md-4";
+        private const string COL_M = "col-md-6";
+        private const string COL_L = "col-md-8";
+        private const string COL = "col-md";
+
+        private string MainIdentifier
+        {
+            get =&gt; AREA_MAIN;
+            set { }
+        }
+
+        private string SecondaryIdentifier
+        {
+            get =&gt; AREA_SECONDARY;
+            set { }
+        }
+
+        private string TertiaryIdentifier
+        {
+            get =&gt; AREA_TERTIARY;
+            set { }
+        }
+
+        public IViewComponentResult Invoke(ColumnLayoutOption columnLayoutOption,
+            EditableAreaOptions editableAreaOptions)
+        {
+            int numberOfColumns = GetNumberOfColumns(columnLayoutOption);
+            var columns = new List&lt;PageBuilderColumnViewModel&gt;();
+            for (int index = 0; index &lt; numberOfColumns; index++)
+            {
+                columns.Add(GetColumn(index, columnLayoutOption, editableAreaOptions));
+            }
+
+            var model = new PageBuilderColumnsViewModel
+            {
+                PageBuilderColumns = columns,
+            };
+
+            return View("~/Features/Shared/ViewComponents/PageBuilderColumns.cshtml", model);
+        }
+
+        private int GetNumberOfColumns(ColumnLayoutOption columnLayoutOption) =&gt; columnLayoutOption switch
+        {
+
+            ColumnLayoutOption.TwoColumnEven or
+            ColumnLayoutOption.TwoColumnLgSm or
+            ColumnLayoutOption.TwoColumnSmLg
+            =&gt; 2,
+            ColumnLayoutOption.ThreeColumnEven or
+            ColumnLayoutOption.ThreeColumnSmLgSm
+            =&gt; 3,
+            ColumnLayoutOption.OneColumn or
+            _
+            =&gt; 1
+        };
+
+        private PageBuilderColumnViewModel GetColumn(int columnIndex, ColumnLayoutOption columnLayoutOption, EditableAreaOptions editableAreaOptions)
+        {
+            string cssClass = string.Empty;
+            string columnIdentifier;
+
+            switch (columnLayoutOption)
+            {
+                case ColumnLayoutOption.TwoColumnEven:
+                    //first column is main
+                    cssClass = COL_M;
+                    columnIdentifier = columnIndex == 0 ? MainIdentifier : SecondaryIdentifier;
+                    break;
+                case ColumnLayoutOption.TwoColumnLgSm:
+                    //first column is main
+                    if (columnIndex == 0)
+                    {
+                        cssClass += COL_L;
+                        columnIdentifier = MainIdentifier;
+                    }
+                    else
+                    {
+                        cssClass += COL_S;
+                        columnIdentifier = SecondaryIdentifier;
+                    }
+                    break;
+                case ColumnLayoutOption.TwoColumnSmLg:
+                    //second column is main
+                    if (columnIndex == 0)
+                    {
+                        cssClass += COL_S;
+                        columnIdentifier = SecondaryIdentifier;
+                    }
+                    else
+                    {
+                        cssClass += COL_L;
+                        columnIdentifier = MainIdentifier;
+                    }
+                    break;
+                case ColumnLayoutOption.ThreeColumnEven:
+                    //middle column is main
+                    cssClass += COL_S;
+                    columnIdentifier = columnIndex == 1
+                        ? MainIdentifier
+                        : columnIndex == 0 ?
+                            SecondaryIdentifier : TertiaryIdentifier;
+                    break;
+                case ColumnLayoutOption.ThreeColumnSmLgSm:
+                    //middle column is main
+                    if (columnIndex == 1)
+                    {
+                        cssClass += COL_M;
+                        columnIdentifier = MainIdentifier;
+                    }
+                    else
+                    {
+                        cssClass += COL_XS;
+                        columnIdentifier = columnIndex == 0 ?
+                            SecondaryIdentifier : TertiaryIdentifier;
+                    }
+                    break;
+                case ColumnLayoutOption.OneColumn:
+                default:
+                    //sole column is main
+                    columnIdentifier = MainIdentifier;
+                    cssClass += COL;
+                    break;
+            }
+
+            return new PageBuilderColumnViewModel
+            {
+                CssClass = cssClass,
+                Identifier = columnIdentifier,
+                EditableAreaOptions = editableAreaOptions
+            };
+        }
+    }
+    </code></pre>
+</div>
+
+<h3 id="create-the-component-view">Create the component view</h3>
+<ol type="1">
+<li>Add a new file named <em>PageBuilderColumns.cshtml</em> to the <em>~/Features/Shared/ViewComponents</em> folder.</li>
+<li>Set the <code>model</code> to <code>PageBuilderColumnsViewModel</code>, and nest <code>div</code> elements with the <code>container</code> and <code>row</code> classes.
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>PageBuilderColumns.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ @using TrainingGuides.Web.Features.Shared.ViewComponents
+
+ @model PageBuilderColumnsViewModel
+
+ &lt;div class="container tg-pb-col"&gt;
+     &lt;div class="row"&gt;
+
+     &lt;/div&gt;
+ &lt;/div&gt;
+</code></pre>
+</div>
+</li>
+<li>Use a <code>foreach</code> loop to iterate through the model’s <code>PageBuilderColumns</code> collection.</li>
+<li>Within the loop, add a <code>div</code> styled with the column’s <code>cssClass</code> property.
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>PageBuilderColumns.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     @foreach (var column in Model.PageBuilderColumns)
+     {
+         &lt;div class="@column.CssClass"&gt;
+
+         &lt;/div&gt;
+     }
+     ...
+ </code></pre>
+</div>
+</li>
+<li>Render an <em>editable area</em> with the <code>editable-area</code> tag helper from Xperience.
+<ol type="1">
+<li>Set the <code>area-options</code> attribute to the column’s <code>EditableAreaOptions</code> property.
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>PageBuilderColumns.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+     &lt;editable-area area-identifier="@column.Identifier" area-options="column.EditableAreaOptions" /&gt;
+ ...
+ </code></pre>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+<p>Now, the view should look like this:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>PageBuilderColumns.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    @using TrainingGuides.Web.Features.Shared.ViewComponents
+
+    @model PageBuilderColumnsViewModel
+    &lt;div class="container tg-pb-col"&gt;
+        &lt;div class="row"&gt;
+            @foreach (var column in Model.PageBuilderColumns)
+            {
+                &lt;div class="@column.CssClass"&gt;
+                        &lt;editable-area area-identifier="@column.Identifier" area-options="column.EditableAreaOptions" /&gt;
+                &lt;/div&gt;
+            }
+        &lt;/div&gt;
+    &lt;/div&gt;
+</code></pre>
+</div>
+
+<h3 id="use-the-view-component-in-the-template">Use the view component in the template</h3>
+<p>Now the view component is finished. Let’s add it to the template view so we can test our progress.</p>
+<ol type="1">
+<li>Return to the <em>~/Features/Shared/Products/ProductPagePageTemplate.cshtml</em> file.</li>
+<li>Remove the <code>editable-area</code> tag from the view, and replace it with the new view component.
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     @if(Model.Properties.UsePageBuilder)
+     {
+         &lt;vc:page-builder-columns column-layout-option="@columnLayout" editable-area-options="@new EditableAreaOptions()" /&gt;
+     }
+     ...
+ </code></pre>
+</div>
+</li>
+<li>In the razor code block that sets the <code>templateModel</code> variable, default the column layout to one column if the model’s <code>ColumnLayout</code> property can’t be parsed.
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     @{
+         var templateModel = Model.GetTemplateModel&lt;ProductPageViewModel&gt;();
+         if (!Enum.TryParse(Model.Properties.ColumnLayout, out ColumnLayoutOption columnLayout))
+         {
+             columnLayout = ColumnLayoutOption.OneColumn;
+         }
+     }
+ </code></pre>
+</div>
+</li>
+</ol>
+In the end, your view should look like this:
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    @using Microsoft.AspNetCore.Html
+    @using System.Globalization
+    @using TrainingGuides.Web.Features.Products
+    @using TrainingGuides.Web.Features.Products.Models
+    @using TrainingGuides.Web.Features.Shared.OptionProviders.ColumnLayout
+    @using TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme
+    @using TrainingGuides.Web.Features.Shared.ViewComponents
+
+    @model TemplateViewModel&lt;ProductPagePageTemplateProperties&gt;
+
+    @{
+        var templateModel = Model.GetTemplateModel&lt;ProductPageViewModel&gt;();
+        if (!Enum.TryParse(Model.Properties.ColumnLayout, out ColumnLayoutOption columnLayout))
+        {
+            columnLayout = ColumnLayoutOption.OneColumn;
+        }
+    }
+    &lt;tg-component-style color-scheme="@Model.Properties.ColorScheme" corner-style="@Model.Properties.CornerStyle"&gt;
+        @if(Model.Properties.UsePageBuilder)
+        {
+            &lt;vc:page-builder-columns column-layout-option="@columnLayout" editable-area-options="@new EditableAreaOptions()" /&gt;
+        }
+        else
+        {
+            &lt;div class="tg-padding-big"&gt;
+                &lt;div class="row"&gt;
+                    &lt;div class="col align-self-center"&gt;
+                        &lt;h3&gt;@templateModel.NameHtml&lt;/h3&gt;
+                        &lt;p&gt;@templateModel.ShortDescriptionHtml&lt;/p&gt;
+                    &lt;/div&gt;
+
+                    &lt;tg-styled-image src="@templateModel.Media.FirstOrDefault()?.FilePath" alt="@templateModel.Media.FirstOrDefault()?.Description" corner-style="@Model.Properties.CornerStyle" class="col c-product-img object-fit-cover" /&gt;
+                &lt;/div&gt;
+                &lt;div class="row"&gt;
+                    &lt;div class="c-pricelist"&gt;                        
+                        &lt;div class="col"&gt;
+                            &lt;tg-component-style color-scheme="@ColorSchemeOption.Light1" corner-style="@Model.Properties.CornerStyle"  class="c-table"&gt;
+                                @foreach (var feature in templateModel.Features)
+                                {
+                                    &lt;div class="c-table_row"&gt;
+                                        &lt;div class="c-table_cell"&gt;&lt;div class="c-table_cell"&gt;@feature.LabelHtml&lt;/div&gt;&lt;/div&gt;
+                                        &lt;div class="c-table_cell text-end"&gt;
+                                            &lt;tg-product-feature-value feature="@feature"/&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                }
+                            &lt;/tg-component-style&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        }
+    &lt;/tg-component-style&gt;
+</code></pre>
+</div>
+
+
+<h2 id="apply-the-same-concept-to-a-more-general-page-template">Apply the same concept to a more general page template</h2>
+<p>Looking over the page template we’ve just created, you may find it a bit of a waste to have all these options for Page Builder layouts and appearance available only for product pages.</p>
+<p>Since most of what we’ve made is reusable, it will be straightforward to create a more general-purpose page template that has these Page Builder features, and can be used on any page type.</p>
+<ol type="1">
+<li>Create a new <em>~/Features/Shared/Templates</em> folder.</li>
+<li>Add a new page template properties file called <em>GeneralPageTemplateProperties.cs</em>.</li>
+<li>Include the same properties as <em>ProductPagePageTemplateProperties.cs</em>, except for the checkbox. This template will always use Page Builder areas.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GeneralPageTemplateProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+     using Kentico.Xperience.Admin.Base.FormAnnotations;
+     using TrainingGuides.Web.Features.Shared.OptionProviders;
+     using TrainingGuides.Web.Features.Shared.OptionProviders.ColumnLayout;
+     using TrainingGuides.Web.Features.Shared.OptionProviders.CornerStyle;
+     using TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme;
+
+     namespace TrainingGuides.Web.Features.Shared;
+
+     public class GeneralPageTemplateProperties : IPageTemplateProperties
+     {
+         [DropDownComponent(
+             Label = "Color scheme",
+             ExplanationText = "Select the color scheme of the template.",
+             DataProviderType = typeof(DropdownEnumOptionProvider&lt;ColorSchemeOption&gt;),
+             Order = 10)]
+         public string ColorScheme { get; set; } = nameof(ColorSchemeOption.TransparentDark);
+
+         [DropDownComponent(
+             Label = "Corner type",
+             ExplanationText = "Select the corner type of the template.",
+             DataProviderType = typeof(DropdownEnumOptionProvider&lt;CornerStyleOption&gt;),
+             Order = 20)]
+         public string CornerStyle { get; set; } = nameof(CornerStyleOption.Round);
+
+         [DropDownComponent(
+             Label = "Column layout",
+             ExplanationText = "Select the layout of the editable areas in the template.",
+             DataProviderType = typeof(DropdownEnumOptionProvider&lt;ColumnLayoutOption&gt;),
+             Order = 30)]
+         public string ColumnLayout { get; set; } = nameof(ColumnLayoutOption.OneColumn);
+     }
+ </code></pre>
+</div>
+</li>
+<li>Add a view called <em>GeneralPageTemplate.cshtml</em>, copying the parts from <em>ProductPagePageTemplate.cshtml</em> that are not specifically related to products.
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>GeneralPageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     @using Microsoft.AspNetCore.Html
+     @using TrainingGuides.Web.Features.Shared
+     @using TrainingGuides.Web.Features.Shared.OptionProviders.ColumnLayout
+     @using TrainingGuides.Web.Features.Shared.ViewComponents
+
+     @model TemplateViewModel&lt;GeneralPageTemplateProperties&gt;
+
+     @{
+             if (!Enum.TryParse(Model.Properties.ColumnLayout, out ColumnLayoutOption columnLayout))
+             {
+                 columnLayout = ColumnLayoutOption.OneColumn;
+             }
+     }
+     &lt;tg-component-style color-scheme="@Model.Properties.ColorScheme" corner-style="@Model.Properties.CornerStyle"&gt;
+         &lt;vc:page-builder-columns column-layout-option="@columnLayout" editable-area-options="@new EditableAreaOptions()" /&gt;
+     &lt;/tg-component-style&gt;
+ </code></pre>
+</div>
+</li>
+<li>Register the template in a file called <em>GeneralPageTemplate.cs</em>.</li>
+<li>Do not include the <code>ContentTypeNames</code> property.
+
+<div>
+
+</div>
+<div>
+Omitting <code>ContentTypeNames</code> allows the template to be used for any page content type.
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GeneralPageTemplate.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+     using TrainingGuides.Web.Features.Shared;
+
+     [assembly: RegisterPageTemplate(
+         identifier: GeneralPageTemplate.IDENTIFIER,
+         name: "General page template",
+         propertiesType: typeof(GeneralPageTemplateProperties),
+         customViewName: "~/Features/Shared/Templates/GeneralPageTemplate.cshtml",
+         IconClass = "xp-square")]
+
+     namespace TrainingGuides.Web.Features.Shared;
+     public static class GeneralPageTemplate
+     {
+         public const string IDENTIFIER = "TrainingGuides.GeneralPageTemplate";
+     }
+ </code></pre>
+</div>
+</li>
+</ol>
+<p>Now, if you log in to the administration interface, you should have a general-use page template with properties to determine its color, corner styling, and editable area layout.</p>
+
+<h2 id="wrapping-up">Wrapping up</h2>
+<p>If you need a refresher, feel free to take another look at the <a href="/guides/development/page-builder/meet-requirements-with-page-builder">beginning of this series</a> to review the mockups of the page functionality we’ve been working to implement so far.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Apply your knowledge</strong></p>
+<p>If you’d like to put your knowledge to the test, try swapping out the <code>UsePageBuilder</code> checkbox in <code>ProductPagePageTemplateProperties</code> for another enumeration-based dropdown.</p>
+<p>Create a third option which keeps the structured product data, while rendering editable areas at the top and bottom of the page.</p>
+</div>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/page-builder/implement-flexible-sections">next part of this series</a> will re-use the view component and tag helpers we’ve created here to make flexible Page Builder sections. After that, we will create widgets for simple call-to-action (CTA) buttons and products.</p>
+
+</body>
+</html>

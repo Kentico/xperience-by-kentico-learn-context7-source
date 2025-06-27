@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Store content</title>
+</head>
+<body>
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from beginning to end.</p>
+<ul>
+<li>
+<a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a>
+<ul>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">What is a content type</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">Structured and unstructured content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Start with business needs</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">Content modeling process</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">Model taxonomies</a></li>
+<li><strong>Store content</strong></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-website-content">Design website content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-email-content">Design email content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">Design headless content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/general-content-modeling-recommendations">General content modeling recommendations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2 id="where-to-store-your-content">Where to store your content</h2>
+<p>This page explains the options for creating, storing, categorizing, and managing reusable content available in Xperience by Kentico.</p>
+<p>Before building your Xperience project, you should carefully consider different ways to store content. The business use cases you’ve identified during content modeling sessions will help you choose the most suitable approach for storing data.</p>
+<p>From a high-level perspective, you can look at creating and managing content in Xperience in two different ways:</p>
+
+<table>
+<thead>
+<tr>
+<td>
+<p>Content is created</p>
+</td>
+<td>
+<p>Content is managed</p>
+</td>
+<td>
+<p>Description</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p><strong>Inside</strong></p>
+<p>Xperience</p>
+</td>
+<td>
+<p><strong>Inside</strong></p>
+<p>Xperience</p>
+</td>
+<td>
+<p>The Xperience database serves as the single source of truth for all content (e.g., various marketing materials, company-specific information, or product-related documents).</p>
+<p>Before editors start producing content, developers must prepare relevant data structures (<em>content types</em>) in the administration interface.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Inside or outside</strong></p>
+<p>Xperience</p>
+</td>
+<td>
+<p><strong>Inside or outside</strong></p>
+<p>Xperience</p>
+</td>
+<td>
+<p>Depending on the project requirements, customers often opt to combine storage options. They keep part of their content inside of Xperience and part outside.</p>
+<p>The content they manage outside of Xperience usually comes from business-specific external systems, e.g., various external systems, such as global statistics databases, <a href="https://en.wikipedia.org/wiki/Enterprise_resource_planning" target="_blank">ERP</a> or <a href="https://en.wikipedia.org/wiki/Product_information_management" target="_blank">PIM</a> solutions for managing product catalogs.</p>
+<p>They synchronize this external content to Xperience using custom-built functionality that polls the source’s API and brings the data to Xperience.</p>
+<p>We’ve commonly seen many variants of these options across different Xperience projects.</p>
+<ul>
+<li>The system uses a custom process that creates corresponding content objects in Xperience. At the same time, Kentico editors can manage (<em>read</em>, <em>update</em>, and <em>delete</em>) this data in Xperience and synchronize their changes with the origin.</li>
+<li>If editors need to display some content in their applications, they reference the content stored in the third-party solution. For example, a reference to statistics objects (a codename) or products (SKUs) makes this data available for display across different Xperience-driven applications. Developers then ensure the data is styled and updated correctly.</li>
+<li>Third-party content is automatically displayed in predefined application areas, such as in specific sections of websites. Third-party data is part of the website implementation, and editors cannot opt out of displaying this content.</li>
+</ul>
+<div>
+<div>
+
+</div>
+<div>
+Note that the last two options introduce several competing content management systems within one setup, which can cause complications. For example, when editors find a mistake in the published content, finding out in which system they need to fix this content may be challenging.
+</div>
+</div>
+</td>
+</tr>
+</table>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations - Creating and managing content in Xperience</strong></p>
+<ul>
+<li>
+<p><strong>Storing and managing content directly in Xperience is recommended</strong> for most projects.</p>
+<ul>
+<li>It ensures a single source of truth for content distribution across different channels. Moreover, editors know where the content for which they are responsible resides.</li>
+<li>It prevents synchronization errors with third-party integrations and ensures that editors always have the latest version of the content available in one place.</li>
+<li>We recommend storing content in Xperience if editors want to leverage digital marketing features, such as <a href="/documentation/developers-and-admins/digital-marketing-setup/content-personalization">content personalization</a> or segmenting your audience to <a href="/documentation/business-users/digital-marketing/contact-groups">contact groups</a> for various marketing activities.</li>
+</ul>
+</li>
+<li>
+<p>If you <strong>need to display content from a third-party solution</strong> in an Xperience project:</p>
+<ul>
+<li>We recommend <strong>building a custom bidirectional content synchronization tool</strong> that automatically updates the data across different systems automatically.</li>
+<li>Implementation partners should <strong>provide sufficient project documentation</strong> to help editors and marketers locate and efficiently manage their content.</li>
+<li>Your editors should <strong>manage their content in the production environment</strong> using the default Xperience publishing workflow.</li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2 id="digital-content-and-marketing-channels">Digital content and marketing channels</h2>
+<p>Marketing channels refer to platforms, tools, and strategies businesses use to communicate with their end consumers, suppliers, partners, and other business entities.</p>
+<p>Digital marketing channels include a main site and campaign microsites, social media, emails, organic and paid search, or distributed content. Every channel offers various options to tailor marketing efforts according to specific goals and audience preferences.</p>
+<p>In the past, businesses kept their marketing content separate for each channel. When a marketer wants to promote a campaign, they usually copy the campaign assets from the website to other platforms like email or social. Modern digital experience platforms like Xperience help marketers by removing unnecessary work.</p>
+<p>Marketers can store all their marketing content within one solution. Using the same familiar interface, they can orchestrate the distribution of their content to their digital channels directly from within Xperience.</p>
+
+<div>
+
+</div>
+<div>
+<p>The current version of Xperience allows you to distribute content across websites, email, and headless channels. Each channel may have different content requirements that you should respect when preparing the content model. As you continue through the guide, you’ll learn more about these differences and how to model content for each channel.</p>
+<p>Find more details about <a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">digital marketing channels</a>, and especially website channels, in a separate guide.</p>
+</div>
+
+<h2 id="store-content-in-xperience">Store content in Xperience</h2>
+<p>In Xperience, all content is based on <strong>content types</strong>. You already know that a <em>content type</em> is a <em>blueprint</em> that defines <em>data structure, functionality, and behavior</em> for all content items editors create from this type. Based on this definition, reusing content requires storing it in a presentation-independent manner, i.e., in a structured format.</p>
+<p>The following diagram shows an overview of the storage options in Xperience.</p>
+<p></p>
+<h3 id="use-content-hub-for-reusable-content">Use Content hub for reusable content</h3>
+<p>Xperience comes with the <strong>Content hub</strong> application for storing reusable content. You can think of the <em>Content hub</em> as a <strong>centralized repository</strong> where you <strong>create and keep all your marketing content</strong> – and potentially <strong>reuse</strong> it across multiple communication channels.</p>
+<p>In <em>Content hub</em>, editors create items using content types with fields where they input data. The editing forms create a unified editing experience, and adding content in the Content hub feels like filling out an online form.</p>
+<p></p>
+<p>Because the <em>Content hub</em> is channel agnostic, editors do not see what the content will look like once it’s displayed, for example, on the company website. They can focus <strong>on the quality of their content</strong> rather than getting distracted by how the content will look.</p>
+<h3 id="aim-for-semantic-content-types">Aim for semantic content types</h3>
+<p><em>Semantic content types</em> offer a structured approach to organizing information, making it easier for both humans and machines to understand and interact with. These types go beyond just presenting a set of images or texts; they provide a clear semantic context, making the content meaningful. When editors adapt this content for different channels, like a website, they can enrich the content with relevant information, such as date, time, or location, and further tailor the experience.</p>
+<p>Semantic content types are particularly valuable when integrating XbyK with third-party systems like ERPs. This method creates a clear and consistent structure, allowing for efficient data synchronization. It simplifies maintaining meaningful content and ensures a seamless flow of information between systems.</p>
+<h3 id="reusable-content-types-from-the-data-perspective">Reusable content types from the data perspective</h3>
+<p>Content types in the <em>Content hub</em> store data in a <em>structured format</em> where fields correspond to database columns. Developers define content types in the <strong>Content types</strong> application.</p>
+<p>When developers create content types, they configure:</p>
+<ul>
+<li>
+<em>Fields</em> that define the data structure of the content type.</li>
+<li>
+<em>Editing form layout</em> that creates the interface editors use to create and modify the content items.</li>
+<li>
+<em>Usage</em> of the content type:
+<ul>
+<li>Reusable content types are building blocks of reusable content meant to be linked together to form further content.</li>
+<li>Content types for pages are used in website channels to form pages.</li>
+<li>Content types for email are used in email channels to form emails.</li>
+</ul>
+</li>
+</ul>
+<p>Developers use the <strong>Content types</strong> application and define the data model of the website. They create <em>content types</em> based on the project’s business requirements using easy-to-use admin UI consisting of form fields or ready-made form components.</p>
+<p></p>
+<p>The <em>content type</em> is stored in a coupled database table; its fields represent database columns. For example, Kbank’s <em>News</em> content type can have a coupled table named <em>Kbank_News</em> and columns defined as <em>NewsTitle</em>, <em>NewsSummary</em>, or <em>NewsText</em>.</p>
+<h3 id="store-core-content-into-reusable-field-schemas">Store core content into reusable field schemas</h3>
+<p>While creating a content model or defining the data structure for a content type, you’ll often identify that some fields or sets of fields repeat across different content types. For example, all product-related content types will have the same fields to hold <em>title</em>, <em>product description</em>, <em>product image</em>, and core <em>taxonomy</em>. Some product-specific fields can also be similar. Some content types that editors will use for promotion might contain the same structure.</p>
+<p>To manage these repetitions efficiently, we recommend using <strong>reusable field schemas</strong> that help you handle such fields across different content types.</p>
+<p>The following image shows the Kbank demo site’s content types for storing products - <strong>Account</strong>, <strong>Card</strong>, and <strong>Loan</strong>.</p>
+<p></p>
+<p>All three product content types share two groups of schemas – the <em>Core content</em> schema and <em>Financial data</em> schema. While the <em>Financial data</em> schema is relevant only to the products, the <em>Core content schema</em> stores the same content as other content types in the Kbank demo site. For example, we show two more content types that share the same schema: the <strong>Featured content</strong> and <strong>Promotion</strong>.</p>
+<p>Note that each content type has its dedicated fields relevant only to that specific content type, such as the Minimal inflow or account type in the Product - <em>Account type</em> field or the <em>External URL</em> field in the <em>Featured content</em>. We have discussed <a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">how to approach modeling taxonomies</a> earlier in this content modeling guide.</p>
+<h3 id="reusable-field-schemas-from-a-data-perspective">Reusable field schemas from a data perspective</h3>
+<p>Unlike traditional fields, <em>reusable field schemas</em> give your team some flexibility. Both support the same data types, but the <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> are stored in the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-database-structure">ContentItemCommonData</a> table, making them available to every content type. Any changes to a schema also immediately propagate across every content type that references it. However, developers need to ensure that these additional fields display content as intended in the code.</p>
+
+<div>
+<p><strong>Representing page custom field</strong></p>
+<p>For example, you can build a dedicated reusable field to store reference of one reusable item to a specific page that your editing team wants to use as the primary website representation for this content item.</p>
+</div>
+
+<h3 id="compose-semantic-content-types-with-reusable-field-schemas-and-dedicated-fields">Compose semantic content types with reusable field schemas and dedicated fields</h3>
+<p>Reusable field schemas rarely constitute complete semantic content types independently, though they can be part of one. Rather than forcing them into semantic content types, use them to define the smallest minor reusable data structure you want to share across multiple content types and have editors input data intended for use across different channels. This will allow your team to maintain consistency in their data while avoiding redundant work.</p>
+<h3 id="functional-reusable-field-schemas">Functional reusable field schemas</h3>
+<p>Reusable field schemas can store some core content of semantic content types and define functional data structures that will be reused by different content types. We’ve already mentioned the financial data schema, which editors work in any Product content type in the Kbank demo site.</p>
+<p></p>
+<p>Similarly, you can define and use an <strong>SEO schema</strong> across every page content type.</p>
+<p></p>
+<p>To allow editors to add reusable parameters to URLs, developers can define <a href="https://en.wikipedia.org/wiki/UTM_parameters" target="_blank">UTM parameters</a> schema and assign it to different call to actions, links, or email content types to store data they want to reuse.</p>
+<p>Find out with which types Xperience comes out of the box in the <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">Data type management</a>. You will also learn how you can customize the out-of-the-box set to support different data types.</p>
+<h3 id="semantic-data-in-reusable-field-schemas">Semantic data in reusable field schemas</h3>
+<p>During content audit, you’ll identify data that repeats across different content types. It might a heading, some short summary text, reference to an asset, and tags from specific taxonomy collection. These schema represent the <strong>Core content</strong> that many of your content types consist of. By using a reusable field schema, you avoid the redundancy of defining similar fields across multiple content types. You can define <strong>Core content schema</strong> and integrate these schema into other content types. Semantically, they don’t define a specific content type that you can find in the <a href="https://schema.org/" target="_blank">schema.org</a>. At the same time, they gather crucial information of content the company produces, meaning they might be considered semantic.</p>
+<p>See the <em>Core content schema</em> shared across the products and articles on the Kbank demo site.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>When creating <em>field names</em>, we recommend combining the content type’s name with the field name, for example, <em>BenefitDescription</em>, <em>ArticleName</em>, or <em>ProductTitle</em>. Developers can access the field’s values through <em>&lt;contentType&gt;.Fields.&lt;Name&gt;</em> property, for example, <em>page.Fields.NewsTitle</em>. Determining the name of the type within the property name will ease some development situations. For instance, in SQL JOINs, you won’t need aliases to disambiguate between columns from two or more tables, such as News <em>Title</em> and Product <em>Title</em>.</p>
+</div>
+
+<h3 id="use-the-built-in-form-components">Use the built-in form components</h3>
+<p>Xperience provides different form components for content types that editors will use to input their data. Other form components may also have additional configuration options.</p>
+<p>For example, the <em>Long text</em> data type comes with different text-based form components, such as the <em>Text input</em>, <em>Password</em>, <em>URL</em>, or <em>Text area</em>. For rich text, you can use the <em>Rich text (HTML)</em> data type with the <em>Rich text editor</em> form component.</p>
+<p></p>
+<p>Form components also come with various configuration options that provide different editing experiences. Developers can, for example, configure the <em>Rich text</em> form component as <em>Structured content</em>, <em>Email content</em>, or <em>Contact notes</em>. Developers can also customize their own configuration. The following image shows Kbank’s <em>Rich text editor</em> configuration options; the last <em>News page editor configuration</em> is custom.</p>
+<p></p>
+<p>Find out more about available <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">Admin UI form components</a> and the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-react-input-components">React input type components</a> in the documentation.</p>
+<h3 id="leverage-linked-content-items">Leverage linked content items</h3>
+<p>Xperience allows editors to compose their content items by combining data stored in several other content items.</p>
+<p>Let’s examine the <em>Product</em> content type discussed on the previous page. Highlighted fields store the actual data inputs, while the light violet fields keep references to other content types that hold the values.</p>
+<p></p>
+<p>You can see that the <em>Product</em> type contains fields like <em>Product features</em>, <em>Product benefits</em>, or <em>Product image</em>. Sure, you can create two more fields and store values of product benefits and their icons within the <em>Product</em>. At the same time, why would you?</p>
+<p>In real life, more than one product will offer the same benefits, such as <em>included internet banking</em>, <em>getting a quick decision,</em> or <em>fast access to funds</em>, if we take the Kbank demo site example.</p>
+<p></p>
+<p>Storing the information about benefits within the individual <em>product</em> content item restricts access to this data only within the context of this one (and only one) product item itself. If another product allows for <em>fast access to funds</em>, editors will need to duplicate the same wording and decorate with the same icon in another product item. Duplicating the same content often leads to content management nightmares.</p>
+
+<div>
+
+</div>
+<div>
+<p>The benefits of creating composable content types that store only references:</p>
+<ul>
+<li>Help with content curation.</li>
+<li>Prevent editors from duplicating the same content.</li>
+<li>Improve content management and long-term content curation.</li>
+<li>Lead to quick content composition.</li>
+</ul>
+</div>
+
+<p>When defining the content model, discuss which types can be reused and create them accordingly. To ensure reusability, developers will use the <strong>Content item</strong> data type with the <strong>Combined content selector</strong> form component.</p>
+<p>Developers also specify which content type editors can select when they work with their content. The <em>Combined content selector</em> allows developers to specify, which content types editors select.</p>
+<p>When an editor selects content items they want to use, rather than copying the values from the original item to the new item, Xperience creates a reference between these records.</p>
+<p>Reusing content items improves content maintenance. When an editor updates the referenced item, the content changes are automatically promoted to every other item that uses this content, making content management a breeze. From the developer perspective, developers query in their custom code the linked items and return <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">a collection</a> of <a href="/documentation/developers-and-admins/api/content-item-api/content-item-database-structure">references to content items</a> which they can further process. For example, they can retrieve URLs of web pages to which editors want to guide their audience.</p>
+<p>One of the most typical examples of reusable content types are content item <a href="#store-assets-in-content-hub">Assets</a> that users store in the <em>Content hub</em>. See further examples mentioned in this guide in the Kbank demo site.</p>
+<h3 id="avoid-creating-channel-specific-content-from-linked-content-fragments">Avoid creating channel-specific content from linked content fragments</h3>
+<p>Customers who until recently used to display their content (stored in a CMS) only on the website, love using visual builders to create website content. Xperience offers <strong>Page Builder</strong>, which allows editors to assemble web pages using components like hero banners, text and image blocks, reviews, testimonials, and FAQs. For simplicity, we’ll call these components “content fragments.” These fragments aren’t semantic; they hold specific pieces of data that represent only a part of the overall information needed to convey the complete meaning of the content.</p>
+<p>While this approach makes it easy for editors to craft entire web pages quickly in Xperience, it has limitations. The most significant advantage is speed and simplicity when you’re only concerned with presenting content on a single website channel. However, this method ties the content exclusively to the specific web page, meaning the fragments can’t be easily queried or reused across different channels in Xperience. By composing their content type using widgets, editors lock their content only within the context of that specific web page.</p>
+<p>To build a more flexible, multi-channel solution, we recommend creating semantically defined reusable content types that are made up (composed or linked) from other reusable components. This approach ensures that the content isn’t just relevant to one specific channel but can be used and adapted across different platforms. It also makes the content queryable, structured, and easier to manage in the long term, giving developers more control over its use. We’ll discuss the Page Builder in detail on a <a href="/guides/architecture/content-modeling/content-modeling-guide/design-website-content">dedicated page</a> in this guide.</p>
+<h3 id="storing-reusable-content-in-content-hub-vs.-custom-module-classes">Storing reusable content in Content hub vs. custom module classes</h3>
+<p>Both options offer unique advantages when deciding between storing reusable content in Content hub or custom module classes. From a user perspective, we recommend considering the Content hub first before resorting to choosing custom module classes.</p>
+<p>The <strong>Content hub</strong> provides default Kentico functionality, including editing workflows, multilingual support, usage reports for improving content curation, or a built-in user interface. Additionally, the Content hub allows editors to easily manage and reuse content across various channels, making it highly flexible for developers and editors. Using Content hub often means developers don’t have to create custom UI components, saving time and effort.</p>
+<p>A key benefit of the Content hub is its ability to integrate with APIs, enabling content creation from third-party sources. Upcoming features are expected to enhance this functionality further, making it an even more powerful tool. Using the Content hub, developers can focus on supporting content management through out-of-the-box components rather than building custom solutions, leading to quicker deployment and easier maintenance.</p>
+<h2 id="store-files-in-xperience">Store files in Xperience</h2>
+<h3 id="work-with-managed-files">Work with managed files</h3>
+<p>Xperience allows you to store files of various file types in Xperience, such as photos, pictures, sound files, videos, package files, presentations, or document files. We call files stored through the Xperience interface <em>managed files.</em> Xperience comes with tools that allow editors to upload the files into the system or add their uploaded files to the rest of their marketing content. To help developers, Xperience contains prebuilt form components for uploading or selecting files,  procedures for storing the files, and optimized methods that developers can use to retrieve the files to the live site.</p>
+<p>Xperience doesn’t restrict you to storing only media. You can also store non-media files such as spreadsheets, documents, or PDF files. Using the <strong>Settings</strong> application and custom definitions in code, developers ensure that editors can work with different files as specified in the project requirements.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you have a less experienced team of editors, ask your developers to configure Xperience application to allow uploading files of specified types or limited sizes.</p>
+</div>
+
+<p>Files stored in Xperience can also be served through a CDN. Xperience natively supports using <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a> and <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/amazon-s3">Amazon S3</a> file providers. However, developers can customize Xperience to <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/custom-file-system-providers">support other file providers</a>.</p>
+<p>Xperience comes with two approaches to storing <em>managed files</em>:</p>
+<ul>
+<li><a href="#store-assets-in-content-hub">Storing files in Content hub</a></li>
+<li><a href="#media-libraries">Storing files in Media libraries</a></li>
+</ul>
+<h3 id="store-assets-in-content-hub">Store assets in Content hub</h3>
+<p>As the <em>Content hub</em> application is the centralized location for managing and distributing marketing content, we recommend storing your media files here.</p>
+<p>Editors can store any file type. Out-of-the-box, Xperience supports the most common file types. Developers can additionally <a href="/documentation/developers-and-admins/configuration/content-hub-configuration">configure the Content hub application</a> to support different file types or file sizes. Storing files in the Content hub also allows editors to <a href="/documentation/business-users/content-hub/content-items#secure-content-items">restrict access to a specific asset</a> only for authenticated users.</p>
+<h4 id="asset-content-type">Asset content type</h4>
+<p>To store files in the <em>Content hub</em>, developers can create a custom content type and prepare fields based on the project requirements for a custom <em>Media</em> or <em>Asset</em> content type.</p>
+<p>From Xperience’s perspective, an <em>Asset</em> content type should contain the binary file and additional related information. Xperience comes out of the box with the <strong>Asset selector</strong> form control that you can use when defining the content type.</p>
+<p>For example, Kbank’s <em>Asset</em> type consists of the <em>File</em> field that uses the <em>Asset uploader</em> form control and references the binary itself, and additional fields, such as <em>AltText</em> or <em>Description</em>, which marketers can use to categorize or decorate their data.</p>
+<p></p>
+<p>When editors add an image to their content item, they use the <em>Combined content selector</em> form component that is scoped against the <em>Asset</em> content type. To display the assets correctly, developers need to <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-content-items">retrieve the linked assets</a>. At the same time, the built-in <a href="/documentation/business-users/rich-text-editor">Rich text editor</a> natively supports selecting assets from the <em>Content hub</em> into the text field and automatically retrieves them from the hub.</p>
+<p><strong>Recommendations – Content hub assets</strong></p>
+<p>Use <strong>Content hub</strong> to:</p>
+<ul>
+<li>Store any type of files.</li>
+<li>Store additional <a href="/documentation/developers-and-admins/development/content-types">custom asset properties</a> in a structured format.</li>
+<li>Require <a href="/documentation/business-users/content-hub/content-items#secure-content-items">authentication</a> to access an item (<em>content security policy</em>).</li>
+<li>Use <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a> to categorize your assets in Content hub.</li>
+<li>Reuse stored files on other <a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">channels</a> managed by Xperience.</li>
+<li>Automatically <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">optimize image sizes</a> to predefined format.</li>
+<li>Create <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">image variants</a> for different presentation options.</li>
+</ul>
+<p></p>
+<h3 id="media-libraries">Media libraries</h3>
+<p><strong>Media libraries</strong> application offers a second way of storing files in Xperience. Despite its name, editors can add files of any type, as in the <em>Content hub</em>, and reuse them in different content types across the website channels. Developers can use the out-of-the-box <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">Media file selector</a> form component when they define content types that usually contain some media element, such as articles, banners, or videos.</p>
+<p>Editors can create a hierarchy of folders within a media library to store their files. They can also adjust some basic properties of the file, such as its title or description.</p>
+<p></p>
+<p>When an editor selects the file they want to display on the live site, they create a reference to the file stored in the media library. Developers can access media library files without querying the database, reducing overhead. The media libraries must be deployed in <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a> when <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">deploying to the SaaS environment</a>.</p>
+<p>Based on the size of the editing team and the way the team works, we recommend creating a more granular system of media libraries rather than one massive media library with a complex subfolder structure.</p>
+<p><strong>Considerations for Media libraries</strong></p>
+<p>Before using media libraries to store files, consider storing files and other assets as <a href="/documentation/business-users/content-hub/content-item-assets">Content item assets</a>.</p>
+<p>There are not many situations in which you should consider using media libraries for storing files instead of <em>Content hub</em>. One of these rare situations might be planning to move your asset management into a third-party <a href="https://en.wikipedia.org/wiki/Digital_asset_management" target="_blank">Digital Asset Management</a> solution early into the project.</p>
+<p>Compared to storing assets in the <a href="/documentation/business-users/content-hub/content-item-assets">Content hub</a>, using <strong>media libraries</strong> introduces additional challenges:</p>
+<ul>
+<li>Developers need to extend the existing UI of media libraries if editors require additional fields.</li>
+<li>Out-of-the-box media libraries don’t allow editors to categorize their assets with <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a>.</li>
+<li>Media libraries don’t store language variants of assets editors can create when storing <a href="/documentation/business-users/content-hub/content-item-assets">assets in the Content hub</a>.</li>
+<li>Editors cannot determine the lifecycle of their assets in media libraries through publishing <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a>.</li>
+<li>Editors cannot use built-in <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">image optimization</a> and <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">image transformations</a> on media files stored in <em>Media libraries</em> application.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Unlike assets stored in the Content hub, media files cannot be hidden behind a login. <strong>Do not use media libraries for files that are not intended to be public</strong>. Media library files are always accessible at their direct URL by their GUID (e.g., <em>example.com/getmedia/3b60d630-0016-4432-9aa1-34e57521abe4/which-brewing-fits-you-1080px.jpg</em>).</p>
+</div>
+
+<h3 id="note-on-unmanaged-files">Note on unmanaged files </h3>
+<p>You can also use <strong>unmanaged files</strong> in your Xperience application. Unmanaged files refer to all files that content creators do not edit from the Xperience administration or via the platform’s API. Examples include:</p>
+<ul>
+<li><p>Static files used for website channel design, such as images, favicons, fonts, JavaScript, and CSS files, stored in the <em>wwwroot</em> folder.</p></li>
+<li>
+<p>Files stored in the website project outside of media libraries. Such as files required by custom functionality or integration unrelated to Xperience content management.</p>
+<ul>
+<li>Use subfolders under <code>~/assets/&lt;project_name&gt;</code> to store such files (outside the <em>media</em> folder containing media library subfolders). When <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">deploying to the SaaS environment</a>, these files must be deployed in <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a>.</li>
+</ul>
+</li>
+</ul>
+<h2 id="create-channel-specific-content">Create channel-specific content</h2>
+<p>From a marketing perspective, not all content will be distributed across multiple marketing channels. Content like personalized <em>call to action button labels</em> or <em>page headings</em> will likely be specific to only the website channel, and it doesn’t have to exist in the Content hub. Your team will create these items directly inside the channel and keep them there. For this reason, it’s not possible to create channel-specific content like a page with a URL directly in the Content hub.</p>
+
+<div>
+
+</div>
+<div>
+<p>When deciding between reusable and channel-specific content, follow a simple rule of thumb:</p>
+<p>Is it possible for editors to reuse this piece of content on a different channel in the future? Yes, make it reusable.</p>
+</div>
+
+<h3 id="make-designing-content-generic">Make designing content generic</h3>
+<p>Though you might want to store design-specific information, like exact color codes or sizes, inside the channel-specific content types, we do not recommend this. From a content longevity perspective, you want to have your design information as agnostic to the visual design as possible. When you decide to, for example, redesign your brand, it’s easier to remap the generic class name to new colors than change the specific <em>#F05A22</em> brand color code in hundreds of different places. The following screenshot shows styling options in the Kbank demo site.</p>
+<p></p>
+<h2 id="whats-next">What’s next?</h2>
+<p>You have learned about the options for storing data in Xperience. In the <a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a> section, you’ll learn about different approaches to designing and presenting this data in your application.</p>
+
+</body>
+</html>

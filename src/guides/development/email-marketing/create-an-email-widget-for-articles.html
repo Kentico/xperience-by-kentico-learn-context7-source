@@ -1,0 +1,598 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create an Email Builder widget for articles</title>
+</head>
+<body>
+<p><a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a> in Xperience by Kentico allows marketers to design emails using a drag-and-drop interface. By creating custom widgets, developers can extend the functionality of Email Builder to meet specific project requirements.</p>
+<p>Let’s explore how to create an <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#widgets">Email Builder widget</a> for displaying articles. The example here uses tools and follows conventions from our <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit" target="_blank">Xperience Email Builder Starter Kit</a>.</p>
+<h2 id="before-you-start">Before you start</h2>
+
+<div>
+
+</div>
+<div>
+<p>If you haven’t already integrated the Email Builder Starter Kit into your project, you can see a step-by-step example <a href="/guides/development/email-marketing/use-email-builder-starter-kit">in this guide</a>.</p>
+</div>
+
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>Familiarity with <a href="/documentation/developers-and-admins/development/builders">builders in Xperience by Kentico</a>
+</li>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/" target="_blank">ASP.NET Razor components</a>, <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#blazor-development-best-practices">Blazor development best practices</a>, and <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#mjml-markup">MJML markup</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">30.5.0</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide have only been tested in <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview" target="_blank">.NET 8</a>.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="configure-allowed-content-types">Configure allowed content types</h2>
+<p>To ensure the widget can select only articles, start by configuring the allowed content types.</p>
+
+<div>
+
+</div>
+<div>
+<p>For this example, we want our widget to be portable to other solutions, so we’ll go through extra steps to create options for developers to configure during startup, and use them in a filter.</p>
+<p>This way, any project with some kind of <em>article</em>, <em>blog post</em>, or <em>news</em>-like content type can configure the widget with minimal code changes. Then, we’ll go through an example using the <strong>TrainingGuides.ArticlePage</strong> content type from the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">Training guides repository</a>.</p>
+<p>If your widget does not need to be shared with other projects, you can simply hard-code the available content types in the content item selector that we will use later on.</p>
+</div>
+
+<h3 id="define-options-for-allowed-content-types">Define options for allowed content types</h3>
+<p>Start by adding a new file called <strong>TrainingGuidesEmailBuilderOptions.cs</strong> in the <em>~/Features/Shared/EmailBuilder</em> folder. This options class will allow developers to specify the content types marketers can select in the widget properties.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrainingGuidesEmailBuilderOptions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Shared.EmailBuilder;
+
+public class TrainingGuidesEmailBuilderOptions
+{
+    public IEnumerable&lt;string&gt; AllowedArticleContentTypes { get; set; } = Array.Empty&lt;string&gt;();
+}
+</code></pre>
+</div>
+
+<h3 id="register-the-options">Register the options</h3>
+<p>Add the options to the <code>AddTrainingGuidesOptions</code> method in <strong>~/ServiceCollectionExtensions.cs</strong>, found in the root of the <em>TrainingGuides.Web</em> project. If this method does not exist, create it.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public static void AddTrainingGuidesOptions(this IServiceCollection services)
+{
+    ...
+    services.Configure&lt;TrainingGuidesEmailBuilderOptions&gt;(options =&gt;
+    {
+        options.AllowedArticleContentTypes = [ArticlePage.CONTENT_TYPE_NAME];
+    });
+    ...
+}
+...
+</code></pre>
+</div>
+
+<p>Then, call this method from <strong>Program.cs</strong> immediately after <code>AddTrainingGuidesServices</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="3"><code>
+...
+builder.Services.AddTrainingGuidesServices();
+builder.Services.AddTrainingGuidesOptions();
+...
+</code></pre>
+</div>
+
+<h2 id="implement-a-content-type-filter">Implement a content type filter</h2>
+<p>Next, let’s create a filter that uses the <code>TrainingGuidesEmailBuilderOptions</code> to restrict the widget’s selectable content types.</p>
+<p>Add a file called <strong>ArticleContentTypesFilter.cs</strong> in the <em>~/Features/Articles/EmailWidgets</em> folder.</p>
+<p>Then, implement the <code>IContentTypesFilter</code> interface. Use dependency injection to resolve the options we configured during startup.</p>
+<p>Use the provided codenames to find the GUIDs of the corresponding data classes and assign them to the <code>AllowedContentTypeIdentifiers</code> property.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleContentTypesFilter.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.DataEngine;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+using Microsoft.Extensions.Options;
+using TrainingGuides.Web.Features.Shared.EmailBuilder;
+
+namespace TrainingGuides.Web.Features.Articles.EmailWidgets;
+
+/// &lt;summary&gt;
+/// Article content types filter.
+/// &lt;/summary&gt;
+internal sealed class ArticleContentTypesFilter : IContentTypesFilter
+{
+    /// &lt;summary&gt;
+    /// Content type GUID identifiers allowed for &lt;see cref="ArticleWidget"/&gt;.
+    /// &lt;/summary&gt;
+    public IEnumerable&lt;Guid&gt; AllowedContentTypeIdentifiers { get; }
+
+    /// &lt;summary&gt;
+    /// Article content types filter.
+    /// &lt;/summary&gt;
+    /// &lt;param name="trainingGuidesEmailBuilderOptions"&gt;The email builder options, configured at startup.&lt;/param&gt;
+    public ArticleContentTypesFilter(IOptions&lt;TrainingGuidesEmailBuilderOptions&gt; trainingGuidesEmailBuilderOptions)
+    {
+        var codeNames = trainingGuidesEmailBuilderOptions.Value.AllowedArticleContentTypes;
+
+        AllowedContentTypeIdentifiers = DataClassInfoProvider.ProviderObject.Get()
+            .WhereIn(nameof(DataClassInfo.ClassName), codeNames)
+            .Column(nameof(DataClassInfo.ClassGUID))
+            .GetListResult&lt;Guid&gt;();
+    }
+}
+</code></pre>
+</div>
+
+<h2 id="define-the-widget-properties">Define the widget properties</h2>
+<p>Now, we need widget properties, where marketers can enter data to configure the widget.</p>
+<p>For the sake of simplicity in this example, let’s use a single property that allows users to select an article. We should be able to gather all the information the widget needs from the selected article.</p>
+<p>Create a file called <strong>ArticleEmailWidgetProperties.cs</strong> in the <em>~/Features/Articles/EmailWidgets</em> folder:</p>
+
+<div>
+
+</div>
+<div>
+<p>Remember to assign the content type filter from earlier to the selector.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleEmailWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.ContentEngine;
+using Kentico.EmailBuilder.Web.Mvc;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+
+namespace TrainingGuides.Web.Features.Articles.EmailWidgets;
+
+/// &lt;summary&gt;
+/// Configurable properties of the &lt;see cref="ContentWidget"/&gt;.
+/// &lt;/summary&gt;
+public sealed class ArticleEmailWidgetProperties : IEmailWidgetProperties
+{
+    [ContentItemSelectorComponent(
+        contentTypeFilter: typeof(ArticleContentTypesFilter),
+        Label = "Select article",
+        ExplanationTextAsHtml = true,
+        ExplanationText = "The widget will display the content from the selected article.",
+        Order = 10,
+        MaximumItems = 1)]
+    public IEnumerable&lt;ContentItemReference&gt; ArticlePage { get; set; } = [];
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You can find details about the various form controls available for Email Builder component properties in <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">the documentation</a>.</p>
+</div>
+
+<h2 id="define-the-widget-model">Define the widget model</h2>
+<p>Next, we need to define the data the widget will display. Create a file called <strong>ArticleEmailWidgetModel.cs</strong> in the <em>~/Features/Articles/EmailWidgets</em> folder.</p>
+<p>The widget should not render the full text of the article directly in the email, because it is meant to drive traffic to the full version on the website. Properties for the <em>title</em>, <em>teaser image</em>, <em>summary</em>, and <em>URL</em> should be enough.</p>
+
+<div>
+
+</div>
+<div>
+<p>Since we are using the Email Builder Starter Kit, we can take advantage of the pre-existing <code>ImageWidgetModel</code> class to represent the <em>URL</em> and <em>alt text</em> of the article teaser image.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleEmailWidgetModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
+
+namespace TrainingGuides.Web.Features.Articles.EmailWidgets;
+
+public class ArticleEmailWidgetModel
+{
+    public string ArticleTitle { get; set; } = string.Empty;
+    public ImageWidgetModel ArticleTeaserImage { get; set; } = new();
+    public string ArticleSummary { get; set; } = string.Empty;
+    public string ArticleUrl { get; set; } = string.Empty;
+
+}
+</code></pre>
+</div>
+
+<h2 id="map-content-types-to-the-widget-model">Map content types to the widget model</h2>
+<p>Now, we need a mapper to populate the widget model based on the selected article. We’ll create a class that queries the <strong>TrainingGuides.ArticlePage</strong> content type and converts the resulting pages into <code>ArticleEmailWidgetModel</code> objects.</p>
+
+<div>
+
+</div>
+<div>
+<p>This process follows the conventions of the <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit" target="_blank">Email Builder Starter Kit</a> and makes our widget more portable.</p>
+<p>It separates the widget from the content types of any specific project, easing the process of using the widget elsewhere.</p>
+<p>If you do not need a portable widget, you can include your data access logic directly in the code-behind of the widget’s view component, populating the widget model there, or even directly using your content type classes instead of a widget model.</p>
+</div>
+
+<h3 id="implement-the-mapper">Implement the mapper</h3>
+<p>Add a file called <strong>ArticleEmailWidgetModelMapper.cs</strong> in the <em>~/Features/Articles/EmailWidgets</em> folder. Implement the <code>IComponentModelMapper&lt;TModel&gt;</code> interface from the Starter Kit.</p>
+
+<div>
+
+</div>
+<div>
+<p>The <strong>Article page</strong> content type of the Training guides repository can link to multiple reusable article types— <code>Article</code> and <code>IArticleSchema</code>.</p>
+<p>These types exist to show the process of handling content model expansion over time in the .</p>
+<p>We’ll need to handle both potential scenarios in our mapping class.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleEmailWidgetModelMapper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
+using TrainingGuides.Web.Features.Shared.Services;
+
+namespace TrainingGuides.Web.Features.Articles.EmailWidgets;
+
+public class ArticleEmailWidgetModelMapper : IComponentModelMapper&lt;ArticleEmailWidgetModel&gt;
+{
+    private readonly IContentItemRetrieverService&lt;ArticlePage&gt; articleRetrieverService;
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+
+    private ArticleEmailWidgetModel DefaultModel =&gt; new()
+    {
+        ArticleTitle = stringLocalizer["No article selected"],
+        ArticleTeaserImage = new ImageWidgetModel(),
+        ArticleSummary = stringLocalizer["Please select an article."],
+        ArticleUrl = string.Empty,
+    };
+
+
+    public ArticleEmailWidgetModelMapper(
+        IContentItemRetrieverService&lt;ArticlePage&gt; articleRetrieverService,
+        IStringLocalizer&lt;SharedResources&gt; stringLocalizer)
+    {
+        this.articleRetrieverService = articleRetrieverService;
+        this.stringLocalizer = stringLocalizer;
+    }
+
+    public async Task&lt;ArticleEmailWidgetModel&gt; Map(Guid contentItemGuid, string languageName)
+    {
+        if (contentItemGuid == Guid.Empty)
+        {
+            return defaultModel;
+        }
+
+        var articlePage = await articleRetrieverService.RetrieveWebPageByContentItemGuid(contentItemGuid, ArticlePage.CONTENT_TYPE_NAME, 2, languageName);
+
+        string articlePageUrl = articlePage.GetUrl().AbsoluteUrl;
+
+        var schemaArticle = articlePage?.ArticlePageArticleContent.FirstOrDefault();
+        var oldArticle = articlePage?.ArticlePageContent.FirstOrDefault();
+
+        var imageAsset = schemaArticle?.ArticleSchemaTeaser?.FirstOrDefault()
+                ?? oldArticle?.ArticleTeaser?.FirstOrDefault();
+        string imageUrl = imageAsset?.AssetFile?.Url ?? string.Empty;
+
+        return (articlePage is not null &amp;&amp; (schemaArticle is not null || oldArticle is not null))
+            ? new ArticleEmailWidgetModel()
+            {
+                ArticleTitle = schemaArticle?.ArticleSchemaTitle
+                    ?? oldArticle?.ArticleTitle
+                    ?? string.Empty,
+                ArticleSummary = schemaArticle?.ArticleSchemaSummary
+                    ?? oldArticle?.ArticleSummary
+                    ?? string.Empty,
+                ArticleTeaserImage = new ImageWidgetModel
+                {
+                    ImageUrl = imageUrl.ToString(),
+                    AltText = imageAsset?.AssetAltText ?? string.Empty,
+                },
+                ArticleUrl = articlePageUrl
+            }
+            : defaultModel;
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="register-the-mapper">Register the mapper</h3>
+<p>This new mapper won’t work unless we register it with the dependency injection container. Add the mapper to the <code>AddTrainingGuidesServices</code> method in <strong>ServiceCollectionExtensions.cs</strong> as a scoped service.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+services.AddScoped&lt;IComponentModelMapper&lt;ArticleEmailWidgetModel&gt;, ArticleEmailWidgetModelMapper&gt;();
+...
+</code></pre>
+</div>
+
+<h2 id="build-the-widget-razor-component">Build the widget Razor component</h2>
+<p>Now we’ve completed all the setup, and it’s time to implement the actual razor component that represents the widget.</p>
+<h3 id="create-the-code-behind">Create the code-behind</h3>
+<p>Start by creating a file called <strong>ArticleEmailWidget.razor.cs</strong> in the <em>~/Features/Articles/EmailWidgets</em> folder. Use the mapper to populate the widget model.</p>
+<p>Include properties to represent the <code>ArticleWidgetViewModel</code> the widget will use and the <code>ArticleEmailWidgetProperties</code> that marketers will configure.</p>
+<p>Then use the model mapper from earlier to populate the model based on the selected article page.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleEmailWidget.razor.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Components;
+using TrainingGuides.Web.Features.Articles.EmailWidgets;
+using Kentico.EmailBuilder.Web.Mvc;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
+
+[assembly: RegisterEmailWidget(
+    identifier: ArticleEmailWidget.IDENTIFIER,
+    name: "Article",
+    componentType: typeof(ArticleEmailWidget),
+    PropertiesType = typeof(ArticleEmailWidgetProperties),
+    IconClass = "icon-l-list-img-article",
+    Description = "Displays an article teaser link with an image, summary, and title."
+    )]
+
+namespace TrainingGuides.Web.Features.Articles.EmailWidgets;
+
+public partial class ArticleEmailWidget : ComponentBase
+{
+    /// &lt;summary&gt;
+    /// The component identifier.
+    /// &lt;/summary&gt;
+    public const string IDENTIFIER = $"TrainingGuides.{nameof(ArticleEmailWidget)}";
+
+    [Inject]
+    private IComponentModelMapper&lt;ArticleEmailWidgetModel&gt; ArticleComponentModelMapper { get; set; } = default!;
+
+    [Inject]
+    private IEmailContextAccessor EmailContextAccessor { get; set; } = default!;
+
+    /// &lt;summary&gt;
+    /// The widget properties.
+    /// &lt;/summary&gt;
+    [Parameter]
+    public ArticleEmailWidgetProperties Properties { get; set; } = new();
+
+    public ArticleEmailWidgetModel Model { get; set; } = new();
+
+    /// &lt;inheritdoc /&gt;
+    protected override async Task OnInitializedAsync()
+    {
+        var itemGuid = Properties.ArticlePage.FirstOrDefault()?.Identifier;
+
+        string languageName = EmailContextAccessor.GetContext().LanguageName;
+        // Using the mapper here means you do not need to change this code when reusing this widget in a different project.
+        Model = await ArticleComponentModelMapper.Map(itemGuid ?? Guid.Empty, languageName);
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="design-the-widget-front-end">Design the widget front-end</h3>
+<p>With the code-behind in place, we can move on to the widget’s display.</p>
+
+<div>
+
+</div>
+<div>
+<p><a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components">Email builder components</a> also support HTML markup, though we recommend MJML as it automatically handles the messy conditional markup required for handling diverse email clients.</p>
+</div>
+
+<p>Add a file called <strong>ArticleEmailWidget.razor</strong> in the same folder and use MJML markup to define the widget’s appearance:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ArticleEmailWidget.razor</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;mj-image src="@Model.ArticleTeaserImage.ImageUrl" alt="@Model.ArticleTeaserImage.AltText"&gt;&lt;/mj-image&gt;
+&lt;mj-text&gt;
+    &lt;h1&gt;@Model.ArticleTitle&lt;/h1&gt;
+    &lt;p&gt;
+        &lt;em&gt;@Model.ArticleSummary&lt;/em&gt;
+    &lt;/p&gt;
+&lt;/mj-text&gt;
+&lt;mj-button href="@Model.ArticleUrl"&gt;
+    Read More
+&lt;/mj-button&gt;
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Keep in mind that MJML generates a lot of markup. Overuse of complex elements can lead to issues with certain email clients and spam filters. We recommend keeping widgets simple.</p>
+</div>
+
+<h2 id="see-the-results">See the results</h2>
+<p>Rebuild your project and create a new <strong>Basic email</strong> in the <strong>Training guides emails</strong> channel. On the <strong>Email builder</strong> tab of the email, you can now display article previews that link to the full articles in your website channel.</p>
+
+<h2 id="looking-forward">Looking forward</h2>
+<p>For simplicity, this example included the widget’s files directly in the <em>TrainingGuides.Web</em> project.</p>
+<p>To take full advantage of the portability that we built into the <em>Article</em> email widget, consider moving the widget’s files to a separate RCL (Razor Class Library) project, which you can copy into other solutions or create a NuGet package from.</p>
+<p>You can use this project to build a whole library of widgets that you can quickly implement for each of your clients.</p>
+
+<div>
+
+</div>
+<div>
+<p>Your RCL should include:</p>
+<ul>
+<li>The widget’s Razor component
+<ul>
+<li><code>ArticleEmailWidget.razor</code></li>
+<li><code>ArticleEmailWidget.razor.cs</code></li>
+</ul>
+</li>
+<li>The widget’s model and properties
+<ul>
+<li><code>ArticleEmailWidgetModel</code></li>
+<li><code>ArticleEmailWidgetProperties.cs</code></li>
+</ul>
+</li>
+<li>The content types filter
+<ul>
+<li><code>ArticleContentTypesFilter.cs</code></li>
+</ul>
+</li>
+<li>The options to configure the widget at startup
+<ul>
+<li><code>TrainingGuidesEmailBuilderOptions.cs</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>If you intend to make your library into a NuGet package</strong>, you also need to include the files from the <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit/tree/main/src/Kentico.Xperience.Mjml.StarterKit.Rcl" target="_blank">Kentico.Xperience.Mjml.StarterKit.Rcl</a> library of the Email Builder Starter Kit. It may be easier to create your own fork of the repository and add your widgets to this project.</p>
+<p>Then, you only need these steps for each project where you use the widget:</p>
+<ol type="1">
+<li>Implement the model mapper class.</li>
+<li>Register the model mapper as an implementation of <code>IComponentModelMapper&lt;TModel&gt;</code> during startup.</li>
+<li>Configure the options class during startup.</li>
+</ol>
+<p>If your agency uses standardized content types for common scenarios, you’ll be able to copy-paste the code for each of these steps with minimal edits.</p>
+</div>
+
+<p>To see more examples of Email Builder components in action, we recommend checking out those used on the <a href="https://github.com/Kentico/community-portal/tree/v30.5.1.6/src/Kentico.Community.Portal.Web/Components/EmailBuilder" target="_blank">Community Portal</a>.</p>
+<p>Here, you can see the code that makes up <a href="https://community.kentico.com/" target="_blank">community.kentico.com</a>, our site for the Xperience by Kentico developer community that features many helpful resources.</p>
+
+</body>
+</html>

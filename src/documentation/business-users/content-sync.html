@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Content sync</title>
+</head>
+<body>
+<p>Content synchronization allows you to easily transfer new and updated content from one “instance” of Xperience by Kentico to another. In this context, instances are Xperience applications hosting the same website or project, typically on another server and domain.</p>
+<p>The purpose of content sync is to help manage content when using multiple environments. For example, your project’s developers may have a local <strong>Development</strong> instance, from which initial content is sent to a hosted <strong>Staging</strong> instance. The staging instance is accessible only by editors and other staff, who use it to prepare content updates. The final content is then synchronized during regular releases to a public-facing <strong>Production</strong> instance.</p>
+<p><strong>Development → Staging → Production</strong></p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Prerequisites</strong></p>
+<p>Your project’s administrators need to correctly set up content sync for all involved instances. For detailed information, see <a href="/documentation/developers-and-admins/configuration/content-sync-configuration">Content sync configuration</a>.</p>
+</div>
+
+<h2 id="supported-content">Supported content</h2>
+<p>Currently, content sync is supported for <a href="/documentation/business-users/content-hub/content-items">reusable content items</a>. Support for synchronizing <a href="/documentation/business-users/website-content">website channel pages</a> will be added in the future.</p>
+<p>The following data is automatically synchronized together with content items:</p>
+<ul>
+<li>
+<a href="/documentation/business-users/content-hub/content-item-assets">Content item assets</a> (physical files)
+<ul>
+<li>For image assets, only the primary <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">optimized image</a> is synchronized. <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">Image variants</a> are generated automatically when requested for the first time on the target instance.</li>
+</ul>
+</li>
+<li>
+<a href="/documentation/business-users/content-hub/content-items#link-content-items">Linked content items</a> (includes both items linked via fields and assets used in <a href="/documentation/business-users/rich-text-editor">rich text content</a> via the <em>Insert image</em> and <em>Insert link</em> options)
+<ul>
+<li>The synchronization cascades if the linked items themselves link to other content items.</li>
+</ul>
+</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/taxonomies">Taxonomies</a> and tags assigned to synchronized items</li>
+<li>
+<a href="/documentation/business-users/content-hub/content-hub-folders#content-folders">Content folders</a> where synchronized items are placed (<em>Smart folders</em> are not synchronized)</li>
+</ul>
+<h3 id="what-is-not-synchronized">What is not synchronized?</h3>
+<p>The following limitations apply when synchronizing content items:</p>
+<ul>
+<li>Only items with the <strong>Published</strong> or <strong>Unpublished</strong> <a href="/documentation/business-users/content-hub/content-items#content-items-lifecycle">status</a> can be synchronized.
+<ul>
+<li>If a linked content item is currently not published, its latest <em>Published</em> version is synchronized. Linked items that were never published are not synchronized at all.</li>
+<li>Synchronization of <a href="/documentation/business-users/content-hub/content-items#unpublish-content-items">unpublished items</a> only works for items that already exist on the target instance in a <em>Published</em> state. If you synchronize a “new” content item with the <em>Unpublished</em> status, no changes are made on the target.</li>
+</ul>
+</li>
+<li>You cannot “select” a deleted content item for synchronization. Content synchronization cannot be used to delete items on the target instance.</li>
+<li>Only the currently selected <a href="/documentation/business-users/content-hub/content-items#translate-content-items">language variant</a> is included in each synchronization. You can switch the language in Content hub and perform a separate synchronization for each language.</li>
+<li>If a content item is <a href="/documentation/business-users/content-hub/content-items#scheduled-publishing">scheduled to be published</a> or <a href="/documentation/business-users/content-hub/content-items#unpublish-content-items">scheduled to be unpublished</a>, this information is not included in the synchronization.</li>
+<li>
+<a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Smart folders</a> are not synchronized.</li>
+</ul>
+<p>Additionally, the following data is required by content items, but is <strong>not</strong> included in content synchronization:</p>
+<ul>
+<li>Channels that use the content (<a href="/documentation/developers-and-admins/configuration/website-channel-management">website</a>, <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email</a>, <a href="/documentation/developers-and-admins/configuration/headless-channel-management">headless</a>)</li>
+<li><a href="/documentation/developers-and-admins/development/content-types">Content types</a></li>
+<li><a href="/documentation/developers-and-admins/configuration/languages">Languages</a></li>
+<li><a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">Workspaces</a></li>
+</ul>
+<p>You or your project’s administrators need to ensure that the target instance has exactly the same set of these objects as the source instance. For example, an error will occur if you try to synchronize a content item for which an exactly matching <a href="/documentation/developers-and-admins/development/content-types">content type</a> is not available on the target.</p>
+<h2 id="editing-process-when-using-content-sync">Editing process when using content sync</h2>
+<p>Content sync is designed to be used with only a single source of content. For content that supports content sync, only edit on the first source instance in your content sync chain, and then use the sync feature to transfer content. Any required changes of data that cannot be synchronized must be done by developers using a standard deployment.</p>
+<p>If you manually edit content directly on the target instance, you risk losing the changes when content is synchronized from the source. You may also cause incompatibility of required objects, such as content types or languages, which would prevent future synchronization.</p>
+<p>For example, if you have a setup with one <em>Staging</em> instance as a source and a public-facing <em>Production</em> instance, only edit content on the staging instance, and use the content sync feature to move changes to production.</p>
+<h3 id="workflow-and-content-sync">Workflow and content sync</h3>
+<p>If you use <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a> to control the lifecycle of your content, only set up and apply the workflow on the source instance where you edit. Any workflow applied on the target instance is ignored, as content items are always transferred with the <em>Published</em> or <em>Unpublished</em> status and a completed workflow cycle.</p>
+<h2 id="synchronize-content-items">Synchronize content items</h2>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommended content size per synchronization</strong></p>
+<p>We recommend that you do not include more than 200 content items and 200 MB of related asset files within a single synchronization.</p>
+<p>Larger synchronizations may still work correctly, depending on the performance of your application’s servers and your connection speed. However, splitting large content updates into multiple synchronizations is generally a better approach. This reduces the chance of issues during the synchronization, for example due to network errors.</p>
+</div>
+
+<ol type="1">
+<li>Open the <strong>Content hub</strong> application.</li>
+<li>Select the content items you want to synchronize.
+<ul>
+<li>Use the search bar, filter or <a href="/documentation/business-users/content-hub/content-hub-folders">folders</a> to <a href="/documentation/business-users/content-hub/content-items#find-content-items">find content items</a>.</li>
+</ul>
+</li>
+<li>Use the <strong>Sync</strong> () action.<br>
+</li>
+<li>Choose when you want the content to be restored on the target instance:
+<ul>
+<li>
+<strong>Restore on the target immediately</strong> – the content will be transferred to the target instance and restored as soon as possible. The restoration may take up to 30 seconds to start, may be delayed by other content sync operations, and may take some time depending on the size of the synchronized content. You can view the progress in the content sync dialog.</li>
+<li>
+<strong>Postpone restoration on the target</strong> – select a date and time in the future. The content will be transferred to the target instance and restored at the scheduled time. You can <a href="#track-incoming-synchronizations">track scheduled synchronizations</a> on the target instance.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Scheduling multiple synchronizations</strong></p>
+<p>If you are planning multiple scheduled synchronizations, make sure to set the restoration times according to the order in which you want the content to be created or updated. Leave appropriate time intervals for the restoration to finish for each synchronization (at least 15 minutes are recommended).</p>
+If you schedule multiple synchronizations with updates for the same content items, the last restored synchronization overwrites the previous ones.
+</div>
+</li>
+<li>Review the content items that will be synchronized.
+<ul>
+<li>Any content items that cannot be synchronized are grayed out in the list. For example, this occurs if items that have a different status than <em>Published</em> or <em>Unpublished</em> are selected for synchronization.</li>
+<li>Keep in mind that <a href="/documentation/business-users/content-hub/content-items#link-content-items">linked content items</a> are not displayed in the list, but will also be synchronized.</li>
+</ul>
+</li>
+<li>Select <strong>Sync</strong>.</li>
+</ol>
+<p>The content sync dialog displays the progress of the synchronization and informs you about the result.</p>
+<h2 id="track-incoming-synchronizations">Track incoming synchronizations</h2>
+<p>When working on an Xperience instance that is the target of content synchronization, you can monitor synchronizations that recently occurred or are scheduled to take place in the <strong>Content synchronization</strong> application.</p>
+<p></p>
+<p>If you need to cancel or reschedule a scheduled restoration, <strong>Delete</strong> () the given synchronization on the target instance. You can then synchronize the content again on the source instance and schedule the restoration at a different time.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Synchronization cleanup</strong></p>
+<p>The system automatically removes synchronizations once per day. The cleanup does not affect synchronizations with the <em>Ready</em> status that are scheduled for restoration in the future.</p>
+</div>
+
+
+</body>
+</html>

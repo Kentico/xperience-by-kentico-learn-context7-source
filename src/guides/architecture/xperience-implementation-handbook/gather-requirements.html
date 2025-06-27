@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Gather requirements</title>
+</head>
+<body>
+<h2 id="environment-requirements">Environment requirements</h2>
+<p>The questions in this section focus on the processes and infrastructure that your project demands. Your team’s structure and procedures address some of these questions, and your client’s needs and requirements will answer the rest. The responses further your understanding of the constraints you need to work within and provide you with sufficient opportunity to address potential shortcomings.</p>
+<h3 id="development-team">Development team</h3>
+<ul>
+<li>How many developers are working on this project?</li>
+<li>Do developers collaborate or work independently?</li>
+<li>What source control system will you use?</li>
+<li>Will you use any external resources for development?</li>
+<li>What is the distribution of expertise in your team? For example, do you have full-stack developers, or separate front-end and back-end developers?</li>
+</ul>
+<h3 id="deployment-strategy">Deployment strategy</h3>
+<ul>
+<li>What is your DevOps strategy?</li>
+<li>How often are you planning to deploy new features/code?</li>
+<li>How much downtime is acceptable during deployments?</li>
+<li>Do you plan to have automated deployments?</li>
+</ul>
+<h3 id="infrastructure-dev-stage-qa-prod">Infrastructure (Dev, Stage, QA, Prod)</h3>
+<ul>
+<li>Should you have multiple servers for load distribution?</li>
+<li>Do you plan to distribute servers across different geographical regions?</li>
+<li>Will you use additional environments, such as those for testing, integration, and staging?</li>
+<li>Will content owners work in production environment directly?</li>
+<li>Are you planning to use online marketing features?</li>
+</ul>
+<h3 id="hosting">Hosting</h3>
+<ul>
+<li>Will you use <a href="/documentation/developers-and-admins/saas/saas-overview">Xperience SaaS</a> or manage your own hosting?</li>
+<li>Will you host on-premise or in the cloud?</li>
+<li>Is there a preferred hosting provider (e.g., Azure, AWS)?</li>
+<li>Will the SQL server be dedicated or shared? </li>
+<li>Do you require any type of auto-scaling?</li>
+<li>Should media and design assets be distributed to different geographic locations with a CDN?</li>
+<li>What health monitoring and backup tools do you plan to use?</li>
+</ul>
+<h3 id="expected-traffic">Expected traffic</h3>
+<ul>
+<li>Based on current traffic and projections, what is the expected average and peak traffic daily/monthly (e.g., unique visitors, page views, file downloads, etc.)?</li>
+<li>What is the required maximum response time for a single page request to load? </li>
+<li>Are there different maximum response times for visitors from different geographic locations?</li>
+</ul>
+<h3 id="disaster-recovery">Disaster recovery</h3>
+<ul>
+<li>What is the disaster recovery strategy for this project?</li>
+<li>How often will you back up the application files and the database?</li>
+<li>Will the backup process be automated?</li>
+<li>Does the client have expectations regarding what should and should not be recoverable?</li>
+<li>What is the tolerance for time to recovery?</li>
+</ul>
+<h3 id="scenarios">Scenarios</h3>
+<p>Here are some example scenarios to demonstrate how knowing or not knowing the answers to these questions can help or hurt your project.</p>
+<h4 id="client-requires-fast-load-times-on-a-global-site">Client requires fast load times on a global site</h4>
+<p>A partner was working with a client that operates a global site and required that the site would load within 1-2 seconds in every country they operate in. Because they knew that one of the biggest slowdowns to page loads in other countries are the supporting assets like images, CSS, and JavaScript, they planned to implement a CDN to load these assets.<br>
+If they had not identified that the site needed a CDN, they might have stored the assets in ways that don’t support CDNs out of the box. Additionally, they knew to configure the system to be aware of the CDN, so that the links are added properly. This avoided a costly delay in the project’s go-live as they would have needed to re-link assets on the site. This resulted in a site that loaded quickly from day one.</p>
+<h4 id="performance-issue-due-to-on-premise-hosting-limitations">Performance issue due to on-premise hosting limitations</h4>
+<p>The front-end developers did not pay close attention to optimization of resources like JS, CSS stylesheets and images. This led to a home page that loaded approximately 5MB of data spread across approximately 150 requests for new visitors and visitors with expired client caches. The organization hosted the site on-premise along with other mission critical services not connected to the website. The organization had relatively limited bandwidth and the added request load from the un-optimized home page resulted in an outage not only for the website, but for the other mission critical services.<br>
+If they considered the production environment’s limitations, they could have avoided this issue by focusing more on the website performance and considering to host this website elsewhere. This would have prevented the chain reaction from bringing down the unrelated services.</p>
+<h4 id="handling-traffic-spikes">Handling traffic spikes</h4>
+<p>When discussing the traffic requirements for a project, a partner found that regular daily traffic is generally moderate to low, but the client expects significantly higher traffic once a quarter, due to a regular event. The partner used this knowledge to pitch <a href="https://learn.microsoft.com/en-us/azure/architecture/best-practices/auto-scaling" target="_blank">Azure autoscaling</a> features to keep costs lower while still providing capacity to handle these quarterly spikes. The client appreciated the partner’s considerations of budget while maintaining performance year-round.</p>
+<h2 id="functional-requirements">Functional requirements</h2>
+<p>These questions help identify the project goals, business processes, and required features and functions. Put another way, this is the project scope.</p>
+<h3 id="project-definition">Project definition</h3>
+<p>It is crucial to grasp the motivation behind the project and the decisions that led the client to choose a website for the project. If you understand this, you can define the primary focus areas and concerns. This allows you to allocate more resources to the most important areas.</p>
+<ul>
+<li>What are the project goals?</li>
+<li>What is the target audience?</li>
+<li>What does the client need to track to define the success of the project (e.g., key performance indicators like increased traffic, sales, etc.)?</li>
+<li>What kind of new digital experience do you want to bring to the audience?</li>
+<li>Is the project a brand new development, a redesign, or a migration?</li>
+<li>What type of a project is it (e.g., marketing website, corporate website, application, etc.)?</li>
+<li>Is this a stand alone project or is it part of a larger initiative? How does it fit within a larger initiative?</li>
+<li>Is the project’s content meant to be mostly static or dynamic?</li>
+<li>Is content context sensitive (e.g., personalization)?</li>
+</ul>
+<h3 id="design">Design</h3>
+<p>A number of factors influence your design decisions. For example, government projects require strict accessibility guidelines to be followed. Other projects may require a heavy focus on mobile technologies. These questions help you find the constraints that drive the decisions in your design process. </p>
+<ul>
+<li>Which web standards and accessibility requirements does the project need to support (e.g., HTML5, Section 508)?</li>
+<li>Are there any particular requirements around the final HTML code that you need to consider?</li>
+<li>Will the project prioritize mobile devices?</li>
+<li>Are there existing wireframes or templates that you must consider?</li>
+<li>Do your specifications require or forbid third-party frameworks (e.g., bootstrap, jQuery)?</li>
+<li>Are there any specific browsers or browser versions that need to be supported (e.g., older browsers like IE 7)?</li>
+</ul>
+<h3 id="content-and-assets">Content and assets</h3>
+<p>The content and business processes of the project requires are another key focus of this phase. You need to gather as many details as possible about the different types and amounts of content in the project. You also need to understand the details of the processes for adding, editing, and removing content from the site.</p>
+<h4 id="content-structure">Content structure</h4>
+<ul>
+<li>What different types of structured content are planned (e.g., news, blogs, events)?</li>
+<li>What relationships do different content items have? For example, do news items have one or more author, or can editors specify related news items?</li>
+<li>Do you need categorization and/or tagging of content? How does it need to work?</li>
+<li>Does the project require a pre-determined structure or sitemap?</li>
+<li>How many pages will the primary web site channel have? What about pages on microsite channels and headless items?</li>
+<li>What is the expected content growth for each type of content (month, year, decade)?</li>
+<li>Will content be reused in multiple areas of one channel, or across multiple channels? If so, how?</li>
+</ul>
+<h4 id="content-workflow-life-cycle">Content workflow / life-cycle</h4>
+<ul>
+<li>What percentage of the project’s content will be new, compared to imported or migrated?</li>
+<li>Will there be an approval process for publishing content?</li>
+<li>Does any content have publishing time frame requirements (e.g., an expiration date)?</li>
+<li>Should the project remove or archive any content automatically (e.g., should news articles older than one year be archived)?</li>
+<li>How often do you expect content to be updated?</li>
+<li>How long is acceptable to cache each content type for better performance? </li>
+<li>Where will business users manage/create content?</li>
+<li>Does content need to be deployed through multiple environments (e.g., staging to production)?</li>
+</ul>
+<h4 id="digital-assets-files">Digital assets (files)</h4>
+<ul>
+<li>How many digital assets does the project require? </li>
+<li>What types and sizes are these digital assets?</li>
+<li>Will digital assets require categorization/tagging?</li>
+<li>Do you need to secure access to any of the digital assets?</li>
+<li>Will any of the digital assets require an approval process?</li>
+<li>Will media assets be reused multiple times in one channel, or across multiple channels?</li>
+<li>Does the project require a CDN for delivery of digital assets?</li>
+</ul>
+<h3 id="languages">Languages</h3>
+<p>Multilingual websites require more considerations than sites with one language and adding multilingual functionality after the fact can be difficult. As such, you need to understand the current and future needs for the project as they relate to multiple cultures and regions. </p>
+<ul>
+<li>Does the project require multiple languages?</li>
+<li>What is the client’s strategy for creating and displaying language-specific content?</li>
+<li>Will you have any content that should be shared across multiple languages without being translated? </li>
+<li>Does content need to fall back to another language if it isn’t available in another?</li>
+</ul>
+<h3 id="integrations-with-other-systems">Integrations with other systems</h3>
+<p>Many projects require integration with third-party components or systems. You should explore these integrations right away, because the type and complexity of integrations can influence a project’s timeline significantly.</p>
+<ul>
+<li>What do you need to integrate?</li>
+<li>Do you need to synchronize data? What kind of data?</li>
+<li>Will synchronization be in one direction or two directions? </li>
+<li>Which system will be the <em>“system of record”</em>, or <em>“source of truth”</em>, for the data?</li>
+<li>What should happen if one system is unavailable? What should when it becomes available after an outage?</li>
+<li>For what period time can the systems be allowed to be out-of-sync?</li>
+<li>Does the external system have data throughput or bandwidth limitations?</li>
+</ul>
+<h3 id="general-functionality">General functionality</h3>
+<p>These questions deal with some larger features and functionality that are native to Xperience and can be implemented any number of ways. </p>
+<h4 id="online-marketing-digital-experience">Online marketing &amp; digital experience</h4>
+<ul>
+<li>How does the project fit into your client’s overall digital experience?</li>
+<li>What is the data retention plan for online marketing data (e.g., visitors and their activities)?</li>
+<li>What are the email throughput requirements (e.g., how quickly do you need an email with 50K recipients to be sent)?</li>
+<li>Will marketing emails have strict requirements for delays in email delivery?</li>
+<li>Do you expect high-traffic events like targeted campaigns to drive significantly more users to the site than normal?</li>
+<li>What kinds of personalization are needed? </li>
+<li>How much flexibility do business users need to manage things like personalization without help from a technical resource?</li>
+<li>What kind of processes can be automated using marketing automation?</li>
+<li>How will the marketing data be integrated with a CRM system?</li>
+</ul>
+<h4 id="members-live-site-users">Members (live-site users)</h4>
+<ul>
+<li>What types of authentication do you need (e.g., Forms, Facebook, Google)?</li>
+<li>How many registered users do you expect?</li>
+<li>Should any website pages or sections be available only for registered members? </li>
+</ul>
+<h4 id="editors-and-administrators-admin-ui-users">Editors and administrators (admin UI users)</h4>
+<ul>
+<li>What types of authentication do you need (e.g. Forms, External provider, Single-Sign-On)?</li>
+<li>How many content editors and administrators do you expect?</li>
+<li>What types of user roles and what kinds of permissions do you need?</li>
+<li>Should any website pages or sections allow only certain roles to edit them?</li>
+</ul>
+<h4 id="search">Search</h4>
+<ul>
+<li>What content should be searchable?</li>
+<li>Do you need to search external sources?</li>
+<li>How do you need to present search results (ordered, categorized, filtered, etc.)?</li>
+<li>Are there any special search functions you need (e.g., autocomplete, faceted search, etc.)?</li>
+<li>Do you prefer a specific search service (e.g., Lucene, Azure AI Search, Algolia)?</li>
+</ul>
+<h2 id="whats-next">What’s next?</h2>
+<p>The next guide in this handbook provides an <a href="/guides/architecture/xperience-implementation-handbook/examine-xperience-capabilities">overview of the features Xperience has to offer</a> and discusses how they contribute to a digital experience that furthers the goals of your client or organization.</p>
+
+</body>
+</html>

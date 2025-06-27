@@ -1,0 +1,953 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create a profile page</title>
+</head>
+<body>
+<p>If you allow members to register and sign in to your site, they will expect the ability to update their information.</p>
+<p><a href="/guides/development/members/implement-member-registration">An earlier part of this series</a> covered how to use configurable widgets for the registration and sign-in forms. Let’s explore an alternative approach now, utilizing a pre-defined <a href="/documentation/developers-and-admins/development/builders/page-builder/page-templates-for-page-builder">page template</a> on a page.</p>
+<p>In some ways, our approach will be similar to using a dedicated MVC route that displays a view. However, using a <em>page template</em> on a page allows editors to see the page in the content tree. That way, editors can easily link the page with Xperience’s built-in form components and control the page’s URL slug.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity" target="_blank">.NET Identity</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have installed the The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the <em>Training guides</em> repository.</li>
+<li>Have completed the previous guides in the <a href="/guides/development/members">Members series</a>.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="examine-the-requirements">Examine the requirements</h2>
+<p>Let’s take a moment to consider what should be possible to update on a standard profile page.</p>
+<p>Since members can trigger the password reset process without signing in, we don’t need to include passwords in the profile form.</p>
+<p>Email and username should be a bit more closely guarded, with processes similar to the email confirmation and password reset processes, where a special token is sent to verify the identity of the member, so we won’t include them as editable fields, though we can display them.</p>
+<p>We can also display the date the member’s account was created, but this should not be editable for factual reasons.</p>
+<p>We can, however, allow members to edit their name and name order, and their favorite coffee.</p>
+<p>The form should display a success message when it’s able to update a member’s information, and validation errors when the member submits improperly formatted data.</p>
+
+<div>
+
+</div>
+<div>
+<p>While it is possible to add page template properties that allow editors to configure the form in a similar manner to the <a href="/guides/development/members/implement-member-registration">registration widget</a>, this example will not go over the process.</p>
+</div>
+
+<h2 id="build-the-update-profile-form">Build the <em>Update profile</em> form</h2>
+<p>Let’s make a view component for managing the update profile form. This way, in case we ever decide to include it somewhere aside from this template, it’s easier to reuse.</p>
+<p>Under the <em>~/Features/Membership/Profile</em> folder in the <em>TrainingGuides.Web</em> project, create a <em>ViewComponents</em> folder to house the files.</p>
+<p>Overall, the view component will be somewhat similar to the registration form widget, using an AJAX form with a partial view to manage validation and results.</p>
+<h3 id="define-the-view-model">Define the view model</h3>
+<p>The <code>GuidesMemberProfileViewModel</code> from <a href="/guides/development/members/implement-member-registration#set-up-a-view-model">earlier in the series</a> contains the custom fields that we used to expand the built-in <em>Member</em> type, so we can inherit from this class for our update form, adding the extra fields that we need.</p>
+<p>Let’s take another peek at that class as a refresher.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GuidesMemberProfileViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel.DataAnnotations;
+
+namespace TrainingGuides.Web.Features.Membership.Profile;
+
+public class GuidesMemberProfileViewModel
+{
+    [DataType(DataType.Text)]
+    [MaxLength(50)]
+    [Display(Name = "Given name")]
+    public string GivenName { get; set; } = string.Empty;
+
+    [DataType(DataType.Text)]
+    [MaxLength(50)]
+    [Display(Name = "Family name")]
+    public string FamilyName { get; set; } = string.Empty;
+
+    [Display(Name = "Family name goes first")]
+    public bool FamilyNameFirst { get; set; } = false;
+
+    [DataType(DataType.Text)]
+    [MaxLength(100)]
+    [Display(Name = "Favorite coffee")]
+    public string FavoriteCoffee { get; set; } = string.Empty;
+}
+</code></pre>
+</div>
+
+<p>Back in the <em>~/Features/Membership/Profile/ViewComponents</em> folder, create a new class called <code>UpdateProfileViewModel</code> that inherits from <code>GuidesMemberProfileViewModel</code>.</p>
+<ul>
+<li>For form fields that should be displayed but not editable (e.g., <code>EmailAddress</code>), add properties decorated with the <code>Display</code> attribute.</li>
+<li>For values that aren’t part of the form but need to persist through a post return (e.g., <code>SubmitButtonText</code>), use the <code>HiddenInput</code> attribute like you did in the registration form,.</li>
+<li>For properties only used in the initial setup (e.g., <code>Title</code>), or which only apply after a result is returned (e.g., <code>SuccessMessage</code>), no attributes are necessary.</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>UpdateProfileViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+
+namespace TrainingGuides.Web.Features.Membership.Profile;
+
+public class UpdateProfileViewModel : GuidesMemberProfileViewModel
+{
+    private string fullName = string.Empty;
+
+    [Display(Name = "Full name")]
+    public string FullName
+    {
+        get =&gt; !string.IsNullOrWhiteSpace(fullName)
+            ? fullName
+            : FamilyNameFirst
+                ? $"{FamilyName} {GivenName}"
+                : $"{GivenName} {FamilyName}";
+        set =&gt; fullName = value ?? string.Empty;
+    }
+
+    [Display(Name = "Email address")]
+    public string EmailAddress { get; set; } = string.Empty;
+
+    [Display(Name = "User name")]
+    public string UserName { get; set; } = string.Empty;
+
+    [Display(Name = "Member since")]
+    public DateTime Created { get; set; }
+
+    [HiddenInput]
+    public string SubmitButtonText { get; set; } = string.Empty;
+
+    public string Title { get; set; } = string.Empty;
+
+    public string ActionUrl { get; set; } = string.Empty;
+
+    public string SuccessMessage { get; set; } = string.Empty;
+}
+</code></pre>
+</div>
+
+<h3 id="add-a-service">Add a service</h3>
+<p>Since our view model needs data from multiple sources, such as information about the current member and about the base URL of the site, let’s make a separate service to populate it, rather than a static method within a view model.</p>
+<p>Add a <em>Services</em> folder in the <em>Profile</em> directory and define a service that assembles a view model for a given member.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IUpdateProfileService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Membership.Profile;
+
+public interface IUpdateProfileService
+{
+    /// &lt;summary&gt;
+    /// Get the view model for the update profile view component.
+    /// &lt;/summary&gt;
+    /// &lt;param name="guidesMember"&gt;The member to base the view model on.&lt;/param&gt;
+    /// &lt;returns&gt;An &lt;see cref="UpdateProfileViewModel"/&gt; based on the values of the &lt;see cref="GuidesMember"/&gt;'s properties.&lt;/returns&gt;
+    UpdateProfileViewModel GetViewModel(GuidesMember guidesMember);
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>UpdateProfileService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Content.Web.Mvc.Routing;
+using Microsoft.Extensions.Localization;
+using TrainingGuides.Web.Features.Shared.Helpers;
+using TrainingGuides.Web.Features.Shared.Services;
+
+namespace TrainingGuides.Web.Features.Membership.Profile;
+
+public class UpdateProfileService : IUpdateProfileService
+{
+    private readonly IHttpRequestService httpRequestService;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+
+    public UpdateProfileService(IHttpRequestService httpRequestService,
+        IPreferredLanguageRetriever preferredLanguageRetriever,
+        IStringLocalizer&lt;SharedResources&gt; stringLocalizer)
+    {
+        this.httpRequestService = httpRequestService;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+        this.stringLocalizer = stringLocalizer;
+    }
+
+    /// &lt;inheritdoc/&gt;
+    public UpdateProfileViewModel GetViewModel(GuidesMember guidesMember) =&gt;
+        new()
+        {
+            GivenName = guidesMember?.GivenName ?? string.Empty,
+            FamilyName = guidesMember?.FamilyName ?? string.Empty,
+            FamilyNameFirst = guidesMember?.FamilyNameFirst ?? false,
+            FavoriteCoffee = guidesMember?.FavoriteCoffee ?? string.Empty,
+            UserName = guidesMember?.UserName ?? string.Empty,
+            EmailAddress = guidesMember?.Email ?? string.Empty,
+            FullName = guidesMember?.FullName ?? string.Empty,
+            Created = guidesMember?.Created ?? DateTime.MinValue,
+            ActionUrl = httpRequestService.GetAbsoluteUrlForPath(ApplicationConstants.UPDATE_PROFILE_ACTION_PATH, true),
+            SubmitButtonText = stringLocalizer["Submit"],
+            Title = stringLocalizer["Update profile"]
+        };
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Remember to register the service with the DI container.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>~/ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public static void AddTrainingGuidesServices(this IServiceCollection services)
+{
+    ...
+    services.AddSingleton&lt;IUpdateProfileService, UpdateProfileService&gt;();
+    ...
+}
+...
+</code></pre>
+</div>
+
+<h3 id="create-the-view-component-class">Create the view component class</h3>
+<p>Now we can define the main file of our view component for updating the profile of the current member. <strong>Make sure to pre-populate the model with data about the current member</strong>, so the member does not need to manually re-fill all of their information every time.</p>
+<p>To improve the editor experience, add functionality to display a dummy member in <strong>Preview</strong> or <strong>Page Builder</strong> view of the profile page. This way, editors who have not signed in as members won’t see a broken, empty profile when they visit the page in the Xperience admin UI.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can prevent unauthenticated members from seeing the profile form by setting its page to <a href="/documentation/business-users/website-content/secure-pages">require authentication.</a></p>
+<p>We’ll explore this process in more detail <a href="/guides/development/members/require-authentication-for-certain-content">later in the membership series</a>.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>UpdateProfileViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Content.Web.Mvc;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides.Web.Features.Membership.Services;
+
+namespace TrainingGuides.Web.Features.Membership.Profile;
+
+public class UpdateProfileViewComponent : ViewComponent
+{
+    private readonly IMembershipService membershipService;
+    private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly IUpdateProfileService updateProfileService;
+
+    public UpdateProfileViewComponent(IMembershipService membershipService,
+        IHttpContextAccessor httpContextAccessor,
+        IUpdateProfileService updateProfileService)
+    {
+        this.membershipService = membershipService;
+        this.httpContextAccessor = httpContextAccessor;
+        this.updateProfileService = updateProfileService;
+
+    }
+
+    public async Task&lt;IViewComponentResult&gt; InvokeAsync()
+    {
+        var httpContext = httpContextAccessor.HttpContext;
+        GuidesMember currentMember;
+
+        bool useDummyMember = httpContext.Kentico().PageBuilder().GetMode() != PageBuilderMode.Off || httpContext.Kentico().Preview().Enabled;
+
+        currentMember = useDummyMember
+            ? membershipService.DummyMember
+            : await membershipService.GetCurrentMember() ?? membershipService.DummyMember;
+
+        var model = updateProfileService.GetViewModel(currentMember);
+
+        return View("~/Features/Membership/Profile/ViewComponents/UpdateProfile.cshtml", model);
+    }
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>~/Features/Membership/Services/IMembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Generates a dummy member for display in page builder and preview modes.
+/// &lt;/summary&gt;
+/// &lt;returns&gt; A dummy member&lt;/returns&gt;
+GuidesMember DummyMember { get; }
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>~/Features/Membership/Services/MembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;inheritdoc/&gt;
+public GuidesMember DummyMember =&gt; new()
+{
+    UserName = "JohnDoe",
+    Email = "JohnDoe@localhost.local",
+    GivenName = "John",
+    FamilyName = "Doe",
+    FamilyNameFirst = false,
+    FavoriteCoffee = "Latte",
+    Enabled = true,
+    Created = DateTime.Now,
+    Id = 0
+};
+...
+</code></pre>
+</div>
+
+<h3 id="create-views-for-the-view-component">Create views for the view component</h3>
+<p>Let’s start by creating the view returned by the component’s <code>InvokeAsync</code> method.</p>
+<p>Much like with the <a href="/guides/development/members/implement-member-registration">registration widget</a>, create an AJAX form that posts to a special action, and use a separate partial view for the form fields within the update target element.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>UpdateProfile.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using TrainingGuides.Web.Features.Membership.Profile;
+@using TrainingGuides.Web.Features.Shared.Helpers;
+
+@model UpdateProfileViewModel
+
+@{
+    // Using a new guid ensures no conflict if, for some reason, multiple instances of the view component are on the same page.
+    string formDivId = $"updateProfileForm{Guid.NewGuid()}";
+}
+&lt;h3&gt;@Model.Title&lt;/h3&gt;
+
+@using (Html.AjaxBeginForm(new AjaxOptions
+{
+    HttpMethod = "POST",
+    InsertionMode = InsertionMode.Replace,
+    UpdateTargetId = formDivId
+}, new { action = Model.ActionUrl }))
+{
+    &lt;div id="@formDivId" class="px-2"&gt;
+        &lt;partial name="~/Features/Membership/Profile/ViewComponents/UpdateProfileForm.cshtml" model="Model" /&gt;
+    &lt;/div&gt;
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>~/Features/Shared/Helpers/ApplicationConstants.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public const string UPDATE_PROFILE_ACTION_PATH = "/MemberManagement/UpdateProfile";
+...
+</code></pre>
+</div>
+
+<p>Now let’s add the partial view that the above code expects.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Displaying non-editable fields</strong></p>
+<p>For fields that members are not supposed to edit, do not use the input tag helper with the readonly attribute. Render them directly instead.</p>
+<p>This way, values such as the full name, which can change based on a form submission, will update when a response comes back from the controller.</p>
+<p>Directly rendered values also clearly indicate to members that the fields are not editable.</p>
+</div>
+
+<p>If there is a success message, meaning the controller is returning the current instance of the view after a successful update, render it to the page.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>UpdateProfileForm.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using TrainingGuides.Web.Features.Membership.Profile;
+
+@model UpdateProfileViewModel
+
+&lt;div class="form-horizontal"&gt;
+    &lt;div asp-validation-summary="ModelOnly" class="text-danger field-validation-error"&gt;&lt;/div&gt;
+
+    &lt;input asp-for="SubmitButtonText"&gt;
+
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label asp-for="UserName" class="control-label form-label mt-3"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="ms-2"&gt;
+            &lt;strong&gt;@Model.UserName&lt;/strong&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label asp-for="FullName" class="control-label form-label mt-3"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="ms-2"&gt;
+            &lt;strong&gt;@Model.FullName&lt;/strong&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label asp-for="EmailAddress" class="control-label form-label mt-3"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="ms-2"&gt;
+            &lt;strong&gt;@Model.EmailAddress&lt;/strong&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label asp-for="Created" class="control-label form-label mt-3"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="ms-2"&gt;
+            &lt;strong&gt;@Model.Created&lt;/strong&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label asp-for="GivenName" class="control-label form-label mt-3"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="GivenName" class="form-control" test-id="givenName"&gt;
+            &lt;span asp-validation-for="GivenName" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label asp-for="FamilyName" class="control-label form-label mt-3"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="FamilyName" class="form-control" test-id="familyName"&gt;
+            &lt;span asp-validation-for="FamilyName" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label asp-for="FamilyNameFirst" class="control-label form-label mt-3"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="FamilyNameFirst" class="form-check" test-id="familyNameFirst"&gt;
+            &lt;span asp-validation-for="FamilyNameFirst" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;div class="editing-form-label-cell"&gt;
+            &lt;label asp-for="FavoriteCoffee" class="control-label form-label mt-3"&gt;&lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="editing-form-value-cell"&gt;
+            &lt;input asp-for="FavoriteCoffee" class="form-control" test-id="favoriteCoffee"&gt;
+            &lt;span asp-validation-for="FavoriteCoffee" class="text-danger field-validation-error"&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div class="text-center"&gt;
+        &lt;button id="register" type="submit" class="btn tg-btn-secondary text-uppercase my-4"&gt;@Model.SubmitButtonText&lt;/button&gt;
+    &lt;/div&gt;
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        &lt;div class="text-center"&gt;
+            &lt;strong&gt;@Model.SuccessMessage&lt;/strong&gt;
+        &lt;/div&gt;
+    }
+&lt;/div&gt;
+</code></pre>
+</div>
+
+<h2 id="handle-the-form-with-a-controller-action">Handle the form with a controller action</h2>
+<p>In the <em>Controllers</em> directory of the <em>Membership</em> folder, add a new controller called <code>MemberManagementController</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>You may already have this file if you’ve taken the time to replicate the reset password functionality from the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished/src/TrainingGuides.Web/Features/Membership" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+</div>
+
+<p>Create a POST action using the same path constant as the <em>UpdateProfile</em> view, adding any new functionality that you need to the membership service.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MemberManagementController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using TrainingGuides.Web.Features.Membership.Profile;
+using TrainingGuides.Web.Features.Membership.Services;
+using TrainingGuides.Web.Features.Shared.Helpers;
+
+
+namespace TrainingGuides.Web.Features.Membership.Controllers;
+
+public class MemberManagementController : Controller
+{
+    private readonly IMembershipService membershipService;
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+
+    private const string UPDATE_PROFILE_FORM_VIEW_PATH = "~/Features/Membership/Profile/ViewComponents/UpdateProfileForm.cshtml";
+
+    public MemberManagementController(IMembershipService membershipService,
+        IStringLocalizer&lt;SharedResources&gt; stringLocalizer)
+    {
+        this.membershipService = membershipService;
+        this.stringLocalizer = stringLocalizer;
+    }
+
+    /// &lt;summary&gt;
+    /// Updates a user profile.
+    /// &lt;/summary&gt;
+    /// &lt;param name="model"&gt;View model with profile fields to update.&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpPost($"{{{ApplicationConstants.LANGUAGE_KEY}}}{ApplicationConstants.UPDATE_PROFILE_ACTION_PATH}")]
+    [ValidateAntiForgeryToken]
+    public async Task&lt;IActionResult&gt; UpdateProfile(UpdateProfileViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return PartialView(UPDATE_PROFILE_FORM_VIEW_PATH, model);
+        }
+
+        //Get the current member instead of pulling from the model, so that members cannot attempt to change each others information.
+        var guidesMember = await membershipService.GetCurrentMember();
+
+        if (guidesMember is not null)
+        {
+            var result = await membershipService.UpdateMemberProfile(guidesMember, model);
+
+            if (result.Succeeded)
+            {
+                var newModel = GetNewUpdateProfileViewModel(model,
+                    guidesMember,
+                    stringLocalizer["Profile updated successfully."]);
+
+                return PartialView(UPDATE_PROFILE_FORM_VIEW_PATH, newModel);
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+        }
+        return PartialView(UPDATE_PROFILE_FORM_VIEW_PATH, model);
+    }
+
+    private UpdateProfileViewModel GetNewUpdateProfileViewModel(UpdateProfileViewModel model, GuidesMember guidesMember, string successMessage) =&gt;
+        new()
+        {
+            Title = model.Title,
+            EmailAddress = guidesMember.Email ?? string.Empty,
+            UserName = guidesMember.UserName ?? string.Empty,
+            Created = guidesMember.Created,
+            FullName = guidesMember.FullName,
+            GivenName = guidesMember.GivenName,
+            FamilyName = guidesMember.FamilyName,
+            FamilyNameFirst = guidesMember.FamilyNameFirst,
+            FavoriteCoffee = guidesMember.FavoriteCoffee,
+            SubmitButtonText = model.SubmitButtonText,
+            SuccessMessage = successMessage,
+        };
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Make sure to retrieve the currently signed-in member, rather than retrieving the member based on a submitted field. This way, nobody can update a different member’s details by forging a request to submit a username or email that is not their own.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>~/Features/Membership/Services/IMembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Updates the profile of a member.
+/// &lt;/summary&gt;
+/// &lt;param name="member"&gt;Member to update.&lt;/param&gt;
+/// &lt;param name="updateProfileViewModel"&gt;ViewModel with updated fields.&lt;/param&gt;
+/// &lt;returns&gt;&lt;/returns&gt;
+Task&lt;IdentityResult&gt; UpdateMemberProfile(GuidesMember member, UpdateProfileViewModel updateProfileViewModel);
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>~/Features/Membership/Services/MembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;inheritdoc /&gt;
+public async Task&lt;IdentityResult&gt; UpdateMemberProfile(GuidesMember guidesMember, UpdateProfileViewModel updateProfileViewModel)
+{
+    guidesMember.GivenName = updateProfileViewModel.GivenName;
+    guidesMember.FamilyName = updateProfileViewModel.FamilyName;
+    guidesMember.FamilyNameFirst = updateProfileViewModel.FamilyNameFirst;
+    guidesMember.FavoriteCoffee = updateProfileViewModel.FavoriteCoffee;
+
+    SynchronizeContact(guidesMember);
+
+    return await userManager.UpdateAsync(guidesMember);
+}
+...
+</code></pre>
+</div>
+
+<h2 id="create-the-profile-page-page-template">Create the <em>Profile page</em> page template</h2>
+<p>Now that we have the view component and the controller action it posts to, we need to use the view component somewhere to test this functionality.</p>
+<p>Let’s create a bare-bones page template so that editors can see the profile page in the content tree.</p>
+<h3 id="start-with-a-content-type">Start with a content type</h3>
+<p>While we could make a template that applies to an existing content type, let’s create a dedicated <em>Profile page</em> content type and make sure the template only works for this type. This way, we can avoid cluttering the template options when editors are creating landing pages.</p>
+<p>Create a new content type with the following properties:</p>
+<ul>
+<li>
+<strong>Content type name:</strong> Profile page</li>
+<li>
+<strong>Namespace:</strong> TrainingGuides</li>
+<li>
+<strong>Name:</strong> ProfilePage</li>
+<li>
+<strong>Icon:</strong> xp-personalisation</li>
+<li>
+<strong>Use for:</strong> Pages</li>
+<li>
+<strong>Include in routing:</strong> True (enabled)</li>
+<li>
+<strong>Short code name:</strong> TrainingGuidesProfilePage</li>
+</ul>
+<p>You don’t need to add anything on the <strong>Fields</strong> tab, since we haven’t defined ways for editors to configure the profile page.</p>
+<p>Now run the <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">Code generation tool</a> to generate a C# class for this content type in your project:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>.NET CLI</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet run -- --kxp-codegen --type "PageContentTypes" --include "TrainingGuides.ProfilePage"
+</code></pre>
+</div>
+
+<h3 id="define-and-register-the-template">Define and register the template</h3>
+<p>In your project, add a new <em>ProfilePage</em> folder within the <em>Profile</em> directory, for files related to our new content type and its template.</p>
+<p>Since we already created a reusable view component for the profile functionality, defining the template’s display will be simple:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProfilePagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using TrainingGuides.Web.Features.Membership.Profile
+
+&lt;vc:update-profile /&gt;
+</code></pre>
+</div>
+
+<p>Then, you can use the <code>RegisterPageTemplate</code> attribute in a new <em>.cs</em> file to tell Xperience about the template:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProfilePagePageTemplate.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using TrainingGuides;
+using TrainingGuides.Web.Features.Membership.Profile;
+
+[assembly: RegisterPageTemplate(
+    identifier: ProfilePagePageTemplate.IDENTIFIER,
+    name: "Profile page content type template",
+    customViewName: "~/Features/Membership/Profile/ProfilePage/ProfilePagePageTemplate.cshtml",
+    ContentTypeNames = [ProfilePage.CONTENT_TYPE_NAME],
+    IconClass = "xp-personalisation")]
+
+namespace TrainingGuides.Web.Features.Membership.Profile;
+public static class ProfilePagePageTemplate
+{
+    public const string IDENTIFIER = "TrainingGuides.ProfilePagePageTemplate";
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Use the <code>ContentTypeNames</code> parameter to make sure only pages of the <em>Profile page</em> type can use the template.</p>
+</div>
+
+<h3 id="serve-the-template-from-a-controller">Serve the template from a controller</h3>
+<p>Now we need to tell Xperience’s <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">Content tree-based router</a> to use a template for the <em>Profile page</em> content type.</p>
+<p>Create a controller that returns a <code>TemplateResult</code> from its <code>Index</code> action and register it with the router.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProfilePageController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides;
+
+[assembly: RegisterWebPageRoute(
+    contentTypeName: ProfilePage.CONTENT_TYPE_NAME,
+    controllerType: typeof(TrainingGuides.Web.Features.Membership.Profile.ProfilePageController))]
+
+namespace TrainingGuides.Web.Features.Membership.Profile;
+public class ProfilePageController : Controller
+{
+    public IActionResult Index() =&gt; new TemplateResult();
+}
+</code></pre>
+</div>
+
+<h3 id="add-a-page-that-uses-the-template">Add a page that uses the template</h3>
+<p>With the template now bound to the content type, you can create a new <em>Profile page</em> in Xperience and assign the new template.</p>
+
+<p>Make sure to secure the page by enabling the <strong>Requires authentication</strong> checkbox in the <strong>Membership</strong> section of its <strong>Properties</strong> tab.</p>
+<p></p>
+<h2 id="consider-the-possibilities">Consider the possibilities</h2>
+<p>If you want to expand on the functionality here, you can create allows members to change their email address, and tie it to a button on the profile page.</p>
+<p>You can create new methods in your membership service that use the <code>UserManager&lt;T&gt;</code>’s <code>GenerateChangeEmailTokenAsync</code> and <code>ChangeEmailAsync</code> methods in a flow similar to the existing <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished/src/TrainingGuides.Web/Features/Membership/Widgets/ResetPassword" target="_blank">password reset process</a> in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository. Send an email with a link that contains the token.</p>
+<p>You can further expand the functionality by allowing members to define a recovery email address, or a phone number to use in case their primary email is no longer accessible.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/members/require-authentication-for-certain-content">next guide in this series</a> will cover the process of hiding certain content from unauthenticated visitors.</p>
+
+</body>
+</html>

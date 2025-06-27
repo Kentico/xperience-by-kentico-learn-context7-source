@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Hide builder content from visitors who have not consented to tracking</title>
+</head>
+<body>
+<p>The <a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities#activity-logging-based-on-legitimate-interest">activity tracking documentation</a> explains that Xperience logs the <em>Form submit</em> activity automatically, even for users who have not consented to tracking. As the page notes, this means you need to ensure that usage of personal data collected through such activities falls under legitimate interest purposes.</p>
+<p>To avoid potential legal complications, you may want to display certain forms only to users who have consented to tracking.</p>
+<p>Let’s go over the process of creating a <a href="/documentation/developers-and-admins/development/builders/page-builder/sections-for-page-builder">Page Builder section</a> which hides its contents from users who have not given consent for tracking. The code you develop will add an alternate version of the existing <em>Form column section</em> included in <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">the training guides repository</a>.</p>
+<h2 id="before-you-start">Before you start</h2>
+
+<div>
+
+</div>
+<div>
+<p>The code samples here rely on the value of the <a href="/documentation/developers-and-admins/data-protection/cookies#cookie-levels"><em>CMSCookieLevel</em> cookie</a>, and assumes this has been properly mapped to consent in your application. </p>
+</div>
+
+<p>You can find an example of this in the <a href="/guides/development/data-protection">data protection series</a> of training guides.</p>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <em>Consents</em> section of the <a href="/guides/development/data-protection">Data protection series</a> and the <a href="/guides/development/activities-and-marketing">Previous guides in the series</a>.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="edit-the-view-model">Edit the view model</h2>
+<p>This form section needs to execute complex logic and change its behavior accordingly, so you should base it on a view component.</p>
+<p>A view component will allow you to pass your own model to the section, rather than relying on the <em>ComponentViewModel&lt;TPropertyModel&gt;</em> object Xperience provides for basic sections.</p>
+<p>You need to create this view model before you can use it in the view component.</p>
+<ol type="1">
+<li>Navigate to <em>TrainingGuides.Web/Features/Shared/Sections/FormColumn/FormColumnSectionViewModel.cs</em>.</li>
+<li>Add a <em>boolean</em> field to represent whether the form section should render its content.</li>
+<li>Add three <code>string</code> fields to hold a message that will display when visitors have not consented to tracking, along with the text and URL of a link to the cookie policy page.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>The <code>SectionAnchor</code> property corresponds to a property of the same name from the existing <em>FormColumnSectionProperties</em> class. It lets editors specify the value of an <code>id</code> attribute added to the HTML <code>&lt;section&gt;</code> tag that wraps the contents of the <em>FormColumnSection.</em></p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>FormColumnSectionViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+namespace TrainingGuides.Web.Features.Shared.Sections.FormColumn;
+
+public class FormColumnSectionViewModel
+{
+    public bool ShowContents { get; set; }
+    public string SectionAnchor { get; set; } = string.Empty;
+    public string NoConsentMessage { get; set; } = string.Empty;
+    public string NoConsentLinkText { get; set; } = string.Empty;
+    public string NoConsentLinkUrl { get; set; } = string.Empty;
+}
+
+</code></pre>
+</div>
+
+<h2 id="alter-the-view">Alter the view</h2>
+<p>Next, you need to account for the new <code>ShowContents</code> and <code>NoConsentHtml</code> properties of the <code>FormColumnSectionViewModel</code> in the view.</p>
+<ol type="1">
+<li>Navigate to <em>TrainingGuides.Web/Features/Shared/Sections/FormColumn/FormColumnSection.cshtml</em>.</li>
+<li>Add a conditional that only shows the view’s contents if the <code>ShowContents</code> property of the model is <code>true</code>, and otherwise renders the no-consent message and link.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>FormColumnSection.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using TrainingGuides.Web.Features.Shared.Sections.FormColumn
+@model FormColumnSectionViewModel
+
+@if(Model.ShowContents)
+{
+    var sectionAnchor = !string.IsNullOrWhiteSpace(Model.SectionAnchor) ? $"id={Model.SectionAnchor}" : "";
+
+    &lt;section class="c-section form" @sectionAnchor&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row justify-content-center"&gt;
+                &lt;div class="col-lg-8"&gt;
+                    &lt;widget-zone /&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+}
+else
+{
+    &lt;div&gt;
+        @Model.NoConsentMessage
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;a href="@Model.NoConsentLinkUrl"&gt;@Model.NoConsentLinkText&lt;/a&gt;
+    &lt;/div&gt;
+}
+
+</code></pre>
+</div>
+
+<h2 id="handle-the-view-components">Handle the view components</h2>
+<h3 id="create-a-new-view-component">Create a new view component</h3>
+<p><a href="/guides/development/activities-and-marketing/enable-activity-tracking">Earlier in this series</a>, you saw how you can use the value of the <em>CMSCookieLevel</em> cookie to determine whether the current visitor is trackable. Then, you created a method called <code>CurrentContactCanBeTracked</code> to determine whether or not Xperience should track the current user.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you arrived directly at this example or did not code along earlier in the series, you can simply add this method to your cookie consent service:</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieConsentService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+// Use dependency injection to populate this service.
+private readonly ICurrentCookieLevelProvider cookieLevelProvider;
+...
+/// &lt;summary&gt;
+/// Checks if the current contact's CMSCookieLevel is All (1000) or higher
+/// &lt;/summary&gt;
+/// &lt;returns&gt;True if CMSCookieLevel is greater than or equal to 1000, false otherwise&lt;/returns&gt;
+public bool CurrentContactCanBeTracked() =&gt;
+    cookieLevelProvider.GetCurrentCookieLevel() &gt;= 1000;
+...
+</code></pre>
+</div>
+</div>
+</div>
+
+<p>You can use this method in a new view component to create a view model and pass it along to the view.</p>
+<p>Start by creating a new view component called <em>FormColumnSectionConsentViewComponent.cs</em> to the <em>TrainingGuides.Web/Features/Shared/Sections/FormColumn</em> folder.</p>
+<ol type="1">
+<li>Use dependency injection to get instances of the following:
+<ul>
+<li><code>ICookieConsentService</code></li>
+<li><code>IStringLocalizer&lt;SharedResources&gt;</code></li>
+<li><code>IHttpRequestService</code></li>
+<li><code>IHttpContextAccessor</code></li>
+</ul>
+</li>
+<li>Set the <code>Invoke</code> method to take a <code>ComponentViewModel&lt;FormColumnSectionProperties&gt;</code> object as a parameter.
+
+<div>
+
+</div>
+<div>
+Xperience will supply this object automatically. You can use it to access properties configured by editors from the <code>Invoke</code> method.
+</div>
+</li>
+<li>Use <code>sectionProperties.Properties.SectionAnchor</code> to populate the corresponding view model property.</li>
+<li>Set the <code>ShowContents</code> property to <code>true</code> based on the <code>CurrentContactCanBeTracked</code> method of the cookie consent service, or if the site is in <strong>Preview</strong> or <strong>Page Builder</strong> mode.</li>
+<li>Set the message to display when the section is hidden, and configure the properties for the link prompting visitors to visit the <em>cookie policy</em> page and consent to tracking.</li>
+<li>Define an identifier and use it to register the view component as a Page Builder section.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>FormColumnSectionConsentViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.Base.Internal;
+using Kentico.Content.Web.Mvc;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+using TrainingGuides.Web.Features.DataProtection.Services;
+using TrainingGuides.Web.Features.Shared.Sections.FormColumn;
+using TrainingGuides.Web.Features.Shared.Services;
+
+[assembly: RegisterSection(
+    identifier: FormColumnSectionConsentViewComponent.IDENTIFIER,
+    viewComponentType: typeof(FormColumnSectionConsentViewComponent),
+    name: "Form column: Consent-based",
+    propertiesType: typeof(FormColumnSectionProperties),
+    Description = "Form column section that hides its contents if the visitor has not consented to tracking.",
+    IconClass = "icon-square")]
+
+namespace TrainingGuides.Web.Features.Shared.Sections.FormColumn;
+
+public class FormColumnSectionConsentViewComponent : ViewComponent
+{
+    public const string IDENTIFIER = "TrainingGuides.FormColumnSectionConsent";
+
+    private readonly ICookieConsentService cookieConsentService;
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+    private readonly IHttpRequestService httpRequestService;
+    private readonly IHttpContextAccessor httpContextAccessor;
+
+
+    public FormColumnSectionConsentViewComponent(ICookieConsentService cookieConsentService,
+        IStringLocalizer&lt;SharedResources&gt; stringLocalizer,
+        IHttpRequestService httpRequestService,
+        IHttpContextAccessor httpContextAccessor)
+    {
+        this.cookieConsentService = cookieConsentService;
+        this.stringLocalizer = stringLocalizer;
+        this.httpRequestService = httpRequestService;
+        this.httpContextAccessor = httpContextAccessor;
+    }
+
+    public IViewComponentResult Invoke(ComponentViewModel&lt;FormColumnSectionProperties&gt; sectionProperties)
+    {
+        var httpContext = httpContextAccessor.HttpContext;
+
+        bool showContents = cookieConsentService.CurrentContactCanBeTracked() // Display if the visitor has consented to tracking.
+            || httpContext.Kentico().PageBuilder().GetMode() != PageBuilderMode.Off // Display if the page is in Page Builder mode.
+            || httpContext.Kentico().Preview().Enabled; // Display if the page is in Preview mode.
+
+        var cookiePolicyUrlBuilder = new UriBuilder(httpRequestService.GetBaseUrlWithLanguage());
+        cookiePolicyUrlBuilder.Path = httpRequestService.CombineUrlPaths(cookiePolicyUrlBuilder.Path, "cookie-policy");
+
+        var model = new FormColumnSectionViewModel()
+        {
+            SectionAnchor = sectionProperties.Properties.SectionAnchor,
+            ShowContents = showContents,
+            NoConsentMessage = stringLocalizer["The content of this section includes tracking functionality. To view it, please consent to Marketing cookies."],
+            NoConsentLinkText = stringLocalizer["Configure cookies"],
+            NoConsentLinkUrl = cookiePolicyUrlBuilder.ToString()
+        };
+
+        return View("~/Features/Shared/Sections/FormColumn/FormColumnSection.cshtml", model);
+    }
+}
+
+</code></pre>
+</div>
+
+<h3 id="tweak-the-existing-section">Tweak the existing section</h3>
+<p>Now that you’ve added new properties to hide the section’s contents, you need to make sure this only happens for the consent-based version.</p>
+<p>Adjust the existing <em>FormColumnSectionViewComponent.cs</em> file to account for the new <code>ShowContents</code> property of the view model.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>FormColumnSectionViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public IViewComponentResult Invoke(ComponentViewModel&lt;FormColumnSectionProperties&gt; sectionProperties)
+{
+    var model = new FormColumnSectionViewModel()
+    {
+        SectionAnchor = sectionProperties.Properties.SectionAnchor,
+        ShowContents = true
+    };
+    return View("~/Features/Shared/Sections/FormColumn/FormColumnSection.cshtml", model);
+}
+...
+</code></pre>
+</div>
+
+<h2 id="add-an-identifier">Add an identifier</h2>
+<p>Now, in case the identifier of the new consent-based component needs to be accessed externally, add it to the component identifiers file.</p>
+<p>Add a new constant to the <code>Sections</code> class in <em>TrainingGuides.Web/ComponentIdentifiers.cs</em> that references the constant from the view component.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentIdentifiers.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+public static class ComponentIdentifiers
+{
+    public static class Sections
+    {
+        ...
+        public const string FORM_COLUMN_CONSENT = FormColumnSectionViewComponent.IDENTIFIER;
+        ...
+    }
+    ...
+}
+
+</code></pre>
+</div>
+
+<h2 id="see-the-result">See the result</h2>
+<p>You have implemented a layout and logic that displays or hides content on the website depending on a visitor tracking consent. In order to see it in action, you need to use it on a page.</p>
+<ol type="1">
+<li><p>Run your project locally, login to the administration interface, and navigate to the <strong>Training guides pages</strong> channel.</p></li>
+<li><p>Click <strong>Edit → Create new version</strong> to edit the <em>Contact-us</em> page.</p></li>
+<li><p>Set Page Builder to use the <em>Form column: Consent-based</em> section, then <strong>Save</strong> and <strong>Publish</strong> the web page.<br>
+</p></li>
+<li><p>Now pretend that you are a visitor and navigate to your website in a browser’s incognito window. Visit the <em>Cookie policy</em> page, set the cookie level to essential and then visit your <em>Contact us</em> page. The section should not display.</p></li>
+<li>
+<p>Go back to the <em>Cookie policy</em> page, change your consent to <em>Marketing</em> and revisit <em>Contact us</em> page. If you’ve implemented the functionality properly, you’ll see the form displayed on the page.</p>
+<p></p>
+</li>
+</ol>
+<p>Your site now includes a section with a powerful custom logic. Your website editors can use the new section to hide forms on the website from specific visitors. But they are not limited to just forms. They can hide any custom widgets which might lead to, for example, a GDPR compliance breach if displayed for all the visitors.</p>
+<h2 id="whats-next">What’s next</h2>
+<p>The <a href="/guides/development/activities-and-marketing/implement-cross-site-activities">next guide</a> provides a simple example of implementing cross-site activities.</p>
+
+</body>
+</html>

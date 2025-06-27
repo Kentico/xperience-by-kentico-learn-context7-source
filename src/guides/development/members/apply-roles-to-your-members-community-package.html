@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Apply roles to your members with this community package</title>
+</head>
+<body>
+<p>Some businesses have more complicated requirements for their authenticated members than the <a href="/guides/development/members/create-a-profile-page">earlier membership examples</a> cover.</p>
+<p>For example, a business may need to have multiple groups of members, each of which has access to different pages. You could achieve this behavior if it were possible to assign roles to members, using those roles to restrict access to certain pages.</p>
+<h2 id="the-package">The package</h2>
+<p>Kentico plans to include roles for members in Xperience, though it it does not yet have a firm position in our <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">roadmap</a> at the time of writing this guide.</p>
+<p>In the meantime, Kentico MVP <a href="https://www.linkedin.com/in/trevor-fayas-a0628a32/" target="_blank"><em>Trevor Fayas</em></a> has created an open-source community module for assigning roles to members and controlling which pages they can access.</p>
+<p>Visit the <a href="https://github.com/KenticoDevTrev/MembershipRoles_Temp/tree/master" target="_blank">XperienceCommunity.MemberRoles</a> repository to view the module and find instructions for how to install and use this package.</p>
+<p>This guide will give a brief overview of this member roles package and highlight some of its noteworthy features.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>Let’s take a high-level look at the components of the member roles package.</p>
+<h3 id="how-do-the-objects-relate">How do the objects relate?</h3>
+<p>Instead of creating a new object type, Trevor’s repository uses <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomy tags</a> to represent the roles members can have.</p>
+<p>There are three binding classes used to create relationships between these roles and the following objects:</p>
+<ol type="1">
+<li>
+<strong>Members</strong> in the <em>Members</em> application.
+<ul>
+<li>A binding object relating a role to a member means the member is assigned to the given role.</li>
+</ul>
+</li>
+<li>
+<strong>Web page items</strong> in web channels.
+<ul>
+<li>A binding object relating a role to a web page item means that with correct configuration, members of the given role have permission to view the page.</li>
+</ul>
+</li>
+<li>
+<strong>Content folders</strong> in <em>Content hub</em>.
+<ul>
+<li>A binding object relating a role to a content folder means that with correct configuration, members of the given role have permission to view reusable items in the folder.</li>
+</ul>
+</li>
+</ol>
+<p>Then, there are two <strong>Permission settings</strong> classes: one for content folders and one for web page items. Each object of these types is associated with a single page or folder and specifies two things:</p>
+<ol type="1">
+<li>Whether the given page or content folder should restrict unauthenticated members.</li>
+<li>Whether the list of permitted roles should be inherited from the parent or directly defined for the given object.</li>
+</ol>
+<p>Finally, <em>XperienceCommunity.MemberRoles</em> includes a <strong>Member Permission Configuration</strong> <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schema</a>, which indicates whether the package should check role permissions for a given content type. We’ll cover this vital schema in more detail under the next heading.</p>
+<h3 id="how-do-you-configure-an-items-permissions">How do you configure an item’s permissions?</h3>
+<p>You may have noticed the phrase “with correct configuration” qualifying a few statements under the previous heading. Let’s dive into that a bit further.</p>
+<p>There are two important factors that designate <em>if</em> and <em>how</em> the member role code should check an item’s permissions:</p>
+<h4 id="reusable-field-schema-the-if">Reusable field schema (the “If”)</h4>
+<p>As mentioned above, an item’s content type must have the <strong>Member Permission Configuration</strong> schema if you want to evaluate its permissions. You need to apply the schema <em>both in the database</em> (by assigning it through the admin UI) <em>and in the code</em> (by <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">re-generating code files</a> for the content type).</p>
+
+<div>
+
+</div>
+<div>
+<p>A content type <strong>must</strong> use the schema for the filters from <em>XperienceCommunity.MemberRoles</em> to check its items’ permissions.</p>
+<p>However, permission settings for an item can still exist, <em>even when they do not apply</em>. <strong>MemberPermissions</strong> still exist on the <strong>Properties</strong> tab of a web page item, even if its content type does not use the schema. Similarly, it’s possible to set <strong>Folder permissions</strong> for a content folder that does not contain items using the schema.</p>
+<p>If an item’s content type does not have the correct schema, changes to these permissions will have <em>no direct effect</em>. However, if the item is a web page whose children inherit its permissions, changes will affect the children.</p>
+</div>
+
+<h4 id="inheritance-the-how">Inheritance (the “How”)</h4>
+<p>The way the package checks an item’s permissions is determined by setting permission inheritance.</p>
+<p>If a web page item is set to <strong>inherit permissions</strong>, permission checks for that item will check the permissions settings of the parent item. If it’s set to <strong>Break Inheritance</strong>, the package will check the permissions assigned directly to the item in the <strong>Member Permissions</strong> category of its <strong>Properties</strong> tab.</p>
+<p>If a content folder is set to <strong>inherit permissions</strong>, permission checks for the reusable items it contains will evaluate the settings of the parent folder. If it’s set to <strong>Break Inheritance</strong>, the package will check the permissions assigned directly to the folder in the <strong>Folder Permissions</strong> application.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Overriding permissions</strong></p>
+<p>There is an exception, however: language variants of items can override the permission settings of the web page item or content folder through configuring the fields of the <strong>Member Permission Configuration</strong> schema.</p>
+<p>This is true for variants of both reusable items, which can override their containing folder’s permissions, and web pages, which can override their associated item’s permissions.</p>
+</div>
+
+<h3 id="how-do-you-check-permissions">How do you check permissions?</h3>
+<p>The <em>Member roles</em> module provides new code that can filter unauthorized content from the current member. It’s important to note that <strong>Xperience does not automatically apply this new logic</strong>, so you need to adjust your code wherever you retrieve content that may be restricted by member role.</p>
+<p>This process will be easier if you use some form of <a href="/guides/development/get-started/use-abstraction-and-enterprise-level-architecture-in-xperience-projects">abstraction</a> that centralizes your data access logic.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can find details on how to check permissions for content in the <a href="https://github.com/KenticoDevTrev/MembershipRoles_Temp/blob/master/DEVELOPER-GUIDE.md" target="_blank">Developer guide</a> of Trevor’s repository.</p>
+</div>
+
+<h3 id="can-you-tie-it-in-with-authorization">Can you tie it in with authorization?</h3>
+<p>The <em>Member roles</em> package includes logic to filter queries for content items based on member roles, but you can expand its utility further using another of Trevor’s tools.</p>
+<p>The <a href="https://github.com/KenticoDevTrev/KenticoAuthorization" target="_blank">XperienceCommunity.DevTools.Authorization.MemberRoles</a> package allows you to authorize things like controller actions and page templates based on member roles.</p>
+<p>You can find specific instructions about its installation and usage in the link.</p>
+<h2 id="how-to-help-your-business-users">How to help your business users</h2>
+<p>Many educational textbooks surrounding technology teach that information systems are made of five components: hardware, software, data, procedures, and people. Since the member roles module is a community-developed system that is not directly integrated into Xperience, it needs to rely a little more on procedures and people.</p>
+
+<div>
+
+</div>
+<div>
+<p>As with any new system or set of features, <strong>it’s important to make sure your business users, such as editors and admins, understand the quirks of using <em>XperienceCommunity.MemberRoles</em></strong>.</p>
+</div>
+
+
+<p>The following list highlights the key points to cover:</p>
+<ol type="1">
+<li>
+<p>The package uses <strong>inheritance</strong>. Projects commonly set permissions at a high level in the content tree or content hub folder structure, and allow child items and folders to inherit permissions with few-to-zero exceptions</p>
+<ul>
+<li><p>Web pages and content folders can <em>inherit</em> permission settings from their parents or <em>break inheritance</em> to set their own permissions.</p></li>
+<li><p>Individual <em>language and workflow versions</em> of content items can <em>override</em> the permission settings of their associated web page items or content folders.</p></li>
+</ul>
+</li>
+<li>
+<p>Not all types of permissions interact with <strong>workflow and languages</strong> in the same way.</p>
+<ul>
+<li><p>Permission settings for a language version, set on the <strong>Content</strong> tab of content items are <em>language specific</em> and <em>do not go into effect until the item is published</em>.</p></li>
+<li><p>Permission settings from the <strong>Properties</strong> tab of web page items and the <strong>Folder permissions</strong> app are not language specific or subject to workflow, and <em>always go into effect immediately</em>.</p></li>
+</ul>
+</li>
+<li>
+<p>The <strong>Member Permission Configuration</strong> schema determines whether the package checks permissions for an item.</p>
+<ul>
+<li><p>If a web page content type does not use the schema, any permissions applied to a web page item of that type <em>will not apply directly to the item</em>. Its children, however, may inherit the permissions.</p></li>
+<li><p>If a reusable content type does not use the schema, any permissions applied to a folder containing items of this type <em>will not apply to those items</em>.</p></li>
+<li><p>Simply assigning the schema to a content type in the admin UI <em>does not enable role permissions</em>— a developer must <em>re-generate its code</em>.</p></li>
+</ul>
+</li>
+<li>
+<p>The code portion of this module does not account for the <strong>Requires authentication</strong> setting from the <strong>Membership</strong> properties of a page or reusable item. While using this module, editors should <strong>ignore this property</strong>, and instead <em>use the analogous custom properties</em> in the following locations:</p>
+<ul>
+<li>The <strong>Folder Permissions</strong> application for content folders</li>
+<li>The <strong>Member Permissions</strong> properties category for web page items</li>
+<li>The <strong>Content</strong> tab of a page for language versions</li>
+</ul>
+</li>
+</ol>
+
+
+<div>
+
+</div>
+<div>
+<p>The <a href="https://github.com/KenticoDevTrev/MembershipRoles_Temp/blob/master/ADMIN-GUIDE.md" target="_blank">Admin guide</a> of the repository explains these concerns, but we recommend having a discussion with all involved parties to reinforce the ideas verbally.</p>
+<p>Business users are usually not required to read documentation of technical systems for their day-to-day tasks, so it helps to introduce these concepts and explain the importance before simply sending a link to the manual.</p>
+</div>
+
+<h2 id="get-started">Get started</h2>
+<p>Find instructions for installing and using the package in <a href="https://github.com/KenticoDevTrev/MembershipRoles_Temp/tree/master" target="_blank">the repository</a> to include member roles in your project today.</p>
+<p>The project is open-source, so you are free to fork and customize it to fit any of your specific needs.</p>
+<p>If you encounter any problems, please report them through the <a href="https://github.com/KenticoDevTrev/MembershipRoles_Temp/issues" target="_blank">Issues tab</a> of the repository.</p>
+<p>If you have any ideas for functionality you’d like to see training materials about, please let us know with the <em>Send us feedback</em> button below!</p>
+
+</body>
+</html>

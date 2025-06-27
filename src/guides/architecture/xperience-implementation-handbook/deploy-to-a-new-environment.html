@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Deploy to a new environment</title>
+</head>
+<body>
+<h2 id="deploying">Deploying</h2>
+<p>Deployment is one of the most crucial steps in a project’s lifecycle. You will deploy continuously throughout the life of a project, as the need for maintenance and new features arises. Most people associate deployment with the production environment, but it also includes local, integration, staging, and testing environments. This section provides an overview of the process of deploying your solution from one environment to another, describing the basic approaches, available tools, and steps to deploy.</p>
+<h3 id="deployment-approaches">Deployment approaches</h3>
+<p>The first part of deployment to consider is the deployment method. The best approach for your project depends on a number of factors, such as the nature of the changes, project resources, team size, project type, and the details of the source and target environments.</p>
+<p>There are two basic approaches: <strong>manual</strong> and <strong>automatic</strong> deployment. In some scenarios, you might <strong>combine</strong> these approaches, manually deploying a subset of the changes and automatically deploying the rest.</p>
+<ul>
+<li>Manual deployment involves copying files to the target environment, for example, via FTP or over a network. For manual deployment of database changes, you may recreate the changes on the target environment, execute SQL scripts, or copy serialized data files and run commands to propagate them to the database via <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment (CD)</a> or <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration (CI)</a>.</li>
+<li>Automated deployment of code typically involves special services or servers for builds and deployment. For example, you might set up a pipeline that automatically builds and deploys to a preview environment when a certain branch of your source control is updated. You can handle automatic database changes with built-in Xperience features. For example, include <strong>CI</strong> or <strong>CD</strong> commands in your automated pipelines, or, if the source and target servers connect to the same database, allow <strong>Web farm</strong> functionality to synchronize the Xperience instances automatically.</li>
+</ul>
+<p>Regardless of the deployment mechanism, you need to determine <strong>who</strong> will be responsible for deploying changes. You may find it best to have different people or groups be responsible for certain types of changes. Responsibility may vary depending on the target environment.</p>
+<p>Sometimes, you might automate the process, so a server or service handles deployment. If this is the case, assign someone to monitor the automated process and make sure it continues to function.</p>
+<p>Finally, make sure the responsible party knows <strong>when</strong> to deploy. For example, should changes be scheduled for a pre-determined maintenance window or pushed immediately? Ideally, you should determine this in advance, establishing rules that prevent conflicts and ensure you know who to talk to if something goes wrong.</p>
+<h3 id="deployment-tools">Deployment tools</h3>
+<p>Xperience by Kentico is a standard .NET project, meaning its code and files support any compatible deployment process or pipeline.</p>
+<p>If you use the <a href="/documentation/developers-and-admins/saas/saas-overview">Xperience SaaS environment</a>, you can upload your deployment through the <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a> UI, or by posting to the deployment API endpoint through an automated process.</p>
+<p>For deploying data to Xperience, we recommend using the <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> feature. Continuous Deployment serializes Xperience data in files which can be transferred by source control or a code deployment process. Then, dotnet CLI commands allow you to restore the serialized data into the target database, in a way that can be integrated into most automated deployment processes and pipelines.</p>
+<p>Some common third-party tools for deploying different parts of projects include TeamCity, GitHub Actions, Azure DevOps Pipelines, FTP, WebDeploy, Visual Studio, and Redgate SQL Data Compare.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you use any third-party tools that modify database data directly, you may need to <a href="/documentation/developers-and-admins/development/caching#clear-the-cache">clear the Xperience cache</a> before the changes take effect.</p>
+</div>
+
+<h3 id="deployment-process">Deployment process</h3>
+<p>Before you start deploying to any environment, spend some time preparing to eliminate possible issues. The following list of tasks should help you understand the types of things to check:</p>
+<ul>
+<li>Disable unused features to avoid consuming unnecessary resources.</li>
+<li>Check your environment-specific configuration.
+<ul>
+<li>Validate CDN settings, disable unnecessary logging, etc.</li>
+</ul>
+</li>
+<li>Determine objects to synchronize.
+<ul>
+<li>Filter or remove unwanted objects from deployment (e.g., exclude files stored in a “test” folder or add config files for CI and CD repositories).</li>
+<li>Validate that you have included all dependencies.</li>
+</ul>
+</li>
+<li>Prepare your deployment package(s).
+<ul>
+<li>If you are deploying to the <a href="/documentation/developers-and-admins/saas/saas-overview">SaaS environment</a>, you can find specific instructions for creating your deployment package <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#create-a-deployment-package">in the documentation</a>.</li>
+<li>If you are deploying to <em>Azure Web Apps</em> or <em>IIS</em> in a <a href="/documentation/developers-and-admins/deployment/deploy-to-private-cloud">private cloud</a> environment, you can find examples in the <a href="/guides/development/deployment/deploy-to-private-cloud">Deploy to your private cloud</a> guide.</li>
+</ul>
+</li>
+<li>Test the deployment before synchronizing.
+<ul>
+<li>Be aware that the built-in deployment features do not support a bulk roll-back in case of a failed deployment.</li>
+</ul>
+</li>
+<li>Back up the target environment so you can recover if something goes wrong.</li>
+<li>Plan the order in which things are synchronized (e.g., code, then database objects or vice-versa).
+<ul>
+<li>In most cases, agencies deploy code before data.</li>
+</ul>
+</li>
+<li>Prepare a maintenance message when deploying with downtime (e.g., an <em>App_Offline.html</em> file).</li>
+</ul>
+<p>During the deployment, monitor the environment (e.g., CPU, RAM, and disk utilization), the application (e.g., event log errors), and take appropriate action when something goes amiss. After the deployment, verify and test that the deployment was successful.</p>
+<h3 id="scenarios">Scenarios </h3>
+<h4 id="going-live-with-a-redesigned-website">Going live with a redesigned website</h4>
+<p>A client was going live with a new redesign of their old website, which previously ran on a different platform.</p>
+<p>Since the website with all of its content and functionality was completed and tested in the staging environment, the easiest way to deploy this new website to production was to manually back up and restore the site files and database.</p>
+<p>Both the solution codebase and database were fully restored in the production environment without any built-in or external deployment tools. Environment-specific settings and configuration were adjusted to match the production environment requirements. The system administrator prepared a backup plan to easily switch traffic between the old website and the new website running in the same environment in case there were any issues.</p>
+<p>The client decided to forward the traffic to the new website early on Saturday morning to minimize the impact on users and ensured that the whole implementation team was ready to address any issues should they arise.</p>
+<p>After going live, the system administrator received an email notification about a few errors in the <em>Event log</em>. The exceptions turned out to be related to a few configuration changes that were initially overlooked, and they were quickly fixed.</p>
+<h4 id="rolling-out-a-new-feature">Rolling out a new feature</h4>
+<p>A client was planning to deploy a new feature that involved changing some of the existing code as well as the data in the database.</p>
+<p>This new functionality was highly dependent on both the code and the data. It was crucial to have both in place at the same time, and therefore, a maintenance window with downtime was required.</p>
+<p>The deployment process was tested with a sandbox copy of the production environment to ensure that the changes would not break any other functionality. They scheduled the production deployment early on a Sunday morning (based on Google Analytics data, this was their lowest traffic time). During this time, all live site visitor requests were redirected to a page with maintenance message explaining that the website was being updated.</p>
+<p>Since the production environment contained visitor-generated data (e.g., form submissions, online marketing data, etc.), the customer could not simply restore a copy of the sandbox. They used TeamCity to deploy the code to production and after that, used built-in features to synchronize the necessary database data.</p>
+<p>Once they verified everything was working correctly in the production environment, they redirected live traffic back to the site again.</p>
+<h4 id="applying-hotfix-with-no-downtime">Applying hotfix with no downtime</h4>
+<p>A client had a strict requirement to keep the production website running even during maintenance windows.</p>
+<p>They needed to apply the latest hotfix, so they took a backup of the production website (both the database and codebase) and applied the hotfix in a local development environment. After testing the website, they restored it to another server in the production environment.</p>
+<p>Once the hotfixed website was running, they redirected the traffic to it instead of the old server through a load balancer. During the maintenance window, they disabled visitor submission of forms with a customization they built. The customization put forms in a read-only mode and displayed a maintenance message, so that the client would not need to migrate form submission data to the hotfixed website.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/architecture/xperience-implementation-handbook/maintain-what-you-have-built">next guide</a> in this handbook goes over strategies for maintaining and monitoring your project after it goes live.</p>
+
+</body>
+</html>

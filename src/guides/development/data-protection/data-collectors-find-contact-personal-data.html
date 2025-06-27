@@ -1,0 +1,1373 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Data collectors - Find contact personal data</title>
+</head>
+<body>
+<p>Some data protection laws require all of a visitor’s tracked personal data to be gathered and delivered to them upon request. A data collector is necessary to implement such functionality in Xperience by Kentico.</p>
+<p>Data collectors find other objects associated with a provided set of identities from the Identity collector. In this example, the identities are contacts, and the data collector will find accounts, consent agreements, form data, activities, and other auxiliary data associated with those contacts.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <a href="/guides/development/data-protection">earlier guides in the series</a>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>The example presented in this <a href="/guides/development/data-protection">Data protection guide series</a> is a <strong>valid implementation of data protection for <a href="/documentation/business-users/digital-marketing/contact-management">Contacts</a></strong> in Xperience by Kentico. (Note that it does not cover the collection and erasure of <a href="/documentation/business-users/members">Members</a> and their associated data.)</p>
+<p>You can copy-paste the code samples into your own solution.</p>
+<p>However, if you choose to do so, <strong>make sure to consult your legal team</strong> to determine whether the implementation, texts, and consent levels <strong>meet the requirements of your region and market</strong>.</p>
+</div>
+
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="create-data-writers">Create data writers</h2>
+<p>Based on whether data collection is requested through the <strong>Data portability</strong> or <strong>Right to access</strong> tab in the Xperience UI, it will invoke registered personal data collectors with the <code>outputFormat</code> parameter set to a constant string value, either <code>PersonalDataFormat.HUMAN_READABLE</code> or <code>PersonalDataFormat.MACHINE_READABLE</code>.</p>
+<p>Data collectors are meant to output a string result.</p>
+
+<div>
+
+</div>
+<div>
+<p>While it is possible to include logic to print in different formats within the code that collects the data, separating it out into dedicated writer classes keeps the code clearer and less redundant.</p>
+</div>
+
+<h3 id="lay-the-groundwork">Lay the groundwork</h3>
+<p>Before you define the first writer, create a class that represents a column that should be collected and displayed, as well as an interface that both writers will implement.</p>
+<ol type="1">
+<li><p>In the <em>TrainingGuides.Web</em>/Features/<em>DataProtection/Collectors</em> folder, create a <code>CollectedColumn</code> class.</p></li>
+<li><p>Add properties to hold the display name and a code name.</p></li>
+<li>
+<p>Define a constructor that takes both properties as parameters.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CollectedColumn.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ namespace TrainingGuides.Web.Features.DataProtection.Collectors;
+
+ public class CollectedColumn
+ {
+     public string Name { get; }
+
+     public string DisplayName { get; }
+
+     public CollectedColumn(string name, string displayName)
+     {
+         Name = name;
+         DisplayName = displayName;
+     }
+ }
+
+ </code></pre>
+</div>
+</li>
+<li><p>Create a <em>Writers</em> subfolder in <em>~/Features/DataProtection</em> and add an interface that both the human and machine-readable writer classes can implement.</p></li>
+<li><p>Similar to the <a href="/documentation/developers-and-admins/data-protection/personal-data-collection#implement-writer-classes">example in the documentation</a>, add signatures for void methods that create beginning and ending sections and info objects.</p></li>
+<li><p>Create an additional method signature for writing values.</p></li>
+<li>
+<p>Add a method signature for a string method that outputs the result of the writer’s operations.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IPersonalDataWriter.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ using CMS.DataEngine;
+ using TrainingGuides.Web.Features.DataProtection.Collectors;
+
+ namespace TrainingGuides.Web.Features.DataProtection.Writers;
+
+ public interface IPersonalDataWriter : IDisposable
+ {
+     void WriteStartSection(string sectionName, string sectionDisplayName);
+     void WriteBaseInfo(BaseInfo baseInfo, List&lt;CollectedColumn&gt; columns, Func&lt;string, object, object&gt;? valueTransformationFunction = null);
+     void WriteSectionValue(string sectionName, string sectionDisplayName, string value);
+     void WriteEndSection();
+     string GetResult();
+ }
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="add-a-human-readable-writer">Add a human-readable writer</h3>
+<ol type="1">
+<li><p>In the same folder, define a <code>HumanReadablePersonalDataWriter</code> that implements the <code>IPersonalDataWriter</code> interface.</p></li>
+<li><p>Define it similarly to the <a href="/documentation/developers-and-admins/data-protection/personal-data-collection#implement-writer-classes">documentation example</a>, utilizing a private string builder property.</p></li>
+<li><p>Add a method called <code>WriteSectionValue</code> that prints a key and value, ignoring the section name, which the machine-readable counterpart can utilize.</p></li>
+<li>
+<p>Leave the <code>Dispose</code> method empty.</p>
+
+<div>
+
+</div>
+<div>
+<p>You don’t need the method here, but it is important for the machine-readable data writer covered in the <a href="#create-a-machine-readable-writer">next step</a>.</p>
+</div>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>HumanReadablePersonalDataWriter.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.Base;
+using CMS.DataEngine;
+using System.Globalization;
+using System.Text;
+using TrainingGuides.Web.Features.DataProtection.Collectors;
+
+namespace TrainingGuides.Web.Features.DataProtection.Writers;
+
+public class HumanReadablePersonalDataWriter : IPersonalDataWriter
+{
+    private readonly StringBuilder stringBuilder;
+    private int indentationLevel;
+    private bool ignoreNewLine;
+
+    private static readonly string decimalPrecision = new('#', 26);
+    private static readonly string decimalFormat = "{0:0.00" + decimalPrecision + "}";
+
+    public CultureInfo Culture { get; set; } = new CultureInfo(SystemContext.SYSTEM_CULTURE_NAME);
+
+    public HumanReadablePersonalDataWriter()
+    {
+        stringBuilder = new StringBuilder();
+        indentationLevel = 0;
+        ignoreNewLine = false;
+    }
+
+    public void WriteStartSection(string sectionName, string sectionDisplayName)
+    {
+        ignoreNewLine = false;
+        Indent();
+
+        stringBuilder.AppendLine(sectionDisplayName + ": ");
+        indentationLevel++;
+    }
+
+    private void Indent() =&gt; stringBuilder.Append('\t', indentationLevel);
+
+    public void WriteBaseInfo(BaseInfo baseInfo, List&lt;CollectedColumn&gt; columns,
+        Func&lt;string, object, object&gt;? valueTransformationFunction = null)
+    {
+        if (baseInfo == null)
+        {
+            throw new ArgumentNullException(nameof(baseInfo));
+        }
+
+        foreach (var column in columns)
+        {
+            string columnName = column.Name;
+            string columnDisplayName = column.DisplayName;
+
+            if (string.IsNullOrWhiteSpace(columnDisplayName) ||
+                columnName.Equals(baseInfo.TypeInfo.IDColumn, StringComparison.Ordinal) ||
+                columnName.Equals(baseInfo.TypeInfo.GUIDColumn, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            object value = baseInfo.GetValue(columnName);
+
+            if (value == null)
+            {
+                continue;
+            }
+
+            if (valueTransformationFunction != null)
+            {
+                value = valueTransformationFunction(columnName, value);
+            }
+
+            WriteKeyValue(columnDisplayName, value);
+        }
+    }
+
+    public void WriteSectionValue(string sectionName, string sectionDisplayName, string value)
+    {
+        Indent();
+
+        stringBuilder.Append($"{sectionDisplayName}: {value}");
+        stringBuilder.AppendLine();
+    }
+
+    private void WriteKeyValue(string keyName, object value)
+    {
+        Indent();
+        stringBuilder.Append($"{keyName}: ");
+
+        string format = "{0}";
+
+        if (value is decimal)
+        {
+            format = decimalFormat;
+        }
+
+        stringBuilder.AppendFormat(Culture, format, value);
+        stringBuilder.AppendLine();
+
+        ignoreNewLine = true;
+    }
+
+    public void WriteEndSection()
+    {
+        indentationLevel--;
+
+        if (ignoreNewLine)
+            return;
+
+        Indent();
+        stringBuilder.AppendLine();
+        ignoreNewLine = true;
+    }
+
+    public string GetResult() =&gt; stringBuilder.ToString();
+
+    public void Dispose()
+    {
+    }
+}
+
+</code></pre>
+</div>
+
+<h3 id="create-a-machine-readable-writer">Create a machine-readable writer</h3>
+<p>Add an XML writer that closely mirrors the <a href="/documentation/developers-and-admins/data-protection/personal-data-collection#implement-writer-classes">example in the documentation</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>In this case, <code>WriteSectionValue</code> needs to use the <code>sectionName</code> property for the XML tags rather than the display name.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>XmlPersonalDataWriter.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.DataEngine;
+using CMS.Helpers;
+using System.Text;
+using System.Xml;
+using TrainingGuides.Web.Features.DataProtection.Collectors;
+
+namespace TrainingGuides.Web.Features.DataProtection.Writers;
+
+public class XmlPersonalDataWriter : IPersonalDataWriter
+{
+    private readonly StringBuilder stringBuilder;
+    private readonly XmlWriter xmlWriter;
+
+    public XmlPersonalDataWriter()
+    {
+        stringBuilder = new StringBuilder();
+        xmlWriter = XmlWriter.Create(stringBuilder, new XmlWriterSettings { Indent = true, OmitXmlDeclaration = true });
+    }
+
+    public void WriteStartSection(string sectionName, string sectionDisplayName) =&gt;
+        xmlWriter.WriteStartElement(TransformElementName(sectionName));
+
+    private string TransformElementName(string originalName) =&gt; originalName.Replace('.', '_');
+
+    public void WriteBaseInfo(BaseInfo baseInfo, List&lt;CollectedColumn&gt; columns,
+        Func&lt;string, object, object&gt;? valueTransformationFunction = null)
+    {
+        if (baseInfo == null)
+        {
+            throw new ArgumentNullException(nameof(baseInfo));
+        }
+
+        foreach (var columnTuple in columns)
+        {
+            string columnName = columnTuple.Name;
+
+            if (string.IsNullOrWhiteSpace(columnTuple.DisplayName))
+            {
+                continue;
+            }
+
+            object value = baseInfo.GetValue(columnName);
+            if (value == null)
+            {
+                continue;
+            }
+
+            if (valueTransformationFunction != null)
+            {
+                value = valueTransformationFunction(columnName, value);
+            }
+
+            xmlWriter.WriteStartElement(columnName);
+            xmlWriter.WriteValue(XmlHelper.ConvertToString(value, value.GetType()));
+            xmlWriter.WriteEndElement();
+        }
+    }
+
+    public void WriteSectionValue(string sectionName, string sectionDisplayName, string value)
+    {
+        xmlWriter.WriteStartElement(sectionName);
+        xmlWriter.WriteString(value);
+        xmlWriter.WriteEndElement();
+    }
+
+    public void WriteEndSection() =&gt; xmlWriter.WriteEndElement();
+
+    public string GetResult()
+    {
+        xmlWriter.Flush();
+
+        return stringBuilder.ToString();
+    }
+
+    public void Dispose() =&gt; xmlWriter.Dispose();
+}
+
+</code></pre>
+</div>
+
+<h2 id="collect-data">Collect data</h2>
+<h3 id="prepare-to-collect-forms">Prepare to collect forms</h3>
+<p>While many of the objects that need to be collected are relatively straightforward, containing a set of known columns, including a reference to the <em>contact</em> type, form submissions are more complicated.</p>
+<p>The columns of forms are defined by editors in the Xperience administration interface. For this reason, there is no way to anticipate which columns the forms will consist of, and they cannot be explicitly referenced in code in advance.</p>
+<p>You need logic to iterate through the forms on the website and determine if any of them have one or more email columns.</p>
+<p>Create a class called <code>FormDefinition</code> in the <em>DataProtection/Collectors</em> folder, which contains a list of email column names and a list of other columns to display.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>FormDefinition.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+namespace TrainingGuides.Web.Features.DataProtection.Collectors;
+
+public class FormDefinition
+{
+    public const string FORM_CONSENT_COLUMN_NAME = "Consent";
+    public IEnumerable&lt;string&gt; EmailColumns { get; }
+    public List&lt;CollectedColumn&gt; FormColumns { get; }
+
+    public FormDefinition(List&lt;string&gt; emailColumns, List&lt;CollectedColumn&gt; formColumns)
+    {
+        EmailColumns = emailColumns;
+        FormColumns = formColumns;
+    }
+}
+
+</code></pre>
+</div>
+
+<p>When it comes to populating <code>FormDefinition</code> objects, another service class will be useful.</p>
+<ol type="1">
+<li>
+<p>In the <em>~/Features/DataProtection/Services</em> folder of the <em>TrainingGuides.Web</em> project, add an <code>IFormCollectionService</code> interface and a <code>FormCollectionService</code> class that implements it.</p>
+
+<div>
+
+</div>
+<div>
+<p>Remember to <strong>register the service with the dependency injection container</strong> in <code>AddTrainingGuidesServices</code> method inside <em>TrainingGuides.Web/ServiceCollectionExtensions.cs</em>.</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ services.AddSingleton&lt;IFormCollectionService, FormCollectionService&gt;();
+ ...
+
+ </code></pre>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p>Add a public method called <code>GetForms</code>, which retrieves all of the forms in the database and converts them to a <code>Dictionary</code>, with <code>Guid</code> objects as keys and of <code>FormDefinition</code> objects as values. Within this method, do the following:</p>
+<ol type="a">
+<li><p>Find the <code>DataClassInfo</code> object associated with each form, and parse through the XML of the <code>ClassFormDefinition</code> and <code>ClassContactMapping</code> columns.</p></li>
+<li>
+<p>Use this data to assemble a collection of email fields. For this example, target fields that are either mapped to the <code>ContactEmail</code> field or use the <code>Kentico.EmailInput</code> form component.</p>
+
+<div>
+
+</div>
+<div>
+<p>In your projects, you can define other sets of conditions to broaden or narrow the search for matching email addresses.</p>
+</div>
+</li>
+<li><p>Make a separate collection of fields that are not email fields or ID fields.</p></li>
+<li><p>Use these two collections to assemble <code>FormDefinition</code> for the form and add it to the dictionary.</p></li>
+</ol>
+</li>
+<li>
+<p>Create another public method called <code>GetBizFormItems</code> to retrieve all form submissions associated with a contact. The method needs to do the following:</p>
+<ol type="a">
+<li>Construct an <code>ObjectQuery&lt;BizFormItem&gt; bizFormItems</code> to retrieve all form submissions that meet one of the following conditions:
+<ol type="i">
+<li>The submission has an email field with one of the provided email addresses.<br>
+or</li>
+<li>The submission references one of the supplied <code>ConsentAgreementInfo</code> objects.</li>
+</ol>
+</li>
+<li>Use a <code>FormDefinition</code> parameter to determine which email fields to check for the supplied addresses.</li>
+<li>Use a <code>DataClassInfo</code> object to determine items of which form to retrieve.</li>
+</ol>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IFormCollectionService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Data;
+using CMS.DataEngine;
+using CMS.DataProtection;
+using CMS.OnlineForms;
+using TrainingGuides.Web.Features.DataProtection.Collectors;
+
+namespace TrainingGuides.Web.Features.DataProtection.Services;
+
+public interface IFormCollectionService
+{
+    public Dictionary&lt;Guid, FormDefinition&gt; GetForms();
+    public ObjectQuery&lt;BizFormItem&gt; GetBizFormItems(ICollection&lt;string&gt; emails, ObjectQuery&lt;ConsentAgreementInfo&gt; consentAgreementGuids, DataRow row, FormDefinition formDefinition);
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>FormCollectionService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.DataEngine;
+using CMS.DataProtection;
+using CMS.OnlineForms;
+using System.Data;
+using System.Xml.Linq;
+using TrainingGuides.Web.Features.DataProtection.Collectors;
+
+namespace TrainingGuides.Web.Features.DataProtection.Services;
+
+public class FormCollectionService : IFormCollectionService
+{
+    private readonly IInfoProvider&lt;BizFormInfo&gt; bizFormInfoProvider;
+
+    public FormCollectionService(IInfoProvider&lt;BizFormInfo&gt; bizFormInfoProvider)
+    {
+        this.bizFormInfoProvider = bizFormInfoProvider;
+    }
+
+    private bool IsField(XElement element) =&gt; element.Name.ToString() == "field";
+
+    private bool UsesComponent(XElement fieldElement, string componentIdentifier)
+    {
+        var matchingComponents = fieldElement
+            .Descendants()
+            .Where(desc =&gt; desc.Name == "componentidentifier" &amp;&amp; desc.Value == componentIdentifier);
+        return matchingComponents.Count() &gt; 0;
+    }
+
+    private bool IsInList(XElement fieldElement, IEnumerable&lt;string&gt; list) =&gt;
+        list.Contains(fieldElement.Attribute("column")?.Value, StringComparer.OrdinalIgnoreCase);
+
+    private bool IsNotInCollection(XElement fieldElement, IEnumerable&lt;XElement&gt; excludedFieldElements) =&gt;
+        !excludedFieldElements.Contains(fieldElement);
+
+    private bool IsNotID(XElement fieldElement)
+    {
+        string? isPK = fieldElement.Attribute("isPK")?.Value;
+        return !bool.Parse(isPK ?? "false");
+    }
+
+    private string GetCaption(XElement fieldElement) =&gt;
+        fieldElement
+            .Descendants()
+            .Where(desc =&gt; desc.Name == "fieldcaption")
+            .FirstOrDefault()?
+            .Value
+        ?? string.Empty;
+
+    /// &lt;summary&gt;
+    /// Gets information about all forms in the database, including which of the form's fields are email fields
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;A &lt;see cref="Dictionary{TKey, TValue}"/&gt; mapping a form's &lt;see cref="Guid"/&gt; to a &lt;see cref="FormDefinition"/&gt;, which specifies the form's email fields and non-email fields.&lt;/returns&gt;
+    public Dictionary&lt;Guid, FormDefinition&gt; GetForms()
+    {
+        var result = new Dictionary&lt;Guid, FormDefinition&gt;();
+        var bizForms = bizFormInfoProvider.Get();
+        foreach (var bizForm in bizForms)
+        {
+            var dataClassInfo = DataClassInfoProvider.GetDataClassInfo(bizForm.FormClassID);
+            if (dataClassInfo == null || string.IsNullOrEmpty(dataClassInfo.ClassFormDefinition))
+            {
+                continue;
+            }
+
+            IEnumerable&lt;string&gt; mappedEmailFields = [];
+
+            if (!string.IsNullOrEmpty(dataClassInfo.ClassContactMapping))
+            {
+                var contactMapping = XElement.Parse(dataClassInfo.ClassContactMapping);
+
+                //gets lowercase names of fields mapped to contact email (there should be only one unless they mess with the database directly)
+                mappedEmailFields = contactMapping?.Elements()
+                    .Where(field =&gt; field.Attribute("column")?.Value == "ContactEmail")
+                    .Select(field =&gt; field.Attribute("mappedtofield")?.Value ?? string.Empty)
+                ?? [];
+            }
+
+            var formDefinition = XElement.Parse(dataClassInfo.ClassFormDefinition);
+
+            //gets all form fields which are either mapped to the ContactEmail column, or which use the Kentico.EmailInput form control
+            var emailFields = formDefinition?.Elements()
+                .Where(element =&gt; IsField(element) &amp;&amp; (IsInList(element, mappedEmailFields) || UsesComponent(element, "Kentico.EmailInput"))) ?? [];
+
+            //gets the remaining fields
+            var otherFields = formDefinition?.Elements()
+                .Where(element =&gt; IsField(element) &amp;&amp; IsNotInCollection(element, emailFields) &amp;&amp; IsNotID(element)) ?? [];
+
+            result.Add(
+                bizForm.FormGUID,
+                new FormDefinition(
+                    emailFields
+                        .Select(element =&gt; element.Attribute("column")?.Value ?? string.Empty)
+                        .ToList(),
+                    otherFields
+                        .Select(element =&gt; new CollectedColumn(element.Attribute("column")?.Value ?? string.Empty, GetCaption(element)))
+                        .ToList()
+                    )
+                );
+        }
+        return result;
+    }
+
+    /// &lt;summary&gt;
+    /// Gets an object query for all bizform items with any of the supplied emails in any of its email columns, or with any of the supplied consent agreements
+    /// &lt;/summary&gt;
+    /// &lt;param name="emails"&gt;The email addresses to look for&lt;/param&gt;
+    /// &lt;param name="consentAgreementGuids"&gt;The guids of consents agreed to by the contact&lt;/param&gt;
+    /// &lt;param name="row"&gt;a DataRow representing the DataClassInfo associated with the given form&lt;/param&gt;
+    /// &lt;param name="formDefinition"&gt;The form definition of the supplied bizform&lt;/param&gt;
+    /// &lt;returns&gt;An &lt;see cref="ObjectQuery"/&gt;for all &lt;see cref="BizFormItem"/&gt; objects related to the provided contact through a consent agreement or email address&lt;/returns&gt;
+    public ObjectQuery&lt;BizFormItem&gt; GetBizFormItems(ICollection&lt;string&gt; emails, ObjectQuery&lt;ConsentAgreementInfo&gt; consentAgreementGuids, DataRow row, FormDefinition formDefinition)
+    {
+        var formClass = new DataClassInfo(row);
+
+        var bizFormItems = BizFormItemProvider.GetItems(formClass.ClassName);
+        foreach (string column in formDefinition.EmailColumns)
+        {
+            bizFormItems.Or().WhereIn(column, emails);
+        }
+
+        var consentColumns = formDefinition.FormColumns
+            .Where(column =&gt; column.Name
+            .Contains(FormDefinition.FORM_CONSENT_COLUMN_NAME)).Select(column =&gt; column.Name);
+
+        if (formClass.ClassFormDefinition.Contains(FormDefinition.FORM_CONSENT_COLUMN_NAME))
+        {
+            foreach (string columnName in consentColumns)
+            {
+                bizFormItems.Or().WhereIn(columnName, consentAgreementGuids);
+            }
+        }
+        return bizFormItems;
+    }
+}
+
+</code></pre>
+</div>
+
+<h3 id="gather-the-data">Gather the data</h3>
+<p>You have prepared what you need to gather form submissions. In the next steps, you will add the main collection logic to your project.</p>
+<ol type="1">
+<li>
+<p>In the <em>TrainingGuides.Web</em>/Features/<em>DataProtection/Collectors</em> folder, create a class called <code>ContactDataCollectorCore</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>This class will hold all of the data collection logic, relying on the <code>IPersonalDataWriter</code> interface and separating the data collection code from the code that determines which writer to use.</p>
+</div>
+</li>
+<li><p>Define private variables to hold the data writer, lists of the relevant columns of all the classes to collect, and a dictionary of forms populated by the <code>FormCollectionService</code> from earlier.</p></li>
+<li><p>Add transformation methods to turn certain types of raw data references into a human-readable format.</p></li>
+<li><p>Populate the writer field from a parameter in the constructor.</p></li>
+<li>
+<p>Define the <code>CollectData</code> method with a <code>string</code> return type, using the data writer to print details about all the object types.</p>
+
+<div>
+
+</div>
+<div>
+<p>Consent objects may be more complicated than they appear at a glance. Aside from writing details about the consents themselves, you must find consent agreements (<code>ConsentAgreementInfo</code>) and consent archives (<code>ConsentArchiveInfo</code>) associated with each consent.</p>
+</div>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactDataCollectorCore.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Data;
+using System.Xml;
+using CMS.Activities;
+using CMS.ContactManagement;
+using CMS.DataEngine;
+using CMS.DataProtection;
+using CMS.Globalization;
+using CMS.Helpers;
+using CMS.OnlineForms;
+using TrainingGuides.Web.Features.DataProtection.Services;
+using TrainingGuides.Web.Features.DataProtection.Writers;
+
+namespace TrainingGuides.Web.Features.DataProtection.Collectors;
+
+public class ContactDataCollectorCore
+{
+    private readonly List&lt;CollectedColumn&gt; contactInfoColumns =
+    [
+        new CollectedColumn("ContactFirstName", "First name"),
+        new CollectedColumn("ContactMiddleName", "Middle name"),
+        new CollectedColumn("ContactLastName", "Last name"),
+        new CollectedColumn("ContactJobTitle", "Job title"),
+        new CollectedColumn("ContactAddress1", "Address"),
+        new CollectedColumn("ContactCity", "City"),
+        new CollectedColumn("ContactZIP", "ZIP"),
+        new CollectedColumn("ContactStateID", ""),
+        new CollectedColumn("ContactCountryID", ""),
+        new CollectedColumn("ContactMobilePhone", "Mobile phone"),
+        new CollectedColumn("ContactBusinessPhone", "Business phone"),
+        new CollectedColumn("ContactEmail", "Email"),
+        new CollectedColumn("ContactBirthday", "Birthday"),
+        new CollectedColumn("ContactGender", "Gender"),
+        new CollectedColumn("ContactNotes", "Notes"),
+        new CollectedColumn("ContactGUID", "GUID"),
+        new CollectedColumn("ContactLastModified", "Last modified"),
+        new CollectedColumn("ContactCreated", "Created"),
+        new CollectedColumn("ContactCampaign", "Campaign"),
+        new CollectedColumn("ContactCompanyName", "Company name")
+    ];
+
+    private readonly List&lt;CollectedColumn&gt; consentAgreementInfoColumns =
+    [
+        new CollectedColumn("ConsentAgreementGuid", "GUID"),
+        new CollectedColumn("ConsentAgreementRevoked", "Consent action"),
+        new CollectedColumn("ConsentAgreementTime", "Performed on")
+    ];
+
+    private readonly List&lt;CollectedColumn&gt; consentInfoColumns =
+    [
+        new CollectedColumn("ConsentGUID", "GUID"),
+        new CollectedColumn("ConsentDisplayName", "Consent name"),
+        new CollectedColumn("ConsentContent", "Full text")
+    ];
+
+    private readonly List&lt;CollectedColumn&gt; consentArchiveInfoColumns =
+    [
+        new CollectedColumn("ConsentArchiveGUID", "GUID"),
+        new CollectedColumn("ConsentArchiveContent", "Full text")
+    ];
+
+    private readonly List&lt;CollectedColumn&gt; activityInfoColumns =
+    [
+        new CollectedColumn("ActivityId", "ID"),
+        new CollectedColumn("ActivityCreated", "Created"),
+        new CollectedColumn("ActivityType", "Type"),
+        new CollectedColumn("ActivityUrl", "URL"),
+        new CollectedColumn("ActivityTitle", "Title"),
+        new CollectedColumn("ActivityItemId", "")
+    ];
+
+    private readonly List&lt;CollectedColumn&gt; accountInfoColumns =
+    [
+        new CollectedColumn("AccountName", "Name"),
+        new CollectedColumn("AccountAddress1", "Address"),
+        new CollectedColumn("AccountAddress2", "Address 2"),
+        new CollectedColumn("AccountCity", "City"),
+        new CollectedColumn("AccountZip", "ZIP"),
+        new CollectedColumn("AccountWebSite", "Web site"),
+        new CollectedColumn("AccountEmail", "Email"),
+        new CollectedColumn("AccountPhone", "Phone"),
+        new CollectedColumn("AccountFax", "Fax"),
+        new CollectedColumn("AccountNotes", "Notes"),
+        new CollectedColumn("AccountGUID", "GUID")
+    ];
+
+    private readonly List&lt;CollectedColumn&gt; countryInfoColumns =
+    [
+        new CollectedColumn("CountryDisplayName", "Country")
+    ];
+
+    private readonly List&lt;CollectedColumn&gt; stateInfoColumns =
+    [
+        new CollectedColumn("StateDisplayName", "State")
+    ];
+
+    private readonly List&lt;CollectedColumn&gt; contactGroupInfoColumns =
+    [
+        new CollectedColumn("ContactGroupGUID", "GUID"),
+        new CollectedColumn("ContactGroupName", "Contact group name"),
+        new CollectedColumn("ContactGroupDescription", "Contact group description")
+    ];
+
+    private readonly IPersonalDataWriter personalDataWriter;
+    private readonly IFormCollectionService formCollectionService;
+    private readonly Dictionary&lt;Guid, FormDefinition&gt; forms;
+
+    private readonly IInfoProvider&lt;ConsentAgreementInfo&gt; consentAgreementInfoProvider;
+    private readonly IInfoProvider&lt;ActivityInfo&gt; activityInfoProvider;
+    private readonly IInfoProvider&lt;BizFormInfo&gt; bizFormInfoProvider;
+    private readonly IInfoProvider&lt;AccountInfo&gt; accountInfoProvider;
+    private readonly IInfoProvider&lt;AccountContactInfo&gt; accountContactInfoProvider;
+    private readonly IInfoProvider&lt;CountryInfo&gt; countryInfoProvider;
+    private readonly IInfoProvider&lt;StateInfo&gt; stateInfoProvider;
+
+
+    public ContactDataCollectorCore(IPersonalDataWriter personalDataWriter,
+        IFormCollectionService formCollectionService,
+        IInfoProvider&lt;ConsentAgreementInfo&gt; consentAgreementInfoProvider,
+        IInfoProvider&lt;ActivityInfo&gt; activityInfoProvider,
+        IInfoProvider&lt;BizFormInfo&gt; bizFormInfoProvider,
+        IInfoProvider&lt;AccountInfo&gt; accountInfoProvider,
+        IInfoProvider&lt;AccountContactInfo&gt; accountContactInfoProvider,
+        IInfoProvider&lt;CountryInfo&gt; countryInfoProvider,
+        IInfoProvider&lt;StateInfo&gt; stateInfoProvider)
+    {
+        this.personalDataWriter = personalDataWriter;
+        this.formCollectionService = formCollectionService;
+        this.consentAgreementInfoProvider = consentAgreementInfoProvider;
+        this.activityInfoProvider = activityInfoProvider;
+        this.bizFormInfoProvider = bizFormInfoProvider;
+        this.accountInfoProvider = accountInfoProvider;
+        this.accountContactInfoProvider = accountContactInfoProvider;
+        this.countryInfoProvider = countryInfoProvider;
+        this.stateInfoProvider = stateInfoProvider;
+
+        forms = this.formCollectionService.GetForms();
+    }
+
+    public string? CollectData(IEnumerable&lt;BaseInfo&gt; identities)
+    {
+        var contacts = identities.OfType&lt;ContactInfo&gt;().ToList();
+        if (!contacts.Any())
+        {
+            return null;
+        }
+
+        var contactIDs = contacts.Select(c =&gt; c.ContactID).ToList();
+        var contactEmails = contacts.Select(c =&gt; c.ContactEmail).ToList();
+
+        var contactActivities = activityInfoProvider.Get()
+            .Columns(activityInfoColumns.Select(t =&gt; t.Name))
+            .WhereIn("ActivityContactID", contactIDs).ToList();
+
+        var contactContactGroups = contacts
+            .SelectMany(c =&gt; c.ContactGroups)
+            .GroupBy(c =&gt; c.ContactGroupID)
+            .Select(group =&gt; group.First());
+
+        personalDataWriter.WriteStartSection("OnlineMarketingData", "Online marketing data");
+
+        string before = personalDataWriter.GetResult();
+
+        WriteContacts(contacts);
+        WriteConsents(contactIDs);
+        WriteContactActivities(contactActivities);
+        WriteContactAccounts(contactIDs);
+        WriteContactGroups(contactContactGroups);
+        WriteSubmittedFormsData(contactEmails, contactIDs);
+
+        string after = personalDataWriter.GetResult();
+        //return nothing if the previous methods did not find any data to write
+        if (string.IsNullOrWhiteSpace(after) || after.Equals(before))
+        {
+            return null;
+        }
+
+        personalDataWriter.WriteEndSection();
+
+        return personalDataWriter.GetResult();
+    }
+
+    private object TransformGenderValue(string columnName, object columnValue)
+    {
+        if (columnName.Equals("ContactGender", StringComparison.InvariantCultureIgnoreCase))
+        {
+            int? gender = columnValue as int?;
+            return gender switch
+            {
+                1 =&gt; "male",
+                2 =&gt; "female",
+                _ =&gt; "undefined",
+            };
+        }
+
+        return columnValue;
+    }
+
+    private object TransformConsentText(string columnName, object columnValue)
+    {
+        if (columnName.Equals("ConsentContent", StringComparison.InvariantCultureIgnoreCase) ||
+            columnName.Equals("ConsentArchiveContent", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var consentXml = new XmlDocument();
+            consentXml.LoadXml((columnValue as string) ?? string.Empty);
+
+            var xmlNode =
+                consentXml.SelectSingleNode("/ConsentContent/ConsentLanguageVersions/ConsentLanguageVersion/FullText");
+
+            string result = HTMLHelper.StripTags(xmlNode?.InnerText);
+
+            return result;
+        }
+
+        return columnValue;
+    }
+
+    private object TransformConsentAction(string columnName, object columnValue)
+    {
+        if (columnName.Equals("ConsentAgreementRevoked", StringComparison.InvariantCultureIgnoreCase))
+        {
+            bool revoked = (bool)columnValue;
+
+            return revoked ? "Revoked" : "Agreed";
+        }
+
+        return columnValue;
+    }
+
+    private void WriteContacts(IEnumerable&lt;ContactInfo&gt; contacts)
+    {
+        foreach (var contactInfo in contacts.Where(contact =&gt; contact.ContactID &gt; 0))
+        {
+            personalDataWriter.WriteStartSection(ContactInfo.OBJECT_TYPE, "Contact");
+            personalDataWriter.WriteBaseInfo(contactInfo, contactInfoColumns, TransformGenderValue);
+
+            int countryId = contactInfo.ContactCountryID;
+            int stateId = contactInfo.ContactStateID;
+
+            if (countryId != 0)
+            {
+                personalDataWriter.WriteBaseInfo(countryInfoProvider.Get(countryId), countryInfoColumns);
+            }
+
+            if (stateId != 0)
+            {
+                personalDataWriter.WriteBaseInfo(stateInfoProvider.Get(stateId), stateInfoColumns);
+            }
+
+            personalDataWriter.WriteEndSection();
+        }
+    }
+
+    private void WriteConsents(ICollection&lt;int&gt; contactIDs)
+    {
+        var consentsDataSet = consentAgreementInfoProvider.Get()
+            .Source(s =&gt; s.Join&lt;ConsentInfo&gt;("CMS_ConsentAgreement.ConsentAgreementConsentID", "ConsentID"))
+            .Source(s =&gt;
+                s.LeftJoin&lt;ConsentArchiveInfo&gt;("CMS_ConsentAgreement.ConsentAgreementConsentHash",
+                    "ConsentArchiveHash"))
+            .WhereIn("ConsentAgreementContactID", contactIDs)
+            .OrderBy("ConsentID")
+            .OrderByDescending("ConsentAgreementTime")
+            .Result;
+
+        if (DataHelper.DataSourceIsEmpty(consentsDataSet))
+        {
+            return;
+        }
+        var consents = new Dictionary&lt;int, ConsentInfo&gt;();
+        var consentRevocations = new Dictionary&lt;int, List&lt;ConsentAgreementInfo&gt;&gt;();
+
+        var consentContentArchives = new Dictionary&lt;string, ConsentArchiveInfo&gt;(StringComparer.OrdinalIgnoreCase);
+        var consentContentAgreements =
+            new Dictionary&lt;string, List&lt;ConsentAgreementInfo&gt;&gt;(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var row in consentsDataSet.Tables[0].AsEnumerable())
+        {
+            var consentAgreementInfo = new ConsentAgreementInfo(row);
+
+            if (!consents.TryGetValue(consentAgreementInfo.ConsentAgreementConsentID, out var consentInfo))
+            {
+                consentInfo = new ConsentInfo(row);
+                consents.Add(consentAgreementInfo.ConsentAgreementConsentID, consentInfo);
+            }
+
+            if (consentAgreementInfo.ConsentAgreementRevoked)
+            {
+                var revocationsOfSameConsent = GetRevocationsOfSameConsent(consentRevocations,
+                    consentAgreementInfo.ConsentAgreementConsentID);
+                revocationsOfSameConsent.Add(consentAgreementInfo);
+            }
+            else
+            {
+                var agreementsOfSameConsentContent = GetAgreementsOfSameConsentContent(consentContentAgreements,
+                    consentAgreementInfo.ConsentAgreementConsentHash);
+                agreementsOfSameConsentContent.Add(consentAgreementInfo);
+
+                if (IsAgreementOfDifferentConsentContent(consentAgreementInfo, consentInfo) &amp;&amp;
+                    !consentContentArchives.ContainsKey(consentAgreementInfo.ConsentAgreementConsentHash))
+                {
+                    consentContentArchives.Add(consentAgreementInfo.ConsentAgreementConsentHash,
+                        new ConsentArchiveInfo(row));
+                }
+            }
+        }
+
+        WriteConsents(consents, consentContentArchives, consentContentAgreements, consentRevocations);
+    }
+
+    private static List&lt;ConsentAgreementInfo&gt; GetRevocationsOfSameConsent(
+        Dictionary&lt;int, List&lt;ConsentAgreementInfo&gt;&gt; consentRevocations, int consentId)
+    {
+        if (!consentRevocations.TryGetValue(consentId, out var revocationsOfSameConsent))
+        {
+            revocationsOfSameConsent = [];
+            consentRevocations.Add(consentId, revocationsOfSameConsent);
+        }
+
+        return revocationsOfSameConsent;
+    }
+
+    private static List&lt;ConsentAgreementInfo&gt; GetAgreementsOfSameConsentContent(
+        Dictionary&lt;string, List&lt;ConsentAgreementInfo&gt;&gt; consentContentAgreements, string consentHash)
+    {
+        if (!consentContentAgreements.TryGetValue(consentHash, out var agreementsOfSameConsent))
+        {
+            agreementsOfSameConsent = [];
+            consentContentAgreements.Add(consentHash, agreementsOfSameConsent);
+        }
+
+        return agreementsOfSameConsent;
+    }
+
+    private static bool IsAgreementOfDifferentConsentContent(ConsentAgreementInfo consentAgreementInfo,
+        ConsentInfo consentInfo) =&gt; consentAgreementInfo.ConsentAgreementConsentHash != consentInfo.ConsentHash;
+
+    private void WriteConsents(Dictionary&lt;int, ConsentInfo&gt; consents,
+        Dictionary&lt;string, ConsentArchiveInfo&gt; consentContentArchives,
+        Dictionary&lt;string, List&lt;ConsentAgreementInfo&gt;&gt; consentContentAgreements,
+        Dictionary&lt;int, List&lt;ConsentAgreementInfo&gt;&gt; consentRevocations)
+    {
+        foreach (var agreementsOfSameConsentContent in consentContentAgreements.Values)
+        {
+            var consentAgreement = agreementsOfSameConsentContent.First();
+            var consentInfo = consents[consentAgreement.ConsentAgreementConsentID];
+
+            consentContentArchives.TryGetValue(consentAgreement.ConsentAgreementConsentHash, out var consentArchiveInfo);
+            consentRevocations.TryGetValue(consentAgreement.ConsentAgreementConsentID, out var revocationsOfSameConsent);
+
+            WriteConsent(consentInfo, consentArchiveInfo, agreementsOfSameConsentContent, revocationsOfSameConsent);
+        }
+    }
+
+    private void WriteConsent(ConsentInfo consentInfo, ConsentArchiveInfo? consentArchiveInfo,
+        IEnumerable&lt;ConsentAgreementInfo&gt; consentAgreements,
+        IEnumerable&lt;ConsentAgreementInfo&gt;? consentRevocations)
+    {
+        personalDataWriter.WriteStartSection(ConsentInfo.OBJECT_TYPE, "Consent");
+
+        var agreedConsentLastModified =
+            consentArchiveInfo?.ConsentArchiveLastModified ?? consentInfo.ConsentLastModified;
+
+        WriteConsentContent(consentInfo, consentArchiveInfo);
+        WriteConsentAgreements(consentAgreements);
+        WriteConsentRevocations(consentRevocations?.Where(cr =&gt; cr.ConsentAgreementTime &gt; agreedConsentLastModified));
+
+        personalDataWriter.WriteEndSection();
+    }
+
+    private void WriteConsentContent(ConsentInfo consentInfo, ConsentArchiveInfo? consentArchiveInfo)
+    {
+        if (consentArchiveInfo == null)
+        {
+            personalDataWriter.WriteBaseInfo(consentInfo, consentInfoColumns, TransformConsentText);
+        }
+        else
+        {
+            personalDataWriter.WriteSectionValue("ConsentDisplayName", "Consent name", consentInfo.ConsentDisplayName);
+            personalDataWriter.WriteBaseInfo(consentArchiveInfo, consentArchiveInfoColumns, TransformConsentText);
+        }
+    }
+
+    private void WriteConsentAgreements(IEnumerable&lt;ConsentAgreementInfo&gt; consentAgreements)
+    {
+        foreach (var consentAgreement in consentAgreements)
+        {
+            personalDataWriter.WriteBaseInfo(consentAgreement, consentAgreementInfoColumns, TransformConsentAction);
+        }
+    }
+
+    private void WriteConsentRevocations(IEnumerable&lt;ConsentAgreementInfo&gt;? consentRevocations)
+    {
+        if (consentRevocations == null)
+        {
+            return;
+        }
+
+        foreach (var consentRevocation in consentRevocations)
+        {
+            personalDataWriter.WriteBaseInfo(consentRevocation, consentAgreementInfoColumns, TransformConsentAction);
+        }
+    }
+
+    private void WriteContactActivities(IEnumerable&lt;ActivityInfo&gt; contactActivities)
+    {
+        foreach (var contactActivityInfo in contactActivities)
+        {
+            personalDataWriter.WriteStartSection(ActivityInfo.OBJECT_TYPE, "Activity");
+            personalDataWriter.WriteBaseInfo(contactActivityInfo, activityInfoColumns);
+            personalDataWriter.WriteEndSection();
+        }
+    }
+
+    private void WriteContactAccounts(ICollection&lt;int&gt; contactIDs)
+    {
+        var accountIDs = accountContactInfoProvider.Get()
+            .WhereIn("ContactID", contactIDs)
+            .Column("AccountID")
+            .Distinct();
+        var accountInfos = accountInfoProvider.Get()
+            .Columns(accountInfoColumns.Select(t =&gt; t.Name))
+            .WhereIn("AccountID", accountIDs)
+            .ToList();
+
+        var countryInfos = countryInfoProvider.Get()
+            .WhereIn("CountryID", accountInfos.Select(r =&gt; r.AccountCountryID).ToList())
+            .ToDictionary(ci =&gt; ci.CountryID);
+        var stateInfos = stateInfoProvider.Get()
+            .WhereIn("StateID", accountInfos.Select(r =&gt; r.AccountStateID).ToList())
+            .ToDictionary(si =&gt; si.StateID);
+
+        foreach (var accountInfo in accountInfos)
+        {
+            countryInfos.TryGetValue(accountInfo.AccountCountryID, out var countryInfo);
+            stateInfos.TryGetValue(accountInfo.AccountStateID, out var stateInfo);
+
+            personalDataWriter.WriteStartSection(AccountInfo.OBJECT_TYPE, "Account");
+
+            personalDataWriter.WriteBaseInfo(accountInfo, accountInfoColumns);
+
+            if (countryInfo != null)
+            {
+                personalDataWriter.WriteBaseInfo(countryInfo, countryInfoColumns);
+            }
+
+            if (stateInfo != null)
+            {
+                personalDataWriter.WriteBaseInfo(stateInfo, stateInfoColumns);
+            }
+
+            personalDataWriter.WriteEndSection();
+        }
+    }
+
+    private void WriteContactGroups(IEnumerable&lt;ContactGroupInfo&gt; contactContactGroups)
+    {
+        foreach (var contactGroupInfo in contactContactGroups)
+        {
+            personalDataWriter.WriteStartSection(ContactGroupInfo.OBJECT_TYPE, "Contact group");
+            personalDataWriter.WriteBaseInfo(contactGroupInfo, contactGroupInfoColumns);
+            personalDataWriter.WriteEndSection();
+        }
+    }
+
+    private void WriteSubmittedFormsData(ICollection&lt;string&gt; emails, ICollection&lt;int&gt; contactIDs)
+    {
+        var consentAgreementGuids = consentAgreementInfoProvider.Get()
+            .Columns("ConsentAgreementGuid")
+            .WhereIn("ConsentAgreementContactID", contactIDs);
+
+        var formClasses = bizFormInfoProvider.Get()
+            .Source(s =&gt; s.InnerJoin&lt;DataClassInfo&gt;("CMS_Form.FormClassID", "ClassID"))
+            .WhereIn("FormGUID", forms.Keys);
+
+        formClasses.ForEachRow(row =&gt;
+        {
+            var bizForm = new BizFormInfo(row);
+            var formDefinition = forms[bizForm.FormGUID];
+
+            var bizFormItems = formCollectionService.GetBizFormItems(emails, consentAgreementGuids, row, formDefinition);
+
+            foreach (var bizFormItem in bizFormItems)
+            {
+                personalDataWriter.WriteStartSection("SubmittedForm", "Submitted form");
+
+                personalDataWriter.WriteSectionValue("FormDisplayName", "Form display name", bizForm.FormDisplayName);
+                personalDataWriter.WriteSectionValue("FormGUID", "Form GUID", bizForm.FormGUID.ToString());
+                personalDataWriter.WriteBaseInfo(bizFormItem, formDefinition.FormColumns);
+
+                personalDataWriter.WriteEndSection();
+            }
+        });
+    }
+}
+
+</code></pre>
+</div>
+
+<h3 id="implement-the-collector">Implement the collector</h3>
+<p>The <code>ContactDataCollectorCore</code> handles all the heavy lifting, which means that the <code>IPersonalDataCollector</code> implementation can be relatively small.</p>
+<ol type="1">
+<li>Define the <code>ContactDataCollector</code> class in the <em>DataProtection</em> folder.</li>
+<li>Determine the correct <code>DataWriter</code> to use based on the <code>outputFomat</code> parameter provided to the <code>Collect</code> method by Xperience, and use it to instantiate a <code>DataCollectorCore</code> object.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactDataCollector.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.DataEngine;
+using CMS.DataProtection;
+using TrainingGuides.Web.Features.DataProtection.Writers;
+
+namespace TrainingGuides.Web.Features.DataProtection.Collectors;
+
+public class ContactDataCollector : IPersonalDataCollector
+{
+    private readonly IServiceProvider serviceProvider;
+
+    public ContactDataCollector(IServiceProvider serviceProvider)
+    {
+        this.serviceProvider = serviceProvider;
+    }
+
+    public PersonalDataCollectorResult Collect(IEnumerable&lt;BaseInfo&gt; identities, string outputFormat)
+    {
+        using var personalDataWriter = CreateWriter(outputFormat);
+
+        var dataCollector = ActivatorUtilities.CreateInstance&lt;ContactDataCollectorCore&gt;(serviceProvider, personalDataWriter);
+
+        return new PersonalDataCollectorResult
+        {
+            Text = dataCollector.CollectData(identities)
+        };
+    }
+
+    private IPersonalDataWriter CreateWriter(string outputFormat) =&gt;
+        outputFormat.ToLowerInvariant() switch
+        {
+            PersonalDataFormat.MACHINE_READABLE =&gt; new XmlPersonalDataWriter(),
+            _ =&gt; new HumanReadablePersonalDataWriter()
+        };
+}
+
+</code></pre>
+</div>
+
+<h3 id="register-the-data-collector">Register the Data collector</h3>
+<p>Register the data collector so that it is called by the system on the <strong>Right to access</strong> and <strong>Data portability</strong> tabs of the <strong>Data protection</strong> application in Xperience.</p>
+<ol type="1">
+<li>
+<p>Add the following line to the <code>OnInit</code> method of the <code>DataProtectionRegistrationModule</code> class.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>DataProtectionRegistrationModule.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ // Adds the ContactDataCollector to the collection of registered personal data collectors
+ PersonalDataCollectorRegister.Instance.Add(ActivatorUtilities.CreateInstance&lt;ContactDataCollector&gt;(serviceProvider));
+ ...
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This code can be placed anywhere within the scope of the method, though it may be best to put it after the existing code from the previous guide in order to mirror the order in which the collectors are called.</p>
+</div>
+</li>
+<li>
+<p>Notice that the CreateInstance method requires an <code>IServiceProvider</code> instance that you have not defined yet. Resolve this service at the start of your OnInit method.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>DataProtectionRegistrationModule.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ var serviceProvider = parameters.Services.GetRequiredService&lt;IServiceProvider&gt;();
+ ...
+ </code></pre>
+</div>
+</li>
+</ol>
+<p>Now, the system will use this data collector on the <strong>Data portability</strong> and <strong>Right to access</strong> tabs of the <strong>Data protection</strong> application in the <strong>Configuration</strong> section of the Xperience administration interface.</p>
+<p>If you search the email address of an existing contact on one of these tabs, Xperience will use this data collector, in conjunction with the identity collector from <a href="/guides/development/data-protection/identity-collectors-gather-contacts-associated-with-a-visitor">earlier in this series</a>, to retrieve data associated with that contact. See an example in the following video:</p>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/data-protection/data-erasers-clear-contact-information-from-the-site">next guide in this series</a> will cover the process of creating a <em>Data eraser</em> for removing visitors’ personal data from the site.</p>
+
+</body>
+</html>

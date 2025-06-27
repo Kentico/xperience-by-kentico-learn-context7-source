@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Workflows</title>
+</head>
+<body>
+<p>Workflow defines the lifecycle of content, including <a href="/documentation/business-users/website-content">pages</a>, <a href="/documentation/business-users/content-hub">reusable content items</a>, <a href="/documentation/business-users/headless-content">headless items</a> and <a href="/documentation/business-users/digital-marketing/emails">emails</a>. Each workflow has one or more custom steps between the default <strong>Draft</strong> and <strong>Published</strong> steps. This allows you to ensure the quality of content by setting up a reviewing and approval process tailored specifically for your organization.</p>
+<p>An example of a simple workflow process is a website that publishes scientific articles. An author writes an article and sends it for approval to an editor who makes corrections and submits the article to the head of the respective department. The head then publishes the page, making it publicly accessible on the website.</p>
+<h2 id="create-a-workflow">Create a workflow</h2>
+<ol type="1">
+<li>Open the <strong>Workflows</strong> application.</li>
+<li>Select the <strong>New workflow</strong> button.</li>
+<li>Fill in the <strong>Workflow name</strong> and optionally a code name in the <strong>Identifiers</strong> section.</li>
+<li>Select <strong>Roles with full control</strong> – users with these <a href="/documentation/developers-and-admins/configuration/users/role-management">roles</a> are permitted to edit items in all <a href="#configure-the-workflow-steps">steps</a> within the workflow, move items to the next or previous step, and also <strong>directly publish</strong> items or send/schedule regular emails from any step.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Workflow roles and other permissions</strong></p>
+<p>In addition to the role settings for workflows, the system also checks other relevant permissions (<a href="/documentation/developers-and-admins/configuration/users/role-management">application-level</a> and <a href="/documentation/developers-and-admins/configuration/users/role-management/page-permission-management">page permissions</a>) when deciding if a user is allowed to edit an item under workflow.</p>
+</div>
+
+<ol start="5" type="1">
+<li>
+<strong>Save</strong> the new workflow.</li>
+</ol>
+<p>The workflow is now created and ready to be configured.</p>
+<h3 id="configure-the-workflow-scope">Configure the workflow scope</h3>
+<p>Once a workflow is created, you can define its scope. Each content type can be assigned a single workflow. If a content type is already associated with a workflow, it will be excluded from the available scope options.</p>
+<ol type="1">
+<li>Select the workflow you want to configure.</li>
+<li>Switch to the <strong>Scope</strong> tab.</li>
+<li>
+<strong>Select content types</strong> and choose the types to which you want to apply the workflow. You can pick multiple content types. Types for pages, emails, reusable content and headless items are all supported.</li>
+<li>
+<strong>Save</strong> the selected content types.</li>
+</ol>
+<p>Upon assigning a workflow to a content type, individual content items do not initiate the workflow automatically. The workflow applies only when an item starts a new editing cycle, which includes new items or new versions of existing published items.</p>
+<p>The editing cycle ends when an item reaches the <strong>Published</strong> step. Existing items in the <strong>Draft</strong> step do not automatically use the workflow with custom steps until they are published and a new editing cycle starts. There is currently no alternative way to start the newly applied workflow with custom steps.</p>
+<h3 id="configure-the-workflow-steps">Configure the workflow steps</h3>
+<ol type="1">
+<li><p>Select the workflow you want to configure.</p></li>
+<li><p>On the <strong>Steps</strong> tab, select <strong>New step</strong>. </p></li>
+<li>
+<p>Fill in the following values:</p>
+<ul>
+<li><p><strong>Step name</strong></p></li>
+<li>
+<p><em>(Optional)</em> <strong>Identifiers</strong> – specify the code name if you wish to use a code name different than the pre-filled value.</p>
+<ul>
+<li>
+<strong>Note</strong>: The code names of workflow steps must be unique across all steps in any workflow.</li>
+</ul>
+</li>
+<li><p><strong>Icon</strong></p></li>
+<li>
+<p><strong>Roles that can work with this step</strong> – designates <a href="/documentation/developers-and-admins/configuration/users/role-management">roles</a> that are permitted to edit items in this step and move to the next or previous step. For the final custom step in the workflow, the roles gain the ability to publish items or send/schedule regular emails. Additionally, roles assigned in the <em>Roles with full control</em> field on the workflow’s <em>General</em> tab can work with items in any step.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Workflow roles and other permissions</strong></p>
+In addition to the role settings for workflow steps, the system also checks other relevant permissions (<a href="/documentation/developers-and-admins/configuration/users/role-management">application-level</a> and <a href="/documentation/developers-and-admins/configuration/users/role-management/page-permission-management">page permissions</a>) when deciding if a user is allowed to edit an item under workflow.
+</div>
+</li>
+</ul>
+</li>
+<li><p><strong>Save</strong> the step.</p></li>
+</ol>
+<p>Repeat the process for all steps required for your workflow. You can drag steps in the list to change their order.</p>
+<h2 id="delete-a-workflow-and-workflow-steps">Delete a workflow and workflow steps</h2>
+<p>Workflows and steps cannot be deleted when there are existing items in the workflow steps, including the <strong>Draft</strong> status. Only items that have the workflow applied are considered, excluding items that were in the <strong>Draft</strong> step when the workflow was assigned to their content type.</p>
+<p>If a workflow is removed from the content type (scope), items in the workflow editing cycle keep their current workflow with custom steps until they reach the <strong>Published</strong> step. If a new editing cycle starts (new item or new version of a published item), the default workflow with only <strong>Draft/Published/Unpublished</strong> statuses is used.</p>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Manage orders</title>
+</head>
+<body>
+
+<div>
+
+</div>
+<div>
+<p><strong>Developer preview feature</strong></p>
+<p>The digital commerce feature is currently not fully functional, and primarily intended to allow technical users to familiarize themselves with the development process of the commerce feature. You can expect the feature to be updated and extended in upcoming releases.</p>
+<p>The related API is <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/general#experimental-attributes" target="_blank">marked as experimental</a> and usage will result in warnings when compiling your project. The warnings are treated as errors for reporting purposes. To use the code, you need to <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/experimental-overview#suppress-warnings" target="_blank">suppress</a> the warnings.</p>
+<p>What should you do with this feature?</p>
+<ul>
+<li>
+<strong>DO</strong> try out development of digital commerce and examine the sample in the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat project template</a>.</li>
+<li>
+<strong>DO</strong> feel free to share your feedback with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</li>
+<li>
+<strong>DO NOT</strong> use this feature in public facing and production applications, as the feature is currently incomplete.</li>
+</ul>
+</div>
+
+<p>The <strong>Orders</strong> application allows users to list orders, view order details, change order statuses, and finalize orders.</p>
+<h2 id="view-details-of-orders">View details of orders</h2>
+<p>To view details of an order:</p>
+<ol type="1">
+<li>Navigate to the <strong>Orders</strong> application.</li>
+<li>Find and select the order you want to modify.
+<ul>
+<li>You can use the search interface or sort orders by status.</li>
+<li>On the <strong>Overview</strong> tab, you can view basic order info and customer details.</li>
+</ul>
+</li>
+<li>Navigate to the <strong>Ordered items</strong> tab to view a list of products in the order.</li>
+</ol>
+<p></p>
+<h2 id="view-orders-from-specific-customers">View orders from specific customers</h2>
+<p>You can view all orders that were made by one customer:</p>
+<ol type="1">
+<li>Navigate to the <strong>Customers</strong> application.</li>
+<li>Select a customer whose orders you want to view.</li>
+<li>Navigate to the <strong>Orders</strong> tab to view a list of orders created by the selected customer.</li>
+</ol>
+<p></p>
+<h2 id="change-order-status">Change order status</h2>
+<p>To change a status of an order:</p>
+<ol type="1">
+<li>Navigate to the <strong>Orders</strong> application.</li>
+<li>Find and select the order you want to modify.
+<ul>
+<li>You can use the search interface or sort orders by status.</li>
+</ul>
+</li>
+<li>Select <strong>Update order status</strong>.</li>
+<li>Select the new status to which you want to move the order and <strong>Confirm</strong> the changes.
+<ul>
+<li>Depending on your <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses#configure-notifications-for-order-statuses">commerce configuration</a>, selected users may receive a notification that a new order was moved to the new status. Note that if you skip statuses (e.g., move an order from the initial to the final status while skipping all other statuses), the notification is only sent for the status to which you move the order, not for the intermediate statuses.</li>
+</ul>
+</li>
+</ol>
+<p></p>
+<p>You can now see the order in the listing with the new status.</p>
+
+</body>
+</html>

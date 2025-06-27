@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Design email content</title>
+</head>
+<body>
+
+<div>
+
+</div>
+<div>
+<p><strong>Email license requirements</strong></p>
+<p>The license tier required for email features depends on the size of the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channels</a> that you use:</p>
+<ul>
+<li>Email microchannels – available for all license tiers</li>
+<li>Standard size email channels – require the <strong>Advanced</strong> license tier</li>
+</ul>
+<p>To learn more, see the description of the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#create-and-configure-email-channels">Channel size</a> property for email channels.</p>
+</div>
+
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from beginning to end.</p>
+<ul>
+<li>
+<a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a>
+<ul>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">What is a content type</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">Structured and unstructured content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Start with business needs</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">Content modeling process</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">Model taxonomies</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">Store content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a></li>
+<li><strong>Design email content</strong></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">Design headless content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/general-content-modeling-recommendations">General content modeling recommendations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2 id="types-of-emails">Types of emails</h2>
+<p>Xperience by Kentico allows you to prepare <a href="/documentation/business-users/digital-marketing/emails">emails</a> and edit their content directly in the administration interface. All emails managed by the system are based on <a href="/documentation/developers-and-admins/development/content-types">content types</a>, which define what data marketers can specify when creating or editing an email.</p>
+<p>Only emails with the following purposes can be managed in the Xperience administration. Other system emails need to be created by developers. For example, user password reset and registration emails are described in <a href="/documentation/developers-and-admins/configuration/users/administration-registration-and-authentication/administration-forms-authentication">Administration - Forms authentication</a>.</p>
+<ul>
+<li>
+<strong>Regular</strong> – emails sent as part of a regular series to subscribed recipients. These emails serve to build a reliable communication channel with an engaged audience. See <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">Send regular emails to subscribers</a> for detailed information and instructions.</li>
+<li>
+<strong>Form autoresponder</strong> – sent automatically to visitors after they submit a <a href="/documentation/business-users/digital-marketing/forms">form</a>. Also used to set up email marketing subscription when a double opt-in link is added to the content.</li>
+<li>
+<strong>Confirmation</strong> – confirmation messages sent to users after they subscribe or unsubscribe from email marketing to provide an immediate feedback.</li>
+<li>
+<strong>Automation</strong> – sent out by an <a href="/documentation/business-users/digital-marketing/automation">automation process</a>. Cannot be sent manually.</li>
+</ul>
+<h2 id="design-emails-using-email-templates">Design emails using email templates</h2>
+<p>From a developer’s perspective, emails are strongly typed and stored in dedicated database tables per content type. This allows developers to programatically retrieve data from email content type fields and display it using <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">email templates</a>. Email templates define the overall layout of <a href="/documentation/business-users/digital-marketing/emails">emails</a> and add fixed content, such as a header or footer. You can reuse a single template for any number of emails. The template content is defined through HTML code and CSS styles. In many cases, the template code can be prepared in an external tool by a designer and then copied into Xperience.</p>
+<p>Simple emails are composed only using simple structured content, such as simple text fields (e.g., title) and rich text fields (e.g., email content). To create more elaborate emails that reuse content from the content hub and allow marketers to add links to pages, you need to model email content types to include content item and page fields, see the <a href="#reusable-content-in-emails">Reusable content in emails</a> section.</p>
+<p>The following diagram shows the structure of a sample email, with the template including pieces of content loaded from individual email fields and linked content items used to display social platform links:</p>
+<p></p>
+<h2 id="reusable-content-in-emails">Reusable content in emails</h2>
+<p>As it is explained on the <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">Store content</a> page, it is recommended to store reusable content in the content hub. Any piece of content that could possibly be used in multiple emails (e.g., company icon in a signature, tracking pixel) or in any other channel (e.g., description of an event, article teaser image) should be modeled as a reusable content item and stored in the content hub.</p>
+<h3 id="link-content-items">Link content items</h3>
+<p>In addition to directly adding content to content type fields of emails, you can also enable marketers to add content items from the content hub to emails by adding a field with the <em>Pages and reusable content</em> data type to the email’s content type.</p>
+<p>The following example shows an email field that enables marketers to add links to various social media platforms at the end of emails.</p>
+<p></p>
+<p>Linked content items need to be correctly displayed in the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">email template</a>.</p>
+<h3 id="link-pages">Link pages</h3>
+<p>Pages from the content tree of any website channel can also be linked from emails. However, it is only possible to retrieve the URL and content type directly from the page object in the email template. To add more information about the linked page, you can create a reusable content type to display links to <a href="/documentation/business-users/website-content">website channel pages</a> in your emails:</p>
+<ol type="1">
+<li>Create a reusable <a href="/documentation/developers-and-admins/development/content-types">content type</a> representing page links.
+<ul>
+<li>Include a title/name field to store the text of the page link.</li>
+<li>Add a field with the <strong>Pages</strong> data type to select the target page.</li>
+</ul>
+</li>
+<li>In your email content type, add a field with the <strong>Pages and reusable content</strong> data type, and allow your page link content type.</li>
+</ol>
+<p>In your email templates, use field macros, iteration (loops) and/or indexing to access the linked pages. The linked page objects provide the following macro fields:</p>
+<ul>
+<li>
+<code>Url</code> – the absolute URL of the page, containing the main domain name assigned to the given <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a>.</li>
+<li>
+<code>Type</code> – the code name of the page’s <a href="/documentation/developers-and-admins/development/content-types">content type</a>.</li>
+</ul>
+<p>See <a href="/documentation/developers-and-admins/configuration/macro-expressions/macro-syntax">Macro syntax</a> and the example below for more details.</p>
+<p><strong>Example</strong></p>
+<p>Content types:</p>
+
+<table>
+<thead>
+<tr>
+<td colspan="2">
+<p>Email (Emails)</p>
+</td>
+<td colspan="2">
+<p>Linked article (Reusable content)</p>
+</td>
+<td>
+<p>Article (Pages)</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p>Field name</p>
+</td>
+<td>
+<p>Data type</p>
+</td>
+<td>
+<p>Field name</p>
+</td>
+<td>
+<p>Data type</p>
+</td>
+<td>
+<p>Field name</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>EmailContent</p>
+</td>
+<td>
+<p>Rich text (HTML)</p>
+</td>
+<td>
+<p>ArticleTitle</p>
+</td>
+<td>
+<p>Text</p>
+</td>
+<td>
+<p>…</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>LinkedArticles</p>
+</td>
+<td>
+<p>Pages and reusable content (Linked article)</p>
+</td>
+<td>
+<p>ArticlePage</p>
+</td>
+<td>
+<p>Pages</p>
+</td>
+<td>
+<p>…</p>
+</td>
+</tr>
+</table>
+
+<p>For more information about displaying <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">content items</a> and <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates#linked-pages-and-content-items">pages</a> in email templates, see the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">Email templates</a> page.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>You’ve learned absolute essentials about modeling content types for emails. In the <a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">next section</a>, you’ll learn how headless content works in Xperience, and what are the recommendations to follow when modeling content types for headless.</p>
+
+</body>
+</html>

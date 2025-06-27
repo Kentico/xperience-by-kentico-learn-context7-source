@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>General content modeling recommendations</title>
+</head>
+<body>
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from beginning to end.</p>
+<ul>
+<li>
+<a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a>
+<ul>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">What is a content type</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">Structured and unstructured content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Start with business needs</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">Content modeling process</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">Model taxonomies</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">Store content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-website-content">Design website content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-email-content">Design email content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">Design headless content</a></li>
+<li><strong>General content modeling recommendations</strong></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2 id="plan-your-content-model-around-business-needs">Plan your content model around business needs</h2>
+<p>A good content model that matches your business’s unique requirements and challenges is vital to a successful online presence. When deciding how to model content in Xperience, always respect the project’s business requirements and the preferences of website editors and marketers.</p>
+<p>On this page, you can learn about general recommendations that you or your developers should consider when planning the content model for your project.</p>
+<h2 id="digital-marketing-features">Digital marketing features</h2>
+<p>Xperience comes with a set of digital marketing features. Marketers can use these features to attract new customers, promote content, or automate workflows to keep in touch with existing customers. Using digital marketing can directly impact your content model and how content editors work with the content.</p>
+<p>Find out more about the digital marketing features in the <a href="/documentation/business-users/digital-marketing">documentation</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – Digital marketing</strong></p>
+<ul>
+<li>If you want to leverage the built-in digital marketing features, <strong>store your content in the Content hub</strong> and <strong>use Page Builder widgets and page templates to display it</strong>.</li>
+<li>We recommend using Page Builder on pages where your editors benefit from <a href="/documentation/business-users/digital-marketing/widget-personalization">content personalization</a>. Marketers can personalize their content based on contact groups across the website.
+<ul>
+<li>Typical examples of content personalization include <strong>frequently changed pages</strong>, such as the website’s home page, campaign landing pages, or thank-you pages. Marketers create variants of content that is dynamically displayed to different visitors based on visitors’ previous interactions with the website and business.</li>
+<li>Less common scenarios include personalization on <strong>pages that display aggregated content</strong>. For example, an <em>Articles</em> listing page can contain an editable area with a <em>Featured articles</em> widget. Editors can personalize the widget and offer different featured articles to visitors based on their assigned contact groups or based on the phase of the visitors’ contact journey.</li>
+<li>Developers need to <strong>prepare custom Page Builder widgets</strong> that allow editors to personalize content based on contact groups.</li>
+</ul>
+</li>
+<li>Use custom content assets type and <strong>store your images, PDFs, videos, and other similar media in the Content hub</strong>. If you need to upload large amounts of data in bulk, use <a href="/documentation/business-users/content-hub/content-item-assets#mass-asset-upload">mass asset upload</a>.</li>
+<li>For collecting data from users, we recommend using <strong>built-in <a href="/documentation/business-users/digital-marketing/forms">forms</a></strong>. Ensure that your editors have rich options for customization of their forms via custom <a href="/documentation/developers-and-admins/development/builders/form-builder">Form Builder components</a>. Include requirements for custom form components, their styling properties, or custom form section properties in your project requirements. Once developers prepare your project, editors can adjust their forms’ layout to match the rest of the pages.</li>
+<li>We recommend using the <a href="/documentation/developers-and-admins/data-protection">Data protection</a> and <a href="/documentation/developers-and-admins/data-protection/cookies">cookies</a> functionality to ensure your website complies with relevant legislation.</li>
+</ul>
+</div>
+
+<h2 id="general-content-modeling-recommendations">General content modeling recommendations</h2>
+
+<div>
+
+</div>
+<div>
+<p><strong>Routing and URLs</strong></p>
+<p>We recommend using <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">content tree-based routing</a> for most scenarios. With content tree-based routing, the system generates ULRs for pages based on their position in the content tree. The content tree-based routing also allows editors to easily <a href="/documentation/business-users/website-content/manage-page-urls">change the URL slugs of their pages</a> and store the URL history in the <strong>Former URLs</strong> application. </p>
+<p>Sometimes, editors use characters considered suboptimal (or even invalid) for URLs. For example, some accented characters from extended Latin alphabets, such as <em>ö</em>, can be encoded into SEO-suboptimal URL slugs. We recommend building <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-validation-rules">custom field validation</a> on any URL-related page type fields and constraining forbidden (or suboptimal) URL characters. To validate custom URL fields, your code can reference the <em>Settings</em> for URLs in the administration. You can use the <code>ISettingsService</code> and <a href="/documentation/developers-and-admins/configuration/settings">retrieve specified URL restrictions</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Aim for content reusability</strong></p>
+<p>Follow a simple rule of thumb: if there is a chance that specific content will appear on the same website in multiple places or various channels of marketing communication, use structured content and <strong>store your reusable content items in the Content hub</strong>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Ensure a seamless editing experience</strong></p>
+<p>When you prepare the structured content hierarchy, we recommend that every developer participating in the project steps into the content editor’s shoes and tests their workflow by creating several pages in the content tree. Developers should try to understand how editors will work with the website content. Knowing the inner workings of their implementation, they can suggest changes to improve the editing experience significantly. Talking from experience, you can often:</p>
+<ul>
+<li>Slightly flatten the content tree hierarchy.</li>
+<li>Convert large, monolithic content types that aggregate various content units storing different types of data into smaller, separate content types. Using these smaller content types, editors will compose content, such as campaign pages or app screens.</li>
+<li>Use content tree predominantly only for navigable items with URLs.</li>
+<li>Guide editors on how they should work with specific content types or what kind and format of data they should input in the content items.
+<ul>
+<li>We recommend <strong>specifying editor guidance</strong> in the project requirements. To build a flexible and scalable content model, use editor guidelines to strengthen the content reusability and independence. It helps strengthen its reusability when you concentrate on what the content is rather than on its presentation. Your guides need to help editors focus on the type of content they should input rather than describing what their content will look like on the website.</li>
+<li>Use <strong>different icons</strong> to provide visual guidance and distinguish between different content types.</li>
+<li>Use the <strong>Tooltip text</strong> or <strong>Text below the input</strong> settings for content type fields to provide editor guidance.</li>
+<li>As Page Builder is preferably used to present the information rather than store it, use <strong>Label</strong> and <strong>Explanation text</strong> widget and section properties to help editors understand the data their content needs and what will happen once displayed in the dedicated channel.</li>
+</ul>
+</li>
+<li>If your editors use widgets to display structured content, <strong>set restrictions against a specific content type</strong> within the widget properties.</li>
+<li>Help editors quickly compose their pages. Request that developers set restrictions on editable areas, sections, and widget zones to limit confusion about which widget to choose. Use appropriate components to ensure editors cannot stray and input widgets in places where these widgets don’t belong. Setting up these fences helps with the content editing experience and ensures brand consistency.</li>
+</ul>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Ensure seamless content workflow</strong></p>
+<p>Make sure that editors have complete control over their content. <strong>Preview</strong> tab in website channel applications allows editors to see what their content looks like before publishing.</p>
+<p>We recommend that</p>
+<ul>
+<li>Editors create and manage their content on the production version of the application,</li>
+<li>Developers use a pre-production UAT environment to create, test, and prove their code changes before synchronizing it with the production site.</li>
+</ul>
+</div>
+
+<h2 id="model-navigation">Model navigation</h2>
+<p>Website navigation helps users find the content they are looking for. Well-ordered navigation menus provide an overview of how the website’s content or its segments are structured. It can also keep users engaged and lead them to explore more of the site.</p>
+<p>There are different approaches to modeling navigation that you can consider. The following text highlights the recommended approach. At the same time, your project requirement might differ and you’ll need to reach for a different approach for modeling navigation. That’s why we have collected examples suitable for Xperience projects into a dedicated <a href="/guides/architecture/content-modeling/model-website-content-types/model-website-navigation">model website navigation</a> guide.</p>
+<p>We recommend modeling website navigation via reusable <a href="/documentation/business-users/content-hub">content items</a>. Developers prepare dedicated content types for individual <em>Navigation items</em> as well as for the <em>Website navigation</em> as a whole. Editors then manually build the website navigation in the content hub. Based on the site’s designs, they create the hierarchy and desired order of individual menu items that developers then display in the relevant locations. The editors can also organize the content items used for website navigation into <a href="/documentation/business-users/content-hub/content-hub-folders#content-folders">folders</a> in the content hub. This way they can make the menu hierarchy more visual and easily see in which channel application the navigation items are used.</p>
+<p>What about modeling navigation using dedicated <a href="/documentation/business-users/website-content">website pages</a> without URLs within the content tree which was common in Kentico 13 and older versions?</p>
+<p>In Xperience, this approach is less optimal, as it clutters the content tree with items that do not represent actual pages on the live site, which can be confusing to your content editors. See the <a href="/guides/architecture/content-modeling/model-website-content-types/model-website-navigation">guide about navigation</a> to learn about additional options and practices to follow if you decide to place navigation into the content tree.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can also ask developers to build a custom <em>Menu widget</em>. Editors can place the widget into appropriate section and select which content items the widget processes into a submenu. Similarly, you can request a custom <em>Breadcrumbs menu</em> widget. When an editor places the widget onto the page, the widget automatically displays the breadcrumb path to the page’s location.</p>
+</div>
+
+<p>Depending on your project’s requirements, the <em>Navigation item</em> content type may contain some or all of the following properties:</p>
+<ul>
+<li>Page to link to – a page from the content tree that is selectable using the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">Page selector</a>. The selector populates its assigned field with the GUID of the selected page, which developers can use to <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content/retrieve-page-urls">retrieve the URL</a> of the linked page.</li>
+<li>Depending on the project’s requirements, you may want to add some of the following fields:
+<ul>
+<li>External link
+<ul>
+<li>Developers can use the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-validation-rules">URL validation rule</a> to ensure the URLs passed by editors are valid.</li>
+</ul>
+</li>
+<li>Link title</li>
+<li>Link caption</li>
+<li>Link icon</li>
+<li>Additional properties (e.g., open in a new tab)</li>
+</ul>
+</li>
+</ul>
+<p>The <em>Website navigation</em> content type then contains all the <em>Navigation items</em> that are displayed in the navigation menu.</p>
+
+<div>
+
+</div>
+<div>
+<p>For more information and a sample implementation, see <a href="/guides/development/get-started/model-sample-website-navigation">Model website navigation</a>. For complex overview of approaches to modeling navigation, see a dedicated guide <a href="/guides/architecture/content-modeling/model-website-content-types/model-website-navigation">Model website navigation</a>.</p>
+</div>
+
+<h2 id="website-system-pages">Website system pages</h2>
+<p>A good website administration experience doesn’t only mean that editors can easily create and manage website content. A well-structured website offers editors ways to adjust system-specific features without asking developers for help whenever they need to change the website’s SEO performance. For example, you can create a ”Website settings” section in the content tree and create specific page types that content administrators can use to change system settings. We recommend including the following system pages in your project:</p>
+<ul>
+<li><a href="#search-result-pages">Search result pages</a></li>
+<li><a href="#consent-settings-page">Consent settings page</a></li>
+<li>
+<a href="#seo-specific-pages">SEO-specific pages</a>
+<ul>
+<li><a href="#sitemap">Sitemap</a></li>
+<li><a href="#error-pages">Error pages</a></li>
+<li><a href="#robots.txt-and-no-indexing-content">Robots.txt and no-indexing content</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="search-result-pages">Search result pages</h3>
+<p>Xperience doesn’t currently provide any solution out of the box that will search through website data and display results on an internal search results page. To implement search functionality for the website, use a custom solution.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – Search</strong></p>
+<p>Considering your project requirements, we recommend using one of the available integrations with <a href="https://github.com/Kentico/xperience-by-kentico-algolia" target="_blank">Algolia Search</a>, <a href="https://github.com/Kentico/xperience-by-kentico-lucene" target="_blank">Lucene Search</a>, or <a href="https://github.com/Kentico/xperience-by-kentico-azure-ai-search" target="_blank">Azure AI Search</a>.</p>
+</div>
+
+<h3 id="consent-settings-page">Consent settings page</h3>
+<p>Xperience comes with extensive <a href="/documentation/developers-and-admins/data-protection">Data protection</a> functionality that allows for building websites compliant with many different e-privacy laws and legislation.</p>
+<p>Administrators can use the data protection features to create and manage tracking consents or easily remove personal data from the administration UI. Once the personal data is in the system, marketers can easily use the built-in Xperience online marketing features, e.g., ensure that marketing emails are sent only to visitors who provided appropriate consent.</p>
+<p>To comply with data privacy regulations, developers must implement data collection and erasure features to match project requirements and accommodate how the website gathers, processes, and stores personal data.</p>
+<p>Find out more about customer data protection in Xperience:</p>
+<ul>
+<li><a href="/documentation/business-users/digital-marketing/contact-management">Customer data management</a></li>
+<li><a href="/documentation/developers-and-admins/data-protection">Data protection</a></li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – Consents</strong></p>
+<p>To ensure marketers stay within legal boundaries with their marketing activities, we recommend leveraging the Xperience data protection functionality for collecting and managing every piece of visitor data in the customer life-cycle, from cookie tracking up to data submitted through online forms. We recommend building a consent settings page to allow users to manage their consent.</p>
+</div>
+
+<h3 id="seo-specific-pages">SEO-specific pages</h3>
+<h4 id="sitemap">Sitemap</h4>
+<p>Sitemaps help search engines correctly index website content and significantly affect search rankings. You need to create a custom generator to build a website sitemap.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – SEO</strong></p>
+<p>We recommend doing a custom implementation of the sitemap generator, including a mechanism that enables editors to decide which page URLs to include in the sitemap and a way to canonicalize URLs. For example, add a custom URL canonical field to the page’s <strong>Content</strong> tab.</p>
+</div>
+
+<h4 id="error-pages">Error pages</h4>
+<p>Errors can appear on different occasions. Visitors can request content that’s no longer available on the page, or they can make a typo in the URL. A user-friendly error page and simple website navigation can improve user experience and guide them to relevant content. Xperience uses MVC conventions for handling error pages.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – Errors</strong></p>
+<p>Give editors the power to personalize the content of error pages by enabling Page Builder. It can help if your website contains a lot of content and the menu needs to provide quick navigation. The most frequently used error pages are:</p>
+<ul>
+<li>404 - Page Not Found.</li>
+<li>403 Forbidden - You do not have permission to access this page.</li>
+<li>400 Bad request - Your browser performed an invalid operation.</li>
+<li>500 Internal server error - The server encountered an error while processing your request.</li>
+</ul>
+</div>
+
+<h4 id="robots.txt-and-no-indexing-content">Robots.txt and no-indexing content</h4>
+<p>Website administrators sometimes want to prevent search engine agents from indexing specific pages or parts of the website. The <em>Robots.txt</em> page can help in such situations.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations - Indexing</strong></p>
+<p>We recommend providing editors or administrators with means to disallow parts of the website from search engines:</p>
+<ul>
+<li>Add dedicated fields on the <em>Content</em> tab to disable indexing of individual website pages. Selecting the fields should include the no-index directive in your output markup.</li>
+<li>To disable indexing parts of the website, create a dedicated page (or a section in a custom module) for <em>Robots.txt</em> file with, e.g., a <em>Text area</em> form control and use custom code to process the directives administrators want to input into the Robots.txt. The implementation could also restrict the website’s indexing by specific search bots.</li>
+</ul>
+</div>
+
+<h2 id="additional-resources-about-content-modeling">Additional resources about content modeling</h2>
+<p>If you are new to content modeling, we have collected the following list of third-party resources that cover this important topic.</p>
+<ul>
+<li>HeadlessCreator weekly
+<ul>
+<li><a href="https://www.headlesscreator.com/course/content-modeling-weekly" target="_blank">https://www.headlesscreator.com/course/content-modeling-weekly</a></li>
+</ul>
+</li>
+<li>Content modeling free e-book
+<ul>
+<li><a href="https://contentmodeling.com/index.php/free-e-book/" target="_blank">https://contentmodeling.com/index.php/free-e-book/</a></li>
+</ul>
+</li>
+<li>Kontent: What is content modeling
+<ul>
+<li><a href="https://kontent.ai/learn/model/intro-to-content-modeling" target="_blank">https://kontent.ai/learn/model/intro-to-content-modeling</a></li>
+</ul>
+</li>
+<li>Sanity’s Content Modeling Guide:
+<ul>
+<li><a href="https://www.sanity.io/content-modeling" target="_blank">https://www.sanity.io/content-modeling</a></li>
+<li><a href="https://www.sanity.io/content-modeling/content-modeling-foundations" target="_blank">https://www.sanity.io/content-modeling/content-modeling-foundations</a></li>
+<li><a href="https://www.sanity.io/content-modeling/how-to-create-a-content-model" target="_blank">https://www.sanity.io/content-modeling/how-to-create-a-content-model</a></li>
+<li><a href="https://www.sanity.io/structured-content" target="_blank">https://www.sanity.io/structured-content</a></li>
+</ul>
+</li>
+<li>Contentful’s content modeling basics:
+<ul>
+<li><a href="https://www.contentful.com/help/content-modelling-basics/" target="_blank">https://www.contentful.com/help/content-modelling-basics/</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Even though content models show similarities across different organizations, every model is unique. Projects where editors and other website stakeholders collaborate on defining, are more successful in results and user satisfaction.</p>
+<p>The key points for building content models are:</p>
+<ul>
+<li>Prefer structured content and use widgets for styling rather than storing the content in Pages.</li>
+<li>Depending on the skillset of the editor team, consider breaking up complex content types into several smaller types to improve content reusability and overall content composing experience.</li>
+<li>Regularly validate your model with stakeholders, both internal and external.</li>
+<li>Website developers should use the created content model and create content on the website themselves.</li>
+<li>Feel free to experiment or deviate from the recommendations above to satisfy the project requirements.</li>
+</ul>
+<p>Happy content modeling!</p>
+
+</body>
+</html>

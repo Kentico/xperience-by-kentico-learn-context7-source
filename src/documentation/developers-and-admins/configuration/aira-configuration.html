@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>AIRA configuration</title>
+</head>
+<body>
+
+<div>
+
+</div>
+<div>
+<p><strong>Preview feature</strong></p>
+<p>AIRA is currently in preview mode. Expect AIRA features to be updated and modified in upcoming versions, including breaking changes.</p>
+<p>Feel free to try out the AIRA features, for example using the sample <em>Dancing Goat</em> <a href="/documentation/developers-and-admins/installation">project template</a> or other demo sites. You can share your feedback directly with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</p>
+</div>
+
+<p>AIRA is an AI-powered assistant that can increase the productivity of content editors, marketers and copywriters by offering <a href="/documentation/business-users/aira#aira-in-product-guidance">in-product guidance</a> and automating content-related tasks with the use of various AI-backed <a href="/documentation/business-users/aira">features</a>.</p>
+<h2 id="privacy-and-data-protection">Privacy and data protection</h2>
+<p>All data processed by AIRA is commercially protected.</p>
+<p>Neither Kentico nor the underlying AI models store or log raw customer data inputs, prompts, or responses generated when using AIRA features. All data is discarded after each interaction with AIRA and is not used to train the underlying models. To learn more, see the privacy guarantees provided by Microsoft Azure for <a href="https://learn.microsoft.com/en-us/legal/cognitive-services/openai/data-privacy?tabs=azure-portal" target="_blank">Azure OpenAI model privacy</a> and <a href="https://learn.microsoft.com/en-us/legal/cognitive-services/computer-vision/imageanalysis-data-privacy-security" target="_blank">Azure Image analysis privacy</a>.</p>
+<h2 id="manage-aira-features">Manage AIRA features</h2>
+<p>After getting access to AIRA, all <a href="/documentation/business-users/aira">AIRA features</a> are active by default. However, you can turn specific AIRA features off, should your project require it.</p>
+<ol type="1">
+<li>Open the <strong>AIRA</strong> application.</li>
+<li>Switch to the <strong>Feature settings</strong> tab.</li>
+<li>Deselect the AIRA features you don’t want users to use in the project.</li>
+<li>
+<strong>Save</strong> the settings.</li>
+</ol>
+<p></p>
+<h2 id="disable-aira-globally">Disable AIRA globally</h2>
+<p>To globally disable all <a href="/documentation/business-users/aira">AIRA features</a>, including <a href="/documentation/business-users/aira#aira-in-product-guidance">in-product guidance</a> in your project:</p>
+<ol type="1">
+<li>Open your Xperience project.</li>
+<li>In the <em>appsettings.json</em> file, add a new configuration key: <code>"CMSEnableAira": false</code>.</li>
+<li>Save your project.</li>
+</ol>
+<p>All AIRA features are now disabled in your project.</p>
+
+<div>
+
+</div>
+<div>
+<p>To enable AIRA globally again, change the value of <code>"CMSEnableAira"</code> to <code>"CMSEnableAira": true</code>.</p>
+</div>
+
+<h2 id="configure-aira">Configure AIRA</h2>
+<p>You can adjust the behavior of specific AIRA features by configuring the following settings:</p>
+<ol type="1">
+<li>Open the <strong>Settings</strong> application.</li>
+<li>Select the <strong>AIRA</strong> category and configure the settings:
+<ul>
+<li>
+<strong>Excluded content types</strong> – allows you to simplify the selection of content sources when <a href="/documentation/business-users/aira#generate-email-content">generating content for email fields</a>. Items of the specified content types (for reusable content) will not be offered. For example, we recommend excluding content types that only store image content without text.</li>
+<li>
+<strong>Tone of voice guidelines</strong> – allows you to describe your organization’s tone of voice guidelines (professional, simple, humorous, etc.). AIRA will use this tone when generating content for email fields. If not specified, AIRA uses a neutral tone.</li>
+</ul>
+</li>
+<li>
+<strong>Save</strong> the settings.</li>
+</ol>
+<p>The settings apply globally for all content types and fields that support the AIRA features across the system.</p>
+<h2 id="add-aira-features-to-your-content-types">Add AIRA features to your content types</h2>
+<p>Some <a href="/documentation/business-users/aira">AIRA features</a> need to be manually enabled for individual fields of your <a href="/documentation/developers-and-admins/development/content-types">content types</a>:</p>
+<ol type="1">
+<li>Open the <strong>Content types</strong> application.</li>
+<li>Select a content type.
+
+<div>
+
+</div>
+<div>
+AIRA features are currently not supported in <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>.
+</div>
+</li>
+<li>On the <strong>Fields</strong> tab, select which <a href="/documentation/developers-and-admins/customization/field-editor">fields</a> will have AIRA features. You can enable AIRA features for fields:
+<ul>
+<li>With the <strong>Text</strong>, <strong>Long text</strong>, <strong>Rich text (HTML)</strong>, or <strong>Taxonomy</strong> data type.</li>
+<li>Using the <strong>Rich text editor</strong>, <strong>Text area</strong>, <strong>Text input</strong>, or <strong>Tag selector</strong> form component.</li>
+</ul>
+</li>
+<li>Expand a field and scroll down to the <strong>AIRA features</strong> section.</li>
+<li>Select <strong>Add AIRA feature</strong> and choose the feature you want to enable:
+<ul>
+<li><p><strong>Generate image description during mass upload</strong> – generates an SEO-friendly description of an image based on its content during <a href="/documentation/business-users/content-hub/content-item-assets#mass-asset-upload">mass upload</a>.</p></li>
+<li><p><strong>Automatically assign tags to images during mass upload</strong> – automatically assigns tags from the defined <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomy group</a> based on the image content during <a href="/documentation/business-users/content-hub/content-item-assets#mass-asset-upload">mass upload</a>.</p></li>
+<li>
+<p><strong>Generate email content</strong> – generates email content based on reusable content items stored in the <a href="/documentation/business-users/content-hub">Content hub</a>, external content specified by web URLs, or a custom description. You can globally <a href="#configure-aira">configure</a> which content types are available as content sources.</p>
+
+<div>
+
+</div>
+<div>
+For fields using the <em>Rich text editor</em> form component, the <em>Generate email content</em> feature also automatically enables <a href="/documentation/business-users/aira#rich-text-editor-refinements">rich text editor refinements</a>.
+</div>
+</li>
+<li>
+<p><strong>Generate email subject based on email content</strong> – generates email subject suggestions based on the content of other fields. Use the feature for the <em>EmailSubject</em> system field of email content types.</p>
+<ol type="1">
+<li>Select <strong>Continue</strong>.</li>
+<li>Choose which fields of the content type will serve as the content source. Supported field data types are <em>Text</em>, <em>Long text</em>, <em>Rich text (HTML)</em> or <em>Content items</em>. The same data types are supported when loading content from the fields of linked content items. The maximum length of the total source content is 10 000 characters (if exceeded, a warning is displayed to the user and content over the limit is truncated).</li>
+<li>Select <strong>Save</strong>.</li>
+</ol>
+</li>
+<li><p><strong>Rich text editor refinements</strong> – supported for text fields using the <em>Rich text editor</em> form component. Allows editors to select text and send it to AIRA for refinement (make text shorter, improve writing and grammar, etc.).</p></li>
+</ul>
+</li>
+<li>
+<strong>Save</strong> the field editor.</li>
+</ol>
+<p>The selected AIRA feature is now enabled for the given field. Only one AIRA feature can be enabled for a single field.</p>
+<p></p>
+<p>Repeat the process for all fields and content types where you wish to enable the AIRA features.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Use AIRA features outside of content types</strong></p>
+<p>AIRA features are not restricted to content types in the <em>Content types</em> application. You can use the same process to enable AIRA features in other field editors, for example for the fields of a <a href="/documentation/developers-and-admins/customization/object-types">custom object type</a> in the <em>Modules</em> application.</p>
+<p>However, keep in mind that the <em>Generate email content</em> and <em>Generate email subject based on email content</em> features optimize the AIRA prompts to generate email content. Results may be inaccurate if you attempt to generate other types of content.</p>
+</div>
+
+
+</body>
+</html>

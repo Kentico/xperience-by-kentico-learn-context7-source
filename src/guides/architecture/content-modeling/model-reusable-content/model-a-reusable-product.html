@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Model a reusable Product</title>
+</head>
+<body>
+<p>When managing content on a website, we rely on specific content types, which serve as templates for creating various content items. This article will explore how to design content types specifically for financial products.</p>
+<p>This article will guide you through designing content types for financial products in a way that promotes reusability and adaptability.</p>
+<p>You’ll learn how to:</p>
+<ul>
+<li>Create content types that your team can use across various channels.</li>
+<li>Make your content modeling decisions based on standards.</li>
+<li>Break down a complex financial product into a reusable content type.</li>
+<li>Strategically use taxonomies to help editors categorize their content.</li>
+</ul>
+<p>By the end of this article, you’ll have the tools to create well-thought content type that will allow your editor team efficiently create and manager their content.</p>
+<h2 id="build-for-multichannel-xperience-by-kentico">Build for multichannel Xperience by Kentico</h2>
+<p>Xperience by Kentico provides a <a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">multichannel experience</a>, which means you can reuse the same content stored in Xperience on websites, emails, applications, or other marketing channels. When your team needs to add a new channel to promote your services, you don’t need to start the content modeling process from scratch just to display your content in this new channel.</p>
+<p></p>
+<h2 id="define-content-types-from-reusable-pieces">Define content types from reusable pieces</h2>
+<p>We recommend that you design your content model using semantic content types. Semantic content types consistently carry their meaning regardless of the context in which they appear.</p>
+<p>The <strong>Product</strong> is a typical representation of a semantic content type. It represents an important content entity that stays the same whether you inform about it on your main website or campaign microsite, send a promotion via email, display its details in a mobile application or export the product data for a third-party product comparison website. The core data remains the same; what changes is how you talk about the product in different contexts.</p>
+<p></p>
+<p>Building a <em>Product</em> content type that is channel-independent is just one piece of the puzzle. The content type structure itself is another piece.</p>
+<p>Xperience allows for content type composability, which means that you can compose even semantic content types from smaller, independent pieces of content. These smaller content pieces themselves can represent different content types. They become building blocks that quickly adapt to changing requirements.</p>
+<p>For example, several products or services will likely share the same benefit. It doesn’t make sense to copy-paste the same benefit to every product that provides it. It’s better to create one instance of the benefit and refer to it from every relevant product. When editors need to change something in the benefit, for example, its icon, editors will update the benefit in one place – and Xperience itself will promote the change to every relevant product.</p>
+<p></p>
+<p>At the same time, editors will not need to recreate the same information across different content items. By adopting the mindset of “<em>build once, reuse everywhere,</em>” you design a model where editors can quickly adjust existing content, reuse it in a new channel, and save time and resources.</p>
+<p></p>
+<h2 id="follow-data-modeling-standards">Follow data modeling standards</h2>
+<p>When it comes to content modeling, it’s always better if you make your decisions based on standards or conventions. Using standards and conventions makes content easier to manage and scale. Especially with e-commerce-specific content types, organizing the data into clear categories and using standard attributes that describe and explain the product help marketers create compelling messages that attract customers. Structured content, like this reusable product type, works well with tools like search engines and marketplaces. Following standards will save you time, help you avoid mistakes, and make systems more accessible for everyone to understand.</p>
+<p>For example, you can find inspiration for content types at <a href="https://schema.org">Schema.org</a>.</p>
+<h2 id="start-with-typical-content-type-fields">Start with typical content-type fields</h2>
+<p>Let’s use the Kbank demo site as an example. Kbank provides financial products or services.<a href="https://schema.org/FinancialProduct" target="_blank">schema.org)</a> contains detailed information on the recommended fields for financial products.</p>
+<p>Each product content type includes essential fields, such as:</p>
+<ul>
+<li>Title</li>
+<li>Slogan or short description</li>
+<li>Associated product image</li>
+<li>Product description.</li>
+</ul>
+<p>At this point, you will likely realize that every semantic content type will contain this field combination. You have two options:</p>
+<ul>
+<li>Create these fields in every content type.</li>
+<li>Leverage <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>, define a collection of core fields, and reuse this core collection in every relevant content type.</li>
+</ul>
+<h3 id="use-reusable-field-schemas-for-core-content-across-content-types">Use reusable field schemas for core content across content types</h3>
+<p><a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">Reusable field schemas</a> allow you to avoid repetitive work.</p>
+<p>Instead of defining similar fields repeatedly for each content type, you create a schema of fields. Each schema defines a set of fields dedicated to a specific use case or scenario. You then add this schema to relevant content types as needed. Xperience reflects your changes to a schema, such as adding or removing, in all linked content types.</p>
+<p></p>
+<p>Creating the <strong>Core Content</strong> collection in the <strong>Product</strong> content type simplifies work for the Kbank team. For editors, it ensures consistency by using the same fields in order across all product and service content types. For developers, it standardizes properties, making it easier to build the presentation layer and saving time in the process. Additionally, the reusable field schema allows developers to create components more efficiently by reducing repetitive tasks.</p>
+<h2 id="make-the-image-reusable">Make the image reusable</h2>
+<p>Good-looking images give your marketing communication proper. Placed strategically, pictures or other visuals can spice up ongoing conversations in your customer’s head.</p>
+<p>Your marketers rarely use images once; in many cases, they’ll want to reuse the visuals and frame the conversation into one visual context.</p>
+<p><strong>Call to action in content</strong></p>
+<p></p>
+<p><strong>Hero banner of a landing page</strong></p>
+<p></p>
+<p><strong>Promotional email</strong></p>
+<p></p>
+<p>Use a dedicated <strong>Asset</strong> content type to store images and visuals. Your team can upload the file once and reuse it anywhere they need. And if they need to update the image, they’ll just do it once - and their update propagates into all channels and places that reference it.</p>
+<p></p>
+
+<div>
+<p>See other benefits you can get when you <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-article">store your assets in a reusable content type</a>.</p>
+</div>
+
+<h2 id="identify-specific-fields-for-financial-services">Identify specific fields for financial services</h2>
+<p>Given the specificity of financial services, your product content type will include additional fields to store specific financial information, such as:</p>
+<ul>
+<li>Annual % Rate</li>
+<li>Interest Rate</li>
+<li>Taxonomy (Currencies)</li>
+<li>Taxonomy (Regional availability).</li>
+</ul>
+<p>These fields are consistent across all financial services on the website and provide a good case for using reusable field schemas.</p>
+<p></p>
+<p>Since every product content type will share these financial fields, it makes sense to define their values through another collection of reusable field schemas.</p>
+<p></p>
+<p>Find out more about <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> in the documentation.</p>
+<h3 id="add-content-type-specific-financial-fields">Add content-type specific financial fields</h3>
+<p>In real-world scenarios, you’ll define several different reusable Product content types. You’ve already seen that you can define reusable field schemas that editors will use to store the same kind of data for each product. At the same time, your solution will contain fields that will be specific per product type. You can use standard content type fields to store the product-specific data.</p>
+<p>For example, the Kbank demo project contains four products - <em>Product - Loan</em>, <em>Product - Account</em>, <em>Product - Insurance</em>, and <em>Product - Card</em>. They each contain dedicated fields that relate only to the specific type, such as the following:</p>
+<p><strong>Product - Card</strong>:</p>
+<ul>
+<li>Maximum borrow amount</li>
+<li>Card floor limit</li>
+<li>Minimum repayment amount (monthly)</li>
+</ul>
+<p><strong>Product - Loan</strong>:</p>
+<ul>
+<li>Maximum loan amount</li>
+<li>Loan duration</li>
+<li>Is the loan renegotiable?</li>
+<li>Loan grace period</li>
+<li>Loan required collateral</li>
+</ul>
+<p>The following image overviews dedicated product-related fields of different reusable products in the Kbank demo site.</p>
+<p></p>
+<h2 id="make-benefits-a-separate-content-type">Make benefits a separate content type</h2>
+<p>In any product promotion, it always helps when you can pinpoint the benefits the product brings to the customer.</p>
+<p></p>
+<p>From a content modeling perspective, the concept of benefits extends beyond the product. In general, your team might want to promote the company by listing what benefits customers get when they start working with you.</p>
+<p></p>
+<p>You can create a Benefit content type to help you communicate product or company benefits.</p>
+<p></p>
+<p>Making the benefits a set of data, among other product data, opens new horizons. You will store specific benefits as an individual item, and then you can reuse them in different products. You can highlight particular benefits when promoting the product or your company across various channels, including the website, headless apps, and emails.</p>
+<p></p>
+<h2 id="make-product-features-reusable">Make product features reusable</h2>
+<p>Product features are little gems of information that, like keys, can unlock a product’s essential aspects in customers’ eyes. If you introduce product features in a way that customers easily understand, they become the secret sauce that makes the product tick.</p>
+<p>Storing features into separate content types has two main benefits. First, you’re <strong>making your content more modular</strong>, thus reusable whenever needed.</p>
+<p></p>
+<p>Secondly, since the feature content type stores data without any presentation information, you can easily show it in any way – for example, as tabular data</p>
+<p></p>
+<p>Well-modeled features will help you describe the product to your audience, whether by comparing features across a range of products, assessing their availability, or even weaving them into price calculators.</p>
+<p></p>
+<h2 id="taxonomy">Taxonomy</h2>
+<p>In Xperience, taxonomies allow editors to organize and categorize content efficiently. Using tags, which can be structured hierarchically, editors can apply multiple taxonomy groups to a single content type, creating a flexible way to manage information.</p>
+<p>For example, the Kbank demo site contains different taxonomy groups. The goal of Products in Kbank is to show how you can use the taxonomy feature and support various scenarios.</p>
+<ul>
+<li>
+<strong>Core</strong> taxonomy: Provides semantic tags to further refine different content types into various topics and categories.</li>
+<li>
+<strong>Currencies</strong> taxonomy: Identifies the currency in which a financial service is available and helps global users understand their options.</li>
+<li>
+<strong>Regional Availability</strong> taxonomy: Specifies the countries where products or services are offered and supports the website’s localization.</li>
+<li>
+<strong>Financial Information</strong> taxonomy: Defines attributes for financial product features, such as eligibility criteria or availability.</li>
+</ul>
+<p>These examples demonstrate how you can approach modeling product-specific taxonomies in Xperience to help editors structure content while maintaining consistency and scalability.</p>
+<p>For example, you can create dedicated content types to model relationships between different product (and other content type) categories and then group them accordingly.</p>
+<p></p>
+<p></p>
+<p>You’ve seen how you can break a complex financial product into a reusable content type, a composite of other content types.</p>
+<p></p>
+
+<div>
+<p>Interested in a different approach? Watch a short video about modeling a slightly different reusable Product content type.</p>
+
+</div>
+
+<h2 id="to-sum-up">To sum up</h2>
+<p>Making your content model modular and composable makes your content future-friendly. You’ve learned about how to design reusable and adaptable content types for financial products. You’ve seen different options for breaking product content into manageable components, using taxonomies strategically, and applying standards to ensure consistency and scalability.</p>
+<p>Now, you’re ready to create compelling content by combining existing reusable content types! Happy content modeling.</p>
+
+</body>
+</html>

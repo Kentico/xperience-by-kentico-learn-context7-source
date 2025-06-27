@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Manage content in Content hub</title>
+</head>
+<body>
+<p>Xperience <strong>Content hub</strong> is an application that comes with every Xperience application. It is a central repository for all your <strong>reusable content</strong>. It stores <a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">structured content</a> without presentation information, which significantly helps with content reuse and content governance over the content’s lifetime.</p>
+<h2 id="adding-content-into-the-content-hub">Adding content into the Content hub</h2>
+<p>When you create a new content item, you’ll input your content in a form-like editing interface. You don’t need to pay attention to what the content will look like on the website and what you need to adjust and tweak to adhere to your brand design guidelines. You can focus on the quality of information your content conveys.</p>
+<p>Your developers ensure that your application correctly presents content across different marketing channels. The following image shows how the structured <em>Featured content</em> looks displayed on the website.</p>
+<p></p>
+<h2 id="filtering-content-in-the-content-hub">Filtering content in the Content hub</h2>
+<p><em>Content hub</em> also comes with filters that help you quickly find the item you are looking for.</p>
+<p></p>
+<h2 id="content-publishing-workflows">Content publishing workflows</h2>
+<p>Each content created in Xperience <em>Content hub</em> or other channels has a <em>content publishing workflow</em>.</p>
+<p><a href="/documentation/developers-and-admins/configuration/workflows">Workflows</a> ensure that no content is published without proper review. Xperience contains a <em>default</em> workflow that runs for every content item. Developers and admins of Xperience projects can use this default workflow or customize it as needed.</p>
+<p><strong>What does the <em>default</em> workflow look like?</strong></p>
+<p>When you create a content item, Xperience puts the item into a <strong>Draft</strong> step. You can add your data, change its design, or reference other existing content. Once you save your changes, the data (and, in the case of <em>pages</em>, also their design) is available for preview in the administration interface. Still, it’s not available to your audience. The content item becomes publicly available only once you <strong>Publish</strong> it.</p>
+<p>You can <em>edit</em> an existing content item to update its content. Editing the content item creates a new version but keeps the original content public. The content version is in the <em>Draft</em> status and becomes publicly available only after you <em>Publish</em> this new version.</p>
+<p>The Kbank demo site contains examples of two custom workflows - <em>Article publishing workflow</em> and <em>Article page publishing workflow</em>. You’ll work with <a href="/guides/digital-marketing/xperience-essentials/manage-website-content-essentials#exercise-1---adding-a-new-article">both workflows</a> in this tutorial.</p>
+<p> <strong>Task</strong></p>
+<h3 id="exercise---adding-structured-content">Exercise - Adding structured content</h3>
+<p>You’ll need the Kbank demo website to follow up on the exercises. If you already haven’t, visit the <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Kentico website</a> and request the <em>Xperience by Kentico – Business Tutorial Kbank demo site</em>. You’ll receive an automated confirmation email. Once you approve the request, we will automatically send you a link to the demo site.</p>
+<p><strong>Download tutorial resources</strong></p>
+<p>You can also download all the resources you’ll need for the tutorial: <a href="https://download.kentico.com/Training/Tutorial+materials/Adding+a+new+article.zip" target="_blank">Business Banking Tutorial materials</a>.</p>
+<p>In this exercise, you’ll see how easy it is to work with items in the <em>Content hub</em> by adjusting an existing page and creating a new segment.</p>
+<p> <strong>Task</strong>:</p>
+<p>Your copywriter asked you to improve the <em>Loans</em> page in the <em>Personal Banking</em> channel by adding a FAQ widget.</p>
+<ol type="1">
+<li>Go to the <strong>Personal Banking</strong> application.</li>
+<li>Select the <em>Loans</em> page in the content tree and switch to the <strong>Page Builder</strong>.</li>
+<li>Select the <strong>Edit page</strong> and create a new version of the page.</li>
+<li>Use the <strong>plus</strong> button on the left side to add a new section below the <em>Kbank loans overview</em>. In the <em>Sections</em> dropdown, pick the <strong>Multi column</strong> section type.</li>
+<li>Use the <strong>plus</strong> button in the middle of the new section to add the <strong>Faq</strong> widget.</li>
+<li>On the widget banner, open the <strong>Configure widget</strong> properties.</li>
+<li>Use the <strong>Select existing</strong> button to add your FAQ items to the widget.
+<ol type="1">
+<li>Switch to the <strong>Personal Banking</strong> workspace using the dropdown selector, select the following items, and confirm with the <strong>Select</strong> button:
+<ol type="1">
+<li>
+<em>Personal loan DON’Ts</em>.</li>
+<li>
+<em>Consolidation loan DON’Ts</em>.</li>
+<li>
+<em>Consolidated loan applicants</em>.</li>
+</ol>
+</li>
+<li>Fill in the <strong>Title</strong>: <em>FAQ</em>.</li>
+<li>
+<strong>Apply</strong> to save the changes.</li>
+</ol>
+</li>
+<li>
+<strong>Save</strong> the changes on the <em>Loans</em> page.</li>
+<li>
+<strong>Publish</strong> the page to see the <em>FAQ</em> element on the live site.</li>
+</ol>
+<h2 id="reusing-content-doesnt-create-content-copies">Reusing content doesn’t create content copies</h2>
+<p>In the exercise above, you’ve used reusable content. From a technical perspective, reusing FAQs doesn’t create a copy of each content item on the backend.</p>
+<p>Xperience created a <em>reference</em> to the original item in the <em>Content hub</em>, and developers ensure the referenced data is displayed correctly. That’s why keeping your content in sync across multiple instances is easy when you store it in the <em>Content hub</em>.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can go to the <strong>Content hub</strong>, switch to <strong>Personal banking</strong> workspace, and search for Personal loan DON’Ts content item. Select the Personal loan DON’Ts content item and switch to the <strong>Usages</strong> tab. When you switch to the <strong>In channels</strong> view on the right-hand side, you’ll see that the item is referenced from the <em>Loans</em> and <em>Personal Loan</em> pages.</p>
+</div>
+
+<h2 id="reusing-content-makes-updating-easier">Reusing content makes updating easier</h2>
+<p>Since reusable content doesn’t contain presentation information, you can easily reuse it in other channels, such as email. When you update the content item in the <em>Content hub</em>, your change is promoted everywhere the content is reused.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Why use structured content?</strong></p>
+<p>Modern marketing teams do not need to recreate or copy-paste the content on their websites.</p>
+<p>They strategically design their content model, <strong>allowing content reusability</strong> and <strong>resurfacing</strong> based on its context or marketer’s needs. When you store your data in a structured format, you can easily <strong>reassemble</strong> it into a different content type, <strong>present</strong> it through a different design, or <strong>repurpose</strong> it in other <a href="https://en.wikipedia.org/wiki/Marketing_channel" target="_blank">marketing channels</a>.</p>
+</div>
+
+<h2 id="next-step">Next step</h2>
+<p>You’ve learned about the <em>Content hub</em> and added reusable content to a website channel. Continue to learn about the website channel and <a href="/guides/digital-marketing/xperience-essentials/manage-website-content-essentials">working with website pages</a>.</p>
+
+</body>
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Display your website content in multiple languages</title>
+</head>
+<body>
+<p>Offering your website content in multiple languages is an important step in reaching a broader audience. To provide a better and more inclusive user experience for your visitors, Xperience by Kentico supports localization and language variants.</p>
+<p>Preparing different language versions of your content is a task for the editors. However, development effort is required to properly set up different language support in your website.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Multilingual content series</strong></p>
+<p><strong>This is the first part of the <a href="/guides/development/multilingual">Set up multilingual</a> mini-series.</strong> Using a simple concrete example, the mini-series demonstrates best practices and necessary steps you need to perform in order to present your website content in multiple languages in a user-friendly way.</p>
+<p>In this section, you will learn:</p>
+<ul>
+<li>the basic terminology related to multilingual support in Xperience by Kentico.</li>
+<li>how to display your home page and cookie consents in two language versions: English and Spanish.</li>
+</ul>
+<p></p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This section focuses on the <strong>developer tasks</strong> of the process, but it also references actions editors will typically take. Feel free to follow those steps as well to see and enjoy the fruits of your effort at the end. 🙂</p>
+</div>
+
+<h2 id="prerequisites">Prerequisites</h2>
+<p>To follow along, you should have the following:</p>
+<ul>
+<li>a running instance of <strong>Xperience by Kentico version 29.6.1 or higher</strong> (for guidance, follow <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico">Install a specific version of Xperience by Kentico</a>)</li>
+<li>
+<strong>a website channel</strong> set up with at least one <strong>page displaying a content item</strong> stored in the content hub (for guidance, follow <a href="/guides/development/developer-kickstart/xperience-by-kentico-overview">our Kickstart series</a>)</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>The main branch of <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">this repository</a> is a good starting point that has all of the above set up. You will find the instructions to run in the README file.</p>
+</div>
+
+<p>Additionally, we assume you have followed <a href="/guides/development/data-protection/create-a-cookie-preferences-widget">Create a cookie preferences widget guide</a> and <a href="/guides/development/data-protection/build-a-tracking-consent-banner">Build a tracking consent banner guide</a> (or implemented your own cookies widget and tracking consent banner in a similar way.) The widget and tracking consent banner you will be working with should look like this:</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>If you prefer to see the finished implementation of multilingual right away, take a look at the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch of our repository</a>. It contains both the cookie widget and tracking consent banner.</p>
+</div>
+
+<h2 id="understand-languages-in-xperience-by-kentico">Understand languages in Xperience by Kentico</h2>
+<p>Before diving in, let’s get familiar with the basic concepts of working with <a href="/documentation/developers-and-admins/configuration/languages">languages in Xperience by Kentico</a>.</p>
+<p>Languages are defined in the administration interface using the <strong>Languages</strong> application.</p>
+<p>When more than one language is defined, <a href="/documentation/business-users/content-hub/content-items#translate-content-items">editors can create <strong>multiple language variants</strong></a> of <a href="/documentation/business-users/website-content">website channel pages</a>, <a href="/documentation/business-users/content-hub">content items</a>, and <a href="/documentation/developers-and-admins/data-protection/consent-management#create-consents">consent texts</a> (one variant per language).</p>
+<p>One language must always be set as a <a href="/documentation/developers-and-admins/configuration/languages#set-up-a-new-language"><strong>default language</strong></a>.</p>
+<p></p>
+<p>For example, if the default language is English, any content items editors create are, by default, English language variants. Editors can create a different language variant by <a href="/documentation/business-users/content-hub/content-items">manually picking a different language</a>.</p>
+
+<div>
+
+</div>
+<div>
+<a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico">A fresh install of Xperience by Kentico boilerplate project</a>, comes with English pre-set as a default language.
+</div>
+
+<p>Each language can be assigned a <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks"><strong>fallback language</strong></a>. If you set up a fallback language and try to retrieve content in a language it is not translated into, the content will come back in the fallback language instead.</p>
+<p>Every <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a> has a <strong>primary language</strong> (typically assigned at the time of channel creation). This is a “default” language for the channel. When a visitor navigates to your website without specifying the language code in the URL (e.g., <em>baseURL/page</em>), they will see the page content in the primary language. Navigating to <em>baseURL/&lt;language_code_name&gt;/page</em> will return the page content in a specific language. We talk more about <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing#multilingual-urls">multilingual URLs</a> in <a href="/guides/development/multilingual/implement-language-selector-for-your-website">the next part of this mini-series</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Multilingual in multichannel setup</strong></p>
+<p>Languages are global and exist above website channels. <strong>All website channels are automatically available in all defined languages</strong>. At this time, there is no way (out of the box) to configure a channel to be available only in a subset of languages.</p>
+<p>This means that you can get in a situation where one is able to retrieve your website pages in a language they are not (and are not meant to be) translated into.</p>
+<p><em>For example, you have three languages defined in your solution: English, Spanish (with a fallback to English), and French (with a fallback to English). Your instance of Xperience contains two website channels, each translated into two language versions:</em></p>
+<ol type="1">
+<li><em>Channel A in English and Spanish</em></li>
+<li><em>Channel B in English and French</em></li>
+</ol>
+<p><em>Even though by design, pages of Channel A are not supposed to be available in French, when you request https://channelA/fr, the system will still return <a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok" target="_blank">200 OK</a> because French exists globally (content will come back in the fallback language, English).</em></p>
+<p>This is a behavior to be mindful of when you work with multichannel and multilingual solutions. The best way of handling it will depend on your implementation, need and preference and is out of the scope of this guide. </p>
+</div>
+
+
+<div>
+<p><strong>Editor’s task (optional): Add Spanish language with a fallback to English</strong></p>
+<p>Log into the administration interface to experience the theory in practice. If you have been working off the main branch of our Training guides repository, the only language in your Xperience instance is English at the moment.</p>
+<ol type="1">
+<li>
+<a href="/documentation/developers-and-admins/configuration/languages#set-up-a-new-language">Follow the documentation</a> to create a new language. Call it <strong>Español</strong>, with language code <strong>es</strong>, do NOT and set the fallback language yet.</li>
+<li>Try to navigate to different pages of your website, adding the code <em>/es</em> to the base URL (e.g., <em>http://localhost:53415/es</em> or <em>http://localhost:53415/es/cookie-policy</em>). The system will return a <a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found" target="_blank">404 Not Found</a> error each time because there is no Spanish version of your content to display.</li>
+<li>Now, go back to <strong>Languages</strong> in the administration interface and set the fallback language to <strong>English.</strong> Notice that you can now see your pages, and the content comes back in the primary language - English.</li>
+</ol>
+</div>
+
+<h2 id="implement-multilingual-support-for-your-site">Implement multilingual support for your site</h2>
+<p>Although creating the language versions of content is a task for editors, as a developer, you must take steps to ensure a consistent experience for your website visitors.</p>
+<h3 id="retrieve-preferred-language">Retrieve preferred language</h3>
+<p>The first important building block is the <strong>preferred language retriever.</strong> Its <code>Get()</code> method returns the language of the request (if defined) or the primary language of the current website channel. You can simply inject <code>IPreferredLanguageRetriever</code> anywhere you need, using dependency injection. For example:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Content.Web.Mvc.Routing;
+
+public class MyClass
+{
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+
+    public MyClass(IPreferredLanguageRetriever preferredLanguageRetriever)
+    {
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+    }
+
+    public string DoThings()
+    {
+        // Retrieve the preferred language
+        var currentLanguage = preferredLanguageRetriever.Get();
+        ...
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The value returned is a <strong>Code name</strong> that has been defined for the language in the Xperience administration interface. </p>
+<p></p>
+</div>
+
+<h3 id="retrieve-localized-content-items">Retrieve localized content items</h3>
+<p>To retrieve a specific language variant of a content item (<a href="/documentation/business-users/website-content">website channel pages</a> or content items stored in <a href="/documentation/business-users/content-hub">content hub</a>), you simply use the <code>InLanguage</code> extension method of <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">ContentItemQueryBuilder</a>, passing it a language <strong>Code name</strong> (see picture above) as a parameter.</p>
+<p>By passing in the <a href="#retrieve-preferred-language">preferred language</a>, you will get your content item(s) in a language variant consistent with your current context.</p>
+<p>Take a look at the place in your code where you call the <code>ContentItemQueryBuilder</code>. If you have been working off <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/main" target="_blank">the main branch of our training guides repository</a> or are following along looking at <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">the finished branch</a>, one example is located in the <em>TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs</em>. </p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageContentItems(
+        string contentTypeName,
+        Func&lt;ContentTypesQueryParameters, ContentTypesQueryParameters&gt; innerQueryFilter,
+        Action&lt;ContentQueryParameters&gt; outerParams,
+        string? languageName = null)
+    {
+        var builder = new ContentItemQueryBuilder()
+                            .ForContentTypes(
+                                config =&gt; innerQueryFilter(config)
+                                .OfContentType(contentTypeName)
+                                .WithWebPageData()
+                            )
+                            .Parameters(outerParams)
+                            .InLanguage(languageName ?? preferredLanguageRetriever.Get());
+
+        var queryExecutorOptions = new ContentQueryExecutionOptions
+        {
+            ForPreview = webSiteChannelContext.IsPreview
+        };
+
+        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
+
+        return pages;
+    }
+...
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Referenced content items</strong></p>
+<p>In case you need to retrieve a deeper structure of content items (e.g., a page that references another content item, which also references another content item), call <code>WithLinkedItems</code> method as a part of your <code>queryFilter</code>.</p>
+<p>Here’s an example calling the <code>RetrieveWebPageContentItem</code> method from above:</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+var pages = await RetrieveWebPageContentItems(
+                contentTypeName,
+                config =&gt; config
+                    .Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), webPageItemId))
+                    .WithLinkedItems(depth));
+...
+
+</code></pre>
+</div>
+</div>
+<p>Because <code>RetrieveWebPageContentItem</code> is using the <code>InLanguage</code> extension method, this call will return the whole structure of content items localized.</p>
+<p>Read more about <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#forcontenttype-parameterization"><code>WithLinkedItems</code> and other methods of <code>ContentItemBuilder.ForContentType</code></a></p>
+</div>
+
+
+<div>
+<p><strong>Editor’s task (optional): Display Home page in Spanish</strong></p>
+<p>Now, if your implementation is correct, your application is able to retrieve and display content items in different languages. You can test this, for example, by creating a new language version of one of your pages in the Xperience administration.</p>
+<ol type="1">
+<li><p>Navigate to <strong>Channels → Training guides pages</strong> and <a href="/documentation/business-users/website-content/translate-pages">translate the Home page into the new language</a>.</p></li>
+<li>
+<p>Remember to <a href="/documentation/business-users/content-hub/content-items#translate-content-items">translate and publish the reusable content item</a> referenced by the Home page (Landing content) as well.</p>
+<ul>
+<li>
+<em>Welcome to Training guides!</em> in Spanish is <em>¡Bienvenidos a las guías de formación!</em>.</li>
+<li>
+<em>Hello world!</em> translates into <em>¡Hola Mundo!</em>.</li>
+</ul>
+</li>
+<li><p>Visit the root of your website and add <em>/es</em> to the end of the URL (e.g., <em>http://localhost:53415/es</em>). You should see your home page content in Spanish, like in the screenshot below.<br>
+</p></li>
+</ol>
+</div>
+
+<h3 id="retrieve-localized-consent-texts">Retrieve localized consent texts</h3>
+<p>Localizing consent texts looks very similar to <a href="#retrieve-localized-content-items">localizing content items</a> - you utilize the <code>IPreferredLanguageRetriever</code>. Simply pass the <strong>preferred language</strong> to the <code>GetConsentTextAsync</code> method as a parameter:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+await consent.GetConsentTextAsync(preferredLanguageRetriever.Get()))
+
+</code></pre>
+</div>
+
+<p>A good example of this in practice is a cookie preferences widget or a tracking consent banner. If you have previously followed our <a href="/guides/development/data-protection/create-a-cookie-preferences-widget">Create a cookie preferences widget</a> and <a href="/guides/development/data-protection/build-a-tracking-consent-banner">Build a tracking consent banner</a> guides, your code likely already handles multilingual situations, but let’s take a closer look.</p>
+<ol type="1">
+<li>
+<p><strong>Cookie preferences widget</strong></p>
+<p>Navigate to <em>CookiePreferencesWidgetViewComponent.cs</em> in <em>TrainingGuides.Web/Features/DataProtection/Widgets/CookiePreferences:</em></p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookiePreferencesWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(CookiePreferencesWidgetProperties properties)
+ {
+     ...
+     return View("~/Features/DataProtection/Widgets/CookiePreferences/CookiePreferencesWidget.cshtml", new CookiePreferencesWidgetViewModel
+     {
+         // In this example Essential header and description are defined in the cookies widget (not as a separate consent in Data protection).
+         // The correct language version will come back together with the page content.
+         EssentialHeader = properties.EssentialHeader,
+         EssentialDescription = properties.EssentialDescription,
+
+         PreferenceHeader = preferenceCookiesConsent.ConsentDisplayName ?? CONSENT_MISSING_HEADER,
+         // Retrieve consent text in preferred language and display its FullText property value as PreferenceDescriptionHtml
+         PreferenceDescriptionHtml = new HtmlString((await preferenceCookiesConsent.GetConsentTextAsync(preferredLanguageRetriever.Get())).FullText) ?? consentMissingDescriptionHtml,
+
+         AnalyticalHeader = analyticalCookiesConsent.ConsentDisplayName ?? CONSENT_MISSING_HEADER,
+         // Retrieve consent text in preferred language and display its FullText property value as  AnalyticalDescriptionHtml
+         AnalyticalDescriptionHtml = new HtmlString((await analyticalCookiesConsent.GetConsentTextAsync(preferredLanguageRetriever.Get())).FullText) ?? consentMissingDescriptionHtml,
+
+         MarketingHeader = marketingCookiesConsent.ConsentDisplayName ?? CONSENT_MISSING_HEADER,
+         // Retrieve consent text in preferred language and display its FullText property value as MarketingDescriptionHtml
+         MarketingDescriptionHtml = new HtmlString((await marketingCookiesConsent.GetConsentTextAsync(preferredLanguageRetriever.Get())).FullText) ?? consentMissingDescriptionHtml,
+
+         ...
+     });
+ }
+ ...
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you are showing the <em>ConsentDisplayName</em> to the visitor (e.g., as a consent header), be advised, that <em>ConsentDisplayName</em> does <strong>not</strong> support multiple language versions at this time. We recommend utilizing stringLocalizer and Shared resources in your .Net project to handle this, as you will see in <a href="#translate-other-application-texts">the next section</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>See <a href="/guides/development/data-protection/create-a-cookie-preferences-widget#WidgetViewComponent">this guide</a> to view the code in context.</p>
+</div>
+</li>
+<li>
+<p><strong>Tracking consent banner</strong></p>
+<p>Navigate to <em>TrackingConsentViewComponent.cs</em> in <em>TrainingGuides.Web/Features/DataProtection/ViewComponents/TrackingConsent:</em></p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrackingConsentViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ public async Task&lt;IViewComponentResult&gt; InvokeAsync()
+ {
+     ...
+
+     if (consents.Count() &gt; 0)
+     {
+         var currentContactInfo = ContactManagementContext.GetCurrentContact(false);
+
+         string text = "&lt;ul&gt;";
+         List&lt;string&gt; codenames = [];
+         bool isAgreed = false;
+         foreach (var consent in consents)
+         {
+             ...
+
+             // When iterating through the list of consents to render a list of short texts:
+             // Retrieve consent text in preferred language and access its ShortText property
+             text += $"&lt;li&gt;{(await consent.GetConsentTextAsync(preferredLanguageRetriever.Get())).ShortText}&lt;/li&gt;";
+
+             ...
+         }
+         text += "&lt;/ul&gt;";
+
+         ...
+         // Displays a view with tracking consent information and actions
+         return View("~/Features/DataProtection/ViewComponents/TrackingConsent/TrackingConsent.cshtml", consentModel);
+     }
+
+     return Content(string.Empty);
+ }
+ ...
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Feel free to look over this code <a href="/guides/development/data-protection/build-a-tracking-consent-banner#BannerViewComponent">in the context of its guide</a>.</p>
+</div>
+</li>
+</ol>
+
+<div>
+<p><strong>Editor’s task (optional): Display cookie texts in Spanish</strong></p>
+<ol type="1">
+<li><p>Navigate to <strong>Data protection</strong> in your Xperience administration interface and follow <a href="/documentation/developers-and-admins/data-protection/consent-management#translate-consents-to-other-languages">the documentation to translate your consent texts</a> into Spanish (Español).</p></li>
+<li><p>Navigate to <strong>Training guides pages</strong> website channel (<strong>Channels → Training guides pages)</strong>, <a href="/documentation/business-users/website-content/translate-pages">translate the Cookie policy page</a>, including the Cookie preferences widget, and publish.</p></li>
+<li><p>Visit the Spanish version of your Cookie policy page by inserting the ‘es’ language code after the base URL (e.g., <em>http://localhost:53415/es/cookie-policy</em>). You should see your translated Cookie preferences banner content.<br>
+</p></li>
+<li>
+<p>Open your site in a new browser incognito window, appending <em>/es</em> to the base URL. You should see your Tracking consent banner, looking similar to the picture below:</p>
+<p></p>
+</li>
+</ol>
+</div>
+
+<h3 id="translate-other-application-texts">Translate other application texts</h3>
+<p>Your application can now display localized consent texts. However, there are still some visitor-facing strings in your application that are not part of content items or consents. For example, the title in the header, the texts in the footer, cookie headers, or the <strong>Configure cookies</strong> link in the Tracking consent banner.</p>
+<p>We recommend utilizing ASP .NET Core <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/make-content-localizable?view=aspnetcore-8.0#istringlocalizer" target="_blank">IStringLocalizer</a> and <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/make-content-localizable?view=aspnetcore-8.0#shared-resources" target="_blank">Shared resources</a> for translating strings like these. If you are following along and working off the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">Training guides repository</a>, you can see the <em>TrainingGuides.Web</em> project already contains a <em>Resources</em> folder with a <em>SharedResources</em> class. Let’s translate your texts into Spanish. Start with the “Training guides” title in the Header view component. </p>
+<ol type="1">
+<li><p>Locate <em>HeaderViewComponent.cs</em> file under <em>TrainingGuides.Web/Features/Header</em>.</p></li>
+<li>
+<p>Inject <em>IStringLocalizer</em> using constructor injection and translate the <code>Heading</code> property as you see in the code below:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>HeaderViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ using Microsoft.AspNetCore.Mvc;
+ using Microsoft.Extensions.Localization;
+
+ namespace TrainingGuides.Web.Features.Header;
+ public class HeaderViewComponent : ViewComponent
+ {
+
+     // Inject the IStringLocalizer passing in the SharedResources type.
+     private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+     public HeaderViewComponent(IStringLocalizer&lt;SharedResources&gt; stringLocalizer)
+     {
+         this.stringLocalizer = stringLocalizer;
+     }
+
+     public IViewComponentResult Invoke()
+     {
+         var model = new HeaderViewModel()
+         {
+             // Localize the "Training guides" string.
+             Heading = stringLocalizer["Training guides"]
+         };
+         return View("~/Features/Header/Header.cshtml", model);
+     }
+ }
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>In the <em>Resources</em> folder, create a <em>SharedResources.es.resx</em> file.</p>
+
+<div>
+
+</div>
+<div>
+<p>It is a good practice to use the two-letter ISO language name, based on <a href="https://www.venea.net/web/culture_code" target="_blank">IETF or one of the ISO-639 standards</a> - “es” for Spanish.</p>
+<p>The example implementation in this series requires the language name to match the <strong>Code name</strong> defined for your language in Xperience administration.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><code>IStringLocalizer</code> doesn’t require storing the default language strings in a resource file. Simply call the localizer on the default strings (like in the code sample above).</p>
+<p>While the older approach of creating <em>SharedResources.resx</em> file and defining a code name for each string is still valid and works, <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/make-content-localizable?view=aspnetcore-8.0#istringlocalizer" target="_blank">Microsoft documentation</a> of the <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/make-content-localizable?view=aspnetcore-8.0#istringlocalizer" target="_blank">IStringLocalizer</a> refers to the newer practice as preferred.</p>
+</div>
+</li>
+<li>
+<p>Add the Spanish translation:</p>
+<ul>
+<li><p>name: <strong>Training guides</strong> (the text in primary language)</p></li>
+<li>
+<p>value: <strong>Guías de formación</strong></p>
+
+<div>
+
+</div>
+<div>
+<p>Visual Studio will allow you to modify the file in a table view. If you use a different editor (e.g., Visual Studio Code), you may have to manually edit the XML inside the file. To add a text translation, add a <code>&lt;data&gt;</code> tag inside the root:</p>
+<div>
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+  &lt;data name="Training guides" xml:space="preserve"&gt;
+      &lt;value&gt;Guías de formación&lt;/value&gt;
+  &lt;/data&gt;
+
+  </code></pre>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</li>
+<li>
+<p>Find other strings in the project that are “hardcoded” in the application, rather than stored in Xperience by Kentico, and repeat the same steps.</p>
+
+<div>
+
+</div>
+<div>
+<p>To localize strings inside views, simply <code>@inject IStringLocalizer&lt;SharedResources&gt; StringLocalizer</code> in the view or in your <em>_ViewImports.cshtml</em> file. Then, you can call StringLocalizer just like in the example above. For instance, <code>@StringLocalizer["Xperience by Kentico training guide samples."]</code> to translate one of the footer texts.</p>
+</div>
+
+<p>Here is a <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/2d03b90663e2853d23895688d25f06fae2719d7d/src/TrainingGuides.Web/Resources/SharedResources.es.resx" target="_blank">link to the full <em>SharedResources.es.resx</em> file in our repository</a>, for your reference. It contains texts from <em>TrainingGuides.Web</em> project translated into Spanish.</p>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>You can see this <code>IStringLocalizer</code> approach applied to the cookie preferences widget and the tracking consent banner in <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">the finished branch of our Training guides repository</a>. We’ll use this approach to make some improvements <a href="/guides/development/multilingual/implement-language-selector-for-your-website">later in this series</a>:</p>
+<ul>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/DataProtection/Widgets/CookiePreferences/CookiePreferencesWidgetViewComponent.cs" target="_blank">Cookie preferences widget</a></li>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/DataProtection/ViewComponents/TrackingConsent/TrackingConsentViewComponent.cs" target="_blank">Tracking consent view component</a></li>
+</ul>
+</div>
+
+<p>Your website visitors can now view individual pages’ content in English (the default language) and Spanish (by typing ‘/es’ after the base URL in the browser navigation bar):</p>
+
+<h2 id="whats-next">What’s next</h2>
+<p>The <a href="/guides/development/multilingual/implement-language-selector-for-your-website">next part of this mini-series</a> explains how to handle navigation between multilingual pages. You will also implement a simple language selector, enabling visitors to switch between languages in a more user-friendly way.</p>
+
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Build a page template</title>
+</head>
+<body>
+<p>We recommend using <a href="/documentation/developers-and-admins/development/builders/page-builder/page-templates-for-page-builder">Page templates</a> to display content in website projects. They enable flexibility in the presentation of a page without developer intervention – you can set up multiple templates for editors to choose from, and include properties that allow them to configure the design.</p>
+<p>Now that we have created a <em>Landing page</em> content type and configured the project, let’s create a simple template to display landing pages. The template will access fields from the reusable <a href="/guides/development/developer-kickstart/create-a-reusable-content-type"><em>Slogan</em></a> item linked by the Landing page. </p>
+<p>In the <em>Kickstart.Web</em> project, create a directory <em>Features</em>, with a subfolder <em>LandingPages</em> for code files relating to landing pages.</p>
+<h2 id="add-a-view-model-class">Add a view model class</h2>
+<p>Let’s start by defining a view model class to hold the data the template should display.</p>
+<p>Add a new class named <em>LandingPageViewModel</em> to the <em>LandingPages</em> folder, with a <code>Message</code> property to represent some text that should be displayed on the page.</p>
+<p>Then add a <code>GetViewModel</code> method that takes a <code>LandingPage</code> as the parameter. It should use the <code>SloganText</code> of the linked <code>Slogan</code> item for the <code>Message</code> property.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LandingPageViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Linq;
+
+namespace Kickstart.Web.Features.LandingPages;
+
+public class LandingPageViewModel
+{
+    public string Message { get; set; } = string.Empty;
+
+    public static LandingPageViewModel GetViewModel(LandingPage landingPage) =&gt;
+        new()
+        {
+            Message = landingPage?.LandingPageSlogan.FirstOrDefault()?.SloganText ?? string.Empty
+        };
+}
+
+</code></pre>
+</div>
+
+<h2 id="define-a-page-template-controller">Define a page template controller</h2>
+<p>Page templates use a <code>ComponentViewModel</code> object as a model by default. This is useful for accessing any page template properties you may have set up, but adds an extra step to accessing content item data.</p>
+<p>Let’s create a controller that allows you to substitute your own <code>LandingPageViewModel</code> instead, so that you can use it directly in the view.</p>
+<h3 id="add-the-class">Add the class</h3>
+<p>Create a new class called <code>LandingPageController</code> in the <em>Features/LandingPages</em> folder of <em>Kickstart.Web</em>.</p>
+<p>Then add an asynchronous <code>Index</code> action for the controller, which returns a <code>TemplateResult</code> object.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LandingPageController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Threading.Tasks;
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Kickstart.Web.Features.LandingPages;
+public class LandingPageController : Controller
+{
+    public async Task&lt;IActionResult&gt; Index()
+    {
+        return new TemplateResult();
+    }
+}
+
+</code></pre>
+</div>
+
+<h3 id="query-the-landing-page">Query the landing page</h3>
+<p>To retrieve the data of a given landing page, you’ll need these key pieces:</p>
+<ol type="1">
+<li>
+<code>IWebPageDataContextRetriever</code> to figure out which <em>Landing page</em> led to the controller.</li>
+<li>
+<code>ContentItemQueryBuilder</code> to define the parameters of the query.</li>
+<li>
+<code>IWebSiteChannelContext</code> to decide which website channel’s pages to pull from and determine whether unpublished content should be retrieved for preview mode.</li>
+<li>
+<code>IPreferredLanguageRetriever</code> to determine which language version of the content you need.</li>
+<li>
+<code>IContentQueryExecutor</code> to retrieve the data and map it to a <code>LandingPage</code> object in code.</li>
+</ol>
+<p>Once you retrieve the landing page data, you can use the <code>GetViewModel</code> method from earlier in this step to create a <code>LandingPageViewModel</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LandingPageController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Linq;
+using System.Threading.Tasks;
+using CMS.ContentEngine;
+using CMS.Websites;
+using CMS.Websites.Routing;
+using Kentico.Content.Web.Mvc;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using Kickstart;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Kickstart.Web.Features.LandingPages;
+
+public class LandingPageController : Controller
+{
+    private readonly IContentQueryExecutor contentQueryExecutor;
+    private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
+    private readonly IWebsiteChannelContext webSiteChannelContext;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+
+    public LandingPageController(
+        IContentQueryExecutor contentQueryExecutor,
+        IWebPageDataContextRetriever webPageDataContextRetriever,
+        IWebsiteChannelContext webSiteChannelContext,
+        IPreferredLanguageRetriever preferredLanguageRetriever)
+    {
+        this.contentQueryExecutor = contentQueryExecutor;
+        this.webPageDataContextRetriever = webPageDataContextRetriever;
+        this.webSiteChannelContext = webSiteChannelContext;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+    }
+
+    public async Task&lt;IActionResult&gt; Index()
+    {
+        var context = webPageDataContextRetriever.Retrieve();
+        var builder = new ContentItemQueryBuilder()
+                            .ForContentType(
+                                LandingPage.CONTENT_TYPE_NAME,
+                                config =&gt; config
+                                    .Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), context.WebPage.WebPageItemID))
+                                    .WithLinkedItems(1)
+                                    .ForWebsite(webSiteChannelContext.WebsiteChannelName)
+                                )
+                            .InLanguage(preferredLanguageRetriever.Get());
+
+        var queryExecutorOptions = new ContentQueryExecutionOptions
+        {
+            ForPreview = webSiteChannelContext.IsPreview
+        };
+
+        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;LandingPage&gt;(builder, queryExecutorOptions);
+
+        var model = LandingPageViewModel.GetViewModel(pages.FirstOrDefault());
+        return new TemplateResult(model);
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Content query API</strong></p>
+<p>Learn more about <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">content query API</a> and best practices for retrieving content items in Xperience by Kentico on our <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">Retrieve content items</a> documentation page.  </p>
+</div>
+
+<h3 id="register-the-controller">Register the controller</h3>
+<p>Now we need to tell Xperience to use this template whenever someone requests a page of the <code>LandingPage</code> type.</p>
+<p>Use the <code>RegisterWebPageRoute</code> assembly attribute to create this association.</p>
+
+<div>
+
+</div>
+<div>
+<p>Thanks to this attribute, the <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">content tree-based router</a> (which you configured in the previous step) knows to use the controller.</p>
+<p>You don’t need to set up any kind of routing table that references the controller.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LandingPageController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+[assembly: RegisterWebPageRoute(
+    contentTypeName: LandingPage.CONTENT_TYPE_NAME,
+    controllerType: typeof(Kickstart.Web.Features.LandingPages.LandingPageController))]
+
+</code></pre>
+</div>
+
+<p>The completed file should look <a href="https://github.com/Kentico/xperience-by-kentico-kickstart/blob/main/src/Kickstart.Web/Features/LandingPages/LandingPageController.cs" target="_blank">like this code</a> in the Kickstart repository.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Refactoring</strong></p>
+<p>The code samples here are meant to demonstrate important principles, but they are not production-ready.</p>
+<p>In real-world scenarios, you will need to retrieve various content items frequently in your project. We recommend extracting content querying functionality into a separate service to make your code more modular and readable, as in <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">in this example</a>.</p>
+<p>Depending on the size and lifetime of projects, you may also want to consider more complex <a href="/guides/development/get-started/use-abstraction-and-enterprise-level-architecture-in-xperience-projects">enterprise architecture</a> with a higher degree of abstraction.</p>
+</div>
+
+<h2 id="add-the-page-template-view">Add the page template view</h2>
+<p>With the view model and controller in place, let’s move on to the view.</p>
+<p>In the <em>Features/LandingPages</em> folder, create an empty Razor view called <em>LandingPagePageTemplate.cshtml</em>.</p>
+<p>Designate the view’s model as <code>TemplateViewModel</code>. Then retrieve the <code>LandingPageViewModel</code> object from the controller by calling <code>Model.GetTemplateModel</code>.</p>
+<p>Finally, display the model’s message and add a Page Builder editable area.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>LandingPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using Kickstart.Web.Features.LandingPages
+
+@model TemplateViewModel
+
+@{
+    var templateModel = Model.GetTemplateModel&lt;LandingPageViewModel&gt;();
+}
+
+&lt;h3&gt;@templateModel.Message&lt;/h3&gt;
+
+&lt;editable-area area-identifier="areaMain" /&gt;
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The <code>TemplateViewModel</code> lives in the <code>Kentico.Content.Web.Mvc.PageBuilder</code> namespace. Notice that we don’t need a <code>using</code> directive here because we added it to <em>_ViewImports.cshtml</em> in the <a href="/guides/development/developer-kickstart/configure-the-project#create-a-viewimports-file">previous step</a>.</p>
+</div>
+
+<h2 id="register-the-page-template">Register the page template</h2>
+<p>Now the landing page template exists in code, but Xperience cannot use it unless you register it.</p>
+<p>In the current state, when execution hits your controller, Xperience will not know which view to use when the <code>Index</code> action returns <code>TemplateResult</code>.</p>
+<p>To fix this, let’s create a new file to represent the template itself.</p>
+<h3 id="set-up-the-template-file">Set up the template file</h3>
+<p>Add a new file to the <em>Kickstart.Web/Features/LandingPages</em> folder named <em>LandingPagePageTemplate.cs</em>.</p>
+<p>Define a class of the same name and add a string constant to represent a unique identifier for the template.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LandingPagePageTemplate.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace Kickstart.Web.Features.LandingPages;
+public static class LandingPagePageTemplate
+{
+    public const string IDENTIFIER = "Kickstart.LandingPagePageTemplate";
+}
+</code></pre>
+</div>
+
+<h3 id="add-the-registration-attribute">Add the registration attribute</h3>
+<p>Now we can use the <code>IDENTIFIER</code> constant to register the page template with the Xperience API.</p>
+<p>Use the <code>RegisterPageTemplate</code> attribute, which takes the following parameters:</p>
+<ul>
+<li>The identifier of the template, which Xperience will use when serializing template data in the database.</li>
+<li>The display name for the template in the admin UI.</li>
+<li>The path to the template’s view file.</li>
+<li>A list of content types that the template supports.</li>
+<li>An icon to represent the template in the admin UI.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>If you don’t provide a list of allowed types, the template is allowed for all web page content types by default.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LandingPagePageTemplate.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+
+using Kickstart;
+using Kickstart.Web.Features.LandingPages;
+
+[assembly: RegisterPageTemplate(
+    identifier: LandingPagePageTemplate.IDENTIFIER,
+    name: "Landing page content type template",
+    customViewName: "~/Features/LandingPages/LandingPagePageTemplate.cshtml",
+    ContentTypeNames = [LandingPage.CONTENT_TYPE_NAME],
+    IconClass = "xp-market")]
+
+namespace Kickstart.Web.Features.LandingPages;
+public static class LandingPagePageTemplate
+{
+    public const string IDENTIFIER = "Kickstart.LandingPagePageTemplate";
+}
+
+</code></pre>
+</div>
+
+<p>Now the system knows that the view from the previous section is a page template. It will be available to any <em>LandingPage</em> pages that are allowed to use page templates.</p>
+
+<div>
+
+</div>
+<div>
+<p>Learn more about the <code>RegisterPageTemplate</code> attribute on <a href="/documentation/developers-and-admins/development/builders/page-builder/page-templates-for-page-builder#register-page-templates">this page of our documentation</a>. </p>
+</div>
+
+<p>In the next step, let’s check your progress by creating a homepage that uses this template.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/apply-a-page-template">Apply a page template</a></p>
+
+</body>
+</html>

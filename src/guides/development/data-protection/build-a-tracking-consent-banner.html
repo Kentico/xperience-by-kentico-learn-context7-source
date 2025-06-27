@@ -1,0 +1,742 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Build a tracking consent banner</title>
+</head>
+<body>
+<p>Many websites offer a simple banner that allows visitors to agree to all tracking. With this kind of banner, visitors don’t need to go to a dedicated cookie policy page to read the full details of each consent and configure their preferences accordingly.</p>
+<p>Here, we will look over the process of creating a banner that allows visitors to consent to all tracking cookies.</p>
+<p></p>
+<p>The banner in this example also ensures that contacts who have revoked consent in a different browser will have tracking cookies removed from their current browser.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <a href="/guides/development/data-protection">earlier guides in the series</a>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>The example presented in this <a href="/guides/development/data-protection">Data protection guide series</a> is a <strong>valid implementation of data protection for <a href="/documentation/business-users/digital-marketing/contact-management">Contacts</a></strong> in Xperience by Kentico. (Note that it does not cover the collection and erasure of <a href="/documentation/business-users/members">Members</a> and their associated data.)</p>
+<p>You can copy-paste the code samples into your own solution.</p>
+<p>However, if you choose to do so, <strong>make sure to consult your legal team</strong> to determine whether the implementation, texts, and consent levels <strong>meet the requirements of your region and market</strong>.</p>
+</div>
+
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="define-the-model">Define the model</h2>
+<p>To start out, consider what kind of data the banner will need to display and create a view model with properties that reflect those needs.</p>
+<p>The content of the banner needs to include the title, the message, a link to configure the cookie level, and text for the accept button. You should also add properties to indicate if the visitor has agreed to any consents or if they have accepted any cookie level in the past.</p>
+<p>Add a new class <code>TrackingConsentViewModel</code> to the <em>~/Features/DataProtection/ViewComponents/TrackingConsent</em> folder in the <em>TrainingGuides.Web</em> project.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrackingConsentViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Html;
+namespace TrainingGuides.Web.Features.DataProtection.ViewComponents.TrackingConsent;
+
+public class TrackingConsentViewModel
+{
+    public bool CookieAccepted { get; set; }
+    public bool IsAgreed { get; set; }
+    public HtmlString CookieHeaderHtml { get; set; } = HtmlString.Empty;
+    public HtmlString CookieMessageHtml { get; set; } = HtmlString.Empty;
+    public string AcceptMessage { get; set; } = string.Empty;
+    public string RedirectUrl { get; set; } = string.Empty;
+    public string ConfigureMessage { get; set; } = string.Empty;
+    public string ConsentMapping { get; set; } = string.Empty;
+    public string BaseUrl { get; set; } = string.Empty;
+}
+
+</code></pre>
+</div>
+
+<h2 id="add-a-view-component">Add a view component</h2>
+<p>This example does not need configurable properties and should be rendered on every page by way of the Layout view. It is well-suited for a view component.</p>
+<p>Looking at the <a href="/documentation/developers-and-admins/data-protection/consent-development">tracking consent view component example</a> from the documentation, the component behaves in the following ways:</p>
+<ul>
+<li><p>It retrieves the consent the user will be presented with.</p></li>
+<li>
+<p>It checks whether the current contact has agreed to that consent, and if not, it ensures that the contact no longer has tracking cookies.</p>
+<ul>
+<li>This covers the scenario of a visitor being identified on two different browsers and revoking consent on one.</li>
+</ul>
+</li>
+<li><p>It puts together a view model with the data that will be displayed on the banner.</p></li>
+</ul>
+<p>This example will follow the same principle but with multiple consents to account for the more granular cookie-level configuration present in the Training guides site.</p>
+<ol type="1">
+<li><p>Under the <em>~/Features/DataProtection/ViewComponents/TrackingConsent</em> folder in <em>TrainingGuides.Web</em>, create a <code>TrackingConsentViewComponent</code><em>.</em></p></li>
+<li><p>Retrieve the relevant consent by pulling the current cookie-level consent mapping and passing the codenames to the consent provider.</p></li>
+<li><p>Check which consent the current contact has agreed to and ensure that their cookies reflect the corresponding level.</p></li>
+<li>
+<p>Assemble a view model with the relevant consent short texts.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Consent data encryption</strong></p>
+<p>As with the <a href="/guides/development/data-protection/create-a-cookie-preferences-widget">cookie preferences widget</a>, the view model needs to hold encrypted data about the consents it renders. This ensures that no consent agreements are created between the contact and the wrong consent, in the event that an editor changes the cookie level mapping after the banner is rendered but before it is submitted.</p>
+<p>This time, however, since the banner always accepts the highest cookie consent level, we only need to include a list of consents, with no need for information about which cookie level they are mapped to.</p>
+</div>
+</li>
+</ol>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrackingConsentViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using CMS.ContactManagement;
+using CMS.DataProtection;
+using CMS.Helpers;
+using CMS.DataEngine;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.Web.Mvc;
+using TrainingGuides.DataProtectionCustomizations;
+using TrainingGuides.Web.Features.DataProtection.Services;
+using TrainingGuides.Web.Features.DataProtection.Shared;
+using TrainingGuides.Web.Features.Shared.Services;
+
+namespace TrainingGuides.Web.Features.DataProtection.ViewComponents.TrackingConsent;
+
+public class TrackingConsentViewComponent : ViewComponent
+{
+    private readonly IConsentAgreementService consentAgreementService;
+    private readonly IInfoProvider&lt;ConsentInfo&gt; consentInfoProvider;
+    private readonly IStringEncryptionService stringEncryptionService;
+    private readonly ICookieAccessor cookieAccessor;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+    private readonly ICookieConsentService cookieConsentService;
+    private readonly IHttpRequestService httpRequestService;
+
+    public TrackingConsentViewComponent(
+        IConsentAgreementService consentAgreementService,
+        IInfoProvider&lt;ConsentInfo&gt; consentInfoProvider,
+        IStringEncryptionService stringEncryptionService,
+        ICookieAccessor cookieAccessor,
+        IPreferredLanguageRetriever preferredLanguageRetriever,
+        ICookieConsentService cookieConsentService,
+        IHttpRequestService httpRequestService)
+    {
+        this.consentAgreementService = consentAgreementService;
+        this.consentInfoProvider = consentInfoProvider;
+        this.stringEncryptionService = stringEncryptionService;
+        this.cookieAccessor = cookieAccessor;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+        this.cookieConsentService = cookieConsentService;
+        this.httpRequestService = httpRequestService;
+    }
+
+    /// &lt;summary&gt;
+    /// Invokes the view component, ensures the correct cookie level based on accepted consents
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;cookie banner view if visitor has not chosen a cookie level, empty if it has already been chosen &lt;/returns&gt;
+    public async Task&lt;IViewComponentResult&gt; InvokeAsync()
+    {
+        var currentMapping = await cookieConsentService.GetCurrentMapping();
+
+        if (currentMapping == null
+            || currentMapping.PreferenceConsentCodeName.Count() == 0
+            || currentMapping.AnalyticalConsentCodeName.Count() == 0
+            || currentMapping.MarketingConsentCodeName.Count() == 0)
+        {
+            return Content(string.Empty);
+        }
+
+        var consents = await consentInfoProvider
+            .Get()
+            .WhereIn("ConsentName", new string[] {
+                currentMapping.PreferenceConsentCodeName.First(),
+                currentMapping.AnalyticalConsentCodeName.First(),
+                currentMapping.MarketingConsentCodeName.First()
+            })
+            .GetEnumerableTypedResultAsync();
+
+        if (consents.Count() &gt; 0)
+        {
+            var currentContactInfo = ContactManagementContext.GetCurrentContact(false);
+
+            string text = "&lt;ul&gt;";
+            List&lt;string&gt; codenames = [];
+            bool isAgreed = false;
+            foreach (var consent in consents)
+            {
+                codenames.Add(consent.ConsentName);
+
+                text += $"&lt;li&gt;{(await consent.GetConsentTextAsync(preferredLanguageRetriever.Get())).ShortText}&lt;/li&gt;";
+
+                //agreed will end up being true if the contact has agreed to at least one consent
+                isAgreed = isAgreed || ((currentContactInfo != null) &amp;&amp; consentAgreementService.IsAgreed(currentContactInfo, consent));
+            }
+            text += "&lt;/ul&gt;";
+
+            string mapping = codenames.Join(Environment.NewLine);
+
+            // Sets the cookie level according to which consents have been accepted
+            // Required for scenarios where one contact uses multiple browsers, in case of revoked consent
+            EnsureCorrectCookieLevel(currentContactInfo, consents, currentMapping);
+
+            var consentModel = new TrackingConsentViewModel
+            {
+                CookieAccepted = ValidationHelper.GetBoolean(cookieAccessor.Get(CookieNames.COOKIE_ACCEPTANCE), false),
+
+                CookieMessageHtml = new HtmlString(text),
+
+                CookieHeaderHtml = new HtmlString("This site uses cookies in the following ways"),
+
+                AcceptMessage = "Accept all cookies",
+
+                // Checks whether the current contact has given an agreement for a cookie level
+                IsAgreed = isAgreed,
+
+                RedirectUrl = "/cookie-policy",
+
+                ConfigureMessage = "Configure cookies",
+
+                ConsentMapping = stringEncryptionService.EncryptString(mapping),
+
+                BaseUrl = httpRequestService.GetBaseUrl()
+            };
+
+            // Displays a view with tracking consent information and actions
+            return View("~/Features/DataProtection/ViewComponents/TrackingConsent/TrackingConsent.cshtml", consentModel);
+        }
+
+        return Content(string.Empty);
+    }
+
+    /// &lt;summary&gt;
+    /// Makes sure that the cookie level of the current visitor matches the consents they are agreed to. This accounts for contacts who revoke consent in one browser then revisit the site in another.
+    /// &lt;/summary&gt;
+    /// &lt;param name="contact"&gt;The contact associated with the visitor&lt;/param&gt;
+    /// &lt;param name="consents"&gt;ConsentInfo objects that are mapped to cookie levels&lt;/param&gt;
+    /// &lt;param name="mapping"&gt;Cookie level consent mapping&lt;/param&gt;
+    /// &lt;returns&gt;true if cookie levels were updated or alredy up-to-date, false if there is an exception&lt;/returns&gt;
+    private bool EnsureCorrectCookieLevel(
+        ContactInfo? contact,
+        IEnumerable&lt;ConsentInfo&gt; consents,
+        CookieLevelConsentMappingInfo mapping)
+    {
+
+        var level = ValidationHelper.GetBoolean(cookieAccessor.Get(CookieNames.COOKIE_ACCEPTANCE), false)
+                ? CookieConsentLevel.Essential
+                : CookieConsentLevel.NotSet;
+        var preferenceConsent = consents
+            .Where(consent =&gt; consent.ConsentName == mapping.PreferenceConsentCodeName.FirstOrDefault())
+            .FirstOrDefault();
+
+        if (contact != null &amp;&amp; preferenceConsent != null &amp;&amp; consentAgreementService.IsAgreed(contact, preferenceConsent))
+        {
+            level = CookieConsentLevel.Preference;
+            var analyticalConsent = consents
+                .Where(consent =&gt; consent.ConsentName == mapping.AnalyticalConsentCodeName.FirstOrDefault())
+                .FirstOrDefault();
+
+            if (contact != null &amp;&amp; analyticalConsent != null &amp;&amp; consentAgreementService.IsAgreed(contact, analyticalConsent))
+            {
+                level = CookieConsentLevel.Analytical;
+                var marketingConsent = consents
+                    .Where(consent =&gt; consent.ConsentName == mapping.MarketingConsentCodeName.FirstOrDefault())
+                    .FirstOrDefault();
+
+                if (contact != null &amp;&amp; marketingConsent != null &amp;&amp; consentAgreementService.IsAgreed(contact, marketingConsent))
+                {
+                    level = CookieConsentLevel.Marketing;
+                }
+            }
+        }
+        return cookieConsentService.UpdateCookieLevels(level);
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Cookie level consistency</strong></p>
+<p>Notice the <code>EnsureCorrectCookieLevel</code> method, which checks the contact’s consents, and changes their cookie level accordingly.</p>
+<p>This is necessary because the same contact can be identified across multiple browsers. If they were to consent to the highest cookie level, then revoke their consent in one browser before visiting the site in a second browser or device, the second browser would still contain tracking cookies based on their previous consent. As a result, your app would directly violate their personal data rights.</p>
+<p>For this reason, this example will indiscriminately invoke the consent banner from the layout view so that this code always executes, regardless of whether or not it displays anything.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Also, note the <code>RedirectUrl</code> property, which sets the URL of the cookie configuration page. It is hard-coded in this example, but you can change it to pull a URL from a specific content item or custom configuration class.</p>
+</div>
+
+<h2 id="make-the-view">Make the view</h2>
+<p>Much like the view for the <a href="/guides/development/data-protection/create-a-cookie-preferences-widget">cookie preferences widget</a>, the view for this component will use an AJAX form with a hidden value containing encrypted consent data. It should post the contents of the AJAX form to a controller action, which will be added in a subsequent step.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>TrackingConsent.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using TrainingGuides.Web.Features.DataProtection.ViewComponents.TrackingConsent;
+
+@model TrackingConsentViewModel
+
+@{
+    var messageId = "BannerMessage";
+}
+
+@* Displays content only if the current contact has not yet given a tracking consent agreement, or chosen only essential cookies. *@
+@if (!Model.IsAgreed &amp;&amp; !Model.CookieAccepted)
+{
+    @using (Html.AjaxBeginForm("CookieBanner", "cookiebannersubmit", new AjaxOptions
+    {
+        HttpMethod = "POST",
+        InsertionMode = InsertionMode.Replace,
+        UpdateTargetId = messageId
+    }, new { action = $"{Model.BaseUrl}/cookies/cookiebannersubmit" }))
+    {
+
+        &lt;div class="xpcookiebanner js-xpcookiebanner is-active"&gt;
+            &lt;input id="ConsentMapping" name="ConsentMapping" type="hidden"  value="@Model.ConsentMapping" /&gt;
+            &lt;div class="xpcookiebanner__inner container"&gt;
+                &lt;h5 class="xpcookiebanner__header"&gt; @Model.CookieHeaderHtml&lt;/h5&gt;
+                @Model.CookieMessageHtml
+                &lt;div class="xpcookiebanner__ctas"&gt;
+                    @if (!string.IsNullOrWhiteSpace(Model.AcceptMessage))
+                    {
+                        &lt;button type="submit" value="4" name="CookieLevelSelected" class="btn tg-btn-primary text-uppercase xpcookiebanner__cta js-close-cookie" data-tracking-code="CookieBar_Accept"&gt;
+                            @Model.AcceptMessage
+                        &lt;/button&gt;
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.RedirectUrl) &amp;&amp; !string.IsNullOrWhiteSpace(Model.ConfigureMessage))
+                    {
+                        &lt;a href="@string.Format("{0}{1}", Model.BaseUrl, Model.RedirectUrl)" class="xpcookiebanner__cta" data-tracking-code="CookieBar_More"&gt;
+                            @Model.ConfigureMessage
+                        &lt;/a&gt;
+                    }
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div id="@messageId" class="xpcookiebanner__message"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    }
+}
+
+</code></pre>
+</div>
+
+<h2 id="expand-the-cookie-consent-service">Expand the Cookie consent service</h2>
+<p>Before you make the controller action to handle the view component’s POST request, expand the <code>CookieConsentService</code> class with some methods that will help handle the POST.</p>
+<p>Since the banner posts a list of consents to accept rather than a full mapping, it requires a new overload of the <code>SetCurrentCookieConsentLevel</code> method, which accepts all consents in the provided list.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieConsentService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+/// &lt;summary&gt;
+/// Sets current cookie consent level, internally sets system CookieLevel and agrees to provided consents.
+/// &lt;/summary&gt;
+/// &lt;param name="level"&gt;Cookie consent level to set&lt;/param&gt;
+/// &lt;param name="acceptAllList"&gt;List of all cookie consents included when the visitor accepts all from the cookie banner&lt;/param&gt;
+/// &lt;exception cref="Exception"&gt;Throws if no cookie level consent mappings are provided&lt;/exception&gt;
+/// &lt;returns&gt;true if the cookie level was updated successfully and all consents in list were successfully agreed&lt;/returns&gt;
+public async Task&lt;bool&gt; SetCurrentCookieConsentLevel(CookieConsentLevel level, IEnumerable&lt;string&gt; acceptAllList)
+{
+    if (acceptAllList == null || acceptAllList.Count() == 0)
+
+        throw new Exception();
+
+    bool cookiesUpToDate = UpdateCookieLevels(level);
+
+    // Get current contact after changes to the cookie level
+    var currentContact = ContactManagementContext.GetCurrentContact();
+
+    bool consentsAllAgreed = await AcceptAllConsents(currentContact, acceptAllList);
+    bool successful = consentsAllAgreed &amp;&amp; cookiesUpToDate;
+
+    if (successful)
+        SetCookieAcceptanceCookie();
+
+    return successful;
+}
+...
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieConsentService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+/// &lt;summary&gt;
+/// Accepts all consents in the provided list for the provided contact
+/// &lt;/summary&gt;
+/// &lt;param name="contact"&gt;The contact who has accepted the consents&lt;/param&gt;
+/// &lt;param name="acceptAllList"&gt;The consents that have been acceepted&lt;/param&gt;
+private async Task&lt;bool&gt; AcceptAllConsents(ContactInfo contact, IEnumerable&lt;string&gt; acceptAllList)
+{
+    bool allConsentsExist = true;
+
+    foreach (string codename in acceptAllList)
+    {
+        var consent = await consentInfoProvider.GetAsync(codename);
+
+        if (consent == null)
+            allConsentsExist = false;
+
+        else if (!consentAgreementService.IsAgreed(contact, consent))
+            consentAgreementService.Agree(contact, consent);
+    }
+
+    return allConsentsExist;
+}
+...
+
+</code></pre>
+</div>
+
+<p>With this new method, everything is in place to create the controller action.</p>
+<h2 id="expand-the-controller">Expand the controller</h2>
+<p>Open <em>~/Features/DataProtection/Controllers/CookiesController.cs</em> in the <em>TrainingGuides.Web</em> project.</p>
+<ol type="1">
+<li>Add an asynchronous action to the controller called <code>CookieBanner</code>.</li>
+<li>Register it under the route specified in the view component’s AJAX form.</li>
+<li>In the <code>CookieBanner</code> controller action, pull the list of consents from the request provided through the hidden input (rather than a dictionary like the <code>CookiePreferences</code> controller action.)</li>
+<li>Return a new success message view if it is successful.</li>
+</ol>
+<p>With both the actions for the cookie banner and the cookie preferences widget, the controller should look like the following.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookiesController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using TrainingGuides.Web.Features.DataProtection.Services;
+using TrainingGuides.Web.Features.DataProtection.Shared;
+using TrainingGuides.Web.Features.DataProtection.Widgets.CookiePreferences;
+
+namespace TrainingGuides.Web.Features.DataProtection.Controllers;
+
+public class CookiesController : Controller
+{
+    private const string COOKIE_UPDATE_MESSAGE = "~/Features/DataProtection/Shared/CookieUpdateMessage.cshtml";
+    private const string COOKIE_UPDATE_MESSAGE_SUCCESS = "Cookie consents have been successfully updated.";
+    private const string COOKIE_UPDATE_MESSAGE_FAILURE = "Unable to update cookie consents. Please try again.";
+
+    private readonly IStringEncryptionService stringEncryptionService;
+    private readonly ICookieConsentService cookieConsentService;
+
+    public CookiesController(
+        IStringEncryptionService stringEncryptionService,
+        ICookieConsentService cookieConsentService)
+    {
+        this.stringEncryptionService = stringEncryptionService;
+        this.cookieConsentService = cookieConsentService;
+    }
+
+    [HttpPost("/cookies/submit")]
+    public async Task&lt;IActionResult&gt; CookiePreferences(CookiePreferencesViewModel requestModel)
+    {
+        IDictionary&lt;int, string&gt; mapping;
+        try
+        {
+            mapping = GetDictionaryMapping(requestModel.ConsentMapping);
+        }
+        catch
+        {
+            return ErrorView();
+        }
+
+        CookieConsentLevel selectedConsentValue;
+        if (requestModel.CookieLevelSelected is &gt; 0 and &lt; 5)
+        {
+            selectedConsentValue = (CookieConsentLevel)requestModel.CookieLevelSelected;
+        }
+        else
+        {
+            return ErrorView();
+        }
+
+        try
+        {
+            if (!await cookieConsentService.SetCurrentCookieConsentLevel(selectedConsentValue, mapping))
+            {
+                throw new Exception();
+            }
+        }
+        catch
+        {
+            return ErrorView();
+        }
+
+        return SuccessView(COOKIE_UPDATE_MESSAGE_SUCCESS);
+    }
+
+
+    [HttpPost("/cookies/cookiebannersubmit")]
+    public async Task&lt;IActionResult&gt; CookieBanner(CookiePreferencesViewModel requestModel)
+    {
+        IEnumerable&lt;string&gt; consents;
+        try
+        {
+            consents = GetConsentsList(requestModel.ConsentMapping);
+        }
+        catch
+        {
+            return ErrorView();
+        }
+
+        try
+        {
+            if (!await cookieConsentService.SetCurrentCookieConsentLevel(CookieConsentLevel.Marketing, consents))
+            {
+                throw new Exception();
+            }
+        }
+        catch
+        {
+            return ErrorView();
+        }
+
+        return SuccessView();
+    }
+
+    /// &lt;summary&gt;
+    /// Gets a dictionary of consent codenames and the cookie levels to which they are mapped from an encrypted string
+    /// &lt;/summary&gt;
+    /// &lt;param name="mappingEncrypted"&gt;The encrypted string representation of the mapping&lt;/param&gt;
+    /// &lt;returns&gt;A dictionary of integer cookie levels and consent codename values&lt;/returns&gt;
+    /// &lt;exception cref="Exception"&gt;Throws if there is no encrypted string, or if the dictionary can't be decrypted and deserialized, or if the mapping does not contain the required cookie level keys&lt;/exception&gt;
+    private IDictionary&lt;int, string&gt; GetDictionaryMapping(string mappingEncrypted)
+    {
+        if (string.IsNullOrEmpty(mappingEncrypted))
+        {
+            throw new Exception("No encrypted string.");
+        }
+
+        Dictionary&lt;int, string&gt; consentMapping;
+
+        try
+        {
+            string mappingDecrypted = stringEncryptionService.DecryptString(mappingEncrypted);
+            consentMapping = JsonConvert.DeserializeObject&lt;Dictionary&lt;int, string&gt;&gt;(mappingDecrypted) ?? [];
+        }
+        catch
+        {
+            throw new Exception("Dictionary can't be decrypted or deserialized.");
+        }
+
+        if (!(consentMapping.ContainsKey((int)CookieConsentLevel.Preference)
+            &amp;&amp; consentMapping.ContainsKey((int)CookieConsentLevel.Analytical)
+            &amp;&amp; consentMapping.ContainsKey((int)CookieConsentLevel.Marketing)))
+        {
+            throw new Exception("Mapping does not contain the required cookie level keys.");
+        }
+
+        return consentMapping;
+    }
+
+    /// &lt;summary&gt;
+    /// Gets a list of consent codenames from an encrypted string
+    /// &lt;/summary&gt;
+    /// &lt;param name="mappingEncrypted"&gt;The encrypted string representation of the consents list&lt;/param&gt;
+    /// &lt;returns&gt;A list of consent codenames&lt;/returns&gt;
+    /// &lt;exception cref="Exception"&gt;Throws if there is no encrypted string, or if no consents are found from decryption&lt;/exception&gt;
+    private IEnumerable&lt;string&gt; GetConsentsList(string mappingEncrypted)
+    {
+        if (string.IsNullOrEmpty(mappingEncrypted))
+        {
+            throw new Exception();
+        }
+
+        string mapping = stringEncryptionService.DecryptString(mappingEncrypted);
+
+        IEnumerable&lt;string&gt; consents = mapping.Split(Environment.NewLine).ToList();
+
+        if (consents.Count() == 0)
+        {
+            throw new Exception();
+        }
+
+        return consents;
+    }
+
+    private IActionResult SuccessView(string message = "") =&gt;
+        PartialView(COOKIE_UPDATE_MESSAGE, new CookieUpdateMessageViewModel(message));
+
+    private IActionResult ErrorView() =&gt;
+        PartialView(COOKIE_UPDATE_MESSAGE, new CookieUpdateMessageViewModel(COOKIE_UPDATE_MESSAGE_FAILURE));
+
+}
+
+</code></pre>
+</div>
+
+<h2 id="invoke-the-component">Invoke the component</h2>
+<p>For the component to appear on the site, it must be invoked.</p>
+<ol type="1">
+<li>Go to <em>~/Views/Shared/_Layout.cshtml</em> in the <em>TrainingGuides.Web</em> project, and add a <code>@using</code> directive for the view component’s namespace.</li>
+<li>Invoke it with a <em>vc</em> tag. (Tag helpers are registered in <em>_ViewImports.cshtml file,</em> in the root of the <em>TrainingGuides.Web</em> project<em>.</em>)</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+@using TrainingGuides.Web.Features.Header
+@using TrainingGuides.Web.Features.DataProtection.ViewComponents.TrackingConsent
+...
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+&lt;body class="t-default"&gt;
+    &lt;div&gt;
+        &lt;vc:header /&gt;       
+        &lt;vc:tracking-consent /&gt;
+...
+
+</code></pre>
+</div>
+
+<p>Now, the cookie banner should appear at the top of the page for any users who have not set a cookie level or agreed to any consents. You can test this by running your Xperience instance a new private or incognito window (assuming one is not already open.)</p>
+<p></p>
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/data-protection/identity-collectors-gather-contacts-associated-with-a-visitor">next parts of this series</a> will cover the process of implementing data collection and erasure.</p>
+
+</body>
+</html>

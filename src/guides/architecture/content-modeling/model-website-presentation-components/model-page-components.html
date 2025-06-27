@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Model page components</title>
+</head>
+<body>
+<p>When defining the content model, teams often forget to pause to identify content types that play crucial roles in their planned customer journeys across different channels.</p>
+<p>In this article, you’ll learn to:</p>
+<ul>
+<li>Align your website’s presentation layer with your content strategy to support marketing goals.</li>
+<li>Define different presentation components to help you display data effectively on your website, drive conversions for specific products, or generate new leads with articles.</li>
+<li>Use page templates, sections, and widgets to create pages and tailor content based on visitors’ previous activities.</li>
+</ul>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>You should have basic knowledge of <a href="/guides/architecture/content-modeling/content-modeling-guide">content modeling principles</a>.</p>
+<h2 id="align-your-presentation-layer-with-your-content-strategy">Align your presentation layer with your content strategy</h2>
+<p>Imagine your website as a stage and the presentation layer as the spotlight. Here’s where you can tailor the customer experience. If you have correctly defined the components, you can guide visitors toward their intended actions by identifying specific areas in this layer.</p>
+
+<div>
+
+</div>
+<div>
+<p>The content model defines a conceptual framework that describes how data elements interact within the system. The content model outlines how editors will capture the data, store it in the system, what are the relationships between the data and retrieval rules to display it to customers. This model ensures clarity and consistency, guiding the organization’s data infrastructure. If you are not familiar with Xperience by Kentico, please find out more about <a href="/guides/architecture/content-modeling/content-modeling-guide">content modeling</a> in our documentation.</p>
+</div>
+
+<p>Know your goals and desired outcomes before defining what components you need to display your content on the website. Without understanding your content strategy, the presentation layer you’ll define for your data will be incomplete.</p>
+<p>Since you have done your content modeling sessions, you already know which types help you build your pages in your website channel.</p>
+<p>We recommend designing website pages as a wrapper over a reusable content type stored in the content hub. The page wrapper or page envelope stores only the data that make sense for website page-specific content, such as SEO data and search engine instructions, like no-index directives.</p>
+
+<table>
+<thead>
+<tr>
+<td>
+<p><strong>Wrapper page</strong></p>
+</td>
+<td>
+<p><strong>Article reusable content type</strong></p>
+</td>
+<td>
+<p><strong>Product content type</strong></p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p></p>
+</td>
+<td>
+<p></p>
+</td>
+<td>
+<p></p>
+</td>
+</tr>
+</table>
+
+
+<div>
+
+</div>
+<div>
+<p>Talking to our customers, we’ve seen a familiar pattern: teams not using or thinking of their content in the omnichannel mode often start with the presentation layer and define typical “pages” you’ll see in your website sitemap. <a href="https://www.nngroup.com/articles/information-architecture-sitemaps/" target="_blank">Information Architecture vs. Sitemaps: What’s the Difference?</a> Missing the data modeling exercise that helps make the content modular, reusable, and future-friendly locks them into old patterns, leading to content duplicity, complex maintenance, and subpar content curation experience.</p>
+</div>
+
+<h2 id="think-of-customer-journey-and-conversions">Think of customer journey and conversions</h2>
+<p>Let’s look at two content types on our Kbank demo sites and see their target goals.</p>
+
+<table>
+<thead>
+<tr>
+<td>
+<p><strong>Article page</strong></p>
+</td>
+<td>
+<p><strong>Product page</strong></p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<ul>
+<li>Drive conversions when promoting a specific product, like a card, or a banking service, like insurance.</li>
+<li>Generate new leads or nurture interest so visitors become leads with articles about small business successes.</li>
+<li>Educate or inspire existing clients with articles that help them pick the right product for their needs.</li>
+<li>Increase brand visibility and credibility.</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Appropriately communicate the product’s value by displaying the correct information about the product.</li>
+<li>Deliver information about the product that resonates with the target audience by using many visual elements leveraging reusable content.</li>
+<li>Target your product persona better with personalized messaging.</li>
+</ul>
+</td>
+</tr>
+</table>
+
+<p>With a little bit of prototyping (and later, by experience), you’ll soon identify website components that will help your team achieve their goals, such as:</p>
+<ul>
+<li>Adding calls to action to guide people through their journey.</li>
+<li>Showing and revealing relevant information depending on the page and circumstance.</li>
+<li>Personalize content.</li>
+</ul>
+<h2 id="define-presentation-components">Define presentation components</h2>
+<p>Kentico comes with a user-friendly interface called Page Builder that allows non-technical users to build pages from configurable page templates, sections, and widgets prepared by the developers. Editors can create pages, each with a different layout, without the help of developers. Using content personalization, they can also tailor the page’s content based on visitors’ previous activities.</p>
+<p><strong>Page templates</strong> define the overall look of the page. Developers build the templates to display content, and editors assign them when they create new or change the layout of existing pages. Editors can also save template configurations into page presets and speed up content creation.</p>
+<ul>
+<li>
+<strong>General purpose page templates</strong> display data stored in <a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">a structured format</a>. Editors input content through <a href="/guides/digital-marketing/xperience-essentials/manage-content-hub-essentials">unified form fields</a> in the admin UI, and the template shows the content dynamically. The website can have multiple templates to display the same content differently, or each template can have specific properties to adjust the page layout. Find out more about <a href="/documentation/business-users/website-content/page-templates">page templates</a> in Kentico documentation.</li>
+<li>
+<strong>Page Builder templates</strong> display data through the Page Builder widgets and provide editors with great layout and design options. Find out more about <a href="/documentation/developers-and-admins/development/builders/page-builder/page-templates-for-page-builder">page templates with Page Builder</a> in the documentation.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Even if the page templates display structured content dynamically, we recommend that developers enable Page Builder.</p>
+</div>
+
+<p><strong>Sections</strong> define the page’s <strong>vertical and horizontal layout</strong> with Page Builder. They determine areas where editors place the content in widget zones. Sections can have properties editors use to define what the sections with widget zones look like, for example, their background and the number of columns where editors input widgets or adjust whitespace around individual content pieces.</p>
+<p><strong>Widgets</strong> are the most granular Page Builder components. Editors use them to add or display content on the page or to add specific functionality. Widgets are reusable, and different pages or website channels can share the same set of widgets. This dramatically helps the editing experience. Your team gets used to how to create pages in one channel, and they can quickly transfer this knowledge when your company decides to introduce other new website channels, for example, campaign microsites.</p>
+<p>Similarly to other Page Builder components, developers prepare widgets to <strong>display reusable content from the Content hub</strong> or <strong>allow editors to create one-off content</strong> for individual pages. Based on the project requirements, each widget can have its properties that editors configure which data to display and what it will look like on the page. Editors can also create personalized variants of the widget’s content to tailor the page experience to specific visitor segments.</p>
+
+<div>
+
+</div>
+<div>
+<p>We recommend that developers build page templates with editable properties editors will use to create their pages. To make their content future-friendly, editors should store it in the structured format and use widgets to display it on the website.</p>
+</div>
+
+<h2 id="identify-individual-page-components">Identify individual page components</h2>
+Let’s take a look at two pages on the Kbank website.
+
+<table>
+<thead>
+<tr>
+<td>
+<p><strong>Article reusable content type</strong></p>
+</td>
+<td>
+<p><strong>Product content type</strong></p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p><strong>Article page template</strong></p>
+</td>
+<td>
+<p><strong>Product page template</strong></p>
+</td>
+</tr>
+<tr>
+<td>
+<p></p>
+</td>
+<td>
+<p></p>
+</td>
+</tr>
+</table>
+
+<h2 id="define-editable-properties-for-individual-components">Define editable properties for individual components</h2>
+<p>Let’s take a look at individual component and their properties. The following list describes individual widgets and their properties, which you can find on the Kbank demo site. It represents one of the options, and you can approach your content creation differently.</p>
+<p>The following section shows different Page Builder components and their configuration options. You can see them in action on the Kbank demo site.</p>
+<h2 id="page-templates">Page templates</h2>
+<p>The page templates in Kbank are tied to a specific content type.</p>
+<p>The <strong>Article page template</strong> displays article data stored as <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-article">reusable content</a> and contains the Page Builder, where editors can further promote their marketing content.</p>
+<p></p>
+<p><strong>Product page template</strong> displays data stored in a <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-product">reusable Product content type</a>. Editors create the page using the template and add widgets to the page. Product-specific widgets contain a special property, and product display data is displayed directly on the page; editors don’t need to make any selections. Editors can speed up their work and create a custom product page preset with the default widget configuration. Preconfigured widgets automatically display the product’s data when they select a reusable product from the Content hub.</p>
+<p></p>
+<h2 id="sections">Sections</h2>
+<p><strong>Multicolumn section</strong> component provides editors with the most configuration options and is the most commonly used section type across the Kbank ecosystem.</p>
+<p></p>
+<p><strong>Articles column section</strong> is optimized to work properly in the Page Builder area in the Article page template. It contains hand-selected widgets tailored to fit the size of the editable area and helps editors effectively continue marketing conversations with website visitors.</p>
+<p></p>
+<p><strong>Form section</strong> and its configuration options ensure that editors add forms the same way across the whole website.</p>
+<p></p>
+<p><strong>Single (or 1-) column section</strong> contains a single property. On the Kbank demo site, you can see that the 1-column section exhibits two behaviors - when placed into the body of the page, editors can pick any widgets. When they place the section at the top of the Product page, <a href="https://community.kentico.com/blog/defining-editable-area-restrictions">restrictions</a> applied to the template (not on the section level) to ensure editors can use only the <em>Banner</em> widget. We’ll discuss recommended practices for sections in a following guide.</p>
+<p></p>
+<p>The restrictions on the top zone allows editors to add only the <em>Hero banner widget</em>.</p>
+<p></p>
+<h2 id="widgets">Widgets</h2>
+<p>The following section shows different configuration options for widgets that you can find on the Kbank demo site. Using these widgets, editors can create website pages using both <a href="/guides/architecture/content-modeling/xperience-content-modeling-basics/differences-between-structured-content-and-page-builder-content">structured content or one-off content</a>. We’ll cover defining widgets and recommended practices in one of the following guides.</p>
+<h3 id="hero-banner-widget">Hero banner widget</h3>
+<p></p>
+<h3 id="faq-widget">FAQ widget</h3>
+<p></p>
+<h3 id="image-widget">Image widget</h3>
+<p></p>
+<h3 id="product-widget">Product widget</h3>
+<p></p>
+<h3 id="page-heading-widget">Page heading widget</h3>
+<p></p>
+
+<div>
+<p>Unlike the previous widgets that allowed also for reusing content, the <strong>Page heading widget</strong> creates one-off content as it stores all the data editors input in the page.</p>
+</div>
+
+<h2 id="ensure-page-components-support-content-personalization">Ensure page components support content personalization</h2>
+<p>Xperience comes with a powerful segmentation tool called contact groups.</p>
+<p>You can break down your audience into segments based on their shared characteristics, such as the same demographic information, like age or location, or interests, for example, consuming the same content on your website. You can then accurately target different contact groups with tailored content on the same page to improve your marketing efforts. Find out more about <a href="/documentation/business-users/digital-marketing/contact-groups">contact groups</a> in the documentation.</p>
+<p>Not all widgets have to support content personalization. Save time and implementation costs, look into your customer journey and the touch-points you want to define on your website and define only the necessary content components that support content personalization in the project requirements.</p>
+<h2 id="simplify-content-creation-to-help-your-marketing-team">Simplify content creation to help your marketing team</h2>
+<p>The way you break down editing experience page components needs to fit your team’s experience.</p>
+<ol type="1">
+<li>
+<strong>Leverage Your Expertise</strong>: Draw upon your team’s experience and help developers and business analysts define the components. Your team insights are invaluable in shaping practical page components - and representatives (or stakeholders) from content editing must be part of the content modeling sessions.</li>
+<li>
+<strong>Validate Continuously</strong>: Regularly assess and validate your chosen components and approach. Every developer working on the presentation layer should try creating several pages before inviting editors. Gather the feedback from test sessions and implement changes to optimize every component.</li>
+<li>
+<strong>Prioritize Best Practices</strong>: Every page should be built with a page template so that editors can save their preferred configuration. Follow this principle. At the same time, apply your knowledge of responsive design to ensure page templates work correctly and set up restrictions on components to ensure the page’s accessibility. Add explanations and instructions to help editors quickly understand what each property serves and what data is expected of them. (See the green explanations in screenshots above.)</li>
+<li>
+<strong>Iterate Thoughtfully</strong>: Defining the presentation model (as well as the whole content modeling) is an iterative process. Refine and enhance templates and other Page Builder components based on real-world usage and user needs.</li>
+</ol>
+<h2 id="page-components-in-a-nutshell">Page components in a nutshell</h2>
+<p>Align the presentation layer with your content strategy to help editors tailor the customer experience and guide them toward their intended actions. When you understand your marketing goals and know what common data types you’ll be working with, you can define the components your team will use to effectively display the content on the website channels.</p>
+<p>The Kentico’s Page Builder will help your team create dynamic, personalized pages that resonate with your target audience. At the same time, your content will be stored in a way that makes reuse and content curation easier.</p>
+<p>Ensure your page components support content personalization, and regularly validate if all the page components and how editors use them follow Xperience by Kentico best practices. Ultimately, your editors aim to create an engaging user experience that drives conversions and nurtures leads.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>In the following guide in this series, you’ll dive deeper into thinking about <a href="/guides/architecture/content-modeling/model-website-presentation-components/model-page-builder-sections">sections</a>. Besides diving into different options for section properties, you’ll learn some recommended practices and things to consider when modeling sections.</p>
+<p><a href="/guides/architecture/content-modeling/model-website-presentation-components/model-page-builder-sections">Continue to the next guide</a></p>
+
+</body>
+</html>

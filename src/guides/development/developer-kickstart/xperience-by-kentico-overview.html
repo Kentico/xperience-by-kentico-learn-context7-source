@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Overview</title>
+</head>
+<body>
+<p>Welcome to a kickstart of the Xperience by Kentico development!</p>
+<p>Throughout this series, we’ll create and configure a simple website fully managed by Xperience by Kentico.</p>
+<p>Using the MVC design pattern, you’ll build logic that displays pages managed by Xperience and a simple navigation menu. You will learn how to work with your site content (e.q., articles, products, etc.) - modeling it with <strong>content types</strong>, storing it in <strong>content items</strong>, and making it <strong>reusable</strong>.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>We designed the steps to help you develop an Xperience website from scratch. You can find the complete implementation in <a href="https://github.com/Kentico/xperience-by-kentico-kickstart" target="_blank">this repository</a>.</p>
+</div>
+
+<h2 id="requirements">Requirements</h2>
+<p>To follow along with this series, we recommend your machine has the following installed:</p>
+<ul>
+<li><p><a href="https://dotnet.microsoft.com/en-us/download/dotnet/8.0" target="_blank">.NET 8.0</a></p></li>
+<li>
+<p>Microsoft SQL Server 2022 (or compatible version, such as the free <a href="https://www.microsoft.com/en-us/download/details.aspx?id=104781" target="_blank">SQL Server Express Edition</a>)</p>
+
+<div>
+
+</div>
+<div>
+The <strong><a href="https://docs.microsoft.com/en-us/sql/relational-databases/collations/collation-and-unicode-support" target="_blank">collation</a></strong> set for the SQL server <strong>must be case-insensitive</strong>.
+</div>
+</li>
+<li><p>an <strong>IDE</strong> that supports ASP.NET Core development, such as <a href="https://visualstudio.microsoft.com/" target="_blank">Visual Studio</a> or <a href="https://code.visualstudio.com/" target="_blank">Visual Studio Code</a></p></li>
+</ul>
+<h3 id="before-you-start">Before you start</h3>
+<p>These materials assume you are familiar with the ASP.NET Core and C# development concepts, and have access to standard development tools.</p>
+<p>We do not aim to teach you the general development principles but to introduce how website development works in Xperience.</p>
+
+<div>
+
+</div>
+<div>
+<p>Use these free resources to quickly get on board with the <a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/start-mvc?tabs=visual-studio" target="_blank">ASP.NET Core MVC development</a> and <a href="https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12" target="_blank">C# syntax nuances</a>.</p>
+<p>While we won’t fully leverage the MVC architectural pattern, you’ll find it beneficial to know the concepts behind the approach to understand how certain Xperience features work.</p>
+</div>
+
+<h2 id="development-model-of-xperience-by-kentico">Development model of Xperience by Kentico</h2>
+<p>Xperience projects are <a href="http://asp.net/" target="_blank">ASP.NET</a> Core applications with two main components:</p>
+<ul>
+<li>
+<strong>Live site</strong> displays content managed by Xperience to your visitors. It retrieves the content using the Xperience API, integrated into the application via <a href="/documentation/developers-and-admins/development/website-development-basics/configure-new-projects/xperience-by-kentico-nuget-packages">Xperience NuGet packages</a>.</li>
+<li>
+<strong>Xperience administration</strong> provides a user interface to edit and manage content, and to configure various system features.</li>
+</ul>
+<p>The following diagram summarizes the general roles of the main personas that interact with an Xperience site – Xperience users, developers, and website visitors:</p>
+<p></p>
+<h2 id="xperience-administration">Xperience administration</h2>
+<p>The administration interface allows editors to <strong>manage their project’s content</strong>.</p>
+<p>The <a href="/documentation/business-users/content-hub"><strong>Content hub</strong></a> application is where users manage reusable content items (structured content), which they can reference in various channels.</p>
+<p>A <strong>website channel</strong> represents a site in the administration UI. Each website channel has its own application. Editors create pages and organize them in a content tree. They can add and modify content, use the <a href="/documentation/developers-and-admins/development/builders/page-builder"><strong>Page Builder</strong></a> and workflow features, and preview changes before publishing their content live.</p>
+<p>Your role as a developer is to <strong>design the content structure</strong> for editors to work with based on customer business requirements. You can also create custom Page Builder components and UI controls or add new administration interface functionality.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>All code samples you will see throughout the series come from our <a href="https://github.com/Kentico/xperience-by-kentico-kickstart" target="_blank">Kickstart repository</a>, where you can find the complete implementation of the simple website from this Kickstart series.</p>
+</div>
+
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/set-up-an-xperience-by-kentico-project">Set up an Xperience by Kentico project</a></p>
+
+</body>
+</html>

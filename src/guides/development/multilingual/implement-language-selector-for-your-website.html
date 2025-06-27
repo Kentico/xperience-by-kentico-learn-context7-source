@@ -1,0 +1,688 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Implement a language selector for your website</title>
+</head>
+<body>
+<p>Offering your content to visitors in multiple languages is an important step in reaching a broader audience.</p>
+<p>If you followed the first part of the <strong>Multilingual content</strong> mini-series, your website can now display content in multiple languages, and it’s time to make switching between those languages seamless for your visitors.</p>
+<p>In the second part of the series, you’ll enhance the user experience by handling multilingual URLs and implementing a simple language selector that ties it all together.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Multilingual content series</strong></p>
+<p><strong>This is the second and last part of the <a href="/guides/development/multilingual">Set up multilingual</a> mini-series.</strong> Using a concrete example, the mini-series demonstrates best practices and necessary steps you need to perform in order to present your website content in multiple languages in a user-friendly way.</p>
+<p>If you have followed along with <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages">the previous part of the series</a>, you now:</p>
+<ul>
+<li>understand the basic terminology related to multilingual support in Xperience by Kentico.</li>
+<li>have your home page and cookie consents in two language versions: English and Spanish.</li>
+</ul>
+<p>Continue with this series and learn how to handle navigating and working with URLs for multilingual pages. To tie everything together, you will implement a simple language selector control for the visitor, similar to the gif below:</p>
+<p></p>
+</div>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<div>
+This article is a direct continuation of <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages">the first part</a> in this mini-series. However, it is not mandatory that you have completed it, as long as you are familiar with the concepts mentioned above.
+</div>
+
+<p>To follow along, you should have the following:</p>
+<ul>
+<li>running instance of <strong>Xperience by Kentico version 29.6.1 or higher</strong> (for guidance, follow <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico">Install a specific version of Xperience by Kentico</a>)</li>
+<li>
+<strong>a website channel</strong> set up with at least one page displaying a content item stored in the content hub (for guidance, follow <a href="/guides/development/developer-kickstart/xperience-by-kentico-overview">our Kickstart series</a>)</li>
+<li>
+<strong>content items and pages existing in at least two different languages</strong> (this first part of the Multilingual series uses <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages">English and Spanish as an example</a>)</li>
+<li>some version of <strong>routing implemented</strong> in your application (a link navigating from one page to another is sufficient)</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Alternatively, feel free to take a look at the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch of our Training guides repository</a> to see the completed implementation of both multilingual URL handling and a language selector. All the code samples below are sourced from the repository.</p>
+</div>
+
+<h2 id="handle-urls-and-routing">Handle URLs and routing</h2>
+<p>Setting up multiple languages in Xperience by Kentico affects URL generation for web pages. For any non-primary language, <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing#multilingual-urls">the URL has to contain the language code</a> (e.g., <em>~/es/page</em>).</p>
+<p>As a developer, you must ensure the links across your site work properly, preserving the language context, as visitors navigate your site.</p>
+<p>If you have followed along with the <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages">first part of this mini-series</a> or are running the app from the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch in our repository</a>, your site contains a <em>Tracking consent banner</em> and a <em>Cookie policy page</em> that look similar to the screenshot below:</p>
+<p></p>
+<p>Let’s look at an example of routing on the <a href="/guides/development/data-protection/build-a-tracking-consent-banner">banner</a>. It includes a <strong>Configure cookies</strong> link. This link is supposed to navigate the visitor to the <em>Cookie policy page</em> so they can set their preferences with more granularity. However, right now, it always navigates the visitor to the <em>Cookie policy page</em> in the <strong>primary language</strong>, regardless of previous context. Navigate to the <em>TrackingConsent.cshtml</em> file to find out why:</p>
+<p>In the <em>TrackingConsent</em> view, the <em>Configure cookies</em> anchor tag points to a URL composed of <code>BaseUrl</code> and the relative <code>RedirectUrl</code>.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>TrackingConsent.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+&lt;a href="@string.Format("{0}{1}", Model.BaseUrl, Model.RedirectUrl)" class="xpcookiebanner__cta" data-tracking-code="CookieBar_More"&gt;
+    @Model.ConfigureMessage
+&lt;/a&gt;
+...
+
+</code></pre>
+</div>
+
+<p>Look inside the <em>TrackingConsentViewComponent.cs</em> and notice that the <code>BaseUrl</code> property is populated by the <code>GetBaseUrl</code> method of <code>HttpRequestService</code>. This is a problem, as the <code>GetBaseUrl</code> method returns the site’s base URL <strong>without a language codename</strong>.</p>
+<p>You need to define a new method that will consider the current request’s language and add relevant language code to the base URL.</p>
+<p>To handle <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing#preserving-thread-language-across-routing-modes">preserving language thread in routing</a>, Xperience by Kentico provides an option to define a <strong>custom language name key</strong> in the <a href="https://learn.microsoft.com/en-us/dotnet/api/system.web.routing.routevaluedictionary" target="_blank">RouteValueDictionary</a> object of the request:</p>
+<ol type="1">
+<li>
+<p>Define a new constant in <em>TrainingGuides.Web/Features/Shared/Helpers/ApplicationConstants.cs</em>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ApplicationConstants.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ namespace TrainingGuides.Web.Features.Shared.Helpers;
+
+ internal static class ApplicationConstants
+ {
+     public const string LANGUAGE_KEY = "language";
+ }
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>In your Program.cs file, locate the <code>UseWebPageRouting</code> method call that <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/enable-content-tree-based-routing">enables content tree-based routing</a>. Pass in your custom language key:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ builder.Services.AddKentico(async features =&gt;
+ {
+     ...
+     // Pass in the constant as a custom LanguageNameRouteValuesKey using WebPageRoutingOptions object.
+     features.UseWebPageRouting(new WebPageRoutingOptions {
+         LanguageNameRouteValuesKey = ApplicationConstants.LANGUAGE_KEY
+     });
+ });
+ ...
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>A custom language code name in the request can come in handy in several scenarios. In the next step of this section, we utilize it to manually extract the language from the request URL.</p>
+<p>Another example would be invoking a custom action from the context of the page served by the router.</p>
+<p><a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing#preserving-thread-language-across-routing-modes">Read more about LanguageNameRouteValuesKey and its usage in our documentation</a>.</p>
+</div>
+</li>
+<li><p>Add a new <code>GetBaseUrlWithLanguage</code> public method declaration into the <em>IHttpRequestService</em> interface (in <em>TrainingGuides.Web/Features/Shared/Services</em>).</p></li>
+<li>
+<p>Implement the <code>GetBaseUrlWithLanguage</code> method in the <em>HttpRequestService</em> class:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>HttpRequestService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ private HttpRequest RetrieveCurrentRequest() =&gt; httpContextAccessor?.HttpContext?.Request
+         ?? throw new NullReferenceException("Unable to retrieve current request context.");
+ ...
+ /// &lt;summary&gt;
+ /// Retrieves Base URL from the current request context. If current site is in a language variant, returns language with the base URL as well
+ /// &lt;/summary&gt;
+ /// &lt;returns&gt;The base URL in current language variant. (e.g. website.com or website.com/es)&lt;/returns&gt;
+ public string GetBaseUrlWithLanguage()
+ {
+     // Use httpContextAccessor (already injected in the Service using DI) to access current request context.
+     var currentRequest = RetrieveCurrentRequest();
+
+     //Access the language of the request using the LANGUAGE_KEY constant defined in steps 1. and 2.
+     string language = (string?)currentRequest.RouteValues[ApplicationConstants.LANGUAGE_KEY] ?? string.Empty;
+
+     // Parse the current request URL to find out if it contains the language code.
+     // No language code in the URL means the request language is the primary language.
+     var webPageUrlPathList = ((string?)currentRequest.RouteValues[WEB_PAGE_URL_PATHS])?.Split('/').ToList() ?? [];
+     bool notPrimaryLanguage = webPageUrlPathList.Contains(language);
+
+     // Call existing private GetBaseUrl method to get the base URL.
+     // If the language of the current request is not primary, add language code to the URL.
+     var url = new UriBuilder(GetBaseUrl(currentRequest))
+     {
+         Path = notPrimaryLanguage
+             ? $"/{language}"
+             : string.Empty
+     };
+
+     return url.ToString();
+ } 
+ ...
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Notice that our example appends the language to the base URL only when it does not equal the primary language.</p>
+<p>If you navigate to a URL with a language code of the primary language, the system will NOT redirect you to a URL without a language code. Instead, it returns an <a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found" target="_blank">HTTP 404 (Not found)</a> error.</p>
+<p>For example, if the primary language of your channel is English, <em>http://localhost:53415/en/page</em> will return <a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-404-not-found" target="_blank">HTTP 404</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The <code>GetBaseUrlWithLanguage</code> method in this code sample depends on <code>Kentico.WebPageUrlPaths</code> in the route values, and may not work outside the context of Xperience’s <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">Content tree-based router</a>.</p>
+<p>You can find an example of an overload that operates outside this context in the <a href="/guides/development/members/implement-member-registration#assemble-a-url-for-the-form">member registration widget guide</a>.</p>
+</div>
+</li>
+<li>
+<p>Now, let’s propagate a new property to the view.<br>
+Navigate to the <em>~/Features/DataProtection/ViewComponents/TrackingConsent</em> folder and add a new <code>BaseUrlWithLanguage</code> property into <code>TrackingConsentViewModel</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrackingConsentViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ using Microsoft.AspNetCore.Html;
+ namespace TrainingGuides.Web.Features.DataProtection.ViewComponents.TrackingConsent;
+
+ public class TrackingConsentViewModel
+ {
+     public bool CookieAccepted { get; set; }
+     public bool IsAgreed { get; set; }
+     public HtmlString CookieHeaderHtml { get; set; } = HtmlString.Empty;
+     public HtmlString CookieMessageHtml { get; set; } = HtmlString.Empty;
+     public string AcceptMessage { get; set; } = string.Empty;
+     public string RedirectUrl { get; set; } = string.Empty;
+     public string ConfigureMessage { get; set; } = string.Empty;
+     public string ConsentMapping { get; set; } = string.Empty;
+     public string BaseUrl { get; set; } = string.Empty;
+     // new property to hold base URL plus language, if applicable
+     public string BaseUrlWithLanguage { get; set; } = string.Empty;
+ }
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Keep the original <code>BaseUrl</code> property. The Tracking consent banner still needs this one to POST to the <code>cookiebannersubmit</code> endpoint when the visitor clicks the submit button.</p>
+</div>
+</li>
+<li>
+<p>Populate <code>BaseUrlWithLanguage</code> in the <em>TrackingConsentViewComponent</em>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrackingConsentViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ public async Task&lt;IViewComponentResult&gt; InvokeAsync()
+ {
+     ...
+     if (consents.Count() &gt; 0)
+     {
+         ...
+         var consentModel = new TrackingConsentViewModel
+         {
+             ...
+             BaseUrl = httpRequestService.GetBaseUrl(),
+
+             // Populate new property to hold base URL with language (if applicable).
+             BaseUrlWithLanguage = httpRequestService.GetBaseUrlWithLanguage()
+         };
+
+         // Display a view with tracking consent information and actions
+         return View("~/Features/DataProtection/ViewComponents/TrackingConsent/TrackingConsent.cshtml", consentModel);
+     }
+     return Content(string.Empty);
+ }
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Finally, change the property used to populate the link in the <em>TrackingConsent</em> view from <code>Model.BaseUrl</code> to <code>Model.BaseUrlWithLanguage</code>.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>TrackingConsent.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ &lt;a href="@string.Format("{0}{1}", Model.BaseUrlWithLanguage, Model.RedirectUrl)" class="xpcookiebanner__cta" data-tracking-code="CookieBar_More"&gt;
+     @Model.ConfigureMessage
+ &lt;/a&gt;
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Build and run your solution. When visitors click the <strong>Configure cookies</strong> link, they stay within the context of the current language.</p>
+<p></p>
+</li>
+</ol>
+<h2 id="add-a-language-selector">Add a language selector</h2>
+<p>If you followed along up to this point, your site visitors are now able to view and navigate your content in two different languages.</p>
+<p>The last step is to tie everything together and allow the visitor to switch languages using a simple UI control (instead of changing the URL in the browser navigation bar).</p>
+<p></p>
+<p>Because advanced styling and UI appearance are out of the scope of this series, let’s just use a simple Bootstrap dropdown select control:</p>
+<ul>
+<li>The control will display the name of the current selected language (preferred language by default).</li>
+<li>After the visitor opens the dropdown, it will show a list of available languages to choose from (all languages defined in the Xperience by Kentico instance).</li>
+<li>When the visitor selects a language, the webpage will reload the current page to show its content in the selected language.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>The main branch of our <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">Training guides repository</a> already includes Bootstrap. If your project does not have it, add a reference to your <em>_Layout.cshtml</em> file. You can point to an <a href="https://getbootstrap.com/docs/5.3/getting-started/download/" target="_blank">online resource or store it locally</a>.</p>
+<div>
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+&lt;page-builder-scripts/&gt;
+
+&lt;!-- add bootstrap --&gt;
+&lt;script src="~/assets/bootstrap/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;  
+...
+</code></pre>
+</div>
+</div>
+</div>
+
+<h3 id="create-a-language-dropdown-view-component">Create a Language dropdown view component</h3>
+<ol type="1">
+<li><p>Create and navigate to a new <em>TrainingGuides.Web/Features/Languages</em> folder.</p></li>
+<li>
+<p>Define the View model as follows:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LanguageDropdownViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ namespace TrainingGuides.Web.Features.Languages;
+
+ // Represents an item in the list of languages to select from (e.g., Spanish)
+ public class LanguageViewModel
+ {
+     // Language name the visitor will see, e.g., Español
+     public string DisplayName { get; set; } = string.Empty;
+     // URL of the current page, including the language code (e.g., http://localhost:1234/es/cookie-policy)
+     public string CurrentPageUrl { get; set; } = string.Empty;
+ }
+
+ // View model for the dropdown select control
+ public class LanguageDropdownViewModel
+ {
+     // List of available languages stored as key-value pairs.
+     // Key = string two-letter language code (e.g., es)
+     // Value = instance of LanguageViewModel
+     public Dictionary&lt;string, LanguageViewModel&gt; AvailableLanguages { get; set; } = [];
+     // The two-letter language code of selected language (e.g., es)
+     public string SelectedLanguage { get; set; } = string.Empty;
+ }
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Define the View:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>LanguageDropdown.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ @using TrainingGuides.Web.Features.Languages
+
+ @model LanguageDropdownViewModel
+
+ &lt;div class="dropdown"&gt;
+     &lt;button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false"&gt;
+         &lt;!-- Render the selected language display name in the main button --&gt;
+         @Model.AvailableLanguages[Model.SelectedLanguage].DisplayName
+     &lt;/button&gt;
+     &lt;!-- dynamically create a menu of available languages for visitor to choose from --&gt;
+     &lt;ul class="dropdown-menu" aria-labelledby="dropdownMenuButton"&gt;
+         @foreach (KeyValuePair&lt;string, LanguageViewModel&gt; language in Model.AvailableLanguages)
+         {
+             &lt;!-- Each menu item contains a language-specific link to the current page. --&gt;
+             &lt;!-- On click, the page content will reload in the selected language. --&gt;
+             &lt;li&gt;&lt;a class="dropdown-item" href="@language.Value.CurrentPageUrl"&gt;@language.Value.DisplayName&lt;/a&gt;&lt;/li&gt;
+         }
+     &lt;/ul&gt;
+ &lt;/div&gt;
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Create a method that generates a language-specific URL of the current page.</p>
+<ol type="a">
+<li>Implement a new public method <code>GetCurrentPageUrlForLanguage</code> in <em>HttpRequestService.cs</em> in <em>TrainingGuides.Web/Features/Shared/Services)</em>. Remember also to add a declaration in IHttpRequestService.</li>
+</ol>
+<p>The method will utilize two new services you need to inject using dependency injection:</p>
+<ul>
+<li><p><a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing#implement-routing"><code>IWebPageDataContextRetriever</code></a> (to retrieve data about the current page)</p></li>
+<li>
+<p><a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content/retrieve-page-urls"><code>IWebPageUrlRetriever</code></a> (to generate a language-specific URL of a page).</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>HttpRequestService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+  ...
+  public class HttpRequestService : IHttpRequestService
+  {
+      private readonly IHttpContextAccessor httpContextAccessor;
+      private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
+      private readonly IWebPageUrlRetriever webPageUrlRetriever;
+
+      public HttpRequestService(IHttpContextAccessor httpContextAccessor,
+      IWebPageDataContextRetriever webPageDataContextRetriever,
+      IWebPageUrlRetriever webPageUrlRetriever)
+      {
+          this.httpContextAccessor = httpContextAccessor;
+          this.webPageDataContextRetriever = webPageDataContextRetriever;
+          this.webPageUrlRetriever = webPageUrlRetriever;
+      }
+      ...
+
+      /// &lt;summary&gt;
+      /// Retrieves URL of the currently displayed page for a specific language
+      /// &lt;/summary&gt;
+      /// &lt;param&gt;two-letter language code (e.g., "es" for Spanish, "en" for English)&lt;/param&gt;
+      /// &lt;returns&gt;Language specific URL of the current page (e.g. website.com/es/page)&lt;/returns&gt;
+      public async Task&lt;string&gt; GetCurrentPageUrlForLanguage(string language)
+      {
+          var currentPage = webPageDataContextRetriever.Retrieve().WebPage;
+          var url = await webPageUrlRetriever.Retrieve(currentPage.WebPageItemID, language);
+          return url.RelativePath;
+      }
+  }
+
+  </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The code samples in this series rely on a <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/TrainingGuidesWebPageUrlRetriever.cs" target="_blank">decorated version</a> of <code>IWebPageUrlRetriever</code> that includes exception handling.</p>
+If you do not plan to use a similar customization, make sure to handle errors that the <code>Retrieve</code> method may throw when it cannot find a page.
+</div>
+</li>
+</ul>
+</li>
+<li>
+<p>Define the logic in ViewComponent.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LanguageDropdownViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ using Microsoft.AspNetCore.Mvc;
+ using CMS.ContentEngine;
+ using CMS.DataEngine;
+ using Kentico.Content.Web.Mvc.Routing;
+ using TrainingGuides.Web.Features.Shared.Services;
+
+ namespace TrainingGuides.Web.Features.Languages;
+ public class LanguageDropdownViewComponent : ViewComponent
+ {
+     // Inject necessary services.
+     private readonly IInfoProvider&lt;ContentLanguageInfo&gt; contentLanguageInfoProvider;
+     private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+     private readonly IHttpRequestService httpRequestService;
+
+
+     public LanguageDropdownViewComponent(
+         IInfoProvider&lt;ContentLanguageInfo&gt; contentLanguageInfoProvider,
+         IPreferredLanguageRetriever preferredLanguageRetriever,
+         IHttpRequestService httpRequestService)
+     {
+         this.contentLanguageInfoProvider = contentLanguageInfoProvider;
+         this.preferredLanguageRetriever = preferredLanguageRetriever;
+         this.httpRequestService = httpRequestService;
+     }
+
+     // Create a new LanguageDropdownViewModel and populate it with language data to display.
+     public async Task&lt;LanguageDropdownViewModel&gt; GetLanguageMenu()
+     {
+         // Retrieve all languages that are defined in the Xperience by Kentico instance.
+         var allLanguages = contentLanguageInfoProvider.Get().ToList();
+
+         Dictionary&lt;string, LanguageViewModel&gt; languagesDictionary = [];
+
+         // Create dictionary of AvailableLanguages by iterating through the list fo lanuages from Xperience
+         foreach (var language in allLanguages)
+         {
+             string languageCode = language.ContentLanguageName;
+             string languageDisplayName = language.ContentLanguageDisplayName;
+             // Call the method defined in previous step, to generate language-specific URL of the current page
+             string url = await httpRequestService.GetCurrentPageUrlForLanguage(languageCode);
+
+             languagesDictionary.Add(
+                 languageCode,
+                 new LanguageViewModel() { DisplayName = languageDisplayName, CurrentPageUrl = url });
+         };
+
+         return new LanguageDropdownViewModel()
+         {
+             AvailableLanguages = languagesDictionary,
+             SelectedLanguage = preferredLanguageRetriever.Get()
+         };
+     }
+
+     public async Task&lt;IViewComponentResult&gt; InvokeAsync()
+     {
+         var model = await GetLanguageMenu();
+         return View("~/Features/Languages/LanguageDropdown.cshtml", model);
+     }
+ }
+
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="display-language-dropdown-in-the-header">Display language dropdown in the Header</h3>
+<p>Add a tag helper to the <em>TrainingGuides.Web/Features/Header/Header.cshtml</em> to invoke the view component of the new <em>LanguageDropdown</em>.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>Header.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@model TrainingGuides.Web.Features.Header.HeaderViewModel
+
+&lt;header class="c-header sticky-top"&gt;
+    &lt;nav class="navbar d-flex p-2 container"&gt;
+        &lt;div id="navbar-container"&gt;
+            &lt;h1&gt;@Model.Heading&lt;/h1&gt;
+        &lt;/div&gt;
+        &lt;!-- Render Language dropdown. --&gt;
+        &lt;vc:language-dropdown /&gt;
+    &lt;/nav&gt;
+&lt;/header&gt;
+
+</code></pre>
+</div>
+
+<p>Build and run your application. Your visitor can now toggle between English and Spanish versions of your website.</p>
+
+<h2 id="whats-next">What’s next</h2>
+<p>Congratulations! 🙂 Your website is now set up to support multiple languages. Play around and translate other pages and widgets or add new languages in your Xperience instance. If you have been working with our <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">Training guides repository</a>, and are looking for an exercise, try localizing the <a href="/guides/development/activities-and-marketing/log-custom-activities">Page-like widget</a>.</p>
+
+</body>
+</html>

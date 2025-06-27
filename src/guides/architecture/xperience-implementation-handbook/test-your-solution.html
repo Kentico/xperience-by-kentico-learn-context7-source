@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Test your solution</title>
+</head>
+<body>
+<h2 id="functional-testing">Functional testing</h2>
+<p>Thoroughly testing the functions of your solution helps to ensure a good user experience.</p>
+<p>When testing the functionality of your project, consider the following:</p>
+<ul>
+<li>Test all use case scenarios with automated tests.
+<ul>
+<li>Set up end-to-end (E2E) testing for the solution, with tools like <a href="https://playwright.dev/" target="_blank">Playwright</a> and <a href="https://www.selenium.dev/" target="_blank">Selenium</a> for the live site, and <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/administration-interface-ui-tests#cypress">Cypress</a> for the admin UI.</li>
+<li>Add unit tests to ensure the correct functioning of your granular code components, like individual methods.</li>
+<li>Create integration tests to make sure components interact as expected with mock data.</li>
+</ul>
+</li>
+<li>Validate website code and accessibility for all devices and browsers you are planning to support.</li>
+<li>Ensure security:
+<ul>
+<li>Check configuration, user accounts with empty passwords, etc., on the application level.</li>
+<li>Use 3rd party tools and services to perform penetration testing from the outside (e.g., <a href="https://portswigger.net/" target="_blank">Burp Suite</a>).</li>
+</ul>
+</li>
+</ul>
+<h3 id="functional-test-cases">Functional test cases</h3>
+<h4 id="avoid-site-outages">Avoid site outages</h4>
+<p>A client did not spend enough time on testing to determine the right performance tier for their project size, implementation, and traffic. They had no issues initially, but the performance tier they used was discontinued and they were forced to change tiers.</p>
+<p>Since they didn’t have performance and load testing, they blindly chose an option they thought would work. However, during peak hours, the website went down because the selected performance tier was not able to handle the load.</p>
+<p>The client immediately upgraded to a higher performance tier (via Azure management portal), but given the size of the database, the operation took some time and the website was offline for several hours.</p>
+<h4 id="use-case-testing">Use case testing</h4>
+<p>A partner didn’t collect use cases at the beginning of the project. As a result, they failed to include testing of use cases into their workflow before delivering the finished website.</p>
+<p>One of the most important features was collecting visitor data for personalization and marketing automation in the later stages of the project. The partner did not configure forms to map submitted data to contacts. This meant the collected data wasn’t available for Kentico’s online marketing features.</p>
+<p>This caused a serious delay in delivering the project to the customer and pushed the project over the planned budget. If they had identified these use cases up front, they would have been able to avoid the delay.</p>
+<h4 id="security-vulnerabilities">Security vulnerabilities</h4>
+<p>A client’s website started displaying links to malicious websites. The first thought was that there was a severe security issue with the out-of-the-box software.</p>
+<p>They were unable to confirm this, however. During the investigation, it was revealed that a solution partner implemented custom code that contained a SQL injection vulnerability. The vulnerability was introduced in a custom search filter which used <em>where</em> conditions to filter out the search results.</p>
+<p>This <em>where</em> condition was not sanitized for malicious user input. Penetration testing could have identified this issue ahead of time, but the partner didn’t include penetration tests into their project workflow.</p>
+<h2 id="regression-testing">Regression testing</h2>
+<p>Regression testing is an important step to ensure that previously tested parts of the software still perform correctly when adding new functionality.</p>
+<h3 id="non-functional-testing">Non-functional testing</h3>
+<p>When testing the implementation, you should:</p>
+<ul>
+<li>Investigate and address all issues produced during the testing phase.</li>
+<li>Perform all tests in a production-like environment.</li>
+</ul>
+<p>When running performance, load, and capacity tests, there are several things you need to consider:</p>
+<ul>
+<li>Define your performance baseline.
+<ul>
+<li>What are the results of your tests and what is the goal?</li>
+</ul>
+</li>
+<li>Depending on the type of tests you would like to perform and what area are you testing (front-end, back-end, environment), select the most suitable testing tool (e.g. <a href="https://loadimpact.com/" target="_blank">loadimpact.com</a>, <a href="https://github.com/Kentico/xperience-by-kentico-miniprofiler" target="_blank">Xperience MiniProfiler integration</a>, Visual Studio, Web Capacity Analysis Tool (WCAT)).</li>
+<li>Perform one change at a time and measure the impact of the change on performance.</li>
+<li>Focus on the optimizations or areas that can bring you the most significant results.</li>
+<li>Perform all tests in a production-like environment.
+<ul>
+<li>The results of running tests on your local environment won’t reflect how the website performs under heavy load on a hosting server. There are multiple variables involved, which may influence the performance. For example, network connectivity between the web and database servers, and configuration of the server or file system options, such as external storage providers, may differ between environments and have a significant impact on performance.</li>
+</ul>
+</li>
+<li>Keep the testing environment consistent so that you can compare test results directly.</li>
+</ul>
+<h2 id="whats-next">What’s next</h2>
+<p>The <a href="/guides/architecture/xperience-implementation-handbook/deploy-to-a-new-environment">next guide</a> in this handbook will cover important considerations regarding how you deploy and host your project.</p>
+
+</body>
+</html>

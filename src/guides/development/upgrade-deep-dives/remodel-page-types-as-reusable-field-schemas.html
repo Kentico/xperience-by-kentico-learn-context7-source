@@ -1,0 +1,473 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Remodel page types as reusable field schemas</title>
+</head>
+<body>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Xperience by Kentico: Kentico migration tool</a> allows you to remodel your content on the fly during the upgrade process.</p>
+<p>Using a <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/tree/master/Migration.Tool.Extensions#custom-class-mappings" target="_blank">custom class mapping</a>, you can discard fields, rename them, transform their values, and create <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> that you can share among multiple classes.</p>
+<p>This guide will extract common fields from two page types from <strong>Kentico Xperience 13 (KX13)</strong> and move them to a <em>Reusable field schema</em> shared by both web page content types in <strong>Xperience by Kentico (XbyK)</strong>.</p>
+<h2 id="set-up-the-project">Set up the project</h2>
+
+<div>
+
+</div>
+<div>
+<p>If you haven’t, we recommend following along with the <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough">upgrade walkthrough</a> to see the process of getting a migrated page working in Xperience by Kentico.</p>
+</div>
+
+<p>In preparation to follow along with this guide, you need:</p>
+<ul>
+<li>A running instance of Kentico Xperience 13 with the Dancing Goat template</li>
+<li>An instance of the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">migration tool</a>
+</li>
+<li>A compatible install of Xperience by Kentico</li>
+</ul>
+<p>If you haven’t followed along with the walkthrough, complete the steps from its <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough/setup-your-environment">environment setup page</a> in preparation for this guide.</p>
+<h2 id="determine-the-new-model">Determine the new model</h2>
+<p>As discussed in the <a href="/guides/architecture/upgrade-from-kx13/plan-your-strategy-for-migrating-features#structured-content-page-types">migration strategy planning guide</a>, <strong>page types</strong> in KX13 map to <strong>content types</strong> in XbyK.</p>
+<p>The migration tool automatically converts page types to content types with the same fields, and converts their pages <em>web page items</em> in the content tree of a <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a>. However, you can extend the process for specific page types, making structural adjustments as the tool converts them into content types, or changing where and how they are stored.</p>
+<h3 id="examine-the-source-classes">Examine the source classes</h3>
+<p>In the KX13 Dancing Goat site, there are two <a href="/13/developing-websites/defining-website-content-structure/managing-page-types/creating-page-types">page types</a> corresponding to coffee grinders: <em>Manual grinder</em> and <em>Electric grinder</em>.</p>
+<p>The <em>Manual grinder</em> page type has the following fields:</p>
+<ul>
+<li>ManualGrinderID</li>
+<li>ManualGrinderPromotionTitle</li>
+<li>ManualGrinderPromotionDescription</li>
+<li>ManualGrinderBannerText</li>
+</ul>
+<p>These are the <em>Electric grinder</em> fields:</p>
+<ul>
+<li>ElectricGrinderID</li>
+<li>ElectricGrinderPower</li>
+<li>ElectricGrinderPromotionTitle</li>
+<li>ElectricGrinderPromotionDescription</li>
+<li>ElectricGrinderBannerText</li>
+</ul>
+<h3 id="consolidate-the-common-fields">Consolidate the common fields</h3>
+<p>As both page types contain fields for a promotion title, promotion description, and banner text, we can move these fields to a shared schema.</p>
+<p>Each content type in XbyK will need its own ID, and the electric grinder content type will need a power field that is not part of the schema.</p>
+<p></p>
+<h2 id="implement-the-class-mapping">Implement the class mapping</h2>
+<h3 id="add-a-mapping-class">Add a mapping class</h3>
+<p>In your local version of the migration tool repository, add a new file to the <em>ClassMappings</em> folder of the <em>Migration.Tool.Extensions</em> project.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GrinderClassMapping.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.DataEngine;
+using CMS.FormEngine;
+using Microsoft.Extensions.DependencyInjection;
+using Migration.Tool.Common.Builders;
+using Migration.Tool.KXP.Api.Auxiliary;
+
+namespace Migration.Tool.Extensions.ClassMappings;
+
+public static class GrinderClassMapping
+{
+
+}
+...
+</code></pre>
+</div>
+
+<h3 id="define-string-constants-for-names">Define string constants for names</h3>
+<p>Looking over the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.Extensions/ClassMappings/ClassMappingSample.cs" target="_blank">class mapping sample</a> from the migration tool, you can see that the names of classes and fields are often used multiple times. For example, a schema’s name is used when defining the schema and when assigning it to a content type.</p>
+<p>For the sake of keeping everything in one place, let’s use constants for the string values we’ll need in this class, even if they are only used once.</p>
+
+<div>
+
+</div>
+<div>
+<p>This example uses unusual casing in the constant names for the sake of legibility, but you can adjust it to your preferences.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GrinderClassMapping.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public static class GrinderClassMapping
+{
+    // Source class names
+    private const string Source_ClassName_Electric = "DancingGoatCore.ElectricGrinder";
+    private const string Source_ClassName_Manual = "DancingGoatCore.ManualGrinder";
+
+    // Source class field names
+    private const string Source_FieldName_Electric_PromotionTitle = "ElectricGrinderPromotionTitle";
+    private const string Source_FieldName_Electric_PromotionDescription = "ElectricGrinderPromotionDescription";
+    private const string Source_FieldName_Electric_BannerText = "ElectricGrinderBannerText";
+    private const string Source_FieldName_Electric_Power = "ElectricGrinderPower";
+    private const string Source_FieldName_Manual_PromotionTitle = "ManualGrinderPromotionTitle";
+    private const string Source_FieldName_Manual_PromotionDescription = "ManualGrinderPromotionDescription";
+    private const string Source_FieldName_Manual_BannerText = "ManualGrinderBannerText";
+
+    // Target class names
+    private const string Target_ClassName_Schema = "DancingGoat.Grinder";
+    private const string Target_ClassName_Electric = "DancingGoat.ElectricGrinder";
+    private const string Target_ClassName_Manual = "DancingGoat.ManualGrinder";
+
+    // Target class display names
+    private const string Target_DisplayName_Schema = "Common Grinder Fields";
+    private const string Target_DisplayName_Electric = "Electric Grinder";
+    private const string Target_DisplayName_Manual = "Manual Grinder";
+
+    // Target class schema descriptions
+    private const string Target_Description_Schema = "Reusable schema that defines common grinder fields";
+
+    // Target class table names
+    private const string Target_TableName_Electric = "DancingGoat_ElectricGrinder";
+    private const string Target_TableName_Manual = "DancingGoat_ManualGrinder";
+
+    // Target class field names
+    private const string Target_FieldName_Schema_PromotionTitle = "GrinderPromotionTitle";
+    private const string Target_FieldName_Schema_PromotionDescription = "GrinderPromotionDescription";
+    private const string Target_FieldName_Schema_BannerText = "GrinderBannerText";
+    private const string Target_FieldName_Electric_Power = "ElectricGrinderPower";
+    private const string Target_FieldName_Electric_ID = "ElectricGrinderID";
+    private const string Target_FieldName_Manual_ID = "ManualGrinderID";
+
+    // Target class field display names
+    private const string Target_FieldDisplayName_Schema_PromotionTitle = "Promotion title";
+    private const string Target_FieldDisplayName_Schema_PromotionDescription = "Promotion description";
+    private const string Target_FieldDisplayName_Schema_BannerText = "Banner text";
+
+    // Target class field GUIDs
+    private const string Target_FieldGuid_Schema_PromotionTitle = "8E6C956F-FD45-42B3-A675-A7D39069A57B";
+    private const string Target_FieldGuid_Schema_PromotionDescription = "8AC6414E-0AA5-40D8-830E-2B090F0C4723";
+    private const string Target_FieldGuid_Schema_BannerText = "1804B982-59AB-459D-806E-AC55863116FE";
+
+    // Setting names
+    private const string Target_Setting_Schema_ControlName = "controlname";
+
+    ...
+</code></pre>
+</div>
+
+<p>With these constants in place, we can begin to define the classes and mappings.</p>
+<h3 id="create-the-schema">Create the schema</h3>
+<p>Let’s start with the reusable field schema that will hold data common to both electric and manual grinders.</p>
+<p>Schema fields defined during the migration can copy their details from fields in the source instance using the <code>CreateFrom</code> method.</p>
+<p>In this case, let’s define the fields manually so we can set custom names for them, rather than taking the names from the source page type in KX13.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GrinderClassMapping.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Build schema for shared grinder fields
+private static ReusableSchemaBuilder BuildSchema()
+{
+    var schemaBuilder = new ReusableSchemaBuilder(Target_ClassName_Schema, Target_DisplayName_Schema, Target_Description_Schema);
+
+    schemaBuilder
+        .BuildField(Target_FieldName_Schema_PromotionTitle)
+        .WithFactory(() =&gt; new FormFieldInfo
+        {
+            Name = Target_FieldName_Schema_PromotionTitle,
+            Caption = Target_FieldDisplayName_Schema_PromotionTitle,
+            Guid = new Guid(Target_FieldGuid_Schema_PromotionTitle),
+            DataType = FieldDataType.Text,
+            Size = 200,
+            Settings =
+            {
+                [Target_Setting_Schema_ControlName] = FormComponents.AdminTextInputComponent
+            }
+        });
+    schemaBuilder
+        .BuildField(Target_FieldName_Schema_PromotionDescription)
+        .WithFactory(() =&gt; new FormFieldInfo
+        {
+            Name = Target_FieldName_Schema_PromotionDescription,
+            Caption = Target_FieldDisplayName_Schema_PromotionDescription,
+            Guid = new Guid(Target_FieldGuid_Schema_PromotionDescription),
+            DataType = FieldDataType.Text,
+            Size = 200,
+            Settings =
+            {
+                [Target_Setting_Schema_ControlName] = FormComponents.AdminTextInputComponent
+            }
+        });
+    schemaBuilder
+        .BuildField(Target_FieldName_Schema_BannerText)
+        .WithFactory(() =&gt; new FormFieldInfo
+        {
+            Name = Target_FieldName_Schema_BannerText,
+            Caption = Target_FieldDisplayName_Schema_BannerText,
+            Guid = new Guid(Target_FieldGuid_Schema_BannerText),
+            DataType = FieldDataType.Text,
+            Size = 200,
+            Settings =
+            {
+                [Target_Setting_Schema_ControlName] = FormComponents.AdminTextInputComponent
+            }
+        });
+
+    return schemaBuilder;
+}
+</code></pre>
+</div>
+
+<h3 id="map-the-electric-grinder-content-type">Map the electric grinder content type</h3>
+<p>Next, let’s move on to the <em>Electric grinder</em> content type.</p>
+<p>Start by defining the essential class attributes corresponding to fields in the <code>CMS_Class</code> table, like the name, display name, and table name.</p>
+<p>Add a primary key field and assign the reusable field schema to the content type.</p>
+<p>Next, assign values to the corresponding schema fields.</p>
+<p>Finally, create a new field for the grinder’s <em>power</em> using the KX13 field as a template.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Use KX13 fields as templates</strong></p>
+<p>The Kentico migration tool allows you to define content type fields on the fly as you map them.</p>
+<p>For the schema fields used by the <em>Electric grinder</em> content type, we defined their attributes manually in the <em>schema builder</em>, then simply assigned them to the <em>Electric grinder</em> content type as we mapped data from KX13. However, we still need to define attributes of the <em>power</em> field.</p>
+<p>Some migration tool methods, such as <code>SetFrom</code>, include an optional <code>isTemplate</code> parameter. The parameter lets you specify if the tool should replicate the KX13 field definition for the XbyK content type.</p>
+<p>If <code>isTemplate</code> is set to <code>true</code>, the tool will transfer KX13 field information like the caption, data type, and default value to the XbyK content type. Otherwise, it will only transfer values.</p>
+<p>See the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.Extensions/ClassMappings/ClassMappingSample.cs" target="_blank">class mapping sample file</a> for more examples.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GrinderClassMapping.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+// Migrate electric grinders
+private static MultiClassMapping BuildElectricGrinderMapping()
+{
+    var mappingElectric = new MultiClassMapping(Target_ClassName_Electric, target =&gt;
+    {
+        target.ClassName = Target_ClassName_Electric;
+        target.ClassTableName = Target_TableName_Electric;
+        target.ClassDisplayName = Target_DisplayName_Electric;
+        target.ClassType = ClassType.CONTENT_TYPE;
+        target.ClassContentTypeType = ClassContentTypeType.WEBSITE;
+    });
+
+    mappingElectric.BuildField(Target_FieldName_Electric_ID).AsPrimaryKey();
+
+    mappingElectric.UseResusableSchema(Target_ClassName_Schema);
+
+    mappingElectric.BuildField(Target_FieldName_Schema_PromotionTitle)
+        .SetFrom(Source_ClassName_Electric, Source_FieldName_Electric_PromotionTitle);
+
+    mappingElectric.BuildField(Target_FieldName_Schema_PromotionDescription)
+        .SetFrom(Source_ClassName_Electric, Source_FieldName_Electric_PromotionDescription);
+
+    mappingElectric.BuildField(Target_FieldName_Schema_BannerText)
+        .SetFrom(Source_ClassName_Electric, Source_FieldName_Electric_BannerText);
+
+    mappingElectric.BuildField(Target_FieldName_Electric_Power)
+        .SetFrom(Source_ClassName_Electric, Source_FieldName_Electric_Power, true);
+
+    return mappingElectric;
+
+}
+...
+</code></pre>
+</div>
+
+<h3 id="map-the-manual-grinder-content-type">Map the manual grinder content type</h3>
+<p>The process for the manual grinder is very similar, except it has no additional fields outside the schema.</p>
+
+<div>
+
+</div>
+<div>
+<p>Due to a bug, certain versions of the migration tool may require you to include a non-schema field in your content type, or have at least one field that uses the KX13 counterpart as a template.</p>
+<p>If you experience errors related the data class of your XbyK content types during data migration, you may need to include something like the <code>testField</code> example in the following code. You can delete the field from XbyK after your successful data migration.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GrinderClassMapping.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+// Migrate manual grinders
+private static MultiClassMapping BuildManualGrinderMapping()
+{
+    var mappingManual = new MultiClassMapping(Target_ClassName_Manual, target =&gt;
+    {
+        target.ClassName = Target_ClassName_Manual;
+        target.ClassTableName = Target_TableName_Manual;
+        target.ClassDisplayName = Target_DisplayName_Manual;
+        target.ClassType = ClassType.CONTENT_TYPE;
+        target.ClassContentTypeType = ClassContentTypeType.WEBSITE;
+    });
+
+    mappingManual.BuildField(Target_FieldName_Manual_ID).AsPrimaryKey();
+
+    mappingManual.UseResusableSchema(Target_ClassName_Schema);
+
+    mappingManual.BuildField(Target_FieldName_Schema_PromotionTitle)
+        .SetFrom(Source_ClassName_Manual, Source_FieldName_Manual_PromotionTitle);
+
+    mappingManual.BuildField(Target_FieldName_Schema_PromotionDescription)
+        .SetFrom(Source_ClassName_Manual, Source_FieldName_Manual_PromotionDescription);
+
+    mappingManual.BuildField(Target_FieldName_Schema_BannerText)
+        .SetFrom(Source_ClassName_Manual, Source_FieldName_Manual_BannerText);
+
+    // Setting a non-schema field to the content type may be necessary in some versions of the migration tool.
+    // You can delete this field from XbyK after data migration is complete
+    var testField = mappingManual.BuildField("TestField");
+    testField.ConvertFrom(Source_ClassName_Manual, Source_FieldName_Manual_PromotionTitle, true,
+        (value, context) =&gt; "TestValue - Delete this field in XbyK");
+    testField.WithFieldPatch(field =&gt; field.Caption = "Test - Delete this field in XbyK");
+
+    return mappingManual;
+}
+...
+</code></pre>
+</div>
+
+<h3 id="register-the-mappings">Register the mappings</h3>
+<p>Now that the classes are mapped, you need to register the mappings and the schema builder with the <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">dependency injection</a> container.</p>
+<p>Create a <code>MigrateGrinders</code> extension method for <code>IServiceCollection</code> that calls the private methods we’ve built so far and registers the resulting objects as singletons.</p>
+<p>Then, call this method from the <code>ServiceCollectionExtensions</code> class of the <em>Migration.Tools.Extensions</em> project, which executes at startup.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GrinderClassMapping.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public static IServiceCollection MigrateGrinders(this IServiceCollection serviceCollection)
+{
+    var schemaBuilder = BuildSchema();
+
+    var mappingElectric = BuildElectricGrinderMapping();
+
+    var mappingManual = BuildManualGrinderMapping();
+
+    // Register with the DI container
+    serviceCollection.AddSingleton&lt;IClassMapping&gt;(mappingElectric);
+    serviceCollection.AddSingleton&lt;IClassMapping&gt;(mappingManual);
+
+    serviceCollection.AddSingleton&lt;IReusableSchemaBuilder&gt;(schemaBuilder);
+
+    return serviceCollection;
+}
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using Migration.Tool.Extensions.ClassMappings;
+...
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection UseCustomizations(this IServiceCollection services)
+    {
+        ...
+        services.MigrateGrinders();
+        ...
+</code></pre>
+</div>
+
+<h2 id="see-the-results">See the results</h2>
+<p>Now, run the data migration and you will see that both grinder content types use the reusable <code>Grinder</code> schema.</p>
+<p>Electric grinder:</p>
+<p></p>
+<p>Manual grinder:</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>You can see that the new content types include a <em>DocumentName</em> field, corresponding to the field of the same name in KX13’s <em>CMS.Document</em> class. The migration tool automatically adds this field to content types created from pages, to hold the un-altered display name from the KX13 page.</p>
+<p>If you have no use for this field, you can delete it from your content types in Xperience by Kentico.</p>
+</div>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>Keep an eye out for future migration deep dives in this section of the guides.</p>
+<p>If you encounter any roadblocks during your own migration, don’t hesitate to reach out to us through the <strong>Send us feedback</strong> button at the bottom of this page to let us know the scenarios you’d like us to explore in more detail.</p>
+
+</body>
+</html>

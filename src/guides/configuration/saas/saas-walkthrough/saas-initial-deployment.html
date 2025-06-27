@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Deploy your solution to Xperience Portal</title>
+</head>
+<body>
+<p>There are two ways to deploy your solution to Kentico SaaS:</p>
+<ol type="1">
+<li>Using the Xperience Portal dashboard</li>
+<li>Using the Xperience Portal API</li>
+</ol>
+<p>In this step, we will perform the initial deployment through the Xperience Portal. Later in this series, you’ll also see the second approach when updating an existing deployment.</p>
+<p>Both approaches have one thing in common: <strong>exporting a deployment ZIP package</strong>, which you then upload either through the Portal or the API.</p>
+<h2 id="set-up-powershell">Set up PowerShell</h2>
+<p>Unless you use a Windows machine with PowerShell available out-of-the-box, make sure you have PowerShell installed.</p>
+
+<div>
+
+</div>
+<div>
+<p>The scripts in our code samples use PowerShell version 5.1 (Windows); you can check your version in your PowerShell terminal with this command:</p>
+<div>
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong>Check your PS version</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+\$PSVersionTable["PSVersion"]
+</code></pre>
+</div>
+</div>
+</div>
+
+<p>On Windows, your account must have permissions to run PowerShell scripts from external sources. Use the following command to bypass all execution checks for the current user:</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+Set-ExecutionPolicy Bypass -Scope CurrentUser -Force
+</code></pre>
+</div>
+
+You can check whether your <code>ExecutionPolicy</code> is set to <code>Bypass</code> by running:
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+Get-ExecutionPolicy
+</code></pre>
+</div>
+
+<h2 id="create-initial-deployment-package">Create initial deployment package</h2>
+<h3 id="data-serialization">Data serialization</h3>
+<p>Before creating and exporting the deployment package, it’s always a good idea to double-check your CD configuration in the <em>repository.config</em> file to ensure all necessary objects are included or excluded. If you didn’t make any changes to the file or didn’t add any custom classes to your Dancing Goat project, you are all set in this case.</p>
+<p>Next, navigate to your project’s root and run the CD store command:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Run the CD store</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet run --no-build -- --kxp-cd-store --repository-path ".\`$CDRepository"
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>In your own project, only use the optional <code>--no-build</code> parameter to save time if you’ve previously built your solution, including all desired updates.</p>
+</div>
+
+<p>The command serializes all the CD supported data into your <em>$CDRepository</em> folder. After the successful run, you should see newly generated folders <code>@global</code>, <code>DancingGoatEmails</code>, and <code>DancingGoatPages</code> with serialized data in your <em>$CDRepository</em>:</p>
+<p></p>
+<h3 id="export-the-deployment-package">Export the deployment package</h3>
+<p>In your PowerShell terminal, run the <em>Export-DeploymentPackage.ps1</em> script with the following parameters:</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong>Generate initial deployment package</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+.\Export-DeploymentPackage.ps1 -AssemblyName "DancingGoat.Web" -OutputPackagePath "./DeploymentPackage_1.zip"
+</code></pre>
+</div>
+
+<ul>
+<li>
+<code>AssemblyName</code> - your project’s assembly name, by default, equal to the project’s .csproj file name without the extension.</li>
+<li>
+<code>OutputPackagePath</code> - the name and path of the deployment package. If unspecified, the package will be created as <em>./DeploymentPackage.zip</em> in the current root.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>See the full list of parameters in <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#create-a-deployment-package">our documentation about the deployment package</a>.</p>
+</div>
+
+<p>The package export typically takes from a few seconds to a few minutes depending on the size of your project. The script will show progress while running. </p>
+<p></p>
+<p>Upon the successful export, take a quick look at the <em>$CDRepository</em> folder in your new <em>./DeploymentPackage_1.zip</em> package:</p>
+<p>Notice that the folder contains not only serialized XML objects, but also media files. See an example in any of the <em>article</em> folders under <em>DancingGoat.Web/DeploymentPackage_1.zip/$CDRepository/@global/contentitemdata.dancinggoat.image</em>.</p>
+<p></p>
+<p>The multimedia files stored as <strong>assets in Content hub</strong> also serialize in this process so <strong>you don’t need to deploy them to Azure Blob storage</strong> separately. The deployment will happen automatically when we upload our package to the Xperience Portal.</p>
+<h2 id="deploy-the-package-via-xperience-portal">Deploy the package via Xperience Portal</h2>
+<p>Navigate to your Xperience Portal <strong>Deployments</strong> screen.</p>
+<p>Double-check that you are <a href="/guides/configuration/saas/saas-walkthrough/saas-setup#identify-the-active-project">operating under the correct project</a>.</p>
+<p>All your environments will initially show a <em>“No active deployments found”</em> message.</p>
+<p>Under QA, click the <strong>Upload deployment package</strong> button.</p>
+<p></p>
+<p>Specify the path to your <em>DeploymentPackage_1.zip</em> file.</p>
+<p>Click <strong>Upload</strong>.</p>
+<p></p>
+<p>Once you upload a package, the Xperience Portal adds it to a queue and then changes its status to <strong>In progress</strong>.</p>
+<p>A single deployment usually takes 20-30 minutes to finish, and you can monitor it in the <strong>Deployments</strong> page.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>You can queue multiple deployments at once.</p>
+<p>If you do this, don’t be alarmed if some of them seem unusually slow. The Xperience Portal UI shows total time since the package was queued, not just active deployment time. Only one deployment runs at a time, so they’re processed sequentially.</p>
+</div>
+
+<p>You can see all your past deployments and their logs on the <strong>Deployments</strong> page.</p>
+<p></p>
+<h2 id="check-your-progress">Check your progress</h2>
+<p>When your initial deployment succeeds, visit the administration interface of your project in the QA environment by clicking the link at the top.</p>
+<p>In the Xperience administration you should be able to see your deployed content items (including assets), web pages, settings and everything else specified in your <em>repository.config</em>.</p>
+
+<p>Great job, you are looking at the administration of your solution deployed to the SaaS QA!</p>
+<p>Now, we still have to perform channel configuration to be able to visit our live site and use the email channel.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/configuration/saas/saas-walkthrough/saas-configure-channels">Configure channels</a></p>
+
+</body>
+</html>

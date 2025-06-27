@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Structured and unstructured content</title>
+</head>
+<body>
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from beginning to end.</p>
+<ul>
+<li>
+<a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a>
+<ul>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">What is a content type</a></li>
+<li><strong>Structured and unstructured content</strong></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Start with business needs</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">Content modeling process</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">Model taxonomies</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">Store content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-website-content">Design website content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-email-content">Design email content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">Design headless content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/general-content-modeling-recommendations">General content modeling recommendations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2 id="unstructured-and-structured-data-in-content-types">Unstructured and structured data in content types</h2>
+<p>Data stored in any content management system can be divided into two main types: structured and unstructured. Let’s examine the differences between these data types and their implications for content management. Understanding the main differences is crucial for solution architects and developers as they are about to design a content model for content marketers to use in their digital strategies.</p>
+<p>Generally, your marketing data stored in the content type can be <em>unstructured</em> and <em>structured</em>.</p>
+<ul>
+<li><p><strong>Unstructured data</strong> format stores the data and its design, i.e., how the data is presented on the live site. For example, apart from the words in the product title, the title field also stored HTML tags, such as: <em>&lt;h1&gt;Advanced account&lt;/h1&gt;</em>. In Xperience, we refer to data stored this way as <strong>unstructured content</strong>. </p></li>
+<li>
+<p><strong>Structured data</strong> is a way of storing data that contains only the data, such as a <em>product name</em> in the <em>Product title</em> field, for example, <em>Advanced account</em>. In Xperience, we refer to content that consists primarily of structured data with no or limited information about how this content is presented as <strong>structured content</strong>. <em>Structured content</em> can be stored in the <a href="/documentation/business-users/content-hub">Content hub</a>, or any <a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">Xperience channel</a> application, such as <a href="/documentation/developers-and-admins/configuration/website-channel-management">website</a> or <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email</a> channel. In Xperience, we call <em>structured content</em> stored in the <a href="/documentation/business-users/content-hub">Content Hub</a> as <strong>Reusable content</strong> because it’s marketing-channel agnostic, and it is easy to reuse, maintain, and upgrade.</p>
+<p></p>
+</li>
+</ul>
+<h3 id="why-the-decision-between-structured-vs.-unstructured-content-matters">Why the decision between structured vs. unstructured content matters</h3>
+<p>Xperience gives you complete control over what your content types look like, as well as what data your editors store and in what format. During content modeling, your team defines what data you need to store, in this case, into the <em>Article</em> content type and in what format, and developers implement Xperience to support your requirements.</p>
+<p>The decision on which type of content is stored in the content type dictates how editors create and maintain content and how developers query and display the content in different marketing channels.</p>
+<p>Although it’s relatively cheap to create data and store it together with what it looks like when displayed to the customer, <strong>unstructured content usually becomes very expensive to maintain</strong> and, in some cases, <strong>almost impossible to reuse</strong> in different marketing channels and <strong>extremely difficult to upgrade</strong>.</p>
+<p>It’s common for content types to reuse data stored within other content types. For example, fields for an <em>Article</em> content type used for creating blog posts include a <em>Title</em>, <em>Lead</em>, <em>Body</em>, <em>Teaser image</em>, <em>Author</em>, <em>Publication date</em>, and <em>Category</em>.</p>
+<p>The <em>Author</em> content type includes fields such as <em>Name</em>, <em>Bio</em>, <em>Profile picture</em>, <em>Contact info</em>, or <em>Social media links</em>. The <em>Teaser image</em> field may refer to the <em>Media file</em> content type with fields like <em>Title</em>, <em>Description</em>, <em>Internal description</em>, or <em>category</em>. The <em>Category</em> fields help you describe how this piece of content fits within your whole marketing content.</p>
+<p></p>
+<p>Before you define which content types you’ll use, take a broader view on your content.</p>
+<h2 id="consider-your-content-from-different-perspectives">Consider your content from different perspectives</h2>
+<p>Depending on your perspective, there are various ways to approach your content. Each approach has advantages and challenges, and every perspective has subtle differences that affect how you structure and manage your content. Use the following viewpoints and terminology to ease up thinking about the content model and discussing how to approach the content in Xperience with your team.</p>
+<p><strong>Structured vs. unstructured content</strong> </p>
+<ul>
+<li>
+<em>Unstructured</em> content contains data and instructions on how the system should display it. In Xperience, for example, editors author unstructured content in email channel applications or the Page Builder in website channels.</li>
+<li>
+<em>Structured</em> content keeps the content data separated from the design information in the database. In Xperience, this content is authored in the <a href="/documentation/business-users/content-hub">Content hub</a> and on the <a href="/documentation/business-users/website-content#view-modes">Content</a> view mode in website channel applications.</li>
+</ul>
+<p><strong>Content from the presentation perspective</strong></p>
+<ul>
+<li>
+<em>Navigable</em> content items allow visitors to view the content item as a whole, such as a page under a URL on a website or an app screen.</li>
+<li>
+<em>Reusable</em> content usually serves as a building block for navigable items; visitors will never see the <em>reusable content</em> alone.</li>
+</ul>
+<p><strong>Marketing potential of the content</strong></p>
+<ul>
+<li>
+<em>Reusable</em> content items are presentation-agnostic and usually highly structured. Marketers can reuse the same content item across multiple channels, such as various places within one website, another microsite, and email. Making the content independent from a single channel makes it easier to maintain, modify, and reuse.</li>
+<li>
+<em>Single-channel</em> content items are usually strongly aligned with their presentation on a specific channel. Editors create this content ad hoc as they need. As a result, they often tie the content to its design. For example, by using rich text WYSIWYG (what-you-see-is-what-you-get) editors.</li>
+</ul>
+<h2 id="making-the-choice-unstructured-vs-structured-content">Making the choice: Unstructured vs structured content</h2>
+<p>As the project’s content model designer, you have complete control over the appearance, data, and your content types’ structure. You decide in what format content editors will define their content types.</p>
+<p>Let’s take a look at different aspects of structured and unstructured content.</p>
+<h3 id="benefits-of-unstructured-content">Benefits of unstructured content</h3>
+<p>Unstructured content has been the most common format for building websites, dating back to the early days of the Internet. Marketers like it because it offers a fast and straightforward editing experience. Many popular tools end up storing content in the unstructured format, including various page builders, such as <a href="https://wordpress.org/gutenberg/" target="_blank">WordPress blocks</a> or other similar WYSIWYG webpage or website builder platforms.</p>
+<h3 id="rich-text-authoring-and-unstructured-content">Rich text authoring and unstructured content</h3>
+<p>The rich text authoring is a part of the WYSIWYG editing experience that editors use to style the text. They customize its looks if they need to divert from brand-specific designs, insert media into the content, or link to other content. Rich text editing components often allow editors to edit the HTML source and give editors complete control over the design of the content.</p>
+<p>Xperience by Kentico comes with a built-in <a href="/documentation/business-users/rich-text-editor">Rich text</a> widget editors can use to add content to a website.</p>
+<p></p>
+<h3 id="what-are-the-disadvantages-of-unstructured-content">What are the disadvantages of unstructured content?</h3>
+<p>While editors can quickly create unstructured content, it is often hard to maintain or scale. From our experience, unstructured content excels in less complex scenarios. For example, it works well for a small team that manages content for a small single channel or produces one-off, short-lasting content for assets like campaign landing pages.</p>
+<p>As your content, team, and workflows grow and become more complex, your creation tools need to adapt, particularly for multi-channel scenarios.</p>
+<p>To support different channels, formats, and structures for which marketers create their content, WYSIWYG’s capabilities must be very advanced to safeguard the content marketers save into their applications. This includes creating valid HTML markup within the page design and ensuring the output HTML markup is fully accessible. Rich text components were primarily built to author website content. When you create content using WYSIWYG interface that allow free-form content creation, the editor only rarely produces content that anyone can reuse across different channels.</p>
+<p>There are other points to consider, and you can learn more about them in a great post on the <a href="https://community.kentico.com/blog/how-important-are-rich-text-authoring-experiences-in-2024" target="_blank">Kentico Community Portal</a>.</p>
+<p>The solution is to store content separately from its layout. In the case of <em>Rich text</em> format, you can store the data in the <strong>structured format</strong>, following HTML standards, such as creating a bullet point list without additional styling, and then use other WYSIWYG tools to layout content. In Xperience’s website channels, the WYSIWYG tool is the Page Builder.</p>
+<h3 id="benefits-of-structured-content">Benefits of structured content</h3>
+<p>Modern marketing teams do not need to recreate or copy-paste the content on their websites. Underlying technologies evolved enough to support complex models that allow for <strong>content reusability</strong>. Developers can build applications that <strong>display</strong> or <strong>resurface</strong> content automatically based on its context or are driven by current marketing goals and campaigns. Content models based on structured data tend to be more flexible as they allow editors to leverage the content further. They can <strong>reassemble</strong> data into different content types, <strong>present</strong> it via a different design, or <strong>repurpose</strong> it in other marketing channels.</p>
+<p>Structured content is future-friendly. Compared to unstructured content, structured content is more straightforward to adapt when the content strategy changes or different marketing teams need to tailor the content to specific usages.</p>
+<p>Let’s have a look at the <em>product title</em> example. The <a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type#best-practices-in-kbank-demo-site">Kbank demo site</a> uses several content types to store Kbank’s products, such as the <em>Product - Loan</em> or <em>Product - Account</em>. The following diagram shows fields where editors input data or link other related content items based on different content types.</p>
+<p></p>
+<p>Let’s examine the different forms and formats this product title can take in various situations.</p>
+<ul>
+<li>On a <em>product page</em>, this title receives an <code>&lt;h1&gt;</code> HTML tag as it serves as the page’s title.<br>
+</li>
+<li>On a <em>product listing page</em>, this title receives an <code>&lt;h2&gt;</code> HTML tag to conform with the <a href="https://www.w3schools.com/whatis/whatis_htmldom.asp" target="_blank">HTML DOM structure</a>.<br>
+</li>
+<li>On a <em>product comparator element</em>, this title receives an <code>&lt;h3&gt;</code> HTML tag to conform with the <a href="https://www.w3schools.com/whatis/whatis_htmldom.asp" target="_blank">HTML DOM structure</a>.<br>
+</li>
+<li>On a <em>product campaign page</em>, this title receives an <code>&lt;h3&gt;</code> HTML tag to conform with the <a href="https://www.w3schools.com/whatis/whatis_htmldom.asp" target="_blank">HTML DOM structure</a>.<br>
+</li>
+<li>On a website’s <em>Home</em> page, this title becomes part of a personalized Hero banner image that promotes this product to a specific audience.<br>
+</li>
+<li>In a <em>mobile application</em>, this title becomes part of the product details screen.<br>
+</li>
+</ul>
+<h3 id="structured-content-helps-with-maintenance">Structured content helps with maintenance</h3>
+<p>Once you have stored your data in a structured format, updating the content from one place is also straightforward.</p>
+<p>Let’s continue with our <em>product title</em> example. Say there’s a new brand typography guideline requiring all titles to use the title case <em>Advanced Account</em>. With the content stored in a structured way, your editor needs to update just one place where they store the title’s default, root value – and all the other places that refer to the this original source <em>Product</em> content type inherit the change.</p>
+<p>Making content <strong>reusable</strong> is one of the primary goals of content modeling. Your content model should give your content a <strong>structure</strong>. Your content types need to represent the <strong>meaning</strong> of your content and allow marketers to provide this content with a <strong>purpose</strong>.</p>
+<p>When you model your content correctly, your editors can reuse the same piece of data in multiple places using available Xperience features rather than duplicate it wherever needed. A well-defined content model also directly impacts <a href="https://www.dotcms.com/blog/post/what-is-content-governance" target="_blank">content governance</a> (making sure what you produce is on-brand, coordinated, and of good quality) and associated review processes.</p>
+<h3 id="structured-content-simplifies-development">Structured content simplifies development</h3>
+<p>Storing data into predefined structures doesn’t only make marketers more efficient. When content is clearly organized into structures, developers can easily understand the type of data, its format, and its purpose. This reduces guesswork and allows developers to build robust functionality instead of managing inconsistencies, ultimately speeding up the development process.</p>
+<p>Structured content types create predictable, strongly typed content structures that developers can use to build reusable components and APIs.</p>
+<p>Aiming for data clarity makes your content types scalable and reusable. For example, storing your data without saving how it’s going to be present alongside the default data makes it easier to add new features, support additional channels, or expand the system without disrupting existing workflows.</p>
+<p>Structured content types create consistency that makes it easier to connect Xperience by Kentico with external tools, such as CRMs or analytics platforms, ensuring smooth data flow across systems. When you need to update or change your integrated system, the structured approach minimizes the risk of breaking existing functionality and makes the system easier to maintain.</p>
+<h2 id="structured-vs-unstructured-content-summary">Structured vs unstructured content summary</h2>
+<p>Let’s break down the main advantages and challenges of structured versus unstructured content:</p>
+
+<table>
+<thead>
+<tr>
+<td>
+</td>
+<td>
+<p>Structured content</p>
+</td>
+<td>
+<p>Unstructured content</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p>Benefits</p>
+</td>
+<td>
+<ul>
+<li>Easy to maintain, reuse, and upgrade</li>
+<li>Scalable and reusable</li>
+<li>Simplifies development and integration with other systems</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Fast and straightforward editing</li>
+<li>Ideal for less complex, single-channel scenarios</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td>
+<p>Challenges</p>
+</td>
+<td>
+<ul>
+<li>Requires initial setup</li>
+<li>Editors need to understand the data structure</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Difficult to maintain and scale</li>
+<li>Expensive to upgrade</li>
+<li>Hard to reuse across multiple channels</li>
+</ul>
+</td>
+</tr>
+</table>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>In short, content types serve as blueprints for structuring and organizing content. You have learned that making the content structured enables both humans and machines to understand and reuse the data and about the importance of separating the content data from design that will help you and your team maintain your content, reuse, and adapt it across multiple channels.</p>
+
+</body>
+</html>

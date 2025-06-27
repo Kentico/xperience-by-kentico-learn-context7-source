@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Customize event logging</title>
+</head>
+<body>
+<p>You can customize event logging by:</p>
+<ul>
+<li>
+<a href="#handling-event-log-events">Handling system</a> events – customize event information, limit which types of events the system logs, or execute any custom logic when an event gets logged.</li>
+<li>
+<a href="#implement-event-log-writers">Implementing classes</a> of the <code>IEventLogWriter</code>type – specify additional logging destinations for events (e.g., another database, dedicated file, external system, etc.).</li>
+</ul>
+<h2 id="handling-event-log-events">Handling event log events</h2>
+<p>By handling certain events, you can customize how the system logs records into its <a href="/documentation/developers-and-admins/configuration/event-log">Event log</a>.</p>
+<p>The system raises the following types of logging events:</p>
+<ul>
+<li>
+<code>EventLogEvents.LogEvent.Before</code> – allows you to customize the data logged for events or cancel logging for certain types of events.</li>
+<li>
+<code>EventLogEvents.LogEvent.After</code> – allows you to perform custom actions after events are successfully logged.</li>
+</ul>
+<p><strong>Note</strong>: Performing demanding operations during event logging can negatively impact the performance of the website (particularly on sites under heavy load where a large number of events are logged).</p>
+<h3 id="example">Example</h3>
+<p>The following example demonstrates how to disable logging for events of a specific type and modify the <em>Description</em> text for certain events.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Note</strong>: Custom event handlers for <code>EventLogEvents.LogEvent</code>only affect events logged into the project’s main database (specified in the <code>CMSConnectionString</code>connection string in <code>appsettings.json</code>). Events logged using custom <a href="#implement-event-log-writers">event log writers</a> are not affected.</p>
+</div>
+
+<ol type="1">
+<li>Open your solution in Visual Studio.</li>
+<li>Create a <a href="/documentation/developers-and-admins/customization/integrate-custom-code">custom module class</a>.</li>
+<li>Override the module’s <code>OnInit</code> method and assign a handler method to <code>EventLogEvents.LogEvent.Before</code>.</li>
+<li>Perform the required actions within the handler method.
+<ul>
+<li>Access the data of the logged event through the <code>Event</code> property of the handler’s <code>LogEventArgs</code> parameter.</li>
+<li>To cancel the logging of an event, call the <code>Cancel</code> method of the handler’s <code>LogEventArgs</code> parameter.</li>
+</ul>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS;
+
+using CMS.DataEngine;
+using CMS.EventLog;
+using CMS.Base;
+
+// Registers the custom module into the system
+[assembly: RegisterModule(typeof(EventLogCustomization))]
+
+public class EventLogCustomization : Module
+{
+    // Module class constructor, the system registers the module under the name "EventLogCustomization"
+    public EventLogCustomization()
+        : base("EventLogCustomization")
+    {
+    }
+
+    // Contains initialization code that is executed when the application starts
+    protected override void OnInit()
+    {
+        base.OnInit();
+
+        // Assigns a handler to the LogEvent.Before event
+        EventLogEvents.LogEvent.Before += LogEvent_Before;
+    }
+
+    private void LogEvent_Before(object sender, LogEventArgs e)
+    {
+        // Gets an object representing the event that is being logged
+        EventLogInfo eventLogRecord = e.Event;
+
+        // Cancels logging for events with the "CREATEOBJ" or "UPDATEOBJ" event codes.
+        // Disables event log records notifying about the creation or update of objects in the system,
+        // but still allows events related to object deletion.
+        string eventCode = eventLogRecord.EventCode;
+        if (String.Equals(eventLogRecord.EventCode, "CREATEOBJ", StringComparison.OrdinalIgnoreCase || String.Equals(eventLogData.EventCode, "UPDATEOBJ", StringComparison.OrdinalIgnoreCase)
+        {
+            e.Cancel();
+        }
+
+        // Adds a custom message to the Description field for events of the Information type
+        if (String.Equals(eventLogRecord.EventType, EventType.INFORMATION, StringComparison.OrdinalIgnoreCase))
+        {
+            eventLogRecord.EventDescription += " Custom message";
+        }
+    }
+}
+
+</code></pre>
+</div>
+
+<h2 id="implement-event-log-writers">Implement event log writers</h2>
+<p>Whenever the system logs an event to the database, you may want to persist the information in additional locations (external system, static file, etc.). For this purpose, the system allows you to specify additional logging destinations via event log writers.</p>
+<p>An event log writer is a class that implements the <code>IEventLogWriter</code> interface. When the system logs an event, it iterates over all registered event log writers and calls their <code>WriteLog(EventLogData eventLogData)</code> method (given by the interface). The <code>EventLogData</code> parameter contains all data associated with the event being logged. This information can be used to direct the logging logic, for example, based on event severity.</p>
+<p>The following example shows the implementation of an event log writer that writes all events of the <strong>ERROR</strong> type to a file located in the application’s root directory. It also sends an email to the address specified in <code>NOTIFICATION_RECIPIENT</code>.</p>
+<ol type="1">
+<li>Create a new <code>CsvErrorEventWriter</code> class.
+<ul>
+<li>See <a href="/documentation/developers-and-admins/customization/integrate-custom-code">Integrate custom code</a> for best practices about adding custom code to your project.</li>
+</ul>
+</li>
+<li>Implement the <code>IEventLogWriter</code> interface.</li>
+<li>Register the implementation using the <code>RegisterImplementation</code> assembly attribute.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Custom event log writer implementation</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS;
+using CMS.Base;
+using CMS.Core;
+using CMS.EmailEngine;
+
+using System;
+using System.IO;
+
+using EventLogCustomizations;
+
+[assembly: RegisterImplementation(typeof(IEventLogWriter), typeof(CsvErrorEventWriter))] 
+public class CsvErrorEventWriter : IEventLogWriter
+{
+    private readonly IEmailService emailService;
+    private const string NOTIFICATION_RECIPIENT = "administrators@localhost.local";
+    private const string NOTIFICATION_SENDER = "automation@localhost.local";
+
+    public CsvErrorEventWriter(IEmailService emailService)
+    {
+        this.emailService = emailService;
+    }
+
+    public void WriteLog(EventLogData eventLogData)
+    {
+        if (eventLogData.EventType == EventTypeEnum.Error)
+        {
+            // Checks if the error event contains an exception
+            string exception = eventLogData.Exception != null ? eventLogData.Exception.ToString() : "No exception logged.";
+
+            string eventData = $"Error, {eventLogData.EventCode}, {DateTime.Now}, {eventLogData.EventDescription}, {exception}{Environment.NewLine}";
+
+            // Writes logged error events into a 'errors.csv' file in the application's root directory
+            File.AppendAllText(SystemContext.WebApplicationPhysicalPath + "\\errors.csv", eventData);
+
+            // Sends an email notifying about the error event
+            emailService.SendEmail(GetEmailMessage(eventLogData, eventData));
+        }
+    }
+
+    private EmailMessage GetEmailMessage(EventLogData data, string eventData)
+    {
+        return new EmailMessage()
+        {
+            From = NOTIFICATION_SENDER,
+            Recipients = NOTIFICATION_RECIPIENT,
+            Subject = $"Error {data.EventCode}",
+            Body = $"The following error occurred:{Environment.NewLine}{Environment.NewLine}{eventData}"
+        };
+    }
+}
+
+</code></pre>
+</div>
+
+<p><code>CsvErrorEventWriter</code> is now registered in the system. When logging an event, the system calls the writer’s <em>WriteLog</em> method, executing the code within.</p>
+
+</body>
+</html>

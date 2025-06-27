@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Configure the project to display content</title>
+</head>
+<body>
+<p>You have created a <em>page content type – Landing page</em> – with a field that allows for referencing another <em>reusable content type – Slogan</em>. The next step in line with our recommended practices is to create a <strong>Page template</strong>.</p>
+<p>But first, let’s get some necessary configuration tasks out of the way.</p>
+<h2 id="enable-content-tree-based-routing-and-page-builder">Enable Content tree-based routing and Page Builder</h2>
+<p>Page templates require the following features to be enabled:</p>
+<ul>
+<li>
+<a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> allows editors to design web pages using drag-and-drop widgets, templates, and other configurations.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">Content tree-based routing</a> creates URLs for web pages based on their position in the content tree and automatically handles requests to those URLs.</li>
+</ul>
+<p>When you run your <em>Kickstart.Web</em> project, you see a default message rendered on the screen:</p>
+
+The Kickstart.Web site has not been configured yet.
+
+<p>Right now, this message displays for any requests to the application to prevent errors. You need to remove the line of code that renders this message; otherwise, no pages will be accessible.</p>
+<p>Open the <em>Program.cs</em> file in your <em>Kickstart.Web</em> project and remove or comment out this line of code:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+app.MapGet("/", () =&gt; "The Kickstart.Web site has not been configured yet.");
+</code></pre>
+</div>
+
+<p>Now you can enable the Page Builder and Content tree-based routing in your <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0" target="_blank">middleware pipeline</a>.</p>
+<p>Un-comment the lines calling <code>UsePageBuilder</code> and <code>UseWebPageRouting</code> from the <code>features</code> collection passed to <code>builder.Services.AddKentico</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+// Enable desired Kentico Xperience features
+builder.Services.AddKentico(features =&gt;
+{
+    features.UsePageBuilder();
+    // features.UseActivityTracking();
+    features.UseWebPageRouting();
+    // features.UseEmailStatisticsLogging();
+    // features.UseEmailMarketing();
+});
+...
+</code></pre>
+</div>
+
+<p>Add <code>using</code> directives for <code>Kentico.PageBuilder.Web.Mvc</code> and <code>Kentico.Content.Web.Mvc.Routing</code> to resolve errors.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc;
+...
+</code></pre>
+</div>
+
+<p>Provide <code>PageBuilderOptions</code> with the <em>Landing page</em> content type name to the <code>UsePageBuilder</code> method – add <code>using Kickstart</code> to resolve errors.</p>
+
+<div>
+
+</div>
+<div>
+<p>Use the <code>CONTENT_TYPE_NAME</code> constant from the <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">generated class</a> to access the content type identifier.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using Kickstart;
+...
+builder.Services.AddKentico(features =&gt;
+{
+    features.UsePageBuilder(new PageBuilderOptions {
+        ContentTypeNames = new[] {
+            LandingPage.CONTENT_TYPE_NAME,
+        }
+    });
+    ...
+});
+...
+
+</code></pre>
+</div>
+
+<p>If you run your project now, your website will display an <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404" target="_blank">HTTP 404</a> error. That’s because you removed the temporary message, and we haven’t defined a home page yet. We will fix that soon. You should still be able to sign in to the administration UI when you navigate to <em>~/admin</em>.</p>
+
+<h2 id="create-a-viewimports-file">Create a ViewImports file</h2>
+<p>The second small step in preparation for displaying content is setting up a <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/views/layout?view=aspnetcore-8.0#importing-shared-directives" target="_blank">ViewImports file</a>.</p>
+<p>ViewImports files allow sharing directives across all views in the application or a particular subdirectory. (Typically <code>@using</code> directives and tag helpers.)</p>
+<p>Many templates and components will need to use the same resources. Let’s make things easier and use a global <em>_ViewImports</em> file to centrally manage imports for all future templates.</p>
+<p>Create a new empty Razor view named <em>_ViewImports.cshtml</em> in the root of your <em>Kickstart.Web</em> project.</p>
+<p>Add the following directives and tag helpers:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_ViewImports.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using CMS.Helpers
+@using Kentico.Web.Mvc
+@using Kentico.PageBuilder.Web.Mvc
+@using Kentico.Content.Web.Mvc.PageBuilder
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Kentico.Content.Web.Mvc
+@addTagHelper *, Kentico.Web.Mvc
+@addTagHelper *, Kickstart.Web
+</code></pre>
+</div>
+
+<p>This will allow any future page template views you add to use common features without explicit <code>@using</code> directives.</p>
+
+<div>
+
+</div>
+<div>
+<p>See an example <em>_ViewImports.cshtml</em> in our <a href="https://github.com/Kentico/xperience-by-kentico-kickstart/blob/main/src/Kickstart.Web/_ViewImports.cshtml" target="_blank">Kickstart repository</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Learn more about the <a href="/documentation/developers-and-admins/development/reference-tag-helpers">available tag helpers</a> in the Xperience by Kentico.</p>
+</div>
+
+<p>Now that you have added these configurations to your project let’s move on to the next step: building a page template.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/build-a-page-template">Build a page template</a></p>
+
+</body>
+</html>

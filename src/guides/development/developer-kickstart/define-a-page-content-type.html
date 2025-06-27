@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Define a page content type</title>
+</head>
+<body>
+<p>Previously, we created a reusable content type called <a href="/guides/development/developer-kickstart/create-a-reusable-content-type"><em>Slogan</em></a>. In order to use it in the website channel we defined in the <a href="/guides/development/developer-kickstart/add-a-website-channel">last step</a>, we’ll need a <a href="/documentation/business-users/website-content">page content type</a>. Pages of this type will reference reusable Slogan items.</p>
+<h2 id="add-a-page-content-type-in-the-admin-ui">Add a page content type in the admin UI</h2>
+<p>Begin by navigating to <strong>Configuration → Content types → New content type</strong>.</p>
+<p>Fill in the form with the following properties:</p>
+<ul>
+<li>
+<strong>Display Name:</strong>  Landing page</li>
+<li>
+<strong>Namespace:</strong>  Kickstart</li>
+<li>
+<strong>Name:</strong>  LandingPage</li>
+<li>
+<strong>Icon:</strong> <em>xp-market</em> (type ‘market’ in the select list search bar)</li>
+<li>
+<strong>Use for:</strong>  select  <strong>Pages</strong> from the dropdown</li>
+<li>
+<strong>Include in routing:</strong> True (checked)</li>
+</ul>
+<p></p>
+<p><strong>Save</strong> and switch to the <strong>Fields</strong> tab of the new <em>Landing page</em> content type. Add a field called <em>LandingPageSlogan</em>. Define the following properties to enable this field to reference Slogan items from the Content hub:</p>
+<ul>
+<li><p><strong>Field name:</strong> LandingPageSlogan (we recommend using the <em>&lt;content type name&gt;&lt;field name&gt;</em> naming convention <a href="/guides/development/developer-kickstart/create-a-reusable-content-type#NamingConvention">as explained here</a>)</p></li>
+<li><p><strong>Data Type:</strong> Content items (<em>Pages and reusable content</em> in newer versions)</p></li>
+<li><p><strong>Display in editing form:</strong> True (Enabled)</p></li>
+<li><p><strong>Field caption:</strong> Slogan</p></li>
+<li><p><strong>Form component:</strong> Content item selector (<em>Combined content selector</em> in newer versions)</p></li>
+<li>
+<p><strong>Form component configuration → Allowed content type:</strong> Slogan</p>
+
+<div>
+
+</div>
+<div>
+This links your reusable content type with the page and ensures only items of type <em>Slogan</em> will be allowed on any web page of type <em>Landing page</em>.
+</div>
+</li>
+</ul>
+<p>Your content type should look like this:</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>Our example page content type is very basic, with only one field. In production scenarios, the web page content type should also include <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> to represent structured data needed only for the web channel, such as those related to SEO, OpenGraph, and other web-specific metadata.</p>
+</div>
+
+<h3 id="link-the-type-to-the-channel">Link the type to the channel</h3>
+<p>Now you need to associate the page content type with the website channel from the <a href="/guides/development/developer-kickstart/add-a-website-channel">previous step</a>. Switch to the <strong>Allowed in channels</strong> tab of the content type, and click <strong>Select channels</strong>.</p>
+<p>Select <strong>Kickstart pages</strong>, and save the selection.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>The <strong>Kickstart pages</strong> channel now shows up as an item in the list. Additionally, if you navigate to <strong>Configuration → Channel management</strong> → <strong>Kickstart pages → Allowed content types</strong>, you will see the <em>Landing page</em> content type listed.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Pages and page templates</strong></p>
+<p>At this point, you are technically able to create a page of type <em>Landing page</em> in your <em>Kickstart pages</em> channel. However, if you are following along with the Kickstart series, do NOT create a new page of this type yet.</p>
+<p>A future step in this series will show how to create page templates. Pages that are not assigned a page template at the time of creation cannot be assigned one at a later time.</p>
+</div>
+
+<h3 id="generate-a-class-for-the-landing-page-content-type">Generate a class for the Landing page content type</h3>
+<p>Just like with the <em>Slogan</em> content type, you need to generate a class to access the <em>Landing page</em> content type in your .NET solution. Go to the <em>Kickstart.Web</em> project in a new command window and run the following command:</p>
+
+<div>
+<div>
+<div>
+<span>Bash</span>
+</div>
+<strong>Generate code files</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet run --no-build -- --kxp-codegen --type "PageContentTypes" --location "../Kickstart.Entities/{type}/{name}" --include "Kickstart.LandingPage"
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Find more information about code generation on <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">this documentation page</a> or <a href="/guides/development/get-started/generate-code-for-custom-content-and-data-classes">this video</a>.</p>
+</div>
+
+<p>After the command or script above completes, you should see a new <strong>LandingPage.generated.cs</strong> file in the <em>~/PageContentTypes/LandingPage</em> folder of the <em>Kickstart.Entities</em> project.</p>
+<p>In the next step, we’ll make some configurations to prepare the application to serve our page.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/configure-the-project">Configure the project to display content</a></p>
+
+</body>
+</html>

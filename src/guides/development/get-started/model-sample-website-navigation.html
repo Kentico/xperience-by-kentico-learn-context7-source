@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Model a sample website navigation</title>
+</head>
+<body>
+<p>Navigation is a necessary part of every website. Well-ordered navigation menus provide an overview of how the website’s content or its segments are structured. It also helps keep users engaged and leads them to explore more of the site.</p>
+
+<div>
+
+</div>
+<div>
+<p>This tutorial shows how to build a simple, proof-of-concept navigation leveraging a different approach than approach showcased in <a href="/guides/development/developer-kickstart/model-navigation">Developer Kickstart</a>. See the <a href="/guides/architecture/content-modeling/model-website-content-types/model-website-navigation">guide about modeling website navigation</a> if you are interested in recommendations for building navigation menus in Xperience.</p>
+</div>
+
+<p>We recommend modeling website navigation using reusable <a href="/documentation/business-users/content-hub">content items</a>. Developers then prepare ways to render the navigation menu as required (e.g., using .NET <a href="https://docs.microsoft.com/en-us/aspnet/core/mvc/views/view-components" target="_blank">view components</a>).</p>
+<p>The general process of creating website navigation consists of the following steps:</p>
+<ol type="1">
+<li>Developers prepare a dedicated <a href="/documentation/developers-and-admins/development/content-types">content type</a> for individual <em>Navigation items</em> as well as for the <em>Website navigation</em> as a whole.
+<ul>
+<li>The <em>Website navigation</em> contains individual <em>Navigation items</em> and represents the navigation on the website.</li>
+</ul>
+</li>
+<li>Editors create the <em>Navigation items</em> in the content hub. Each item links to a specific page in the site’s content tree, selected using the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">Page selector</a>.
+<ul>
+<li>The selector populates its <a href="/documentation/developers-and-admins/customization/field-editor">assigned field</a> with the GUID of the selected page, which is used to retrieve the corresponding page and its URL.</li>
+</ul>
+</li>
+<li>Editors create the <em>Website navigation</em> in the content hub and in it link individual navigation items created in the previous step.
+<ul>
+<li>The order of the linked navigation items represents the final state of the navigation menu on the live site.</li>
+</ul>
+</li>
+<li>Developers implement a view component that takes all the linked <em>Navigation items</em> from the <em>Website navigation</em> and transforms them into the finalized menu component.</li>
+</ol>
+<p>The following screenshot shows an example of a simple website navigation modeled in the content hub:</p>
+<p></p>
+<h2 id="model-the-navigation-item-content-type">Model the navigation item content type</h2>
+<p>To model the content type for individual navigation items:</p>
+<ol type="1">
+<li>Open the <strong>Content types</strong> application and select <strong>New content type</strong>.</li>
+<li>Fill in the following values:
+<ul>
+<li>
+<strong>Content type name</strong>: Navigation item</li>
+<li>
+<strong>Namespace</strong>: MySite</li>
+<li>
+<strong>Name</strong>: NavigationItem</li>
+<li>
+<strong>Use for</strong>: Reusable content</li>
+</ul>
+</li>
+<li>Select <strong>Save</strong>.</li>
+</ol>
+<p>Define the fields used to hold page data:</p>
+<ol type="1">
+<li>Select the <strong>Fields</strong> tab.</li>
+<li>Select <strong>New field</strong> and fill in the following values:
+<ul>
+<li>
+<strong>FieldName</strong>: NavigationItemName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Field caption</strong>: Name</li>
+<li>
+<strong>Form component</strong>: Text input</li>
+</ul>
+</li>
+<li>Select <strong>New field</strong> and fill in the following values:
+<ul>
+<li>
+<strong>Field name</strong>: NavigationItemLink</li>
+<li>
+<strong>Data type</strong>: Pages</li>
+<li>
+<strong>Field caption</strong>: Link to</li>
+<li>
+<strong>Tooltip text</strong>: Select a page from the content tree. Make sure that the page you have selected has a URL address.</li>
+<li>
+<strong>Form component</strong>: Page selector</li>
+<li>
+<strong>Maximum number of pages</strong>: 1</li>
+<li>
+<strong>Tree path</strong>: empty (this will enable editors to select any page)</li>
+</ul>
+</li>
+<li>
+<strong>Save</strong> your changes.</li>
+<li>Switch to the <strong>General</strong> tab.
+<ol type="1">
+<li>
+<strong>Select</strong> a relevant icon, for example: <em>xp-arrow-right-top-square</em>
+</li>
+<li>
+<strong>Save</strong> your changes.</li>
+</ol>
+</li>
+</ol>
+<p>The content type for individual navigation items is now successfully created. Editors can now create the navigation items in the content hub.</p>
+<p></p>
+<h2 id="model-the-website-navigation-content-type">Model the website navigation content type</h2>
+<p>To model the content type for website navigation:</p>
+<ol type="1">
+<li>Open the <strong>Content types</strong> application and select <strong>New content type</strong>.</li>
+<li>Fill in the following values:
+<ul>
+<li>
+<strong>Content type name</strong>: Website navigation</li>
+<li>
+<strong>Namespace</strong>: MySite</li>
+<li>
+<strong>Name</strong>: WebsiteNavigation</li>
+<li>
+<strong>Use for</strong>: Reusable content</li>
+</ul>
+</li>
+<li>Select <strong>Save</strong>.</li>
+</ol>
+<p>Define the field used to hold linked navigation items:</p>
+<ol type="1">
+<li>Select the <strong>Fields</strong> tab.</li>
+<li>Select <strong>New field</strong> and fill in the following values:
+<ul>
+<li>
+<strong>FieldName</strong>: NavigationMenu</li>
+<li>
+<strong>Data type</strong>: Pages and reusable content</li>
+<li>
+<strong>Field caption</strong>: Navigation menu</li>
+<li>
+<strong>Form component</strong>: Combined content selector</li>
+<li>
+<strong>Display items based on</strong>: Content types</li>
+<li>
+<strong>Allowed content types</strong>: Navigation item</li>
+<li>
+<strong>Minimum number of selected items</strong>: 1</li>
+</ul>
+</li>
+<li>
+<strong>Save</strong> your changes.</li>
+<li>Switch to the <strong>General</strong> tab.
+<ol type="1">
+<li>
+<strong>Select</strong> a relevant icon, for example: <em>xp-menu</em>
+</li>
+<li>
+<strong>Save</strong> your changes.</li>
+</ol>
+</li>
+</ol>
+<p>The content type for website navigation is now successfully created. Editors can now create the website navigation in the content hub.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Navigation menu hierarchy</strong></p>
+<p>To create complex, multi-level navigation menus, developers can define multiple content types representing individual sub-menus in the navigation that editors then combine to create a navigation menu hierarchy. For example, to model a <em>Top Nav menu container</em> &gt; <em>Nav menu column</em> &gt; <em>Nav menu item</em> hierarchy, the <em>Website navigation</em> content type will have a field for linking multiple <em>Column navigation</em> items which will link the individual <em>Navigation items</em>.</p>
+<p>Editors can then organize the content items used for website navigation into <a href="/documentation/business-users/content-hub/content-hub-folders">folders</a> in the content hub. This way they can make the menu hierarchy more visual and easily see in which channel application the navigation items are used.</p>
+</div>
+
+<h2 id="implement-a-view-component-that-renders-the-menu">Implement a view component that renders the menu</h2>
+<p>The next steps focus on creating a view component that renders all items linked in the <em>Website navigation</em> content item.</p>
+<p>Before you begin, <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">generate the code files</a> for the <em>Navigation item</em> and <em>Website navigation</em> content types and make sure they are included in your project.</p>
+<h3 id="create-a-view-model">Create a view model</h3>
+<p>Create a dedicated model class for menu items and use it to pass the minimum required data to your views – typically at least a <strong>text caption</strong> and a <strong>URL for the navigation link</strong>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Menu view model</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+public class NavigationItemViewModel
+{
+    // Defines the properties of the NavigationItem view model
+    public string MenuItemText { get; set; }
+    public string MenuItemRelativeUrl { get; set; }
+}
+
+</code></pre>
+</div>
+
+<h3 id="create-a-view-component">Create a view component</h3>
+<p>Next, create a view component that collects all linked items from the <em>Website navigation</em> and transforms them into links to actual pages in the system.</p>
+<p>When loading data for the navigation menu:</p>
+<ul>
+<li>Use the content item query API to retrieve the <em>Website navigation</em> with linked content items representing individual menu items. For more information about the retrieval of reusable data, see <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">Retrieve content items</a>.</li>
+<li>Retrieve navigation items as strongly typed objects using the generated classes – <code>NavigationItem</code>.</li>
+<li>Use the <code>IWebPageUrlRetriever.Retrieve</code> method to retrieve URLs from the GUIDs of the linked pages. For more information about URL retrieval, see <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content/retrieve-page-urls#url-formatting-and-behavior">Retrieve page URLs</a>.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/caching/data-caching">Cache</a> all retrieved data for improved performance.</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Menu view component</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+
+using Kentico.Content.Web.Mvc.Routing;
+using CMS.Websites;
+using CMS.ContentEngine;
+using CMS.Websites.Routing;
+
+using MySite.Models;
+
+public class NavigationMenuViewComponent : ViewComponent
+{
+    private readonly IContentQueryExecutor executor;
+    private readonly IWebPageUrlRetriever urlRetriever;
+    private readonly IWebsiteChannelContext channelContext;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+
+    public NavigationMenuViewComponent(
+        IContentQueryExecutor contentQueryExecutor,
+        IWebPageUrlRetriever pageUrlRetriever,
+        IWebsiteChannelContext websiteChannelContext,
+        IPreferredLanguageRetriever preferredLanguageRetriever)
+    {
+        // Initializes instances of required services using dependency injection
+        this.executor = contentQueryExecutor;
+        this.urlRetriever = pageUrlRetriever;
+        this.channelContext = websiteChannelContext;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+    }
+
+    public async Task&lt;IViewComponentResult&gt; InvokeAsync()
+    {
+        // Gets all linked 'Navigation items' from the 'Website navigation'
+        var query = new ContentItemQueryBuilder()
+            .ForContentType(
+                    contentTypeName: WebsiteNavigation.CONTENT_TYPE_NAME, 
+                    configureQuery: config =&gt; config
+                        .WithLinkedItems(1))
+            .InLanguage(preferredLanguageRetriever.Get());
+
+        // Materializes the query
+        IEnumerable&lt;WebsiteNavigation&gt; websiteNavigation = await executor.GetMappedResult&lt;WebsiteNavigation&gt;(query);
+
+        List&lt;NavigationItem&gt; navigationItems = websiteNavigation.FirstOrDefault().NavigationMenu.ToList();
+
+        var menuItemGuids = navigationItems
+            .Select(ni =&gt; ni.NavigationContentItemLink.First().WebPageGuid)
+            .ToList()
+            .AsReadOnly();
+
+        // Retrieves URLs of linked pages
+        IDictionary&lt;Guid, WebPageUrl&gt; urls = await urlRetriever.Retrieve(
+            webPageItemGuids: menuItemGuids
+            websiteChannelName: channelContext.WebsiteChannelName,
+            languageName: preferredLanguageRetriever.Get(),
+            forPreview: channelContext.IsPreview);
+
+        // Creates a list of view models from retrieved data
+        IEnumerable&lt;NavigationItemViewModel&gt; menuItems = navigationItems
+            .Select(ni =&gt; new NavigationItemViewModel {
+                MenuItemRelativeUrl = urls[ni.NavigationItemLink.First().WebPageGuid].RelativePath,
+                MenuItemText = ni.NavigationItemName
+                });
+
+        return View("~/Components/ViewComponents/NavigationMenu/Default.cshtml", menuItems);
+    }
+}
+
+</code></pre>
+</div>
+
+<h3 id="create-a-view-to-display-the-navigation-menu">Create a view to display the navigation menu</h3>
+<p>In the component’s view, render the collection of view models:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>Menu view</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@model IEnumerable&lt;MySite.Models.NavigationItemViewModel&gt;
+
+&lt;ul class="nav-menu"&gt;
+    @foreach (var navigationItem in Model)
+    {
+        &lt;li&gt;
+            &lt;a href="@navigationItem.MenuItemRelativeUrl"&gt;@navigationItem.MenuItemText&lt;/a&gt;
+        &lt;/li&gt;
+    }
+&lt;/ul&gt;
+
+</code></pre>
+</div>
+
+<p>Invoke the view component within your site’s pages or layout as required.</p>
+
+</body>
+</html>

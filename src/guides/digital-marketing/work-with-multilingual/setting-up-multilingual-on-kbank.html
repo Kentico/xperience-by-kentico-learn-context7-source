@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Setting up multilingual on Kbank</title>
+</head>
+<body>
+<p>The previous article introduced the <a href="/guides/digital-marketing/work-with-multilingual/multilingual-variant-of-content">multilingual variants of content</a> and showed you, how to distinguish between translated and not-translated content in Xperience by Kentico. Now, we’ll dive deeper into the theory of languages and how to set them up in Xperience by Kentico.</p>
+<p>Editors can offer website visitors content in different languages. For example, a US-based company can have content in English and French for a Canadian audience. Different channels can have different language variants to fulfill any specific needs of the company.</p>
+<p>These languages are defined by system administrators, and developers made sure every channel displayed them properly. From the system perspective, however, there are three types of languages in Xperience, that are used for different purposes.</p>
+
+<div>
+<p>We’ll talk about different types of languages in Xperience. Let’s quickly describe them:</p>
+<ul>
+<li>
+<strong>Fallback language</strong> – we already covered this in the <a href="/guides/digital-marketing/work-with-multilingual/multilingual-variant-of-content">previous article</a>. It’s a ‘backup’ language for the content you use in channels. In case the content won’t show in the new language variant (for example, because it wasn’t published), the fallback takes its place.</li>
+<li>
+<strong>Default language</strong> – when you open the <a href="/documentation/business-users/content-hub">Content hub</a> for the first time, Xperience shows the content items in the default language first. After you switch to a different language in channels, Xperience remembers the new language and rearranges content items in the <em>Content hub</em>, so you first see the items in the new language you worked with. For example, your default language is English, so the content items in the <em>Content hub</em> you see first are in English. Then, you go to a website channel, switch to German, and work on the German language variant. When you go to the <em>Content hub</em> next time, Xperience remembers and shows content items in German first. The default language doesn’t influence the live website.</li>
+<li>
+<strong>Primary language</strong> - is the language in which the live website appears by default. The URL doesn’t include the language identifier of the primary language. For example, the primary language of a website is English, and a language variant is French. The URLs will look, fir example, like this:
+<ul>
+<li>kbank.com/personal for English</li>
+<li>kbank.com/fr/personal for French</li>
+</ul>
+You can set different primary languages for each website channel in the <strong>Channels management</strong> application.</li>
+</ul>
+</div>
+
+<h2 id="add-a-new-language">Add a new language</h2>
+<p>When creating a new language variant of content, you must add the desired language to the <strong>Languages</strong> application. To do so, you need to be a system administrator or have appropriate permission. The next step is to set the language for the backend. Lastly, the developers need to ensure the content in the desired language displays correctly.</p>
+<p>When you <strong>add a new language</strong>, you’ll define the <em>language</em> name used internally in Xperience and the <em>code name</em> used in the URLs (more about URLs below). <em>Formatting culture</em> drives how XbyK handles culture-related information, like time, dates, or number format.</p>
+
+<div>
+<p>The formatting culture values must be based on IETF or one of the ISO-639 standards.</p>
+</div>
+
+<p></p>
+<p>You can also <strong>adjust an existing language</strong> in the application; just open it and change the requested value.</p>
+
+<div>
+<p>However, changing the language’s code name or setting another language as the default will change the URL. This means your developers need to redirect all original URLs to the new ones. See more in the Languages and URL section.</p>
+</div>
+
+<p>To <strong>remove an existing language</strong>, use the bin button next to the language.</p>
+<p></p>
+<p>If the system already contains a translated version of some content, you cannot delete the language. For example, the screenshot above shows there already is a Czech and German variant of a default English content item - you can see the Delete button is disabled. Don’t forget to go through:</p>
+<ul>
+<li>Content in the <strong>Content Hub</strong>,</li>
+<li>Pages in all <strong>website channels</strong>,</li>
+<li>
+<strong>Email channels</strong>.</li>
+</ul>
+<p>Before you delete the language, check if it’s marked as the <em>default language</em> or used as the <em>primary language </em>for a channel. If so, make another language default and the primary one.</p>
+<p></p>
+<h2 id="languages-are-global">Languages are global</h2>
+<p>When you create a new channel, you define a <em>primary language</em> your content will focus on. This will be the main language of your channel, but you can create content in any other language listed in the <strong>Languages</strong> application.</p>
+<p>It’s important to remember, however, that Xperience, by default, does not limit the channel languages in which you can publish content. While creating a language, you cannot restrict the languages allowed for this channel.</p>
+<p>Languages in Xperience are, by default, global. Meaning, when a language exists, editors can use it to translate content. Similarly, if a language has a fallback language, you cannot opt out of this behavior in a specific channel.</p>
+<p>If your project needs to be more restrictive, developers can customize Xperience and introduce language per channel setting capability. For a practical example, look at the Kbank demo settings.</p>
+<p></p>
+<p></p>
+<p>The global nature of languages in Xperience can impact other content objects besides content. When you delete a language, Xperience removes translated variants of consent agreements, taxonomy names, or title tags. So, when you decide to remove a language, proceed with caution.</p>
+<h2 id="fallback-languages">Fallback languages</h2>
+<p>As mentioned in the <a href="/guides/digital-marketing/work-with-multilingual/multilingual-variant-of-content#what-is-a-fallback-language">previous guide</a>, fallback language serves as a backup for content not published in the targeted multilingual variant.</p>
+<h3 id="how-fallback-language-works">How fallback language works</h3>
+<p>Let’s say you have a website in Spanish, and its fallback language is German. You also have English as a fallback for German. A visitor goes to the Spanish version of the website, and there is content that was not published in Spanish. Xperience shows the content in the fallback language, which is German. But if even the German version doesn’t exist, it shows the next in line, English.</p>
+<p>If there’s a fallback, the website’s URL will still appear as Spanish, even though some content shows in German or English.</p>
+<h3 id="defining-fallback-languages">Defining fallback languages</h3>
+<p>You can use more fallback languages than one universal and set up different fallbacks for each language. Or create a fallback chain. For example, you can create a fallback chain of five languages where the content will show in its fallback language if one language doesn’t work. And if THAT fallback language doesn’t work, the content shows in that fallback language’s fallback language. See the chain in the box below (however unrealistic). If the first one doesn’t work, Xperience shows the content is the second one. If the second one doesn’t work, it shows the third one, and so on.</p>
+
+<div>
+<p>Here is an example of the fallback chain:</p>
+<p>German → Czech → French → Spanish → English</p>
+</div>
+
+<p>To change the fallback language, open the <strong>Languages</strong> application and choose the preferred language. In our example, if German doesn’t work, it’ll show content in Czech. The following screenshot shows where to set up the fallback language.</p>
+<p></p>
+<p>Similarly to the previous step, set up the fallback language for Czech. Open the Czech language and set up the fallback language - French. Continue like this till you have the whole chain set up.</p>
+<h3 id="opt-out-from-language-fallback">Opt-out from language fallback</h3>
+<p>Suppose your company doesn’t want a fallback language for a specific language variant. In that case, you can remove the fallback language.</p>
+<p>Instead of choosing the fallback, remove it using the cross button.</p>
+<p></p>
+<p>But what if you don’t define the fallback language, and the desired page doesn’t exist in the target language? In that case, a visitor ends up on a 404 page. Make sure developers implement the 404 page for all language variants. Otherwise, the visitor will see just a white page.</p>
+<h2 id="languages-and-url">Languages and URL</h2>
+<p>URLs for pages in the <a href="/documentation/developers-and-admins/configuration/website-channel-management">primary language of a website channel</a> don’t include the language’s <strong>code name</strong> or <strong>parameter</strong>. For example, suppose English is set as the primary language of the website channel. In that case, the URLs of pages in English will be <em>domain.com/page</em>, for example <em>kbank.com/personal</em>.</p>
+<p>For pages in a non-primary language, Xperience inserts the language’s parameter into the URL path after the site’s root (‘/’). For example, suppose English is set as the primary language of the website channel. In that case, the URLs of pages in Spanish will be in the <em>kbank.com/es/personal</em> format.</p>
+
+<div>
+<p>As we mentioned before, the languages in Xperience are global and Kentico doesn’t monitor changes in Global objects. Which means developers have to handle redirects of all pages indexed in the search engines from the old, now broken, URLs to the new ones.</p>
+</div>
+
+<h2 id="to-sum-up">To sum up</h2>
+<p>In this guide, you’ve learned how to add, adjust, or remove a fallback language. Without a fallback language, visitors are redirected to a 404 page. You can create a chain of fallbacks or set a different fallback for each language variant. There doesn’t have to be just one universal fallback for everything; each language can have its fallback. Xperience creates a code name for the language in the URL. This code name doesn’t update automatically, so if you change it in settings, redirect the old pages.</p>
+<h2 id="next-steps">Next steps</h2>
+<p>In the following article, you can learn how to create a <a href="/guides/digital-marketing/work-with-multilingual/multilingual-variant-of-page">language variant of a page</a>.</p>
+<p>If you want to read more about multilingual from a developer’s point of view, visit our <a href="/guides/development/multilingual">Guides</a> dedicated to this topic.</p>
+
+</body>
+</html>
