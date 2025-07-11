@@ -1,0 +1,1779 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create versatile page templates, part 1</title>
+</head>
+<body>
+<p>In this guide, we’ll walk through the process of creating a page template to match this product detail mockup:</p>
+<p></p>
+<p>See the <a href="/guides/development/page-builder/meet-requirements-with-page-builder">first guide in this series</a> for an overview of the mockup, and a breakdown of how to meet business requirements with <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a>.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This guide uses the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch of the training guides repository</a> as a starting point.</p>
+<p>It relies on the dropdown provider from the <a href="/guides/development/page-builder/map-enum-to-dropdown">previous guide</a>.</p>
+<p>If you’re following along while working in a different environment, make sure:</p>
+<ul>
+<li>Your instance of Xperience by Kentico is version <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+<li>Your site has <em>Product</em>, <em>ProductPage</em>, <em>ProductFeature</em>, and <em>Benefit</em> content types that match the structure of those in the repository.</li>
+<li>
+<a href="/guides/development/developer-kickstart/configure-the-project#enable-content-tree-based-routing-and-page-builder">Page Builder is enabled</a> for the <em>Product page</em> content type during the application’s startup sequence.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>This guide will take place in the <em>TrainingGuides.Web</em> project of the repository, so assume any folder paths start from the root of this project.</p>
+</div>
+
+<h2 id="show-structured-data">Show structured data</h2>
+<p>The data in the mockup comes from the <em>Product</em> content type, which is served in the web channel through the <em>Product page</em> content type.</p>
+<p>In order to implement a page that matches the mockup without any extra steps for editors, we need to access that data and display it directly in the template.</p>
+<p>Let’s start by setting up view models to work with the data.</p>
+<h3 id="set-up-the-view-models">Set up the view models</h3>
+<h4 id="create-supporting-view-models">Create supporting view models</h4>
+<p>First, let’s set up the view model for the product page.</p>
+<p>If you look at the <em>Product</em> content type in Xperience, you’ll notice that products have collections of <em>Benefit</em> and <em>Product feature</em> content items. Start by making view models for these content types, so we can use them in the product.</p>
+<ol type="1">
+<li>In the <em>~/Features/Products/Models</em> folder, add a file called <em>ProductFeatureViewModel.cs</em>.</li>
+<li>Create properties corresponding to the content type’s fields.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductFeatureViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using Microsoft.AspNetCore.Html;
+
+ namespace TrainingGuides.Web.Features.Products.Models;
+
+ public class ProductFeatureViewModel
+ {
+     public string Key { get; set; } = string.Empty;
+     public string Name { get; set; } = string.Empty;
+     public HtmlString LabelHtml { get; set; } = HtmlString.Empty;
+     public decimal Price { get; set; }
+     public HtmlString ValueHtml { get; set; } = HtmlString.Empty;
+     public bool FeatureIncluded { get; set; }
+     public ProductFeatureValueType ValueType { get; set; }
+     public bool ShowInComparator { get; set; }
+ }
+ </code></pre>
+</div>
+</li>
+<li>Include a <code>ProductFeatureValueType</code> enumeration to represent the value of the <code>ValueType</code> field at the bottom of the file.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductFeatureViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     //(After the end of the ProductFeatureViewModel class's scope)
+
+     public enum ProductFeatureValueType
+     {
+         //These integers correspond to the data source in the Product feature content type, defined in the Xperience admin interface.
+         Text = 0,
+         Number = 1,
+         Boolean = 2
+     }
+ </code></pre>
+</div>
+</li>
+<li>Add a method to the <code>ProductFeatureViewModel</code> class to get the corresponding enum value from an integer.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductFeatureViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+         ...
+         private static ProductFeatureValueType GetValueType(string value)
+         {
+             if (string.IsNullOrEmpty(value))
+                 return ProductFeatureValueType.Text;
+
+             if (int.TryParse(value, out int id))
+                 return (ProductFeatureValueType)id;
+
+             return ProductFeatureValueType.Text;
+         }
+         ...
+ </code></pre>
+</div>
+</li>
+<li>Add a static <code>GetViewModel</code> method to create and populate a <code>ProductFeatureViewModel</code> based on a <code>ProductFeature</code> object.
+
+<div>
+
+</div>
+<div>
+<code>ProductFeature</code> is a generated class, created by the Xperience <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">code generation tool</a>.
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductFeatureViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     public static ProductFeatureViewModel GetViewModel(ProductFeature feature) =&gt; new()
+     {
+         Key = feature.ProductFeatureKey,
+         Name = feature.SystemFields.ContentItemName,
+         LabelHtml = new(feature.ProductFeatureLabel),
+         Price = feature.ProductFeaturePrice,
+         ValueHtml = new(feature.ProductFeatureValue),
+         FeatureIncluded = feature.ProductFeatureIncluded,
+         ValueType = GetValueType(feature.ProductFeatureValueType),
+         ShowInComparator = feature.ProductFeatureShowInComparator == "1"
+     };
+     ...
+ </code></pre>
+</div>
+</li>
+</ol>
+<p>That takes care of <em>Product feature</em>, so let’s move on to the <em>Benefit</em> content type.</p>
+<ol type="1">
+<li>Create a new class called <code>BenefitViewModel</code> in the <em>~/Features/Shared/Models</em> folder.</li>
+<li>Add properties that correspond to the <em>Benefit</em> content type’s fields, utilizing the existing <code>AssetViewModel</code> class for the asset.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>BenefitViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using Microsoft.AspNetCore.Html;
+
+ namespace TrainingGuides.Web.Features.Shared.Models;
+
+ public class BenefitViewModel
+ {
+     public HtmlString DescriptionHtml { get; set; } = HtmlString.Empty;
+     public AssetViewModel Icon { get; set; } = new();
+ }
+ </code></pre>
+</div>
+</li>
+<li>Add a static <code>GetViewModel</code> method to retrieve a <code>BenefitViewModel</code> from an object of the generated <code>Benefit</code> class.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>BenefitViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     public static BenefitViewModel GetViewModel(Benefit benefit) =&gt; new()
+     {
+         DescriptionHtml = new(benefit.BenefitDescription),
+         Icon = benefit.BenefitIcon?.FirstOrDefault() != null
+             ? AssetViewModel.GetViewModel(benefit.BenefitIcon.FirstOrDefault()!)
+             : new(),
+     };
+ </code></pre>
+</div>
+</li>
+</ol>
+At this point, your view models should look something like this:
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductFeatureViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Html;
+
+namespace TrainingGuides.Web.Features.Products.Models;
+
+public class ProductFeatureViewModel
+{
+    public string Key { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public HtmlString LabelHtml { get; set; } = HtmlString.Empty;
+    public decimal Price { get; set; }
+    public HtmlString ValueHtml { get; set; } = HtmlString.Empty;
+    public bool FeatureIncluded { get; set; }
+    public ProductFeatureValueType ValueType { get; set; }
+    public bool ShowInComparator { get; set; }
+
+    public static ProductFeatureViewModel GetViewModel(ProductFeature feature) =&gt; new()
+    {
+        Key = feature.ProductFeatureKey,
+        Name = feature.SystemFields.ContentItemName,
+        LabelHtml = new(feature.ProductFeatureLabel),
+        Price = feature.ProductFeaturePrice,
+        ValueHtml = new(feature.ProductFeatureValue),
+        FeatureIncluded = feature.ProductFeatureIncluded,
+        ValueType = GetValueType(feature.ProductFeatureValueType),
+        ShowInComparator = feature.ProductFeatureShowInComparator == "1"
+    };
+
+    private static ProductFeatureValueType GetValueType(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return ProductFeatureValueType.Text;
+
+        if (int.TryParse(value, out int id))
+            return (ProductFeatureValueType)id;
+
+        return ProductFeatureValueType.Text;
+    }
+}
+
+public enum ProductFeatureValueType
+{
+    Text = 0,
+    Number = 1,
+    Boolean = 2
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>BenefitViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Html;
+
+namespace TrainingGuides.Web.Features.Shared.Models;
+
+public class BenefitViewModel
+{
+    public HtmlString DescriptionHtml { get; set; } = HtmlString.Empty;
+    public AssetViewModel Icon { get; set; } = new();
+
+    public static BenefitViewModel GetViewModel(Benefit benefit) =&gt; new()
+    {
+        DescriptionHtml = new(benefit.BenefitDescription),
+        Icon = benefit.BenefitIcon?.FirstOrDefault() != null
+            ? AssetViewModel.GetViewModel(benefit.BenefitIcon.FirstOrDefault()!)
+            : new(),
+    };
+}
+</code></pre>
+</div>
+
+<h4 id="implement-the-product-page-view-model">Implement the Product page view model</h4>
+<p>With these in place, let’s move on to the <code>ProductPageViewModel</code>.</p>
+<ol type="1">
+<li>Create a <code>ProductPageViewModel</code> class in the <em>~/Features/Products/Models</em> folder.</li>
+<li>Inherit from the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Models/PageViewModel.cs" target="_blank"><code>PageViewModel</code> class</a>.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPageViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     namespace TrainingGuides.Web.Features.Products.Models;
+
+     public class ProductPageViewModel : PageViewModel { }
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+Notice the <code>Link</code> property of the <code>PageViewModel</code> class, which can be re-used by other page types in the future.
+</div>
+</li>
+<li>Add properties that mirror the fields of the <em>Product</em> content type, with collections of <code>ProductFeatureViewModel</code> and <code>BenefitViewModel</code> objects where appropriate.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPageViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using Microsoft.AspNetCore.Html;
+ using TrainingGuides.Web.Features.Shared.Models;
+ ...
+ public class ProductPageViewModel : PageViewModel
+ {
+     public HtmlString NameHtml { get; set; } = HtmlString.Empty;
+     public HtmlString ShortDescriptionHtml { get; set; } = HtmlString.Empty;
+     public HtmlString DescriptionHtml { get; set; } = HtmlString.Empty;
+     public List&lt;AssetViewModel&gt; Media { get; set; } = [];
+     public decimal Price { get; set; }
+     public List&lt;ProductFeatureViewModel&gt; Features { get; set; } = [];
+     public List&lt;BenefitViewModel&gt; Benefits { get; set; } = [];
+ }
+ </code></pre>
+</div>
+</li>
+</ol>
+<h4 id="add-a-supporting-service">Add a supporting service</h4>
+You might notice that <code>ProductViewModel</code> doesn’t have a <code>GetViewModel</code> method like <code>ProductFeatureViewModel</code> and <code>BenefitViewModel</code>. This is because it needs <em>Dependency injection</em> to get the page’s URL, so we’re going to move it to a service instead.
+
+<div>
+
+</div>
+<div>
+<p>Make sure that any methods you include in your view model classes are simple, with only basic data transformation at most.</p>
+</div>
+
+<ol type="1">
+<li><p>Add an interface called <code>IProductPageService</code> to <em>~/Features/Products/Services</em>.</p></li>
+<li>
+<p>Include a method signature <code>GetProductPageViewModel</code> with the following parameters:</p>
+<ol type="1">
+<li>The <code>ProductPage</code> object to base the view model on.</li>
+<li>Optional boolean values to indicate which values to include.</li>
+<li>Optional settings for the call to action link
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IProductPageService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using TrainingGuides.Web.Features.Products.Models;
+
+ namespace TrainingGuides.Web.Features.Products.Services;
+
+ public interface IProductPageService
+ {
+     public Task&lt;ProductPageViewModel&gt; GetProductPageViewModel(
+         ProductPage? productPage,
+         bool getMedia = true,
+         bool getFeatures = true,
+         bool getBenefits = true,
+         string callToAction = "",
+         string callToActionLink = "",
+         bool openInNewTab = true,
+         bool getPrice = true);
+ }
+ </code></pre>
+</div>
+</li>
+</ol>
+</li>
+<li>
+<p>Add a <code>ProductPageService</code> class that implements this interface.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPageService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     public class ProductPageService : IProductPageService
+     ...
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Use <em>dependency injection</em> to acquire an <code>IWebPageUrlRetriever</code> object.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPageService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     private readonly IWebPageUrlRetriever webPageUrlRetriever;
+     public ProductPageService(IWebPageUrlRetriever webPageUrlRetriever)
+     {
+         this.webPageUrlRetriever = webPageUrlRetriever;
+     }
+     ...
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The code samples in this guide rely on a <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/TrainingGuidesWebPageUrlRetriever.cs" target="_blank">decorated version</a> of <code>IWebPageUrlRetriever</code> that includes exception handling.</p>
+If you do not plan to use a similar customization, make sure to handle errors that the <code>Retrieve</code> method may throw when it cannot find a page.
+</div>
+</li>
+<li>
+<p>Implement the <code>GetProductPageViewModel</code> method.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPageService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using Microsoft.IdentityModel.Tokens;
+ using TrainingGuides.Web.Features.Products.Models;
+ using TrainingGuides.Web.Features.Shared.Models;
+
+ namespace TrainingGuides.Web.Features.Products.Services;
+
+ public class ProductPageService : IProductPageService
+ {
+     private readonly IWebPageUrlRetriever webPageUrlRetriever;
+     public ProductPageService(IWebPageUrlRetriever webPageUrlRetriever)
+     {
+         this.webPageUrlRetriever = webPageUrlRetriever;
+     }
+
+     /// &lt;summary&gt;
+     /// Creates a new instance of &lt;see cref="ProductPageViewModel"/&gt;, setting the properties using ProductPage given as a parameter.
+     /// &lt;/summary&gt;
+     /// &lt;param name="productPage"&gt;Corresponding Product page object.&lt;/param&gt;
+     /// &lt;returns&gt;New instance of ProductPageViewModel.&lt;/returns&gt;
+     public async Task&lt;ProductPageViewModel&gt; GetProductPageViewModel(
+         ProductPage? productPage,
+         bool getMedia = true,
+         bool getFeatures = true,
+         bool getBenefits = true,
+         string callToActionText = "",
+         string callToActionLink = "",
+         bool openInNewTab = true,
+         bool getPrice = true)
+     {
+         //Return an empty view model if the provided ProductPage is null.
+         if (productPage == null)
+         {
+             return new ProductPageViewModel();
+         }
+
+         //Use the IWebPageUrlRetriever to get the URL of the product page.
+         string url = callToActionLink.IsNullOrEmpty()
+             ? (await webPageUrlRetriever.Retrieve(productPage)).RelativePath
+             : callToActionLink;
+
+         //Make sure to account for the boolean parameters as you construct the view model.
+         return new ProductPageViewModel
+         {
+             NameHtml = new(productPage.ProductPageProduct.FirstOrDefault()?.ProductName),
+             ShortDescriptionHtml = new(productPage.ProductPageProduct.FirstOrDefault()?.ProductShortDescription),
+             DescriptionHtml = new(productPage.ProductPageProduct.FirstOrDefault()?.ProductDescription),
+             Media = getMedia
+                 ? productPage.ProductPageProduct.FirstOrDefault()?
+                     .ProductMedia.Select(AssetViewModel.GetViewModel)?
+                     .ToList() ?? []
+                 : [],
+             Link = new LinkViewModel()
+             {
+                 Name = productPage.ProductPageProduct.FirstOrDefault()?.ProductName ?? string.Empty,
+                 LinkUrl = url,
+                 CallToAction = callToActionText.IsNullOrEmpty()
+                     ? string.Empty
+                     : callToActionText,
+                 OpenInNewTab = openInNewTab
+             },
+             Features = getFeatures
+                 ? productPage.ProductPageProduct.FirstOrDefault()?
+                     .ProductFeatures
+                     .Select(ProductFeatureViewModel.GetViewModel)
+                     .ToList() ?? []
+                 : [],
+             Benefits = getBenefits
+                 ? productPage.ProductPageProduct.FirstOrDefault()?
+                     .ProductBenefits
+                     .Select(BenefitViewModel.GetViewModel)
+                     .ToList() ?? []
+                 : [],
+             Price = getPrice ? productPage.ProductPageProduct
+                 .FirstOrDefault()?.ProductPrice ?? 0 : 0,
+         };
+     }
+ }
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Register the <code>ProductPageService</code> with the dependency injection container in <em>TrainingGuides.Web/ServiceCollectionExtensions.cs</em>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ public static void AddTrainingGuidesServices(this IServiceCollection services)
+ {
+     ...
+     services.AddSingleton&lt;IProductPageService, ProductPageService&gt;();
+     ...
+ }
+ ...
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="define-page-template-properties">Define page template properties</h3>
+<p>Now that we have view models to determine the product template’s data, let’s add properties, so that editors can configure its appearance.</p>
+<p>The properties will utilize dropdowns fed by the dropdown provider we created <a href="/guides/development/page-builder/map-enum-to-dropdown">earlier in this series</a>, so start by defining enumerations for different color scheme and corner style options.</p>
+
+<div>
+
+</div>
+<div>
+<p>Decorate options with the <code>Description</code> attribute to provide user-friendly names.</p>
+</div>
+
+<ul>
+<li>
+<p>In the <em>~/Features/Shared/OptionProviders/ColorScheme</em> directory:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ColorSchemeOption.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+      using System.ComponentModel;
+
+      namespace TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme;
+
+      public enum ColorSchemeOption
+      {
+          [Description("Light background, dark text")]
+          Light1 = 1,
+
+          [Description("Light background, dark text 2")]
+          Light2 = 2,
+
+          [Description("Light background, dark text 3")]
+          Light3 = 3,
+
+          [Description("Transparent background, dark text")]
+          TransparentDark = 4,
+
+          [Description("Transparent background, medium text")]
+          TransparentMedium = 5,
+
+          [Description("Transparent background, light text")]
+          TransparentLight = 6,
+
+          [Description("Dark background, light text")]
+          Dark1 = 7,
+
+          [Description("Dark background, light text 2")]
+          Dark2 = 8
+      }
+  </code></pre>
+</div>
+</li>
+<li>
+<p>In the <em>~/Features/Shared/OptionProviders/CornerStyle</em> directory:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CornerStyleOption.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+      using System.ComponentModel;
+
+      namespace TrainingGuides.Web.Features.Shared.OptionProviders.CornerStyle;
+
+      public enum CornerStyleOption
+      {
+          [Description("Sharp corners")]
+          Sharp = 0,
+          [Description("Round corners")]
+          Round = 1,
+          [Description("Very round corners")]
+          VeryRound = 2,
+      }
+  </code></pre>
+</div>
+</li>
+</ul>
+<p>Next, create a properties class for the <em>ProductPage</em> content type that utilizes these dropdowns in the <em>~/Features/Products</em> folder.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPagePageTemplateProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+    using Kentico.Xperience.Admin.Base.FormAnnotations;
+    using TrainingGuides.Web.Features.Shared.OptionProviders;
+    using TrainingGuides.Web.Features.Shared.OptionProviders.CornerStyle;
+    using TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme;
+
+    namespace TrainingGuides.Web.Features.Products;
+
+    public class ProductPagePageTemplateProperties : IPageTemplateProperties
+    {
+        [DropDownComponent(
+            Label = "Color scheme",
+            ExplanationText = "Select the color scheme of the template.",
+            DataProviderType = typeof(DropdownEnumOptionProvider&lt;ColorSchemeOption&gt;),
+            Order = 20)]
+        public string ColorScheme { get; set; } = nameof(ColorSchemeOption.TransparentDark);
+
+        [DropDownComponent(
+            Label = "Corner style",
+            ExplanationText = "Select the corner type of the template.",
+            DataProviderType = typeof(DropdownEnumOptionProvider&lt;CornerStyleOption&gt;),
+            Order = 30)]
+        public string CornerStyle { get; set; } = nameof(CornerStyleOption.Round);
+    }
+</code></pre>
+</div>
+
+<h3 id="set-up-the-template">Set up the template</h3>
+<p>With the view models and service in place, we can create the page template, register it, and serve it from a controller.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Find more details here</strong></p>
+<p>This section briefly goes over processes covered in <a href="/guides/development/developer-kickstart/build-a-page-template">Build a page template</a> step of our Kickstart series. Please refer to it if you’d like more detailed steps and information in the context of a different example.</p>
+<p>Note these sections in particular:</p>
+<ul>
+<li><a href="/guides/development/developer-kickstart/build-a-page-template#add-the-page-template-view">Add the page template view</a></li>
+<li><a href="/guides/development/developer-kickstart/build-a-page-template#register-the-page-template">Register the page template</a></li>
+<li><a href="/guides/development/developer-kickstart/build-a-page-template#define-a-page-template-controller">Define a page template controller</a></li>
+</ul>
+</div>
+
+<h4 id="define-the-view">Define the view</h4>
+<p>With the view model and properties in place, you can create a view under <em>~/Features/Products</em>.</p>
+<p>Use the <code>GetTemplateModel</code> method to retrieve structured data and display it in a view. We’ll expand on this in the future. For now, let’s keep it simple.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    @using TrainingGuides.Web.Features.Products.Models
+    @using TrainingGuides.Web.Features.Products
+
+    @model TemplateViewModel&lt;ProductPagePageTemplateProperties&gt;
+
+    @{
+        var templateModel = Model.GetTemplateModel&lt;ProductPageViewModel&gt;();
+    }
+
+    &lt;div&gt;
+        &lt;div&gt;
+            &lt;h3&gt;@templateModel.NameHtml&lt;/h3&gt;
+            &lt;p&gt;@templateModel.ShortDescriptionHtml&lt;/p&gt;
+        &lt;/div&gt;
+        
+        &lt;div&gt;
+            &lt;img src="@templateModel.Media.FirstOrDefault()?.FilePath" alt="@templateModel.Media.FirstOrDefault()?.Description"/&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+</code></pre>
+</div>
+
+<h4 id="register-the-template">Register the template</h4>
+<p>Create a new file called <em>ProductPagePageTemplate.cs</em> in the <em>~/Features/Products</em> folder, and use it to house the registration attribute for the page template.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPagePageTemplate.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+    using TrainingGuides;
+    using TrainingGuides.Web.Features.Products;
+
+    [assembly: RegisterPageTemplate(
+        identifier: ProductPagePageTemplate.IDENTIFIER,
+        name: "Product page template",
+        propertiesType: typeof(ProductPagePageTemplateProperties),
+        customViewName: "~/Features/Products/ProductPagePageTemplate.cshtml",
+        ContentTypeNames = [ProductPage.CONTENT_TYPE_NAME],
+        IconClass = "xp-box")]
+
+    namespace TrainingGuides.Web.Features.Products;
+    public static class ProductPagePageTemplate
+    {
+        public const string IDENTIFIER = "TrainingGuides.ProductPageTemplate";
+    }
+</code></pre>
+</div>
+
+<h4 id="create-the-controller">Create the controller</h4>
+<ol type="1">
+<li>In the <em>~/Features/Products</em> folder, add a file called <em>ProductPageController</em>.</li>
+<li>Use an <code>IContentItemRetriever&lt;ProductPage&gt;</code> to get the product data from Xperience.</li>
+<li>Use an instance of the <code>IProductPageService</code> we defined <a href="#add-a-supporting-service">earlier</a> to convert the <code>ProductPage</code> to a <code>ProductPageViewModel</code>.</li>
+<li>Add a new <code>ProductFeatureViewModel</code> containing the product’s price, so that it appears in the table.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductPageController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using Kentico.Content.Web.Mvc;
+    using Kentico.Content.Web.Mvc.Routing;
+    using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+    using Microsoft.AspNetCore.Mvc;
+    using TrainingGuides;
+    using TrainingGuides.Web.Features.Products.Models;
+    using TrainingGuides.Web.Features.Products.Services;
+    using TrainingGuides.Web.Features.Shared.Services;
+
+    [assembly: RegisterWebPageRoute(
+        contentTypeName: ProductPage.CONTENT_TYPE_NAME,
+        controllerType: typeof(TrainingGuides.Web.Features.Products.ProductPageController))]
+
+    namespace TrainingGuides.Web.Features.Products;
+
+    public class ProductPageController : Controller
+    {
+        private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
+        private readonly IContentItemRetrieverService&lt;ProductPage&gt; contentItemRetriever;
+        private readonly IProductPageService productPageService;
+
+        public ProductPageController(
+            IWebPageDataContextRetriever webPageDataContextRetriever,
+            IContentItemRetrieverService&lt;ProductPage&gt; contentItemRetriever,
+            IProductPageService productPageService)
+        {
+            this.webPageDataContextRetriever = webPageDataContextRetriever;
+            this.contentItemRetriever = contentItemRetriever;
+            this.productPageService = productPageService;
+        }
+        public async Task&lt;IActionResult&gt; Index()
+        {
+            var context = webPageDataContextRetriever.Retrieve();
+
+            var productPage = await contentItemRetriever.RetrieveWebPageById
+                (context.WebPage.WebPageItemID,
+                ProductPage.CONTENT_TYPE_NAME,
+                3);
+
+            var model = await productPageService.GetProductPageViewModel(productPage);
+            model.Features.Add(
+                    new ProductFeatureViewModel
+                    {
+                        Key = "price-from-product-content-item",
+                        Name = "Price",
+                        LabelHtml = new("Price"),
+                        Price = model.Price,
+                        ValueHtml = new(string.Empty),
+                        FeatureIncluded = false,
+                        ValueType = ProductFeatureValueType.Number,
+                        ShowInComparator = true,
+                    });
+
+            return new TemplateResult(model);
+        }
+    }
+</code></pre>
+</div>
+
+<h4 id="check-your-progress">Check your progress</h4>
+<p>We’ve been focused on code for a while, so let’s double-check that everything is working on the site.</p>
+<ol type="1">
+<li>Log into the Xperience admin and open the <em>Training guides pages</em> channel.</li>
+<li>Choose one of the <em>Product page</em> pages under the <em>Products</em> page in the tree, and edit the page on the <em>Page Builder</em> tab.</li>
+<li>Click the page icon in the bottom left corner of the Page Builder frame to configure the Page Builder properties.</li>
+<li>Choose the <em>Product page template</em>, and see how the data from the product page is now displayed according to your templates.</li>
+</ol>
+
+
+<div>
+
+</div>
+<div>
+<p>If you’re not seeing any output, make sure the product page type is included in the <code>UsePageBuilder</code> call during the application’s startup sequence, try putting breakpoints in the controller and view. If one or both of them is not being hit, it could indicate an issue in one of the registration attributes for the controller or page template.</p>
+</div>
+
+<h2 id="style-the-template-based-on-properties">Style the template based on properties</h2>
+<p>You probably noticed in the last section that the template is not very pretty yet. You’ll also find that the dropdowns for color scheme and corner style in the template properties don’t change anything.</p>
+<p>Let’s create a service that maps the options from the dropdown to CSS classes, and a tag helper that uses it to style a <code>div</code> element.</p>
+<h3 id="create-a-service-to-retrieve-styles">Create a service to retrieve styles</h3>
+<ol type="1">
+<li>Define an <code>IComponentStyleEnumService</code> interface in the <em>~/Features/Shared/Services</em> folder.</li>
+<li>Include method signatures to retrieve CSS classes based on a <code>ColorSchemeOption</code> and <code>CornerStyleOption</code> respectively.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IComponentStyleEnumService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     namespace TrainingGuides.Web.Features.Shared.Services;
+
+     public interface IComponentStyleEnumService
+     {
+         IEnumerable&lt;string&gt; GetColorSchemeClasses(ColorSchemeOption colorScheme);
+
+         IEnumerable&lt;string&gt; GetCornerStyleClasses(CornerStyleOption cornerStyle);
+     ...
+ </code></pre>
+</div>
+</li>
+<li>Add method signatures to convert the string representation of a selected option to its corresponding enum value.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IComponentStyleEnumService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     CornerStyleOption GetCornerStyle(string cornerStyleString);
+
+     ColorSchemeOption GetColorScheme(string colorSchemeString);
+     }
+ </code></pre>
+</div>
+</li>
+<li>Implement the interface, mapping the selected options to sets of CSS classes. Use the <code>Parse</code> method from the <code>DropdownEnumOptionProvider</code> we defined <a href="/guides/development/page-builder/map-enum-to-dropdown">earlier in the series</a> for the string conversion methods.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentStyleEnumService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     using TrainingGuides.Web.Features.Shared.OptionProviders;
+     using TrainingGuides.Web.Features.Shared.OptionProviders.CornerStyle;
+     using TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme;
+
+     namespace TrainingGuides.Web.Features.Shared.Services;
+
+     public class ComponentStyleEnumService : IComponentStyleEnumService
+     {
+         public IEnumerable&lt;string&gt; GetColorSchemeClasses(ColorSchemeOption colorScheme) =&gt; colorScheme switch
+         {
+             ColorSchemeOption.Light1 =&gt; ["tg-bg-light-1", "tg-txt-dark"],
+             ColorSchemeOption.Light2 =&gt; ["tg-bg-light-2", "tg-txt-dark"],
+             ColorSchemeOption.Light3 =&gt; ["tg-bg-light-3", "tg-txt-dark"],
+             ColorSchemeOption.Dark1 =&gt; ["tg-bg-primary", "tg-txt-light"],
+             ColorSchemeOption.Dark2 =&gt; ["tg-bg-secondary", "tg-txt-light"],
+             ColorSchemeOption.TransparentLight =&gt; ["tg-bg-none", "tg-txt-light"],
+             ColorSchemeOption.TransparentMedium =&gt; ["tg-bg-none", "tg-txt-medium"],
+             ColorSchemeOption.TransparentDark =&gt; ["tg-bg-none", "tg-txt-dark"],
+             _ =&gt; [string.Empty],
+         };
+
+         public IEnumerable&lt;string&gt; GetCornerStyleClasses(CornerStyleOption cornerStyle) =&gt; cornerStyle switch
+         {
+             CornerStyleOption.Round =&gt; ["tg-corner-rnd"],
+             CornerStyleOption.VeryRound =&gt; ["tg-corner-v-rnd"],
+             CornerStyleOption.Sharp =&gt; ["tg-corner-shrp"],
+             _ =&gt; [string.Empty],
+         };
+
+         public CornerStyleOption GetCornerStyle(string cornerStyleString) =&gt;
+             new DropdownEnumOptionProvider&lt;CornerStyleOption&gt;().Parse(cornerStyleString, CornerStyleOption.Round);
+
+         public ColorSchemeOption GetColorScheme(string colorSchemeString) =&gt;
+             new DropdownEnumOptionProvider&lt;ColorSchemeOption&gt;().Parse(colorSchemeString, ColorSchemeOption.TransparentDark);
+     }
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Each of the classes in this example are small, usually only setting one css property to minimize collisions across classes.</p>
+<p>Defining the styles themselves is outside the scope of this series, but you can find their definitions in the <em>~/scss</em> directory, where .scss styles are defined and later compiled to css.</p>
+If you are using the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch of the training guides repository</a> to follow along, the classes should already exist.
+</div>
+</li>
+<li>Remember to register the service with the dependency injection container in the <em>TrainingGuides.Web/ServiceCollectionExtensions.cs</em> file:
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ public static void AddTrainingGuidesServices(this IServiceCollection services)
+ {
+     ...
+     services.AddSingleton&lt;IComponentStyleEnumService, ComponentStyleEnumService&gt;();
+     ...
+ }
+ ...
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="apply-the-styles-with-a-tag-helper">Apply the styles with a tag helper</h3>
+<ol type="1">
+<li>Add a new class called <code>ComponentStyleTagHelper</code>to the <em>~/Features/Shared/Helpers/TagHelpers</em> folder.</li>
+<li>Inherit from the .NET <code>TagHelper</code> class, and decorate it with the <code>HtmlTargetElement</code> attribute to set its element name to <code>tg-component-style</code>.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentStyleTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     [HtmlTargetElement("tg-component-style")]
+     public class ComponentStyleTagHelper : TagHelper
+     ...
+ </code></pre>
+</div>
+</li>
+<li>Give the tag helper string properties called <code>ColorScheme</code> and <code>CornerStyle</code>, so that objects that store selections as strings, such as page template properties, can use them directly.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentStyleTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     public string ColorScheme { get; set; } = string.Empty;
+     public string CornerStyle { get; set; } = string.Empty;
+     ...
+ </code></pre>
+</div>
+</li>
+<li>Use a constant to hold the type of tag, in case we need to add more complex logic for determining the tag name in the future.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentStyleTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     private const string DIV_TAG = "div";
+     ...
+ </code></pre>
+</div>
+</li>
+<li>Acquire an <code>IComponentStyleEnumService</code> object through dependency injection.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentStyleTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     private readonly IComponentStyleEnumService componentStyleEnumService;
+
+     public ComponentStyleTagHelper(IComponentStyleEnumService componentStyleEnumService) : base()
+     {
+         this.componentStyleEnumService = componentStyleEnumService;
+     }
+     ...
+ </code></pre>
+</div>
+</li>
+<li>In the <code>Process</code> method, use the service to retrieve styles for the output tag.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentStyleTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     public override void Process(TagHelperContext context, TagHelperOutput output)
+     {
+         output.TagName = DIV_TAG;
+
+         List&lt;string&gt; cssClasses = [];
+
+         var colorScheme = componentStyleEnumService.GetColorScheme(ColorScheme);
+         cssClasses.AddRange(componentStyleEnumService.GetColorSchemeClasses(colorScheme));
+
+         var cornerStyle = componentStyleEnumService.GetCornerStyle(CornerStyle);
+         cssClasses.AddRange(componentStyleEnumService.GetCornerStyleClasses(cornerStyle));
+
+         if (cssClasses.Count &gt; 0)
+         {
+             foreach (string cssClass in cssClasses)
+             {
+                 output.AddClass(cssClass, HtmlEncoder.Default);
+             }
+         }
+     }
+     ...
+ </code></pre>
+</div>
+</li>
+</ol>
+In the end, your tag helper should look like this:
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentStyleTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using TrainingGuides.Web.Features.Shared.Services;
+
+
+namespace TrainingGuides.Web.Features.Shared.Helpers.TagHelpers;
+
+[HtmlTargetElement("tg-component-style")]
+public class ComponentStyleTagHelper : TagHelper
+{
+    public string ColorScheme { get; set; } = string.Empty;
+    public string CornerStyle { get; set; } = string.Empty;
+
+    private const string DIV_TAG = "div";
+
+    private readonly IComponentStyleEnumService componentStyleEnumService;
+
+    public ComponentStyleTagHelper(IComponentStyleEnumService componentStyleEnumService) : base()
+    {
+        this.componentStyleEnumService = componentStyleEnumService;
+    }
+    public override void Process(TagHelperContext context, TagHelperOutput output)
+    {
+        output.TagName = DIV_TAG;
+
+        List&lt;string&gt; cssClasses = [];
+
+        var colorScheme = componentStyleEnumService.GetColorScheme(ColorScheme);
+        cssClasses.AddRange(componentStyleEnumService.GetColorSchemeClasses(colorScheme));
+
+        var cornerStyle = componentStyleEnumService.GetCornerStyle(CornerStyle);
+        cssClasses.AddRange(componentStyleEnumService.GetCornerStyleClasses(cornerStyle));
+
+        if (cssClasses.Count &gt; 0)
+        {
+            foreach (string cssClass in cssClasses)
+            {
+                output.AddClass(cssClass, HtmlEncoder.Default);
+            }
+        }
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="put-the-tag-helper-to-use">Put the tag helper to use</h3>
+The tag helper is now ready to be added to the view. If you return to <em>ProductPagePageTemplate.cshtml</em> you can wrap all of the existing markup with the new tag helper tag, and pass along the color scheme and corner style properties from the page template’s configuration.
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    @using TrainingGuides.Web.Features.Products.Models
+    @using TrainingGuides.Web.Features.Products
+
+    @model TemplateViewModel&lt;ProductPagePageTemplateProperties&gt;
+
+    @{
+        var templateModel = Model.GetTemplateModel&lt;ProductPageViewModel&gt;();
+    }
+
+    &lt;tg-component-style color-scheme="@Model.Properties.ColorScheme" corner-style="@Model.Properties.CornerStyle"&gt;
+        &lt;div&gt;
+            &lt;div&gt;
+                &lt;h3&gt;@templateModel.NameHtml&lt;/h3&gt;
+                &lt;p&gt;@templateModel.ShortDescriptionHtml&lt;/p&gt;
+            &lt;/div&gt;
+            
+            &lt;div&gt;
+                &lt;img src="@templateModel.Media.FirstOrDefault()?.FilePath" alt="@templateModel.Media.FirstOrDefault()?.Description"/&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/tg-component-style&gt;
+</code></pre>
+</div>
+
+<p>If you log in to the Xperience administration interface, you’ll notice that you can now adjust the appearance of the box containing the product’s data by clicking the gear icon in the bottom left of the <em>Page Builder</em> pane.</p>
+<p>However, if you set the template to use rounded corners and a colored background, you’ll see that the corners of the image do not change to match the style of the parent div. The image may also be an unreasonable size, depending on the file.</p>
+<p></p>
+<h3 id="create-an-image-tag-helper">Create an image tag helper</h3>
+<ol type="1">
+<li>In the <em>~/Features/Shared/Helpers/TagHelpers</em> folder, add a new self-closing TagHelper called <code>StyledImageTagHelper</code> with the tag name <code>tg-styled-image</code>.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>StyledImageTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     namespace TrainingGuides.Web.Features.Shared.Helpers.TagHelpers;
+
+     [HtmlTargetElement("tg-styled-image", TagStructure = TagStructure.WithoutEndTag)]
+     public class StyledImageTagHelper : TagHelper
+     ...
+ </code></pre>
+</div>
+</li>
+<li>Follow the same procedure as last time to set up properties and an <code>IComponentStyleEnumService</code>, leaving out the <code>ColorScheme</code> property.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>StyledImageTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     namespace TrainingGuides.Web.Features.Shared.Helpers.TagHelpers;
+
+     [HtmlTargetElement("tg-styled-image", TagStructure = TagStructure.WithoutEndTag)]
+     public class StyledImageTagHelper : TagHelper
+     {
+         public string CornerStyle { get; set; } = string.Empty;
+
+         private const string IMG_TAG = "img";
+
+         private readonly IComponentStyleEnumService componentStyleEnumService;
+         public StyledImageTagHelper(IComponentStyleEnumService componentStyleEnumService) : base()
+         {
+             this.componentStyleEnumService = componentStyleEnumService;
+         }
+     ...
+ </code></pre>
+</div>
+</li>
+<li>In the <code>Process</code> method, set the <code>TagMode</code> of the rendered HTML tag to <code>TagMode.SelfClosing</code> and style the image according to the classes returned by the service.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>StyledImageTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     ...
+     public override void Process(TagHelperContext context, TagHelperOutput output)
+     {
+         output.TagName = IMG_TAG;
+         output.TagMode = TagMode.SelfClosing;
+
+         List&lt;string&gt; cssClasses = [];
+
+         var cornerStyle = componentStyleEnumService
+             .GetCornerStyle(CornerStyle ?? string.Empty);
+
+         cssClasses.AddRange(componentStyleEnumService
+             .GetCornerStyleClasses(cornerStyle));
+
+         if (cssClasses.Count &gt; 0)
+         {
+             foreach (string cssClass in cssClasses)
+             {
+                 output.AddClass(cssClass, HtmlEncoder.Default);
+             }
+         }
+
+     }
+     ...
+ </code></pre>
+</div>
+</li>
+</ol>
+The resulting tag helper should look like this:
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>StyledImageTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using Microsoft.AspNetCore.Mvc.TagHelpers;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using TrainingGuides.Web.Features.Shared.Services;
+
+namespace TrainingGuides.Web.Features.Shared.Helpers.TagHelpers;
+
+[HtmlTargetElement("tg-styled-image", TagStructure = TagStructure.WithoutEndTag)]
+public class StyledImageTagHelper : TagHelper
+{
+    public string CornerStyle { get; set; } = string.Empty;
+
+    private const string IMG_TAG = "img";
+
+    private readonly IComponentStyleEnumService componentStyleEnumService;
+    public StyledImageTagHelper(IComponentStyleEnumService componentStyleEnumService) : base()
+    {
+        this.componentStyleEnumService = componentStyleEnumService;
+    }
+
+    public override void Process(TagHelperContext context, TagHelperOutput output)
+    {
+        output.TagName = IMG_TAG;
+        output.TagMode = TagMode.SelfClosing;
+
+        List&lt;string&gt; cssClasses = [];
+
+        var cornerStyle = componentStyleEnumService.GetCornerStyle(CornerStyle ?? string.Empty);
+        cssClasses.AddRange(componentStyleEnumService.GetCornerStyleClasses(cornerStyle));
+
+        if (cssClasses.Count &gt; 0)
+        {
+            foreach (string cssClass in cssClasses)
+            {
+                output.AddClass(cssClass, HtmlEncoder.Default);
+            }
+        }
+
+    }
+}
+</code></pre>
+</div>
+
+<p>The tag helper can be used in the view like this:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>Tag helper usage (e.g., in ProductPagePageTemplate.cshtml)</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;tg-styled-image src="@templateModel.Media.FirstOrDefault()?.FilePath" 
+    alt="@templateModel.Media.FirstOrDefault()?.Description" 
+    corner-style="@Model.Properties.CornerStyle" 
+    class="c-product-img object-fit-cover" /&gt;
+</code></pre>
+</div>
+
+<h2 id="complete-the-template">Complete the template</h2>
+<p>Comparing the current template to the mockup from the start of this series, you’ll notice that the Product features table is missing.</p>
+<p></p>
+<p>Its data is already in the template model, so it should be fairly straightforward to render to the page.</p>
+<p>However, if you inspect the <em>ProductFeature</em> content type, you may notice that its value can come from multiple different places depending on the selected <em>ProductFeatureValueType</em>.</p>
+<p>Let’s make one last tag helper, so that we don’t need to clutter the view with conditionals.</p>
+<h3 id="add-a-product-feature-value-tag-helper">Add a product feature value tag helper</h3>
+<p>Since this one is specifically related to Product features, and not general styling, we can put it in the <em>~/Features/Products/TagHelpers</em> folder.</p>
+<ol type="1">
+<li>Create a new self-closing tag helper called <code>ProductFeatureValueTagHelper</code>, with the tag name <code>tg-product-feature-value</code>.</li>
+<li>Add a <code>ProductFeatureViewModel</code> property and a constant for the <code>span</code> tag.</li>
+<li>In the <code>Process</code> method, determine the formated value depending on the provided <code>ProductFeatureValueType</code> from the view model and render it.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductFeatureValueTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using System.Globalization;
+    using Microsoft.AspNetCore.Html;
+    using Microsoft.AspNetCore.Razor.TagHelpers;
+    using TrainingGuides.Web.Features.Products.Models;
+
+    namespace TrainingGuides.Web.Features.Products.TagHelpers;
+
+    /// &lt;summary&gt;
+    /// Formats Product feature value based on its type.
+    /// &lt;/summary&gt;
+    [HtmlTargetElement("tg-product-feature-value", TagStructure = TagStructure.WithoutEndTag)] //This TagStructure allows the helper to be called with a single self-closing tag in razor views.
+    public class ProductFeatureValueTagHelper : TagHelper
+    {
+        public ProductFeatureViewModel? Feature { get; set; }
+
+        private const string SPAN_TAG = "span";
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            output.TagName = SPAN_TAG;
+
+            // Make sure to set the output's  TagMode to StartTagAndEndTag.
+            // This ensures that even though the tag helper is called with a single tag, the rendered output closes the `span` tag that wraps the value.
+            output.TagMode = TagMode.StartTagAndEndTag;
+
+            string? formattedValue = Feature?.ValueType switch
+            {
+                ProductFeatureValueType.Text =&gt; Feature.ValueHtml.Value,
+                ProductFeatureValueType.Number =&gt; string.Format(CultureInfo.CurrentUICulture, "{0:0.00}", Feature.Price),
+                ProductFeatureValueType.Boolean =&gt; Feature.FeatureIncluded ? "✔" : "-",
+                _ =&gt; string.Empty
+            };
+
+            output.Content.SetHtmlContent(new HtmlString(formattedValue));
+        }
+    }
+</code></pre>
+</div>
+
+<h3 id="add-the-product-features-list-to-the-template-view">Add the product features list to the template view</h3>
+<ol type="1">
+<li>In the <em>~/Features/Products/ProductPagePageTemplate.cshtml</em> folder, add a <code>foreach</code> loop to cycle through the product features.</li>
+<li>Retrieve each feature’s <code>LabelHtml</code> directly, and use the new tag helper to display its value</li>
+<li>Wrap the whole thing in the <code>tg-component-style</code> tag helper, setting <code>color-scheme</code> directly and <code>corner-style</code> based on the template properties.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    ...
+    &lt;tg-component-style color-scheme="@ColorSchemeOption.Light1" corner-style="@Model.Properties.CornerStyle"  class="c-table"&gt;
+        @foreach (var feature in templateModel.Features)
+        {
+            &lt;div&gt;
+                &lt;div&gt;@feature.LabelHtml&lt;/div&gt;
+                &lt;div&gt;
+                    &lt;tg-product-feature-value feature="@feature"/&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        }
+    &lt;/tg-component-style&gt;
+    ...
+</code></pre>
+</div>
+
+<h3 id="finish-styling-the-template.">Finish styling the template.</h3>
+<p>Now if you run the site, you’ll see all the data, but it’s still not formatted in a way that matches the mockup.</p>
+<p></p>
+<p>Add CSS styles and any necessary elements to make the template more visually appealing.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    @using TrainingGuides.Web.Features.Products.Models
+    @using TrainingGuides.Web.Features.Products
+    @using TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme
+
+    @model TemplateViewModel&lt;ProductPagePageTemplateProperties&gt;
+
+    @{
+        var templateModel = Model.GetTemplateModel&lt;ProductPageViewModel&gt;();
+    }
+
+    &lt;tg-component-style color-scheme="@Model.Properties.ColorScheme" corner-style="@Model.Properties.CornerStyle"&gt;
+        &lt;div class="tg-padding-big"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col align-self-center"&gt;
+                    &lt;h3&gt;@templateModel.NameHtml&lt;/h3&gt;
+                    &lt;p&gt;@templateModel.ShortDescriptionHtml&lt;/p&gt;
+                &lt;/div&gt;
+
+                &lt;tg-styled-image src="@templateModel.Media.FirstOrDefault()?.FilePath" alt="@templateModel.Media.FirstOrDefault()?.Description" corner-style="@Model.Properties.CornerStyle" class="col c-product-img object-fit-cover" /&gt;
+            &lt;/div&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="c-pricelist"&gt;
+                    &lt;div class="col"&gt;
+                        &lt;tg-component-style color-scheme="@ColorSchemeOption.Light1" corner-style="@Model.Properties.CornerStyle"  class="c-table"&gt;
+                            @foreach (var feature in templateModel.Features)
+                            {
+                                &lt;div class="c-table_row"&gt;
+                                    &lt;div class="c-table_cell"&gt;&lt;div class="c-table_cell"&gt;@feature.LabelHtml&lt;/div&gt;&lt;/div&gt;
+                                    &lt;div class="c-table_cell text-end"&gt;
+                                        &lt;tg-product-feature-value feature="@feature"/&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            }
+                        &lt;/tg-component-style&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/tg-component-style&gt;
+</code></pre>
+</div>
+
+<p>At the end of it all, you should be able to achieve this by configuring your template.</p>
+<p></p>
+<h2 id="whats-next">What’s next?</h2>
+<p><a href="/guides/development/page-builder/create-versatile-templates-part-2">Part 2 of the <em>Create versatile templates</em> guide</a> covers the process of adding toggleable <em>Page Builder</em> functionality to this template, so that your editors can customize its content in special cases.</p>
+<p>If you started in this guide, we recommend circling back to check out these guides form earlier in the series:</p>
+<ul>
+<li>
+<a href="/guides/development/page-builder/meet-requirements-with-page-builder">Meet business requirements with Page Builder</a>, a guide that analyzes how and when to apply Page Builder to business scenarios</li>
+<li>
+<a href="/guides/development/page-builder/map-enum-to-dropdown">Add a custom dropdown provider for administration components</a>, a guide that demonstrates the process of creating custom providers that provide options to dropdown menus in Page Builder component properties.</li>
+</ul>
+
+</body>
+</html>

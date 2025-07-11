@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Configure order statuses</title>
+</head>
+<body>
+
+<div>
+
+</div>
+<div>
+<p><strong>Developer preview feature</strong></p>
+<p>The digital commerce feature is currently not fully functional, and primarily intended to allow technical users to familiarize themselves with the development process of the commerce feature. You can expect the feature to be updated and extended in upcoming releases.</p>
+<p>The related API is <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/general#experimental-attributes" target="_blank">marked as experimental</a> and usage will result in warnings when compiling your project. The warnings are treated as errors for reporting purposes. To use the code, you need to <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/experimental-overview#suppress-warnings" target="_blank">suppress</a> the warnings.</p>
+<p>What should you do with this feature?</p>
+<ul>
+<li>
+<strong>DO</strong> try out development of digital commerce and examine the sample in the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat project template</a>.</li>
+<li>
+<strong>DO</strong> feel free to share your feedback with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</li>
+<li>
+<strong>DO NOT</strong> use this feature in public facing and production applications, as the feature is currently incomplete.</li>
+</ul>
+</div>
+
+<h2 id="create-order-statuses">Create order statuses</h2>
+<ol type="1">
+<li>Navigate to the <strong>Commerce configuration</strong> application.</li>
+<li>Select <strong>New order status</strong>.</li>
+<li>Fill in the required fields.
+<ul>
+<li>Order status name – the display name of the status.</li>
+<li>Notify the user when the order reaches this status – specifies whether selected users are notified when an order is moved to this status. See <a href="#configure-notifications-for-order-statuses">Configure notifications for order statuses</a>.</li>
+</ul>
+</li>
+</ol>
+<h2 id="configure-notifications-for-order-statuses">Configure notifications for order statuses</h2>
+<p>First, you need to define the content of the email notification:</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Prerequisite</strong></p>
+<p>Make sure that the <a href="/documentation/developers-and-admins/configuration/notifications#configure-domains-for-notifications">service domain for notifications</a> is set up in your project. For projects deployed in the Xperience by Kentico <a href="/documentation/developers-and-admins/saas">SaaS environment</a>, the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#email-channels-in-the-saas-environment">service domain</a> is configured automatically.</p>
+</div>
+
+<ol type="1">
+<li>Navigate to the <strong>Notifications</strong> application.</li>
+<li>Select the <strong>Commerce order</strong> system notification and <a href="/documentation/developers-and-admins/configuration/notifications#edit-default-notifications">edit the email content</a>.
+<ul>
+<li>You can use <a href="/documentation/developers-and-admins/configuration/notifications#notification-content-placeholders">content placeholders</a> to include information about the order.</li>
+</ul>
+</li>
+<li>
+<strong>Save</strong> the changes.</li>
+</ol>
+<p>Now you need to enable the notification for individual statuses:</p>
+<ol type="1">
+<li>Navigate to the <strong>Commerce configuration</strong> application.</li>
+<li>Select an order status for which you want users to receive a notification.</li>
+<li>Select the <strong>Notify the user when the order reaches this status</strong> checkbox.</li>
+<li>Select <strong>Recipients</strong> – users who you want to receive the notification whenever an order is <a href="/documentation/developers-and-admins/digital-commerce-setup/manage-orders#change-order-status">moved</a> to this status.
+<ul>
+<li>Only users who have access to the <strong>Orders</strong> application can be selected.</li>
+<li>If a user is selected and later loses the access to the <strong>Orders</strong> application, they will still receive order notifications, but will not be able to view the orders.</li>
+</ul>
+</li>
+<li>
+<strong>Save</strong> the changes.</li>
+</ol>
+<h3 id="send-notifications-for-new-orders">Send notifications for new orders</h3>
+<p>Order notifications are automatically sent when <a href="/documentation/developers-and-admins/digital-commerce-setup/manage-orders#change-order-status">moving</a> existing orders between order statuses. If you want the system to send a notification to the selected users when a new order is created, you need to call the <code>SendNotification</code> method of the <code>IOrderNotificationService</code> service when <a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process#implement-order-creation">creating the order</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Send notifications on order creation</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="11"><code>
+//An instance of IOrderNotificationService can be retrieved using dependency injection
+private readonly IOrderNotificationService orderNotificationService;
+
+// Creates a new order object
+var order = new OrderInfo()
+{
+    ...
+};
+
+// Sends a notification about the created order
+await orderNotificationService.SendNotification(order.OrderID, cancellationToken);
+</code></pre>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Deliver content dynamically using smart folders</title>
+</head>
+<body>
+<p><a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Smart folders</a> provide content editors with a high level of flexibility, allowing them to organize content and dynamically control its delivery in their channels.</p>
+
+<div>
+
+</div>
+<div>
+<p>Smart folders out-of-the-box do <strong>not</strong> allow for dynamic content delivery in <a href="/documentation/developers-and-admins/configuration/headless-channel-management">headless</a> and <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email</a> channels. Read more in our <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-content-items-from-smart-folders">documentation</a>.</p>
+</div>
+
+<p>Let’s explore how you, as a developer, can enable these flexible features for editors in a widget. We will build a simple Gallery widget that dynamically loads content from a smart folder of the editor’s choice.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+<li>Experience with <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder">Page Builder widgets</a>, <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a>, <a href="/documentation/business-users/content-hub">Content hub</a> and <a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">smart folders</a> in Xperience by Kentico.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="consider-the-scenario">Consider the scenario</h2>
+<p>Your client owns a vacation resort. On their website they want to feature several image galleries showcasing the rooms, the amenities, the surroundings and other categories of images. The editors need the flexibility to adjust which images and which categories of images they display, based on the season and marketing requirements.</p>
+<p>To fulfill these requirements you are going to build a gallery widget that displays images from a smart folder of editor’s choice.</p>
+<p>In your client’s system you have already created a <em>Gallery image</em> content type. It contains an <strong>Asset</strong> to hold the image to display, and a <strong>Category</strong> of the image defined by a Taxonomy.</p>
+<p></p>
+<p>The editors will organize <em>Gallery image</em> content items into smart folders based on <strong>Category</strong> field.</p>
+
+<div>
+
+</div>
+<div>
+<p>Smart folders enable content editors to save complex content views for dynamic delivery across channels.</p>
+<p>In this example, a smart folder will automatically update the Gallery widget on your client’s website, ensuring the desired images replace previous ones <strong>without manual intervention</strong>. This is what makes the smart folders such a powerful tool that’s worth considering in your solution’s content modeling.</p>
+</div>
+
+<p></p>
+<p>Your job is to implement the widget that lets the editors select a specific smart folder and retrieve and display the appropriate <em>Gallery image</em> content items.</p>
+<p>Additionally, the client wants the option to decide how many content items to display and sort them by newest or oldest first.</p>
+
+<div>
+
+</div>
+<div>
+<p>The examples here assume your system already includes several <strong>Gallery image</strong> content items organized into smart folders based on the <strong>Category</strong>.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of our Training guides repository has all this data prepared. To follow along, we recommend starting there, or you can set up your own content type and data in your system similarly.</p>
+</div>
+
+<h2 id="retrieve-content-from-smart-folder">Retrieve content from smart folder</h2>
+<p>Let’s start with implementing smart folder content retrieval in your project.</p>
+<p>You can <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-content-items-from-smart-folders">retrieve items from a smart folder</a> using <code>ContentItemQueryBuilder</code> and its <code>ForContentTypes</code> extension method with <code>InSmartFolder</code> parametrization.</p>
+<p>For composability, first, create a private method in the generic <code>ContentItemRetrieverService&lt;T&gt;</code> (located in <em>TrainingGuides.Web/Features/Shared/Services/</em>) that simply retrieves content items with the <code>ForContentTypes</code> method:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveContentItems(
+        Action&lt;ContentTypesQueryParameters&gt; contentTypesQueryParameters,
+        Action&lt;ContentQueryParameters&gt; contentQueryParameters)
+    {
+        var builder = new ContentItemQueryBuilder();
+
+        builder
+            .ForContentTypes(contentTypesQueryParameters)
+            .Parameters(contentQueryParameters)
+            .InLanguage(preferredLanguageRetriever.Get());
+
+        var queryExecutorOptions = new ContentQueryExecutionOptions
+        {
+            ForPreview = webSiteChannelContext.IsPreview
+        };
+
+        return await contentQueryExecutor.GetMappedResult&lt;T&gt;(builder, queryExecutorOptions);
+    }
+    ...
+}
+...
+</code></pre>
+</div>
+
+<p>Then, add a <code>RetrieveReusableContentItemsFromSmartFolder</code> method that utilizes this method and retrieves data from a smart folder identified by its <code>Guid</code>. Let’s also add other parameters to allow more data filtering and ordering - <code>orderBy</code>, <code>topN</code> and <code>depth</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Remember that to be able to retrieve content from a smart folder, the folder has to have <a href="/documentation/business-users/content-hub/content-hub-folders#enable-content-delivery-for-smart-folders"><em>Dynamic content delivery</em> enabled</a>.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public interface IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    /// &lt;summary&gt;
+    /// Retrieves reusable content items of specified type from specified smart folder.
+    /// &lt;/summary&gt;
+    /// &lt;param name="contentTypeName"&gt;Content type name of the content items the method should return&lt;/param&gt;
+    /// &lt;param name="smartFolderGuid"&gt;Guid of the smart folder to retrieve the content items from&lt;/param&gt;
+    /// &lt;param name="orderBy"&gt;Order the returned items ascending/descending&lt;/param&gt;
+    /// &lt;param name="topN"&gt;Number of items to return&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveReusableContentItemsFromSmartFolder(
+        string contentTypeName,
+        Guid smartFolderGuid,
+        OrderByOption orderBy,
+        int topN = 20,
+        int depth = 1);
+    ...
+}
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveReusableContentItemsFromSmartFolder(
+            string contentTypeName,
+            Guid smartFolderGuid,
+            OrderByOption orderBy,
+            int topN = 20,
+            int depth = 1)
+    {
+        const string LAST_PUBLISHED_COLUMN_NAME = "ContentItemCommonDataLastPublishedWhen";
+
+        Action&lt;ContentTypesQueryParameters&gt; contentTypesQueryParameters = parameters =&gt; parameters
+            .InSmartFolder(smartFolderGuid)
+            .OfContentType(contentTypeName)
+            .WithLinkedItems(depth)
+            .WithContentTypeFields();
+
+        Action&lt;ContentQueryParameters&gt; contentQueryParameters = parameters
+            =&gt; parameters
+                .OrderBy(new OrderByColumn(
+                    LAST_PUBLISHED_COLUMN_NAME,
+                    orderBy.Equals(OrderByOption.NewestFirst) ? OrderDirection.Descending : OrderDirection.Ascending))
+                .TopN(topN);
+
+        return await RetrieveContentItems(contentTypesQueryParameters, contentQueryParameters);
+    }
+    ...
+}
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>In order to retrieve content type field values, we are utilizing the <code>WithContentTypeFields()</code> method call. Unlike <code>ForContentType()</code>, that returns all joined data columns automatically, the <em>ForContentType<strong>s</strong></em> method does NOT include content type field data by default and requires you to explicitly state you want the joined columns. See <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#withcontenttypefields">our documentation</a> for details.</p>
+</div>
+
+<h2 id="build-a-widget-with-smart-folder-selector">Build a widget with smart folder selector</h2>
+<p>Now let’s implement the <em>Gallery widget</em>. If you’re working in the Training guides repository, create a <em>Features/Gallery/Widgets/GalleryWidget</em> folder in the <em>TrainingGuides.Web</em> project for all the widget files.</p>
+<h3 id="widget-properties">Widget properties</h3>
+<p>Define gallery widget properties in a <code>GalleryWidgetProperties</code> class. In this example, we allow editors to specify the smart folder, gallery title, number of images to display and a choice to order items by newest or by oldest first.</p>
+<p>To let the editor select a smart folder, use the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#smart-folder-selector">SmartFolderSelectorComponent</a>.</p>
+<p>Allow only items of type <code>GalleryImage</code> by implementing a new custom class <code>GalleryImageContentTypeFilter</code> that implements the <code>IContentTypesNameFilter</code> and assigning it in the <code>AllowedContentTypeIdentifiersFilter</code> option.</p>
+
+<div>
+<p>Smart folders can include items of multiple content types. Specifying the <code>AllowedContentTypeIdentifiersFilter</code> ensures that only the content types you define in the custom class will load from the specified smart folder.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GalleryWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.ContentEngine;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+using TrainingGuides.Web.Features.Shared.OptionProviders;
+using TrainingGuides.Web.Features.Shared.OptionProviders.OrderBy;
+
+namespace TrainingGuides.Web.Features.Gallery.Widgets.GalleryWidget;
+
+public class GalleryWidgetProperties : IWidgetProperties
+{
+    [SmartFolderSelectorComponent(
+        AllowedContentTypeIdentifiersFilter = typeof(GalleryImageContentTypeFilter),
+        Label = "Smart folder",
+        ExplanationText = "Select smart folder containing Gallery images you wish to display",
+        Order = 10)]
+    public SmartFolderReference SmartFolder { get; set; } = new SmartFolderReference();
+
+    [TextInputComponent(
+        Label = "Title",
+        Order = 20)]
+    public string Title { get; set; } = "Gallery";
+
+    [NumberInputComponent(
+        Label = "Number of images to display",
+        Order = 30)]
+    public int TopN { get; set; } = 10;
+
+    [DropDownComponent(
+        Label = "Order images by",
+        DataProviderType = typeof(DropdownEnumOptionProvider&lt;OrderByOption&gt;),
+        Order = 40)]
+    public string OrderBy { get; set; } = OrderByOption.NewestFirst.ToString();
+}
+
+// Filters the smart folders available in the selector to those that allow the 'GalleryImage' content type
+public class GalleryImageContentTypeFilter : IContentTypesNameFilter
+{
+    IEnumerable&lt;string&gt; IContentTypesNameFilter.AllowedContentTypeNames =&gt; [GalleryImage.CONTENT_TYPE_NAME];
+}
+</code></pre>
+</div>
+
+<p>Add <code>OrderByOption</code> enumeration. We are utilizing the <code>DropdownEnumOptionProvider</code> to map the enumeration to a dropdown. See details in our <a href="/guides/development/page-builder/map-enum-to-dropdown">guide series about Page Builder</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrainingGuides.Web/Features/Shared/OptionProviders/OrderBy /OrderByOption.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel;
+
+namespace TrainingGuides.Web.Features.Shared.OptionProviders.OrderBy;
+public enum OrderByOption
+{
+    [Description("Newest first")]
+    NewestFirst,
+    [Description("Oldest first")]
+    OldestFirst
+}
+</code></pre>
+</div>
+
+<h3 id="widget-view-model">Widget view model</h3>
+<p>Next, create a <code>GalleryWidgetViewModel</code> class. If you are coding along using the Training guides repo, we recommend to make the class inherit from the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Models/WidgetViewModel.cs" target="_blank">WidgetViewModel</a> class for consistency, and to make sure your widget has the <code>IsMisconfigured</code> property override for error handling.</p>
+<p>Our widget view model also needs to have a <code>Title</code> of the gallery and the list of images that will load from a smart folder.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GalleryWidgetViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using TrainingGuides.Web.Features.Shared.Models;
+
+namespace TrainingGuides.Web.Features.Gallery.Widgets.GalleryWidget;
+
+public class GalleryWidgetViewModel : WidgetViewModel
+{
+    public string Title { get; set; } = string.Empty;
+    public List&lt;AssetViewModel&gt; Images { get; set; } = [];
+    public override bool IsMisconfigured =&gt; Images == null || Images.Count == 0;
+}
+</code></pre>
+</div>
+
+<h3 id="widget-view">Widget view</h3>
+<p>The view of our Gallery widget is relatively simple.</p>
+<p>First, handle the misconfigured state of the widget and display a user-friendly message to the editor. To display the message, this code sample utilizes the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Helpers/TagHelpers/ConfigureWidgetInstructionsTagHelper.cs" target="_blank">ConfigureWidgetInstructionsTagHelper</a> and the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Helpers/TagHelpers/PageBuilderContentTagHelper.cs" target="_blank">PageBuilderContentTagHelper</a> tag helpers which you can find in the finished branch of the Training guides repository.</p>
+<p>Then, simply iterate through the images in our view model to display them in a grid.</p>
+
+<div>
+
+</div>
+<div>
+<p>In our code samples we purposely keep the widget view very simple, utilizing just a few Bootstrap classes to style. Feel free to add complexity and beautify the widget as you see fit or according to your requirements, e.g., by enlarging the image in a modal after a site visitor clicks on it.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GalleryWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@model TrainingGuides.Web.Features.Gallery.Widgets.GalleryWidget.GalleryWidgetViewModel?
+
+@if (Model == null || Model.IsMisconfigured)
+{
+    &lt;tg-page-builder-content&gt;
+        &lt;div class="row justify-content-center"&gt;
+            &lt;div class="col-xl-11"&gt;
+                &lt;div class="row" data-gridify="3-columns"&gt;
+                    &lt;h3&gt;Gallery&lt;/h3&gt;
+                    @if(Model?.Images?.Count == 0)
+                    {
+                        &lt;tg-configure-widget-instructions message="No images found. Double-check your smart folder selection."/&gt;
+                    }
+                    else
+                    {
+                        &lt;tg-configure-widget-instructions/&gt;
+                    }
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/tg-page-builder-content&gt;
+
+    return;
+}
+else
+{
+    &lt;div class="row justify-content-center"&gt;
+        &lt;div class="col-xl-11"&gt;
+            &lt;h3&gt;@Model.Title&lt;/h3&gt;
+            &lt;div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 c-blog-grid mt-3 mb-4 mt-md-4"&gt;
+                @foreach (var image in Model.Images!)
+                {
+                    &lt;div class="col mt-4"&gt;
+                        &lt;div class="c-card bg-3"&gt;
+                            &lt;a href="@Url.Content(image.FilePath)" &gt;
+                                &lt;div class="c-card_img"&gt;
+                                    &lt;img src="@Url.Content(image.FilePath)" alt="@image.AltText" class="img-fluid gallery-img" /&gt;
+                                &lt;/div&gt;
+                            &lt;/a&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                }
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+}
+</code></pre>
+</div>
+
+<h3 id="widget-view-component">Widget view component</h3>
+<p>Our widget view component needs four key parts:</p>
+<ol type="1">
+<li>The <code>InvokeAsync</code> method that uses the widget properties to fill out the view model and return the view</li>
+<li>The <code>RetrieveGalleryImages</code> method that calls our <code>galleryImageRetriever</code> service to get the content items from selected smart folder.</li>
+<li>The <code>GetGalleryImageViewModel</code> method to map the retrieved data to the view model</li>
+<li>The widget registration</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GalleryWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using Kentico.PageBuilder.Web.Mvc;
+using TrainingGuides.Web.Features.Shared.OptionProviders.OrderBy;
+using TrainingGuides.Web.Features.Shared.Services;
+using TrainingGuides.Web.Features.Gallery.Widgets.GalleryWidget;
+using TrainingGuides.Web.Features.Shared.Models;
+
+[assembly:
+    RegisterWidget(GalleryWidgetViewComponent.IDENTIFIER, typeof(GalleryWidgetViewComponent), "Gallery widget",
+        typeof(GalleryWidgetProperties), Description = "Displays gallery of images from a smart folder", IconClass = "icon-pictures")]
+
+namespace TrainingGuides.Web.Features.Gallery.Widgets.GalleryWidget;
+
+public class GalleryWidgetViewComponent : ViewComponent
+{
+    public const string IDENTIFIER = "TrainingGuides.GalleryWidget";
+
+    private readonly IContentItemRetrieverService&lt;GalleryImage&gt; galleryImageRetriever;
+
+    public GalleryWidgetViewComponent(IContentItemRetrieverService&lt;GalleryImage&gt; galleryImageRetriever)
+    {
+        this.galleryImageRetriever = galleryImageRetriever;
+    }
+
+    public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(GalleryWidgetProperties properties)
+    {
+        var model = new GalleryWidgetViewModel
+        {
+            Title = properties.Title
+        };
+
+        // retrieve the smart folder guid from the SmartFolderSelectorComponent
+        var smartFolderGuid = properties.SmartFolder?.Identifier ?? Guid.Empty;
+        var orderBy = properties.OrderBy.Equals(OrderByOption.OldestFirst.ToString())
+            ? OrderByOption.OldestFirst
+            : OrderByOption.NewestFirst;
+        int topN = properties.TopN;
+
+        // if the editor selected a smart folder, retrieve the Gallery image content items using the selected property values
+        if (!smartFolderGuid.Equals(Guid.Empty))
+        {
+            var galleryImages = await RetrieveGalleryImages(smartFolderGuid, orderBy, topN);
+            // map the images content to the view model
+            model.Images = galleryImages.Select(GetGalleryImageViewModel).ToList();
+        }
+
+        return View("~/Features/Gallery/Widgets/GalleryWidget/GalleryWidget.cshtml", model);
+    }
+
+    // retrieves the content items from the smart folder
+    private async Task&lt;IEnumerable&lt;GalleryImage&gt;&gt; RetrieveGalleryImages(Guid smartFolderGuid, OrderByOption orderBy, int topN) =&gt;
+        await galleryImageRetriever.RetrieveReusableContentItemsFromSmartFolder(
+            GalleryImage.CONTENT_TYPE_NAME,
+            smartFolderGuid,
+            orderBy,
+            topN);
+
+    // maps the data from the Content hub to the view model
+    private AssetViewModel GetGalleryImageViewModel(GalleryImage galleryImage) =&gt;
+        AssetViewModel.GetViewModel(galleryImage.GalleryImageAsset.FirstOrDefault()!);
+}
+
+</code></pre>
+</div>
+
+<p>If your project has a dedicated class for component identifiers, add the new widget identifier into the class. In the Training guides repository this means the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/ComponentIdentifiers.cs" target="_blank"><code>ComponentIdentifiers</code> class</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrainingGuides.Web/ComponentIdentifiers.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public static class Widgets
+{
+    ...
+    public const string GALLERY = GalleryWidgetViewComponent.IDENTIFIER;
+}
+...
+</code></pre>
+</div>
+
+<h2 id="see-the-result">See the result</h2>
+<p>Build and run your application. You should now be able to add and configure the new Gallery widget on your pages.</p>
+
+<p>Play around with selecting different smart folders or changing the filter criteria in the existing ones and observe how the displayed website content dynamically changes.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>Using smart folders to dynamically display content in a widget is only one example of possibilities the smart folders open for editors. <a href="/guides/architecture/content-modeling/content-modeling-guide/general-content-modeling-recommendations">Our content modeling guide</a> explores another use case - utilizing smart folders to model navigation.</p>
+<p>Feel free to explore our <a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Content hub documentation</a> to learn more about smart folders from the editor’s perspective. You can also read about the <a href="/documentation/developers-and-admins/configuration/content-hub-configuration#enable-content-hub-folders">smart folders and content hub folders</a> from the configuration point of view.</p>
+
+</body>
+</html>

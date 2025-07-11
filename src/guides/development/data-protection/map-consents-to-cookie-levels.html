@@ -1,0 +1,555 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Map consents to cookie levels</title>
+</head>
+<body>
+<p>Laws relating to personal data protection have come into effect in many places worldwide. In many cases, an essential step to comply with such regulations is to attain a <a href="/documentation/developers-and-admins/data-protection/consent-management">consent agreement</a> from an individual to store and process their personal data.</p>
+<p>In some cases, when properly explained, consent for storing browser cookies in the visitor’s browser files can be sufficient for collecting and processing the data associated with those cookies’ functionality.</p>
+<p>This example shows the process of creating a custom page in the Xperience administration interface that maps custom cookie levels to <a href="/documentation/developers-and-admins/data-protection/consent-management">consents</a>. With this page, editors can define which consents in the Data protection application are associated with specific cookie levels. This is a key step in creating a cookie-level configuration page, e.g. the <a href="https://www.kentico.com/cookies-policy" target="_blank">cookie policy page</a> on <a href="http://Kentico.com" target="_blank">Kentico.com</a>.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <a href="/guides/development/data-protection">earlier guides in the series</a>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>The example presented in this <a href="/guides/development/data-protection">Data protection guide series</a> is a <strong>valid implementation of data protection for <a href="/documentation/business-users/digital-marketing/contact-management">Contacts</a></strong> in Xperience by Kentico. (Note that it does not cover the collection and erasure of <a href="/documentation/business-users/members">Members</a> and their associated data.)</p>
+<p>You can copy-paste the code samples into your own solution.</p>
+<p>However, if you choose to do so, <strong>make sure to consult your legal team</strong> to determine whether the implementation, texts, and consent levels <strong>meet the requirements of your region and market</strong>.</p>
+</div>
+
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="create-the-consents">Create the consents</h2>
+<p>First, open the <strong>Data protection</strong> application in the <strong>Configuration</strong> category of the administration interface for Xperience by Kentico, and create consents with the following properties:</p>
+<ol type="1">
+<li>Preference cookies consent
+<ol type="a">
+<li>
+<strong>New consent</strong>
+<ul>
+<li>
+<strong>Display name:</strong> Preference cookies</li>
+<li>
+<strong>Code name:</strong> preference.cookies.consent</li>
+</ul>
+</li>
+<li>
+<strong>Consent texts</strong>
+<ul>
+<li><p><strong>Short text:</strong> Preference cookies help us remember changes and configurations you make on the site.</p></li>
+<li>
+<p><strong>Full text:</strong> Preference cookies and the data you provide us make your work easier by, for example, remembering the language in which you want to display the pages, etc.</p>
+<p></p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>Analytical cookies consent
+<ol type="a">
+<li>
+<strong>New consent</strong>
+<ul>
+<li>
+<strong>Display name:</strong> Analytical cookies</li>
+<li>
+<strong>Code name:</strong> analytical.cookies.consent</li>
+</ul>
+</li>
+<li>
+<strong>Consent texts</strong>
+<ul>
+<li>
+<strong>Short text:</strong> Analytical cookies are used to gather usage data to measure and improve performance.</li>
+<li>
+<strong>Long text:</strong> Analytical cookies and the data you provide us allow us to perform site usage analytics to measure and improve the site’s performance. For example, we know which pages are most frequently visited, which buttons users click, etc.</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>Marketing cookies consent
+<ol type="a">
+<li>
+<strong>New consent</strong>
+<ul>
+<li>
+<strong>Display name:</strong> Marketing cookies</li>
+<li>
+<strong>Code name:</strong> marketing.cookies.consent</li>
+</ul>
+</li>
+<li>
+<strong>Consent texts</strong>
+<ul>
+<li>
+<strong>Short text:</strong> Marketing cookies are used to provide relevant ads based on your activity.</li>
+<li>
+<strong>Long text:</strong> Marketing cookies and the data you provide us allow us to link our website to third-party social media and advertising networks, such as Facebook or Google Ads. With this connection, we can present relevant ads outside our website.</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>In real-world applications, your legal team should review the short and long texts of your consents to ensure that they meet the requirements of your region and market.</p>
+</div>
+
+<p></p>
+<h2 id="define-the-module">Define the module</h2>
+<h3 id="create-the-class">Create the class</h3>
+<p>Now that these consents exist, we can create a UI page for mapping them to cookie levels.</p>
+<ol type="1">
+<li>Open the <strong>Modules</strong> application in the administration interface for Xperience by Kentico, under the <strong>Development</strong> category.</li>
+<li>Create a new module for adding custom pages to the <em>Data protection</em> application.
+<ol type="a">
+<li><p><strong>Display name:</strong> Data protection customizations</p></li>
+<li><p><strong>Pre-fill code name automatically:</strong> False (Disabled)</p></li>
+<li>
+<p><strong>Code name:</strong> TrainingGuides.DataProtectionCustomizations</p>
+<p></p>
+</li>
+</ol>
+</li>
+<li>On the <strong>Classes</strong> tab of this new module, create a new class.
+<ol type="a">
+<li><p><strong>Display name:</strong> Cookie level consent mapping</p></li>
+<li><p><strong>Namespace:</strong> TrainingGuides</p></li>
+<li>
+<p><strong>Name:</strong> CookieLevelConsentMapping</p>
+<p></p>
+</li>
+</ol>
+</li>
+<li>On the <strong>Database columns</strong> tab in this new class, add new fields with the following properties. These fields will determine which consent corresponds to each cookie level.
+<ol type="a">
+<li>
+<p>Preference cookie consent field</p>
+<ul>
+<li><p><strong>Field name:</strong> PreferenceConsentCodeName</p></li>
+<li><p><strong>Data type:</strong> Object code names</p></li>
+<li>
+<p><strong>Required:</strong> False (Disabled)</p>
+<p></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Analytical cookie consent field</p>
+<ul>
+<li>
+<strong>Field name:</strong> AnalyticalConsentCodeName</li>
+<li>
+<strong>Data type:</strong> Object code names</li>
+<li>
+<strong>Required:</strong> False (Disabled)</li>
+</ul>
+</li>
+<li>
+<p>Marketing cookie consent field</p>
+<ul>
+<li>
+<strong>Field name:</strong> MarketingConsentCodeName</li>
+<li>
+<strong>Data type:</strong> Object code names</li>
+<li>
+<strong>Required:</strong> False (Disabled)</li>
+</ul>
+</li>
+<li>
+<p>Guid field</p>
+<ul>
+<li>
+<strong>Field name:</strong> CookieLevelConsentMappingGuid</li>
+<li>
+<strong>Data type:</strong> Unique identifier (GUID)</li>
+<li>
+<strong>Required:</strong> True (Enabled)</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="add-the-ui-form">Add the UI form</h3>
+<p>Switch to the <strong>UI forms</strong> tab of the class.</p>
+<ol type="1">
+<li>Populate the following properties accordingly:
+<ul>
+<li><p><strong>Form display name:</strong> Cookie level consent mapping</p></li>
+<li><p><strong>Pre-fill code name automatically:</strong> False (Disabled)</p></li>
+<li>
+<p><strong>Form name:</strong> CookieLevelConsentMapping</p>
+<p></p>
+</li>
+</ul>
+</li>
+<li>Save the form, and switch to the <strong>Fields</strong> tab.</li>
+<li>Create a field for each <a href="#create-the-class">previously specified consent columns</a> with the following properties:
+<ul>
+<li>
+<strong>Form component:</strong> Object code names</li>
+<li>
+<strong>Initial value:</strong> Select</li>
+<li>
+<strong>Object type:</strong> CMS.Consent</li>
+<li>
+<strong>Maximum items:</strong> 1</li>
+</ul>
+</li>
+<li>The fields should have the following <strong>Field caption</strong> values, respectively:
+<ul>
+<li>Preference cookies consent (level 2)</li>
+<li>Analytical cookies consent (level 3)</li>
+<li>Marketing cookies consent (level 4)</li>
+</ul>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>The fields defined within UI forms represent how the database columns will be represented in the admin UI</p>
+</div>
+
+<p></p>
+<h3 id="generate-the-code">Generate the code</h3>
+<p>Next, designate code settings for the class to make it more compatible with other features.</p>
+<ol type="1">
+<li><p>Switch to the <strong>Code</strong> tab of the class.</p></li>
+<li><p>Set the <strong>Object type</strong> to <em>TrainingGuides.CookieLevelConsentMapping</em>.</p></li>
+<li><p>Set the <strong>Display name column</strong> to <em>CookieLevelConsentMappingID</em>, and set <strong>Code name column</strong> and <strong>GUID column</strong> to <em>CookieLevelConsentMappingGuid.</em></p></li>
+<li>
+<p>Leave all the other properties un-set. </p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Readable names</strong></p>
+<p>Typically, columns that hold human-readable data are used for Display names and code names of custom objects. This helps the people managing the objects find them in object listings and query them easily.</p>
+<p>However, in this case, there is only going to be a single entry for this class, so there will be no listing page. There is no need for the class to have a readable display name because it is never used.</p>
+</div>
+
+<p></p>
+</li>
+</ol>
+<p>This completes the administration interface setup for the class, so now the code can be generated.</p>
+<p>Now, you can generate a code file for the custom class as described on <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">this page</a>.</p>
+<ol type="1">
+<li><p>Switch the command line to the <em>TrainingGuides.Web</em> directory.</p></li>
+<li>
+<p>Run the <code>--kxp-codegen</code> tool, setting the location to the <em>TrainingGuides.Entities</em> project and include only the <em>CookieLevelConsentMapping</em> class.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ dotnet run -- --kxp-codegen --type "Classes" --location "../TrainingGuides.Entities/{type}/{name}" --with-provider-class True --include "TrainingGuides.CookieLevelConsentMapping"
+
+ </code></pre>
+</div>
+
+<p>This will generate three code files in the <em>TrainingGuides.Entities/Classes/CookieLevelConsentMapping</em> folder. </p>
+
+<div>
+
+</div>
+<div>
+If you use a script to automate code generation as described in <a href="/guides/development/get-started/automate-regular-tasks-with-powershell-scripts#generate-code-files">this guide</a>, use the <code>--include</code> and <code>--exclude</code> parameters on multiple commands to generate classes that require dedicated provider classes separately from those that do not.
+</div>
+
+<ol type="a">
+<li>
+<em>CookieLevelConsentMappingInfo.generated.cs</em> is the info class containing the definition for objects of this type.</li>
+<li>
+<em>CookieLevelConsentMappingInfoProvider.generated.cs</em> is the provider class, which has methods to interface with the database and perform CRUD operations on data.</li>
+<li>
+<em>ICookieLevelConsentMappingInfoProvider.generated.cs</em> is an interface that allows the provider to be injected with dependency injection.</li>
+</ol>
+</li>
+<li><p>Add a subfolder named <em>Overrides</em> to the <em>~/Classes</em> folder of the <em>TrainingGuides.Entities</em> project.</p></li>
+<li>
+<p>Create a partial class for <code>CookieLevelConsentMapping</code> and enable continuous integration.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Partial class</strong></p>
+<p>Continuous Integration could be enabled by modifying the TYPEINFO declaration in the generated class. However, this separate partial class ensures that the change will not be overwritten next time the code is generated.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieLevelConsentMappingInfoOverride.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ namespace TrainingGuides.DataProtectionCustomizations;
+
+ public partial class CookieLevelConsentMappingInfo
+ {
+     static CookieLevelConsentMappingInfo()
+     {
+         TYPEINFO.ContinuousIntegrationSettings.Enabled = true;
+     }
+ }
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This configuration allows the cookie-level consent mapping to be shared among developers by including serialized data in source control.</p>
+</div>
+</li>
+</ol>
+<h2 id="add-a-page-to-the-ui">Add a page to the UI</h2>
+<h3 id="set-up-the-project">Set up the project</h3>
+<p>Now that the class, form, and files are in place, we can integrate them into the UI.</p>
+<ol type="1">
+<li><p>Create a new Class Library project targeting your version of .NET under the <em>TrainingGuides</em> solution. Name it <em>TrainingGuides.Admin.</em></p></li>
+<li>
+<p>Install the <em>Kentico.Xperience.Admin</em> and <em>Kentico.Xperience.Core</em> NuGet packages for the project. </p>
+
+<div>
+
+</div>
+<div>
+<p>Make sure to choose package versions that match the project’s version, indicated by the version of the <em>Kentico.Xperience.WebApp</em> package in the primary web project, and the value of the <em>CMSDBVersion</em> settings key in the <em>CMS_SettingsKey</em> table of the database.</p>
+</div>
+</li>
+<li><p>Add a reference from the <em>TrainingGuides.Admin</em> project to the <em>TrainingGuides.Entities</em> project, and a reference from the <em>TrainingGuides.Web</em> project to the <em>TrainingGuides.Admin</em> project.</p></li>
+<li><p>Add the assembly attribute to the <em>TrainingGuides.Admin.csproj</em> file:</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>TrainingGuides.Admin.csproj</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+&lt;ItemGroup&gt;
+    &lt;AssemblyAttribute Include="CMS.AssemblyDiscoverableAttribute"&gt;
+    &lt;/AssemblyAttribute&gt;
+&lt;/ItemGroup&gt;
+...
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This attribute will allow the files in the <em>TrainingGuides.Admin</em> project to be discovered by the Xperience API during app initialization.</p>
+</div>
+
+<h3 id="add-the-page">Add the page</h3>
+<ol type="1">
+<li>Add a folder called <em>Pages</em> to the <em>TrainingGuides.Admin</em> project, and create a new class file called <code>CookieLevelConsentMappingPage.cs</code> within. This page will be used to edit objects of the <code>CookieLevelConsentMapping</code> class.
+<ul>
+<li>Make the class inherit from <code>InfoEditPage&lt;CookieLevelConsentMappingInfo&gt;</code>. (You can find out more information about editing UI pages in the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template">documentation</a>.)</li>
+</ul>
+</li>
+<li>Register the page as a child of the <code>DataProtectionContentLanguage</code> page in the administration interface.
+<ol type="a">
+<li>Set the slug property to <em>cookielevelconsentmapping</em>, so that the URL of the page in the admin UI clearly indicates its purpose.</li>
+<li>Assign the <em>Edit</em> template, so that Xperience knows this page is used to edit objects of the <em>CookieLevelConsentMapping</em> type.</li>
+<li>Set the page order of <code>UIPageOrder.First + 1</code>, so that it is the second page after the <strong>Consents</strong> listing page.</li>
+</ol>
+</li>
+<li>Override the <code>ObjectId</code> property of the <code>InfoEditPage</code> class, making sure that its <code>get</code> accessor will either:
+<ul>
+<li><p>Return the ID of the first available <code>CookieLevelConsentMappingInfo</code> object,<br>
+or</p></li>
+<li>
+<p>Create and save a new <code>CookieLevelConsentMappingInfo</code> object if none exists.</p>
+
+<div>
+
+</div>
+<div>
+<p>Overriding the <code>ObjectId</code> property ensures that only one object of the <code>CookieLevelConsentMapping</code> type will ever exist, assuming no additional code to create them is added.</p>
+</div>
+</li>
+</ul>
+</li>
+<li>Override the <code>ConfigurePage</code> method and set <code>PageConfiguration.UIFormName</code> to the <em>CookieLevelConsentMapping</em> form codename before calling base.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieLevelConsentMappingPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using TrainingGuides.Admin.Pages;
+using TrainingGuides.DataProtectionCustomizations;
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.Base.Forms;
+using Kentico.Xperience.Admin.DigitalMarketing.UIPages;
+
+[assembly: UIPage(
+    parentType: typeof(DataProtectionContentLanguage),
+    slug: "cookie-level-consent-mapping",
+    uiPageType: typeof(CookieLevelConsentMappingPage),
+    name: "Cookie level consent mapping",
+    templateName: TemplateNames.EDIT,
+    order: UIPageOrder.First + 1)]
+
+namespace TrainingGuides.Admin.Pages;
+
+internal class CookieLevelConsentMappingPage : InfoEditPage&lt;CookieLevelConsentMappingInfo&gt;
+{
+    private readonly ICookieLevelConsentMappingInfoProvider cookieLevelConsentMappingInfoProvider;
+
+    public CookieLevelConsentMappingPage(IFormComponentMapper formComponentMapper, IFormDataBinder formDataBinder,
+    ICookieLevelConsentMappingInfoProvider generalSettingsInfoProvider) : base(formComponentMapper, formDataBinder)
+    {
+        cookieLevelConsentMappingInfoProvider = generalSettingsInfoProvider;
+    }
+
+
+    public override int ObjectId
+    {
+        get
+        {
+            var mappings = GetOrCreateMappings();
+            return mappings.CookieLevelConsentMappingID;
+        }
+        set =&gt; throw new InvalidOperationException("The $ObjectId value cannot be set.");
+    }
+
+
+    public override Task ConfigurePage()
+    {
+        PageConfiguration.UIFormName = "cookielevelconsentmapping";
+
+        return base.ConfigurePage();
+    }
+
+
+    private CookieLevelConsentMappingInfo GetOrCreateMappings()
+    {
+        var item = cookieLevelConsentMappingInfoProvider.Get()?.FirstOrDefault();
+
+        if (item == null)
+        {
+            item = new CookieLevelConsentMappingInfo
+            {
+                CookieLevelConsentMappingGuid = Guid.NewGuid()
+            };
+            cookieLevelConsentMappingInfoProvider.Set(item);
+        }
+
+        return item;
+    }
+}
+
+</code></pre>
+</div>
+
+<p>When you rebuild the solution, you will see a new UI page in the <strong>Data protection</strong> application. Editors can use this page to map consents to the Preference, Analytical, and Marketing levels.</p>
+<h2 id="map-the-consents">Map the consents</h2>
+<p>The new page can be used to save cookie consent mappings.</p>
+<ol type="1">
+<li>Navigate to the new page under the <strong>Cookie level consent mapping</strong> tab of the <strong>Data protection</strong> application in the Xperience administration interface.</li>
+<li>Select the corresponding consent, created in previous steps, for each cookie level.</li>
+</ol>
+<p></p>
+<p>Now, you can retrieve the mapping using the provider classes saved earlier. </p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Protect the mappings</strong></p>
+<p>Some businesses may find it pertinent to remove the risk of editors accidentally deleting a consent that is used in the mapping page.</p>
+<p>This can be achieved using <a href="/documentation/developers-and-admins/customization/handle-global-events/reference-global-system-events">object events</a>. You can assign handlers to the <code>ConsentInfo.TYPEINFO.Events.Delete.Before</code> and <code>ConsentInfo.TYPEINFO.Events.BulkDelete.Before</code> events, to throw an exception if any of the consents involved are referenced by the cookie-level mapping.</p>
+<p>You can closely follow <a href="/documentation/developers-and-admins/customization/handle-global-events/handle-object-events">this example</a> to register the handlers and compare the codenames of the provided consents to those in the properties of the singular <code>CookieLevelConsentMappingInfo</code> object.</p>
+</div>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/data-protection/create-a-cookie-preferences-widget">next guide in this series</a> will show you how to create a cookie-level configuration widget using the mapping created here. With this widget, editors can create a configuration page that allows visitors to choose the level of cookies they agree to.</p>
+
+</body>
+</html>

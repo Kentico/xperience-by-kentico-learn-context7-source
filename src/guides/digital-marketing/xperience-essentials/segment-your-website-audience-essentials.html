@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Segment your website audience</title>
+</head>
+<body>
+<p>You can use the contact’s demographic data, content preferences, or various website activities to shape their digital experience.</p>
+<p>Xperience comes with the <strong>Contact groups</strong> application, where you <strong>build specific segments</strong> for which you can <strong>create targeted content</strong> and <strong>improve</strong> their <strong>customer experience</strong>. The <em>Contact groups</em> application organizes existing contacts. Any individual contact can belong to any number of contact groups.</p>
+<p>You can create your contact groups manually or use <strong>built-in conditions</strong> to populate them dynamically. In the latter case, Xperience <strong>evaluates contacts</strong> on the website and in the database and <strong>automatically adds contacts to groups</strong> based on the contact group’s conditions.</p>
+<p>Here are a few examples of groups in which you can organize your contacts:</p>
+<ul>
+<li>Contacts that are interested in specific content.</li>
+<li>Contacts that submitted a specific form on your website.</li>
+<li>Contacts to target in seasonal campaigns.</li>
+<li>Contacts who came to a particular landing page.</li>
+<li>Contacts with the same characteristics, e.g., those of the same age group.</li>
+<li>And many more.</li>
+</ul>
+<p>Find out more about <a href="/documentation/business-users/digital-marketing/contact-groups">contact groups</a> in the documentation.</p>
+
+<h2 id="exercise---segmenting-website-audience">Exercise - Segmenting website audience</h2>
+<p>In this exercise, you’ll collect all contacts with similar characteristics into a contact group and test how Xperience dynamically adds contacts to a group and removes them once their conditions don’t match the group’s conditions.</p>
+<p> <strong>Task</strong>:</p>
+<p>You want to work with your website visitors more effectively, so you’ve decided to segment them into categories to better target your marketing efforts.</p>
+<ol type="1">
+<li><p>Switch to the <strong>Contact groups</strong> application. Create a <strong>New contact group</strong> and call it <em>Prospective Account Clients</em>.</p></li>
+<li><p>Fill in the <strong>Description</strong>: <em>Visitors who read any of the Accounts subpages but haven’t filled in the Request account form</em>.</p></li>
+<li>
+<p>Use the <strong>Add condition</strong> button to open the condition designer:</p>
+<ol type="1">
+<li>
+<p><strong>Add a new condition group</strong>:</p>
+<ol type="1">
+<li>Select <em>Contact has agreed with consent</em> condition and select <em>Marketing cookies</em> consent.</li>
+</ol>
+</li>
+<li>
+<p><strong>Add another condition</strong>:</p>
+<ol type="1">
+<li>Choose <em>Contact has submitted a form in last X days</em> condition.</li>
+<li>Change it to <strong>has not</strong> and select the <em>request account (single)</em> form.</li>
+</ol>
+</li>
+<li>
+<p><strong>Add condition group</strong> to filter all contacts who have visited any of your <em>Accounts</em> pages.</p>
+<ol type="1">
+<li>Use the <em>Contact has visited a page in the last X days</em> condition.</li>
+<li>
+<strong>Add page</strong> and choose <em>Personal Banking</em> site from the dropdown menu.</li>
+<li>Continue and choose <em>Accounts</em> in the content tree and <em>Current account</em> from the available pages.</li>
+<li>Confirm with the <strong>Select</strong> button.</li>
+</ol>
+</li>
+<li>
+<p><strong>Add another condition</strong>, and again, choose <em>Contact has visited a page in the last X days</em> condition.</p>
+<ol type="1">
+<li>
+<strong>Add page</strong> and, this time, select the <em>Accounts</em> → <em>Advanced account</em>.</li>
+<li>Confirm with the <strong>Select</strong> button.</li>
+</ol>
+</li>
+<li>
+<p><strong>Add another condition</strong> again and choose the <em>Contact has visited a page in the last X days</em> condition.</p>
+<ol type="1">
+<li>
+<strong>Add page</strong> and, this time, select the <em>Accounts</em> → <em>Premium account</em>.</li>
+<li>Confirm with the <strong>Select</strong> button.</li>
+</ol>
+</li>
+<li>
+<p>Lastly, <strong>Add another condition</strong> again and choose <em>Contact has visited a page in the last X days</em> condition.</p>
+<ol type="1">
+<li>
+<strong>Add page</strong> and select the last page - <em>Accounts</em> → <em>FastTrack savings account</em>.</li>
+<li>Confirm with the <strong>Select</strong> button.</li>
+</ol>
+</li>
+<li><p>Change the logical operator between the second group of conditions - page visits. Change <em>Applies if:</em> to <strong>Any</strong> <em>of the following conditions are fulfilled</em>. This way, your visitor needs to see just one page to be added to the contact group, not all of them.</p></li>
+<li><p><strong>Apply</strong> the changes.</p></li>
+</ol>
+</li>
+<li><p><strong>Save</strong> your new contact group.</p></li>
+</ol>
+<p>The conditions in the new Contact group should look like this:</p>
+<p></p>
+<p>You can <em>Recalculate</em> your contact group. Xperience will filter the contact database and add every contact that meets the conditions to the group.</p>
+<h2 id="xperience-it-now-dynamic-contact-segmentation-in-action">Xperience it now: Dynamic contact segmentation in action</h2>
+<p>Open your website in an incognito window, agree with the tracking, and visit some pages, including one or more <em>Accounts</em> subpages. To recognize your new contact in the <strong>Contact management</strong> application, submit a form, for example, on the <em>Contact</em> page, but NOT on the <em>Accounts</em> pages. Then check your <em>Prospective Account Clients</em> contact group. You will see Xperience added your test contact.</p>
+<p>Once you can see your contact in the group, you can further test how Xperience works with a contact once it doesn’t fulfill the condition anymore. Go to one of the <em>Accounts</em> subpages and fill out the form. Go back to the Xperience administration and reload the contact group. After a few moments, you should be able to see your contact was removed.</p>
+<h2 id="next-step">Next step</h2>
+<p>Continue learning about <a href="/guides/digital-marketing/xperience-essentials/personalize-website-content-essentials">personalizing website content</a>.</p>
+
+</body>
+</html>

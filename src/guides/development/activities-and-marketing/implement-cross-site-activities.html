@@ -1,0 +1,769 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Implement cross-site activities</title>
+</head>
+<body>
+<p>Today, digitally mature businesses often have multiple web sites contributing to their online presence. For example, they may have separate websites for different branches of the company, microsites that tie in with viral marketing campaigns, or specially designated brochure sites for upcoming events. </p>
+<p>Developers often craft these sites on diverse platforms, not all of which have the same kind of activity tracking functionality as Xperience by Kentico.</p>
+<p>In these cases, Xperience’s <em>Cross-site tracking</em> feature enables the activity of visitors on these external sites to be tracked. It appears in the <strong>Activities</strong> tab of the <strong>Contact management</strong> application, alongside contact activities logged directly on the Xperience by Kentico site.</p>
+<p>Let’s explore how Xperience by Kentico can track contact activities on a separate, external site.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Host your sites securely</strong></p>
+<p>As a prerequisite to this example, you must find a way to securely host the external site files provided in the <em>\src\TrainingGuides - External Site</em> folder of the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">training guides repository</a>.</p>
+<p>Note that for cross-site tracking to work, both your Xperience site and the external site that you want to use cross-site tracking on must be hosted under HTTPS with trusted SSL certificates.</p>
+<p><em>Using self-signed certificates for local testing <strong>will not work</strong>.</em></p>
+<p>The site must also have unique domain names or subdomains, with no application path or port numbers. You can find more information about the prerequisites in <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking#prerequisites">the documentation</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This example uses a static HTML page for demonstration purposes. You will likely need to do things slightly differently in the framework you are using in order to get your project to output HTML like this example.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>We discovered conflicts between cross-site tracking and the multi-tiered consent system from the <a href="/guides/development/data-protection">Data protection series</a>. You can find more details in <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/issues/85" target="_blank">this GitHub issue</a>.</strong></p>
+<p>If your project uses a similar data protection implementation and you encounter any issues after setting up cross-site tracking, you may need to modify the code from this example, as described in <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/issues/85" target="_blank">the GitHub issue</a>.</p>
+</div>
+
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Activity tracking series</strong></p>
+<p>This guide is part of a series on Activity tracking.</p>
+<p>If you want to follow along, you can <a href="/guides/development/activities-and-marketing/enable-activity-tracking">start here</a>.</p>
+<p>Activity tracking functionality ties in with <em>consents</em>, which are covered in detail in the <a href="/guides/development/data-protection">Data protection series</a>.</p>
+</div>
+
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <em>Consents</em> section of the <a href="/guides/development/data-protection">Data protection series</a> and the <a href="/guides/development/activities-and-marketing">Previous guides in the series</a>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find commented-out versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository. Feel free to re-enable the commented code in <em>~/Program.cs</em> and <em>~/Features/Helpers/Startup/StartupHelper.cs</em> in the <em>TrainingGuides.Web</em> project.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="enable-cross-site-tracking-with-dynamic-consent">Enable cross-site tracking with dynamic consent</h2>
+<p>The <a href="/guides/development/data-protection">Data protection series</a> details how to create a dynamic mapping between granular cookie levels and consents. If you have not gone through the data protection series, you can follow the <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking#enable-the-cross-site-tracking-feature">simpler example in the documentation</a> to enable cross-site tracking in the <em>Program.cs</em> file.</p>
+<p>If you have completed the Data protection series, follow this example to dynamically use whichever consent is mapped to the Marketing cookie level.</p>
+
+<div>
+
+</div>
+<div>
+<p>This example uses the <em>Marketing</em> cookie consent for the sake of example, but you should review which consent is most applicable to cross-site tracking with your legal team and ensure that its wording accurately explains all of its uses. You may even consider making an additional mapping specifically for cross-site tracking.</p>
+</div>
+
+<ol type="1">
+<li><p>Create a folder in the <em>TrainingGuides.Web</em> project with the following path: ~<em>/Features/Shared/Helpers/Startup</em>, and define a file within called <em>StartupHelper.cs</em>.</p></li>
+<li>
+<p>Add a method to this class that retrieves the current <code>CookieLevelConsentMapping</code> configured for the application</p>
+
+<div>
+
+</div>
+<div>
+<p>Do not use dependency injection or dependency resolution, as this code will run at startup, before the <code>ServiceProvider</code> and its collection exist.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>StartupHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using CMS.DataEngine;
+ using TrainingGuides.DataProtectionCustomizations;
+
+ namespace TrainingGuides.Web.Features.Shared.Helpers.Startup;
+
+ public class StartupHelper
+ {
+     /// &lt;summary&gt;
+     /// Retrieves the codename of the currently mapped Marketing consent, returning an empty string if it is not found
+     /// &lt;/summary&gt;
+     /// &lt;remarks&gt;
+     /// Used in Program.cs to prevent &lt;see cref="DataClassNotFoundException"/&gt; when running CI restore for the first time.
+     /// &lt;/remarks&gt;
+     /// &lt;returns&gt;&lt;/returns&gt;
+     public static async Task&lt;string&gt; GetMarketingConsentCodeName()
+     {
+         string consentCodeName;
+         try
+         {
+             //Do not resolve ICookieLevelConsentMappingInfoProvider or ICookieConsentService --
+             //This code runs on startup before the app is built, so no ServiceProvider exists.
+             var consentQuery = await CookieLevelConsentMappingInfo.Provider.Get()
+                 .GetEnumerableTypedResultAsync();
+
+             var consent = consentQuery.FirstOrDefault();
+
+             consentCodeName = consent?.MarketingConsentCodeName?.FirstOrDefault() ?? string.Empty;
+         }
+         catch (DataClassNotFoundException)
+         {
+             consentCodeName = string.Empty;
+         }
+
+         return consentCodeName ?? string.Empty;
+     }
+ }
+ </code></pre>
+</div>
+</li>
+<li><p>Open the Program.cs file, and go to the features delegate passed to the <code>AddKentico</code> method, adding the async keyword.</p></li>
+<li><p>Call the <code>UseCrossSiteTracking</code> extension, and use the new <code>StartupHelper</code> class to determine the <code>ConsentName</code> property of the <code>CrossSiteTrackingConsentOptions</code> object.</p></li>
+<li><p>Set the <code>WebSiteChannelName</code> to the codename of the only web channel present in the repository, and the <code>AgreeCookieLevel</code> to the <code>All</code> <em>CMSCookieLevel</em>.</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+// Enable desired Kentico Xperience features
+builder.Services.AddKentico(async features =&gt;
+{
+    ...
+    features.UseCrossSiteTracking(
+        new CrossSiteTrackingOptions
+        {
+            ConsentSettings = new[] {
+                new CrossSiteTrackingConsentOptions
+                {
+                    WebsiteChannelName = "TrainingGuidesPages",
+                    ConsentName = await StartupHelper.GetMarketingConsentCodeName(),
+                    AgreeCookieLevel = CookieLevel.All.Level
+                }
+            },
+        });
+    ...
+});
+...
+
+</code></pre>
+</div>
+
+<h2 id="register-the-site-for-cross-site-tracking">Register the site for cross-site tracking</h2>
+<p>Now the external site needs to be registered in the Xperience administration application.</p>
+<p>Log in to the Xperience by Kentico administration interface and follow the <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking#manage-tracked-sites">steps outlined in the documentation</a> to enable tracking for the external site.</p>
+
+<div>
+
+</div>
+<div>
+<p>Do not copy the tracking snippet into the site’s HTML yet. You need to modify the snippet slightly first, and we will cover the process in a later step.</p>
+</div>
+
+<h2 id="add-a-controller-to-indicate-the-right-consent">Add a controller to indicate the right consent</h2>
+<p>Looking at the <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking">Cross-site tracking documentation</a>, you might have noticed that the <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking#implement-tracking-consent">consent example</a> has a hard-coded consent codename.</p>
+<p>The consent functionality from the data protection series dynamically maps consents to different cookie tracking levels, so you must account for this, and retrieve the correct consent from the external site.</p>
+
+<div>
+
+</div>
+<div>
+<p>This section applies if you have followed along with the Data protection series, or have otherwise created a custom consent mapping.</p>
+</div>
+
+<p>Create a controller to provide the codename of the relevant consent to the external site.</p>
+<ol type="1">
+<li>Add a new empty controller named <em>ConsentCodenameController.cs</em> to the <em>~/Features/DataProtection/Controllers</em> folder of the <em>TrainingGuides.Web</em> project.</li>
+<li>Create an asynchronous controller action called <code>MarketingConsent</code>.</li>
+<li>Decorate the action with an attribute to specify the <em>~/consent/marketing</em> route for the controller, and designate it as an HTTP GET endpoint.</li>
+<li>Inject an ICookieConsentService instance, and use it to get the current cookie level mapping, returning the codename of the marketing consent as JSON.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ConsentCodenameController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides.Web.Features.DataProtection.Services;
+
+namespace TrainingGuides.Web.Features.DataProtection.Controllers;
+
+public class ConsentCodenameController : Controller
+{
+    private readonly ICookieConsentService cookieConsentService;
+
+    public ConsentCodenameController(ICookieConsentService cookieConsentService)
+    {
+        this.cookieConsentService = cookieConsentService;
+    }
+
+    //Provides the name of the consent mapped to the Marketing cookie level for cross-site tracking.
+    [HttpGet("consent/marketing")]
+    public async Task&lt;IActionResult&gt; MarketingConsent()
+    {
+        var cookieLevelConsentMapping = await cookieConsentService.GetCurrentMapping();
+        string marketingConsent = cookieLevelConsentMapping?.MarketingConsentCodeName.FirstOrDefault() ?? string.Empty;
+        return Json(marketingConsent);
+    }
+}
+</code></pre>
+</div>
+
+<p>This controller action will allow the external site to fetch the codename of the marketing consent.</p>
+<h2 id="set-a-cors-policy">Set a CORS policy</h2>
+<p>When the tracking snippet is added to the external site, it will add a link to a script from the Xperience site, meaning you will need to set up a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" target="_blank">CORS (cross-origin resource sharing) policy</a> that allows the external site to use resources from your Xperience project.</p>
+<p>This is enabled during application startup in .NET, so it can be enabled in the <em>Program.cs</em>file.</p>
+<ol type="1">
+<li>
+<p>Open <em>Program.cs</em>in the <em>TrainingGuides.Web</em> project and add a variable to store the name of your policy.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ string trainingGuidesAllowSpecificOrigins = "_trainingGuidesAllowSpecificOrigins";
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li><p>After the builder is created, use the <code>AddCors</code> extension to add CORS to the service collection.</p></li>
+<li><p>Add a policy, assigning the name defined earlier, and use the <code>WithOrigins</code> extension to allow sharing with the domain where you hosted your external site.</p></li>
+<li>
+<p>Use the <code>WithHeaders</code> and <code>AllowCredentials</code> extensions to allow requests with credentials and the <code>content-type</code> header.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ var builder = WebApplication.CreateBuilder(args);
+ ... 
+ builder.Services.AddCors(options =&gt;
+ {
+     options.AddPolicy(name: trainingGuidesAllowSpecificOrigins,
+         policy =&gt;
+         {
+             policy
+             .WithOrigins("https://The-URL-of-your-external-site.com")
+             .WithHeaders("content-type")
+             .AllowAnyMethod()
+             .AllowCredentials();
+         });
+ }); 
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>After the application is built, but before it is run, call the <code>UseCors</code> extension, passing the name of the policy you set up.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ... 
+ app.UseCors(trainingGuidesAllowSpecificOrigins); 
+ ...
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<p>Now resource requests from the external domain to the Xperience application will not be blocked.</p>
+<h2 id="add-scripts-to-the-page">Add scripts to the page</h2>
+<p>With a CORS policy in place that allows your external site to use scripts from Xperience, there are no more blocking factors, and you can add the necessary scripts to the external site.</p>
+<p>Looking over the <em>index.html</em> page found in the /<em>src/TrainingGuides - External Site</em> folder of the training guides repository, you may notice the buttons and label match the <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking#consent-management-on-external-sites">basic example for consent management found in the documentation</a>. Much of the JavaScript in this section will also mirror functionality from this example, with some key changes to fit our current scenario.</p>
+<p>Add the Xperience tracking snippet</p>
+<ol type="1">
+<li><p>Log in to the administration interface of Xperience and open the record for your external site in the <strong>Cross-site tracking</strong> application.</p></li>
+<li><p>Copy the script snippet and paste it into the header of the external site.</p></li>
+<li>
+<p>Remove the <code>kxt('pagevisit');</code> line.</p>
+
+<div>
+
+</div>
+<div>
+This line, which logs a <em>Page visit</em> activity, will be added in later, after consent has been confirmed.
+</div>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>HTML</span>
+</div>
+<strong>Index.html</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+&lt;script type="text/javascript"&gt;
+    (function (w, d, s, e, n) {
+        w.XperienceTrackerName = n;
+        w[n] = w[n] || function () {
+            (w[n].q = w[n].q || []).push(arguments);
+        };
+        var scriptElement = d.createElement(s);
+        var scriptSection = d.getElementsByTagName(s)[0];
+        scriptElement.async = 1;
+        scriptElement.src = e.replace(/\/+$/, '') + '/Kentico.Resource/CrossSiteTracking/Logger.js';
+        scriptSection.parentNode.insertBefore(scriptElement, scriptSection);
+        w[n]('init', { mainSiteUrl: e, document: d, window: w });
+    })(window, document, 'script', 'https://The-URL-of-your-Xperience-site.com', 'kxt');
+&lt;/script&gt;
+...
+
+</code></pre>
+</div>
+
+<p>This snippet adds a script reference to a JavaScript file in your Xperience instance which contains functions related to activities and consent.</p>
+<h3 id="retrieve-the-consent-codename-from-the-controller">Retrieve the consent codename from the controller</h3>
+<p>Xperience tracking scripts that rely on consent need to know the codename of the consent associated with tracking. You need to create a function that retrieves the codename from the controller action defined <a href="#add-a-controller-to-indicate-the-right-consent">earlier</a>. Create a javascript file with a function to retrieve this value to the existing script block.</p>
+<ol type="1">
+<li>Add a new JavaScript file to the external site called <em>activity.js</em>.</li>
+<li>Create a function <code>getConsentCodeName</code>, which fetches a response from the URL of your <code>MarketingConsent</code> controller action, located at the <em>/consent/marketing</em> path of your Xperience site.</li>
+<li>Convert the JSON data from the response to a string in your consuming code.</li>
+<li>Remove any extraneous quotation marks, and return the value.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>JS</span>
+</div>
+<strong>activity.js</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+//Fetches the codename of the marketing consent
+function getConsentCodeName(){
+    return fetch("https://The-URL-of-your-Xperience-site.com/")
+        .then(response =&gt; response.json())
+        .then(consentJson =&gt; JSON.stringify(consentJson).replace(/"+/g, ''));
+}
+...
+
+</code></pre>
+</div>
+
+<h3 id="add-handler-functions-for-activities">Add handler functions for activities</h3>
+<p>The file also needs functions to log the activities that will be tracked on the page.</p>
+<ol type="1">
+<li>
+<p>Add a function that agrees to a given consent for the current contact.<br>
+Use a similar approach to the <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking#consent-management-on-external-sites">example in the documentation</a>, but accept a parameter to specify the consent codename.</p>
+
+<div>
+<div>
+<div>
+<span>JS</span>
+</div>
+<strong>activity.js</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ // Click handler that creates a consent agreement for the current contact
+ function trackingConsentAgree(consentName) {
+     kxt('consentagree', {
+         codeName: consentName,
+         callback: () =&gt; {
+             // Enables tracking for any subsequent logging scripts
+             kxt('updateconsent', {
+                 allow_tracking: true,
+                 allow_datainput: true
+             });
+         },
+         onerror: t =&gt; console.log(t)
+     });
+ }
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>With the same approach, add a function that revokes a given consent for the current contact.</p>
+
+<div>
+<div>
+<div>
+<span>JS</span>
+</div>
+<strong>activity.js</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ // Click handler that revokes the tracking consent agreement for the current contact
+ function trackingConsentRevoke(consentName) {
+     kxt('consentrevoke', {
+         codeName: consentName,
+         callback: () =&gt; {
+             // Disables tracking for any subsequent logging scripts
+             kxt('updateconsent', {
+                 allow_tracking: false,
+                 allow_datainput: false
+             });
+         },
+         onerror: t =&gt; console.log(t)
+     });
+ }
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Create a function that logs a link click activity, using the alt text of the link to populate the label.<br>
+The label should be unique in order to indicate which link on the external site was clicked in the Xperience admin interface. Keep this in mind when adding links to your external site.</p>
+
+<div>
+<div>
+<div>
+<span>JS</span>
+</div>
+<strong>activity.js</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ //Click handler that logs a link click.
+ function logLinkClick() {
+     kxt('click', {
+         label: this.getAttribute("alt"),
+         onerror: t =&gt; console.log(t)
+     });
+ }
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Define a function that logs the file download custom activity, similar to the <a href="/guides/development/activities-and-marketing/log-custom-activities#log-file-downloads">custom activities example</a> from earlier in this series.</p>
+
+<div>
+<div>
+<div>
+<span>JS</span>
+</div>
+<strong>activity.js</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ //Click handler that logs a file download activity
+ function logDownload() {
+     kxt('customactivity', {
+         type: 'filedownload',
+         value: this.getAttribute('alt') + ', ' + window.location.pathname,
+         title: 'File download',
+ persona: developer
+         onerror: t =&gt; console.log(t)
+     });
+ }
+ ...
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="set-up-the-page-on-load">Set up the page on load</h3>
+<p>These functions allow you to set up click event handlers, and set up the page using the marketing consent.</p>
+<ol type="1">
+<li><p>Add a new function that handles the <code>DOMContentLoaded</code> event.</p></li>
+<li><p>Disable tracking by default, then call the <code>getConsentCodeName</code> function.</p></li>
+<li><p>When the promise is fulfilled, write the text of the marketing consent to the <code>lblConsentText</code> label.</p></li>
+<li>
+<p>If the current contact has already agreed to the marketing consent, enable tracking.</p>
+
+<div>
+
+</div>
+<div>
+<p>The activity will only be logged if the consent is given, thanks to the previous step. Call the <code>kxt</code> function to log a page visit.</p>
+</div>
+</li>
+<li><p>Register click handlers for the <code>btnConsentAgree</code> and <code>btnConsentRevoke</code> buttons, assigning the corresponding functions and passing the marketing consent codename.</p></li>
+<li><p>Outside of the consuming code for the consent name promise, assign the <code>logDownload</code> function to the click event of any links with the <code>download</code> attribute, and the <code>logLinkClick</code> function to any other links.</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>JS</span>
+</div>
+<strong>activity.js</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//When the document loads
+document.addEventListener('DOMContentLoaded', () =&gt; {
+    // Disables all tracking by default
+    kxt('consentdefault', {
+        allow_tracking: false,
+        allow_datainput: false,
+        onerror: t =&gt; console.log(t)
+    });
+
+    getConsentCodeName()
+        .then(consentName =&gt; {
+            // Retrieves and displays the consent text
+            kxt('consentdata', {
+                codeName: consentName,
+                languageName: 'en',
+                callback: consentData =&gt; {
+                    document.getElementById('lblConsentText').innerHTML = consentData.shortText;
+                },
+                onerror: t =&gt; console.log(t)
+            });
+
+            // Enables tracking if the current contact has agreed with the consent
+            kxt('consentcontactstatus', {
+                codeName: consentName,
+                callback: consentStatus =&gt; {
+                    if (consentStatus.isAgreed) {
+                        kxt('updateconsent', {
+                            allow_tracking: true,
+                            allow_datainput: true
+                        });
+                    }
+                },
+                onerror: t =&gt; console.log(t)
+            });
+
+            // Logs a page visit activity (if tracking is enabled for the current contact)
+            kxt('pagevisit', {
+                onerror: t =&gt; console.log(t)
+            });
+
+            //Registers click event handlers for consent functions
+            const consentAgreeButton = document.getElementById("btnConsentAgree");
+            consentAgreeButton.addEventListener("click", () =&gt; 
+                trackingConsentAgree(consentName)
+            );
+
+            const consentRevokeButton = document.getElementById("btnConsentRevoke");
+            consentRevokeButton.addEventListener("click", () =&gt; 
+                trackingConsentRevoke(consentName)
+            );
+        });
+
+    const links = document.getElementsByTagName("a");
+    //Registers click event handlers for download and standard links
+    for (let i = 0; i &lt; links.length; i++) {
+        if (links[i].hasAttribute("download")) {
+            links[i].addEventListener("click", logDownload);
+        }
+        else{
+            links[i].addEventListener("click", logLinkClick);
+        }
+    }
+});
+
+</code></pre>
+</div>
+
+<h3 id="add-the-scripts-to-the-page">Add the scripts to the page</h3>
+<p>The JavaScript code is fully implemented, and can be referenced from the HTML page.</p>
+<ol type="1">
+<li><p>Return to the <em>index.html</em> file of the external site</p></li>
+<li>
+<p>Beneath the Xperience snippet, add a script reference to the newly created file.</p>
+
+<div>
+<div>
+<div>
+<span>HTML</span>
+</div>
+<strong>index.html</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ &lt;script src="./activity.js" &gt;&lt;/script&gt;
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<p>With this code in place, the external site will log page visit, file download, and link click activities on the index page, depending on the current contact’s consent. These activities can be viewed on the <strong>Activities</strong> tab of the <strong>Contact management</strong> application in the Xperience admin interface.</p>
+<p></p>
+<p>The following video demonstrates the functionality we’ve added with this example.</p>
+<p>After the visitor gives consent on the external site, Xperience tracks their page visit, download, and link click activity. Then, after consent is revoked, these activities are no longer tracked.</p>
+
+<h2 id="looking-forward">Looking forward</h2>
+<p>Now that the external site logs activities with your Xperience instance, you can experiment with improvements to this basic site. For example, you can log different activities, such as the <em>Page like</em> activity from the <a href="/guides/development/activities-and-marketing/log-custom-activities#log-page-likes">Custom activities example</a>, and hide the corresponding buttons depending on whether the current contact has or hasn’t consented to tracking.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can also <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking#data-input">handle data input to map data to contacts</a>, and <a href="/documentation/developers-and-admins/digital-marketing-setup/cross-site-tracking#handle-error-states">handle error states</a> as shown in the documentation example.</p>
+</div>
+
+
+</body>
+</html>

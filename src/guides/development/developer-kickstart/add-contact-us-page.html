@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Add a Contact us page</title>
+</head>
+<body>
+<p>Let’s implement a <em>Contact us</em> page. We want it to display a simple form and our slogan message, the same as on the <em>Home page</em>.</p>
+<p>Therefore the page is a perfect candidate for reusing our existing <em>Landing page</em> template and <em>Welcome slogan</em> reusable content item.</p>
+<p></p>
+<h2 id="create-the-page-in-the-administration-ui">Create the page in the administration UI</h2>
+<p>Just like with <a href="/guides/development/developer-kickstart/apply-a-page-template"><em>Home page</em> before</a>, navigate to the <strong>Kickstart pages</strong> channel in the administration UI and create a new page:</p>
+<ul>
+<li>
+<strong>Page name:</strong> Contact us</li>
+<li>
+<strong>Content type:</strong> Landing page</li>
+</ul>
+<p>Set the Slogan. This time, you can simply use the <strong>Select existing</strong> and pick the <em>Welcome slogan</em> you created before.</p>
+<p></p>
+<p>Now, when you publish your page and look at the <strong>Preview</strong>, you’ll see it shows the same Welcome slogan text as the Home page.</p>
+<p>The first part is done. Next, you need the form.</p>
+<h2 id="build-the-form">Build the form</h2>
+<p>In your Xperience administration, navigate to <strong>Digital marketing → Forms → New form</strong> to open a <a href="/documentation/developers-and-admins/development/builders/form-builder">Form Builder</a> .</p>
+<p>Use the plus icon in the middle to add two fields:</p>
+<ul>
+<li><strong>Email</strong></li>
+<li><strong>Leave a message</strong></li>
+</ul>
+<p>The changes will save automatically.</p>
+<p></p>
+<p>Switch to the <strong>General</strong> tab on the right side. Adjust the Form name and Code name, and <strong>Save</strong>:</p>
+<ul>
+<li>
+<strong>Form name</strong>: Contact us</li>
+<li>
+<strong>Code name</strong>: ContactUs</li>
+</ul>
+<p>Your <em>Contact us</em> form should look like this:</p>
+<p></p>
+<h2 id="use-page-builder-to-show-the-form-and-a-custom-message">Use Page Builder to show the form and a custom message</h2>
+<p>Navigate to your <strong>Kickstart pages</strong> channel again and pick the <em>Contact us</em> page from the page tree on the left side.</p>
+<p>Switch to the <strong>Page Builder</strong> view and click <strong>Edit page</strong> in the top-right corner.</p>
+<p>Use the Page Builder area to add a Rich text widget, just like in the <em>Home page</em>. Enter the following text:</p>
+
+<div>
+<div>
+<div>
+<span>HTML</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+Need to send us a message?
+
+Use this form, and we'll get back to you at the provided email address!
+</code></pre>
+</div>
+
+<p>Click the plus icon again to add a <strong>Form</strong> widget. Then, configure the widget’s properties using the gear icon in the top-right corner.</p>
+<p></p>
+<p>Fill out the following:</p>
+<ul>
+<li>
+<strong>Form properties → Select form</strong>: Select your new <em>Contact us</em> form.</li>
+<li>
+<strong>After form submission → Display a message</strong>: Thanks! We’ll get back to you soon!</li>
+</ul>
+<p>Click <strong>Apply</strong> and <strong>Publish</strong> your page.</p>
+<h2 id="check-your-progress">Check your progress</h2>
+<p>Navigate to the root of your website and add <em>/contact-us</em> to the URL. You should be able to see the new <em>Contact us</em> page and submit the form.</p>
+
+<p>Now that your website has two pages, let’s implement a simple navigation so visitors can easily toggle between them.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/model-navigation">Model navigation</a></p>
+
+</body>
+</html>

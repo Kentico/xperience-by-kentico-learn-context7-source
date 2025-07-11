@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Implement the checkout process</title>
+</head>
+<body>
+
+<div>
+
+</div>
+<div>
+<p><strong>Developer preview feature</strong></p>
+<p>The digital commerce feature is currently not fully functional, and primarily intended to allow technical users to familiarize themselves with the development process of the commerce feature. You can expect the feature to be updated and extended in upcoming releases.</p>
+<p>The related API is <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/general#experimental-attributes" target="_blank">marked as experimental</a> and usage will result in warnings when compiling your project. The warnings are treated as errors for reporting purposes. To use the code, you need to <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/experimental-overview#suppress-warnings" target="_blank">suppress</a> the warnings.</p>
+<p>What should you do with this feature?</p>
+<ul>
+<li>
+<strong>DO</strong> try out development of digital commerce and examine the sample in the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat project template</a>.</li>
+<li>
+<strong>DO</strong> feel free to share your feedback with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</li>
+<li>
+<strong>DO NOT</strong> use this feature in public facing and production applications, as the feature is currently incomplete.</li>
+</ul>
+</div>
+
+<p>Most of the checkout process for <a href="/documentation/developers-and-admins/digital-commerce-setup">digital commerce</a> needs to be implemented by developers. This is because checkout requirements (e.g., payment methods, shipping options, tax handling, order confirmation) can vary greatly between projects. The commerce feature provides the core building blocks, but it’s up to the development team to customize the checkout process to match the specific needs of the shop.</p>
+<p>To implement a checkout process in your commerce solution, you need to handle the following steps:</p>
+<ol type="1">
+<li>
+<a href="#implement-the-shopping-cart">Store products in the shopping cart</a>.</li>
+<li>
+<a href="#retrieve-the-current-shopping-cart">Retrieve the current shopping cart</a>.</li>
+<li>
+<a href="#implement-order-creation">Create a new order from the shopping cart</a>.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Commerce object types</strong></p>
+<p>Object types used by the commerce feature (Shopping cart, Order, Order address, Order item, Customer, Customer address …):</p>
+<ul>
+<li>are considered live-site data and are not supported by the <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> feature</li>
+<li>can be <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extended</a> by adding custom fields</li>
+</ul>
+</div>
+
+<h2 id="implement-the-shopping-cart">Implement the shopping cart</h2>
+<p>Shopping carts are stored as <code>ShoppingCartInfo</code> objects in the API. The actual content of a shopping cart is stored in the <code>ShoppingCartData</code> string property. It is up to you to implement the data model of the shopping cart and methods to serialize and deserialize the shopping cart content.</p>
+<p>For a sample implementation, you can check the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat project template</a>, which uses a <code>ShoppingCartDataModel</code> object to represent the data model of the shopping cart. The model contains a collection of <code>ShoppingCartDataItem</code> objects representing individual items in the shopping cart. You can use the <code>GetShoppingCartDataModel</code> and <code>StoreShoppingCartDataModel</code> sample extension methods of the <code>ShoppingCartInfo</code> object to modify what products and quantities are in the shopping cart.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Sample shopping cart handling in the Dancing Goat project template</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+// ID of the content item representing the product
+int contentItemId;
+// ID of the product variant
+int variantId;
+// New quantity of the product
+int quantity;
+
+// Retrieves the shopping cart for the current user
+ShoppingCartInfo shoppingCart = await currentShoppingCartService.Get();
+
+// Retrieves a custom data model of the shopping cart
+ShoppingCartDataModel shoppingCartData = shoppingCart.GetShoppingCartDataModel();
+
+// Retrieves a custom product model from the data model
+ShoppingCartDataItem productItem = shoppingCartData.Items.FirstOrDefault(
+                    x =&gt; x.ContentItemId == contentItemId &amp;&amp; x.VariantId == variantId);
+
+// Checks that the product is already in the shopping cart
+if (productItem != null)
+{
+    // Sets the new quantity of the product
+    productItem.Quantity = quantity;
+    // If the new quantity is 0, removes the product from the cart
+    if (productItem.Quantity == 0)
+    {
+        shoppingCartData.Items.Remove(productItem);
+    }
+}
+// Checks that the product is not in the shopping cart and the new quantity is more than 0
+else if (quantity &gt; 0)
+{
+    // Adds a new product to the shopping cart
+    shoppingCartData.Items.Add(new ShoppingCartDataItem { ContentItemId = contentItemId, Quantity = quantity, VariantId = variantId });
+}
+
+// Stores the new data model to the shopping cart of the current user
+shoppingCart.StoreShoppingCartDataModel(shoppingCartData);
+
+</code></pre>
+</div>
+
+<h2 id="retrieve-the-current-shopping-cart">Retrieve the current shopping cart</h2>
+<p>Current shopping cart can be retrieved using the <code>ICurrentShoppingCartService</code> service (available in the <code>Kentico.Commerce.Web.Mvc</code> namespace). The shopping cart identifier is stored in a cookie for an anonymous customer. For a <a href="/documentation/business-users/members">member</a> (a user signed in on the website), the shopping cart contains a reference to the respective member, so that the content of the shopping cart is consistent across multiple devices. The actual shopping cart data is stored in the database. This allows members to access their cart even if they sign in from a different device – their cart will be correctly populated based on their previous actions. You can also <a href="/documentation/developers-and-admins/digital-commerce-setup#configure-shopping-cart">configure</a> the amount of time after which a shopping cart is deleted.</p>
+<p>Use the following methods of the interface to work with the shopping cart of the current user:</p>
+<ul>
+<li>
+<code>Get</code> – retrieves a <code>ShoppingCartInfo</code> object representing the current shopping cart.</li>
+<li>
+<code>Create</code> – creates a new <code>ShoppingCartInfo</code> object and stores the identifier as a cookie.</li>
+<li>
+<code>Delete</code> – deletes the shopping cart from the database and removes the identifier from the cookie.</li>
+<li>
+<code>MemberSignIn</code> – handles the transition from anonymous user to member during sign-in. If the member already has a cart and there is also an anonymous cart from the current session, the existing member cart is deleted and the anonymous cart is assigned to the signed-in member. This behavior can be customized by overriding the service.</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Current shopping cart</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// An instance of ICurrentShoppingCartService (e.g., obtained via dependency injection)
+private readonly ICurrentShoppingCartService currentShoppingCartService;
+
+// Retrieves the shopping cart for the current user
+ShoppingCartInfo shoppingCart = await currentShoppingCartService.Get();
+
+// If the there is no shopping cart for the current user, a new shopping cart is created
+shoppingCart ??= await currentShoppingCartService.Create(null);
+
+// Deletes the shopping cart for the current user
+await currentShoppingCartService.Delete();
+</code></pre>
+</div>
+
+<h2 id="implement-order-creation">Implement order creation</h2>
+<p>Orders are represented as <code>OrderInfo</code> objects in the API. To create a new order from a shopping cart, you need to:</p>
+<ol type="1">
+<li>Retrieve a list of products from the shopping cart.</li>
+<li>Calculate the total price of the order.</li>
+<li>Create a new <code>CustomerInfo</code> object if the customer is anonymous or use an existing customer object if it exists already.
+<ul>
+<li>Use the <code>CustomerAddressInfo</code> object to represent the customer address. This address can be used to pre-fill the shipping/billing address.</li>
+</ul>
+</li>
+<li>Create the <code>OrderInfo</code> object.
+<ul>
+<li>Use the <code>OrderAddressInfo</code> object to represent addresses related to of the order. Use the <code>OrderAddressType</code> to specify whether the address is billing or shipping. You can attach more than 1 address to 1 order.</li>
+<li>Use the <code>OrderItemInfo</code> object to represent individual product items in the order.</li>
+</ul>
+</li>
+<li>Ensure that notifications are sent on order creation. See <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses#send-notifications-for-new-orders">Send notifications for new orders</a>.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Customize system commerce objects</strong></p>
+<p>When <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">customizing</a> any object types used by the commerce feature, use a unique prefix when naming your custom fields. The prefix prevents conflicts with system fields that may be added in future releases.</p>
+</div>
+
+<p>After you create the order, you can see the new order in the <strong>Orders</strong> application.</p>
+<h2 id="automatically-change-status-of-orders">Automatically change status of orders</h2>
+<p>If you have an external system that performs actions that can affect the status of your orders (e.g., shipping company, payment provider), you can automatically update the order status by changing the <code>OrderOrderStatusID</code> property of the <code>OrderInfo</code> object.</p>
+<p>The following example showcases a sample code that receives a confirmation of payment from a payment provider and automatically updates the respective order to reflect this change. When changing order statuses via the API, the <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses#configure-notifications-for-order-statuses">notifications</a> are sent as usual.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Change status of an order</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Instances of provider services can be retrieved using dependency injection
+private readonly IInfoProvider&lt;OrderInfo&gt; orderInfoProvider;
+private readonly IInfoProvider&lt;OrderStatusInfo&gt; orderStatusInfoProvider;
+
+// Order ID received from a payment provider
+int orderId;
+
+// Retrieves the order data
+OrderInfo order = await orderInfoProvider.GetAsync(orderId, cancellationToken);
+
+// Retrieves data of the new order status
+OrderStatusInfo newOrderStatus = await orderStatusInfoProvider.GetAsync("PaymentReceived", cancellationToken);
+
+// Sets the new status to the order data
+order.OrderOrderStatusID = newOrderStatus.OrderStatusID;
+
+// Saves the changes of the order data
+await orderInfoProvider.SetAsync(order, cancellationToken);
+</code></pre>
+</div>
+
+
+</body>
+</html>

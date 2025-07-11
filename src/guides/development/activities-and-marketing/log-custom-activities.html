@@ -1,0 +1,750 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Log custom activities</title>
+</head>
+<body>
+<p>You may encounter use cases where you need to track visitor actions not covered by out-of-box options, or where you need to track additional details. Xperience allows you to define custom activities, which can then be logged through both client-side and server-side code.</p>
+<p>Let’s dive into the process of logging a custom activity when a visitor downloads a file using JavaScript, and logging a custom activity when a user clicks a like button using C#.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <em>Consents</em> section of the <a href="/guides/development/data-protection">Data protection series</a> and the <a href="/guides/development/activities-and-marketing">Previous guides in the series</a>.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="create-custom-activity-types">Create custom activity types</h2>
+<p>The first step to logging custom activities is to create the activity types that represent them.</p>
+<p>In the Xperience administration interface, navigate to the <strong>Activity types</strong> tab of the <strong>Contact management</strong> application and define activity types with the following values.</p>
+<ul>
+<li>Activity 1:
+<ul>
+<li>
+<strong>Display name</strong>: File Download</li>
+<li>
+<strong>Code name</strong>: filedownload</li>
+<li>
+<strong>Description</strong>: The visitor downloaded a file.</li>
+<li>
+<strong>Enabled:</strong> True</li>
+</ul>
+</li>
+<li>Activity 2:
+<ul>
+<li>
+<strong>Display name</strong>: Page like</li>
+<li>
+<strong>Code name</strong>: pagelike</li>
+<li>
+<strong>Description</strong>: The visitor clicked a like button on a page.</li>
+<li>
+<strong>Enabled:</strong> True</li>
+</ul>
+</li>
+</ul>
+<p>Let’s explore two different approaches for logging custom activities, using one for each of the types we just defined.</p>
+<h2 id="log-file-downloads">Log file downloads</h2>
+<h3 id="write-logging-javascript">Write logging javascript</h3>
+<p>The client-side activity logging example from the <a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities/custom-activities#client-side-code">documentation</a> calls a function from the <em>onclick</em> attribute of a specific button.</p>
+<p>This example uses a similar function, but stores it in a separate file rather than inline, and dynamically registers it to any links with the <em>download</em>attribute. Make sure to include this attribute on any downloadable file links that you want to track.</p>
+<ol type="1">
+<li>Add a new file called <em>FileDownloadActivityLogger.js</em> to the <em>~/wwwroot/assets/js</em> folder of the <em>TrainingGuides.Web</em> project.</li>
+<li>Create a function called <code>handleClick</code> that logs a custom activity as outlined in the <a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities/custom-activities#client-side-code">documentation example</a>.
+<ol type="a">
+<li>Assign the <em>filedownload</em> custom activity type.</li>
+<li>Set the value to the path of the current page.</li>
+<li>Assign a meaningful title that includes the <code>alt</code> attribute of the specific download link if it exists.</li>
+</ol>
+</li>
+<li>In the <code>window.onload</code> event, iterate through all the links on the page, and assign the <code>handleClick</code> function to the <em>click</em> event of any links with the <em>download</em> attribute present.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>JS</span>
+</div>
+<strong>FileDownloadActivityLogger.js</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+window.onload = function () {
+    const links = document.getElementsByTagName("a");
+
+    for (let i = 0; i &lt; links.length; i++) {
+        if (links[i].hasAttribute("download")) {
+            links[i].addEventListener("click", handleClick);
+        }
+    }
+}
+
+function handleClick() {
+    kxt('customactivity', {
+        type: 'filedownload',
+        value: window.location.pathname,
+        title: 'File downloaded - ' + this.getAttribute("alt"),
+    persona: developer
+        onerror: t =&gt; console.log(t)
+    });
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+For the sake of readability, this example is not minified. In production scenarios, consider storing this file elsewhere and using an automated tool to render a minified version of this script to the <em>wwwroot</em> folder.
+</div>
+
+<h3 id="create-a-view-component">Create a view component</h3>
+<p>Following the same process as <a href="/guides/development/activities-and-marketing/enable-activity-tracking">earlier in this series</a>, create a view component class to conditionally render a script reference to your new JavaScript file to the page.</p>
+<ol type="1">
+<li><p>Add a folder called <em>CustomActivityScripts</em> in <em>TrainingGuides.Web/Features/Activities/ViewComponents.</em></p></li>
+<li>
+<p>Create a view component to conditionally render the custom activity script if the current contact has consented to tracking.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CustomActivityScriptsViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ using Microsoft.AspNetCore.Mvc;
+ using TrainingGuides.Web.Features.Activities.ViewComponents.Shared;
+ using TrainingGuides.Web.Features.DataProtection.Services;
+
+ namespace TrainingGuides.Web.Features.Activities.ViewComponents.CustomActivityScripts;
+
+ public class CustomActivityScriptsViewComponent : ViewComponent
+ {
+     private readonly ICookieConsentService cookieConsentService;
+
+     public CustomActivityScriptsViewComponent(ICookieConsentService cookieConsentService)
+     {
+         this.cookieConsentService = cookieConsentService;
+     }
+
+     public IViewComponentResult Invoke()
+     {
+         var model = new ContactTrackingAllowedViewModel()
+         {
+             ContactTrackingAllowed = cookieConsentService.CurrentContactCanBeTracked()
+         };
+
+         return View("~/Features/Activities/ViewComponents/CustomActivityScripts/CustomActivityScripts.cshtml", model);
+     }
+ }
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Add a view that renders a script tag for your <em>FileDownloadActivityLogger.js</em> file.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>CustomActivityScripts.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ @using TrainingGuides.Web.Features.Activities.ViewComponents.Shared
+
+ @model ContactTrackingAllowedViewModel
+
+ @if (Model.ContactTrackingAllowed)
+ {
+     @*Scripts for logging custom activities*@
+     &lt;script src="~/assets/js/FileDownloadActivityLogger.js"&gt;&lt;/script&gt;
+ }
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="add-the-view-component-to-the-layout-view">Add the view component to the Layout view</h3>
+<p>The script is ready to be added to the layout view. To make the script work, you need to add Xperience activity logging API to the page, along with a reference to the javascript file from the previous section.</p>
+<ol type="1">
+<li>
+<p>Navigate to <em>~Views/Shared/_Layout.cshtml</em> in the <em>TrainingGuides.Web</em> project, and add a using directive for your new view component.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ @using TrainingGuides.Web.Features.Activities.ViewComponents.CustomActivityScripts
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>At the bottom of the body tag, use the tag helper to invoke the <code>custom-activity-scripts</code> view component.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+     &lt;vc:custom-activity-scripts/&gt;
+ &lt;/body&gt;
+ ...
+
+ </code></pre>
+</div>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>If you only expect to have download links in certain parts of your site, you can improve performance by using <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/views/layout#sections" target="_blank">Razor sections</a> to only include these scripts for views which you know will show downloads.</p>
+</div>
+
+<h3 id="test-the-code">Test the code</h3>
+<p>The coding is done, so the functionality is ready to be tested.</p>
+<ol type="1">
+<li><p>Run the <em>TrainingGuides.Web</em> project on your dev machine and visit the site in your browser.</p></li>
+<li>
+<p>Check your browser cookies in your browser’s developer tools, and ensure that the <em>CMSCookieLevel</em> cookie is set to 1000 or above.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you’ve completed the consent-related training guides, go to the <em>/cookie-policy</em> page and set your preferred cookie level to <em>Marketing</em>.</p>
+</div>
+</li>
+<li><p>Visit the <em>/policy-downloads</em> page and click to download the privacy policy PDF.</p></li>
+<li><p>Visit the <em>/admin</em>path to log in to the administration interface.</p></li>
+<li><p>Navigate to the <strong>Activities</strong> tab of the <strong>Contact management</strong> application to see that the download activity has been logged.</p></li>
+</ol>
+
+<h2 id="log-page-likes">Log page likes</h2>
+<p>The next custom activity scenario we will explore is a <em>Page like</em> widget demonstrating server-side logging with C# code. You will implement a controller action that logs a custom activity, and a widget that posts to the controller.</p>
+<h3 id="define-a-request-model">Define a request model</h3>
+<p>Create a strongly-typed class to represent the data that the widget will post to the controller, to make working with the data easier. In this case, you only need information to identify which page was liked, and to retrieve the correct item, so the Id of the web page content item, and the name of the content type should suffice.</p>
+<ol type="1">
+<li>Add a new folder named <em>PageLike</em> under <em>TrainingGuides.Web/Features/Activities/Widgets.</em>
+</li>
+<li>Create a class named <em>PageLikeRequestModel.cs</em> with a property to identify the web page item.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageLikeRequestModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Activities.Widgets.PageLike;
+
+public class PageLikeRequestModel
+{
+    public string WebPageItemID { get; set; } = string.Empty;
+}
+</code></pre>
+</div>
+
+<h3 id="expand-the-content-item-retriever-service">Expand the content item retriever service</h3>
+<p>You may have noticed that the <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content">content item query api</a> requires a strongly typed mapping function in order to select the results of the query.</p>
+<p>However, since you’re building a widget, you may not know the content type of the web page item that your widget is placed on.</p>
+<p>In order to account for this, you need a way to retrieve a web page item by ID when you don’t necessarily know its content type. For this, you can use the <code>IWebPageFieldsSource</code> interface that all generated web page content types implement.</p>
+<ol type="1">
+<li>Go to the untyped <code>ContentItemRetrieverService</code> class in <em>ContentItemRetrieverService.cs</em>.</li>
+<li>Create a method called <code>RetrieveWebPageById</code>, taking the Id of a web page and the name of a content type as parameters.</li>
+<li>Use the ID to create a parameter action for the existing <code>RetrieveWebPages</code> method.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ ...
+ /// &lt;summary&gt;
+ /// Retrieves the IWebPageFieldsSource of a web page item by Id.
+ /// &lt;/summary&gt;
+ /// &lt;param name="webPageItemId"&gt;the Id of the web page item&lt;/param&gt;
+ /// &lt;returns&gt;&lt;see cref="IWebPageFieldsSource"/&gt; object containing generic &lt;see cref="WebPageFields"/&gt; for the item&lt;/returns&gt;
+ public async Task&lt;IWebPageFieldsSource?&gt; RetrieveWebPageById(
+     int webPageItemId)
+ {
+     var pages = await RetrieveWebPages(parameters =&gt;
+         {
+             parameters.Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), webPageItemId));
+         });
+
+     return pages.FirstOrDefault();
+ }
+ ...
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="create-the-logging-controller">Create the logging controller</h3>
+<p>The controller is central to the functionality of the <em>Page like</em> widget. It is where you must log the custom activity and account for any errors.</p>
+<ol type="1">
+<li>Add a new controller named <em>PageLikeController.cs</em> to the <em>~/Features/Activities/Widgets/PageLike</em> folder.</li>
+<li>Acquire an <code>ICustomActivityLogger</code>, an <code>IContentItemRetrieverService</code>, and an <code>ICookieConsentService</code> through constructor injection.</li>
+<li>Define a controller action with the <code>HttpPost</code> attribute to register it to the route <em>~/pagelike</em> for POST requests.</li>
+<li>Use the <code>CurrentContactCanBeTracked</code> method from <a href="/guides/development/activities-and-marketing/enable-activity-tracking">earlier in this series</a> to return a message if the visitor has not consented to tracking.</li>
+<li>Validate the <code>WebPageItemID</code> from the provided <code>PageLikeRequestModel</code>.</li>
+<li>Use your <code>IContentItemRetrieverService</code> to retrieve the web page item specified by the supplied Id.</li>
+<li>Use the page to construct a <code>CustomActivityData</code> object, including relevant information about the liked page in the <code>ActivityTitle</code> and <code>ActivityValue</code>, before logging the activity <a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities/custom-activities#server-side-code">as described in the documentation</a>.</li>
+<li>Include an activity identifier constant, which will be stored in the view component created in a <a href="#add-the-widget-view-model">future step</a>.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageLikeController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.Activities;
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides.Web.Features.DataProtection.Services;
+using TrainingGuides.Web.Features.Shared.Services;
+
+namespace TrainingGuides.Web.Features.Activities.Widgets.PageLike;
+
+
+public class PageLikeController : Controller
+{
+    private const string NO_TRACKING_MESSAGE = "&lt;span&gt;You have not consented to tracking, so we cannot save this page like.&lt;/span&gt;";
+    private const string BAD_PAGE_DATA_MESSAGE = "&lt;span&gt;Error in page like data. Please try again later.&lt;/span&gt;";
+    private const string THANK_YOU_MESSAGE = "&lt;span&gt;Thank you!&lt;/span&gt;";
+
+    private readonly ICustomActivityLogger customActivityLogger;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
+    private readonly ICookieConsentService cookieConsentService;
+
+    public PageLikeController(
+        ICustomActivityLogger customActivityLogger,
+        IContentItemRetrieverService contentItemRetrieverService,
+        ICookieConsentService cookieConsentService)
+    {
+        this.customActivityLogger = customActivityLogger;
+        this.contentItemRetrieverService = contentItemRetrieverService;
+        this.cookieConsentService = cookieConsentService;
+    }
+
+    [HttpPost("/pagelike")]
+    public async Task&lt;IActionResult&gt; PageLike(PageLikeRequestModel requestModel)
+    {
+        if (!cookieConsentService.CurrentContactCanBeTracked())
+            return Content(NO_TRACKING_MESSAGE);
+
+        if (!int.TryParse(requestModel.WebPageItemID, out int webPageItemID))
+            return Content(BAD_PAGE_DATA_MESSAGE);
+
+        var webPage = await contentItemRetrieverService.RetrieveWebPageById(
+            webPageItemID);
+
+        if (webPage is null)
+            return Content(BAD_PAGE_DATA_MESSAGE);
+
+        string likedPageName = webPage.SystemFields.WebPageItemName;
+        string likedPageTreePath = webPage.SystemFields.WebPageItemTreePath;
+        string likedPageGuid = webPage.SystemFields.WebPageItemGUID.ToString();
+
+        var pageLikeActicityData = new CustomActivityData()
+        {
+            ActivityTitle = $"Page like - {likedPageTreePath} ({likedPageName})",
+            ActivityValue = likedPageGuid,
+        };
+
+        customActivityLogger.Log(PageLikeWidgetViewComponent.ACTIVITY_IDENTIFIER, pageLikeActicityData);
+        return Content(THANK_YOU_MESSAGE);
+    }
+}
+
+</code></pre>
+</div>
+
+<h3 id="add-the-widget-view-model">Add the widget view model</h3>
+<p>The <em>Page like</em> widget will have a relatively simple view model, considering its basic requirements.</p>
+<ul>
+<li>The widget needs to post the <em>WebPageItemID</em> to the controller action from the previous step.</li>
+<li>The widget should hide its button if the current visitor already liked the page in the past.</li>
+</ul>
+<p>To meet both of these requirements, create a model with the Id and a boolean property to indicate whether or not the button should be displayed, as well as the base URL of the site, so the widget can construct the URL of the controller action.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageLikeWidgetViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Activities.Widgets.PageLike;
+
+public class PageLikeWidgetViewModel
+{
+    public bool ShowLikeButton { get; set; }
+    public int WebPageItemID { get; set; }
+    public string BaseUrl { get; set; } = string.Empty;
+}
+</code></pre>
+</div>
+
+<h3 id="define-the-view-component">Define the view component</h3>
+<p>The widget’s view component needs to populate the view model. It must retrieve the ID of the current web page item, and also determine whether or not the current visitor has already liked the page, in order to pass that information along to the widget.</p>
+<ol type="1">
+<li><p>Create a file called <em>PageLikeWidgetViewComponent.cs</em> in the <em>TrainingGuides.Web/Features/Activities/Widgets/PageLike</em> folder.</p></li>
+<li><p>Use the <code>RegisterWidget</code> assembly attribute to register the widget, using a newly defined constant that holds the widget identifier.</p></li>
+<li><p>Add another constant to hold the identifier of the page like activity.</p></li>
+<li><p>Acquire <code>IInfoProvider&lt;ActivityInfo&gt;</code> and <code>IContentItemRetrieverService</code> objects with constructor injection.</p></li>
+<li>
+<p>Define the <code>InvokeAsync</code> method, using <code>IInfoProvider&lt;ActivityInfo&gt;</code> to query for existing page-like activities of the current web page item by the current contact.</p>
+
+<div>
+
+</div>
+<div>
+<p>Remember that <a href="#create-the-logging-controller">in the controller</a>, you stored the Guid of the current web page to the custom activity’s <code>ActivityValue</code>. You can use this field to look up likes of the current page.</p>
+</div>
+</li>
+<li><p>If no existing likes are found, set <code>ShowLikeButton</code> to <code>true</code> in a new <code>PageLikeWidgetViewModel</code> instance.</p></li>
+<li><p>Use the <code>Page</code> property of the provided <code>ComponentViewModel</code> parameter to populate the remaining properties of the <code>PageLikeWidgetViewModel</code>.</p></li>
+<li><p>Return the path to a view in the same folder, which will be added in the next section.</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageLikeWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.Activities;
+using CMS.ContactManagement;
+using TrainingGuides.Web.Features.Activities.Widgets.PageLike;
+using Kentico.PageBuilder.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using TrainingGuides.Web.Features.Shared.Services;
+using CMS.DataEngine;
+
+[assembly: RegisterWidget(
+    identifier: PageLikeWidgetViewComponent.IDENTIFIER,
+    viewComponentType: typeof(PageLikeWidgetViewComponent),
+    name: "Page like button",
+    Description = "Displays a page like button.",
+    IconClass = "icon-check-circle")]
+
+namespace TrainingGuides.Web.Features.Activities.Widgets.PageLike;
+
+public class PageLikeWidgetViewComponent : ViewComponent
+{
+    private readonly IInfoProvider&lt;ActivityInfo&gt; activityInfoProvider;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
+    private readonly IHttpRequestService httpRequestService;
+
+    public const string IDENTIFIER = "TrainingGuides.PageLikeWidget";
+    public const string ACTIVITY_IDENTIFIER = "pagelike";
+
+    public PageLikeWidgetViewComponent(IInfoProvider&lt;ActivityInfo&gt; activityInfoProvider,
+        IContentItemRetrieverService contentItemRetrieverService,
+        IHttpRequestService httpRequestService)
+    {
+        this.activityInfoProvider = activityInfoProvider;
+        this.contentItemRetrieverService = contentItemRetrieverService;
+        this.httpRequestService = httpRequestService;
+    }
+
+    public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ComponentViewModel properties)
+    {
+        var currentContact = ContactManagementContext.GetCurrentContact(false);
+
+        var webPage = await contentItemRetrieverService.RetrieveWebPageById(
+            properties.Page.WebPageItemID);
+
+        var likesOfThisPage = currentContact != null
+            ? await activityInfoProvider.Get()
+                .WhereEquals("ActivityContactID", currentContact.ContactID)
+                .And().WhereEquals("ActivityType", ACTIVITY_IDENTIFIER)
+                .And().WhereEquals("ActivityValue", webPage?.SystemFields.WebPageItemGUID.ToString())
+                .GetEnumerableTypedResultAsync()
+            : [];
+
+        bool showLikeButton = likesOfThisPage.Count() == 0;
+
+        var model = new PageLikeWidgetViewModel()
+        {
+            ShowLikeButton = showLikeButton,
+            WebPageItemID = properties.Page.WebPageItemID,
+            BaseUrl = httpRequestService.GetBaseUrl()
+        };
+
+        return View("~/Features/Activities/Widgets/PageLike/PageLikeWidget.cshtml", model);
+    }
+}
+
+
+</code></pre>
+</div>
+
+<h3 id="make-the-identifier-available">Make the identifier available</h3>
+<p>In the future, you may need to limit which widgets are available in different Page Builder sections and zones. To make this easier, add the page like widget’s identifier to the <code>ComponentIdentifiers</code> class.</p>
+<ol type="1">
+<li>Navigate to <em>TrainingGuides.Web/ComponentIdentifiers.cs.</em>
+</li>
+<li>Add a new static class called <code>Widgets</code> inside the <code>ComponentIdentifiers</code> class if it does not already exist.</li>
+<li>Add a constant string that is equal to that of the page like widget view component.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentIdentifiers.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+public static class ComponentIdentifiers
+{
+    ...
+    public static class Widgets
+    {
+        ...
+        public const string PAGE_LIKE = PageLikeWidgetViewComponent.IDENTIFIER;
+        ...
+    }
+    ...
+}
+
+</code></pre>
+</div>
+
+<h3 id="add-the-widget-view">Add the widget view</h3>
+<p>The last piece you need to add is the view file referenced by the view component.</p>
+<ol type="1">
+<li>
+<p>If you didn’t follow along with the <a href="/guides/development/data-protection">Data protection series</a> yet, add a dependency on the <em>AspNetCore.Unobtrusive.Ajax</em> NuGet Package, and add the following line to the part of <em>Program.cs</em> where services are added to the application builder.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ builder.Services.AddUnobtrusiveAjax();
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li><p>Add a view file called <em>PageLikeWidget.cshtml</em> to the <em>TrainingGuides.Web/Features/Activities/Widgets/PageLike</em> folder.</p></li>
+<li>
+<p>Create an AJAX form that posts to the path of the controller action from earlier.</p>
+<ol type="a">
+<li>Pass the Id of a div for the AJAX form to write its response.</li>
+<li>Use a hidden input to pass the web page item’s Id to the controller action when the widget submits the form.</li>
+</ol>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>PageLikeWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using TrainingGuides.Web.Features.Activities.Widgets.PageLike;
+
+@model PageLikeWidgetViewModel
+
+@{
+    var messageId = "pageLikeMessage";
+}
+
+@if(Model.ShowLikeButton || Context.Kentico().Preview().Enabled)
+{
+    @using (Html.AjaxBeginForm("PageLike", "PageLike", new AjaxOptions
+     {
+         HttpMethod = "POST",
+         InsertionMode = InsertionMode.Replace,
+         UpdateTargetId = messageId
+     }, new { action = $"{Model.BaseUrl}/pagelike" }))
+    {
+        &lt;div class="container"&gt;
+            &lt;div class="cookie-preferences js-cookie-preferences"&gt;
+                &lt;input id="WebPageItemID" name="WebPageItemID" type="hidden" value="@Model.WebPageItemID" /&gt;
+                &lt;button class="btn btn-secondary text-uppercase mt-4 cookie-preferences__button" type="submit" name="button"&gt;
+                    Like this page
+                &lt;/button&gt;
+                &lt;div id="@messageId" class="cookie-preferences__message"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    }
+}
+
+</code></pre>
+</div>
+
+<p>The coding is done, so you can test your new widget.</p>
+<ol type="1">
+<li>Run the <em>TrainingGuides.Web</em> project locally.</li>
+<li>Log in to the administration interface, and open the <strong>Training guides pages</strong> channel.</li>
+<li>Choose <strong>Edit → Create new version</strong> the <em>Cookie policy</em> page, and add an instance of the <em>Page like</em> widget to the widget zone.</li>
+<li>Save and publish the page, then do the same for the <em>Contact us</em> page.</li>
+<li>Visit the <em>/cookie-policy</em> path on the live site.</li>
+<li>Make sure your cookie level is set to <em>Marketing</em>, and click the like button.</li>
+<li>Return to the administration interface, opening the <strong>Activities</strong> tab of the <strong>Contact management</strong> application to see that Xperience has logged the <em>Page like</em> activity.</li>
+</ol>
+
+<h2 id="whats-next">What’s next?</h2>
+<p><a href="/guides/development/activities-and-marketing/hide-builder-content-from-visitors-who-have-not-consented-to-tracking">The next guide in this series</a> will cover the process of creating a page section that hides its contents from contacts who have not consented to tracking, preventing them from submitting data through any widgets in the section.</p>
+
+</body>
+</html>

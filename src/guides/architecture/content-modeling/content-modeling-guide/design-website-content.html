@@ -1,0 +1,519 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Design website content</title>
+</head>
+<body>
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from beginning to end.</p>
+<ul>
+<li>
+<a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a>
+<ul>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">What is a content type</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">Structured and unstructured content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Start with business needs</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">Content modeling process</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">Model taxonomies</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">Store content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a></li>
+<li><strong>Design website content</strong></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-email-content">Design email content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">Design headless content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/general-content-modeling-recommendations">General content modeling recommendations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2 id="content-tree-hierarchy-and-page-structure-in-website-channels">Content tree hierarchy and page structure in website channels</h2>
+<p>Website channel applications allow marketers to create and manage page content they want to display on the website. A hierarchical structure called the <strong>content tree</strong> represents website content structure in a website channel application.</p>
+<p></p>
+<p>Not every item in the content tree necessarily needs to <strong>represent an actual page</strong> on the website. From a presentation perspective, we recognize <strong>three types of content</strong> stored <strong>in the content tree hierarchy</strong>:</p>
+
+<table>
+<thead>
+<tr>
+<td>
+<p>Type of content</p>
+</td>
+<td>
+<p>Content from the presentation perspective</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p><strong>Content types for pages accessible under a URL</strong></p>
+</td>
+<td>
+<ul>
+<li>Website pages accessible under specific URLs (e.g., <em>mysite.com/Home</em>).</li>
+<li>Pages with URLs can have properties to define the URL slugs, categorize the content, and contain custom fields to adjust the content’s SEO properties.
+<ul>
+<li>Media library file URLs are accessible through custom code.</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Content types for pages without a URL</strong></p>
+</td>
+<td>
+<ul>
+<li>Not accessible directly under a specific URL.</li>
+<li>Serve as building blocks editors can use to create strictly-ordered hierarchies.</li>
+<li>Typical (but rare) examples include modeling different company offices, or team organizations.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td>
+<p><strong>Folders</strong></p>
+</td>
+<td>
+<ul>
+<li>Folders don’t store any content. They are used to create taxonomies within the content tree to make navigation easier for editors.</li>
+</ul>
+</td>
+</tr>
+</table>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Content tree-based routing</strong></p>
+<p>Depending on the website implementation, the <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">content tree-based routing</a> feature can generate page URLs based on their position within the content tree hierarchy. Learn out more about features related to pages with URLs:</p>
+<ul>
+<li><a href="/documentation/developers-and-admins/development/routing">Routing</a></li>
+<li><a href="/documentation/business-users/website-content/manage-page-urls">Manage page URLs</a></li>
+</ul>
+</div>
+
+<h2 id="create-content-in-website-channel-applications">Create content in website channel applications</h2>
+<p>Editors can populate the website content tree with the content stored in the <em>Content hub</em>. They can also create one-off channel-specific content that serves only a single purpose, e.g., the website page’s URL, or highly personalized content defined by the presentation. Alternatively, editors can also create reusable content through website channel applications and store it in the <em>Content hub</em>.</p>
+<p>From a content-creation perspective, editors can create <strong>three types of content</strong> in website channel applications.</p>
+
+<table>
+<thead>
+<tr>
+<td>
+<p>Structured pages</p>
+</td>
+<td>
+<p>Page Builder content</p>
+</td>
+<td>
+<p>Reusable content</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<ul>
+<li>Editors create new structured pages only in website channel applications.</li>
+<li>Editors input the data in a structured manner through editing fields.</li>
+<li>The pages can be either navigable under a specific URL or non-navigable (without a URL).</li>
+<li>Editors have less control over content formatting and overall page layout, which is determined by the developers.</li>
+<li>A change in page layout requires developer assistance and redeployment of the application.</li>
+<li>Structured content is stored in dedicated database tables.</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>
+<a href="/documentation/business-users/website-content/widgets-and-page-builder">Page Builder</a> allows editors to manage the content and layout of select pages using a WYSIWYG editor.</li>
+<li>Editors control page layout using widgets and sections – reusable and configurable content prepared by the developers. Editors can dynamically alter the design of a page without developer assistance.</li>
+<li>Recommended for pages that need to change frequently and heavily focus on their design, such as email campaign landing pages.</li>
+<li>Page Builder content is stored as a JSON string in a dedicated database column.</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Reusable content can be created from website channel applications by selecting the <em>Create new</em> button when editing any page that has a field containing linked content items.</li>
+<li>Selecting the <em>Create new</em> button automatically creates a new content item of a predefined content type and whenever the changes are saved, links the new content item to the currently edited page.</li>
+</ul>
+</td>
+</tr>
+</table>
+
+<p>The following diagram shows the options for adding content in website channel application.</p>
+<p></p>
+<p>When deciding how page content gets stored in Xperience, you have two options: <a href="/documentation/developers-and-admins/development/content-types">structured pages</a> and <a href="/documentation/business-users/website-content/widgets-and-page-builder">Page Builder</a>. The following table gives an overview of both approaches.</p>
+
+<table>
+<thead>
+<tr>
+<td colspan="1">
+</td>
+<td>
+<p>Page Builder</p>
+</td>
+<td>
+<p>Structured content (both non-page items and reusable content)</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td colspan="1">
+<p>Advantages</p>
+</td>
+<td colspan="1">
+<ul>
+<li>Focus on design</li>
+<li>Greater control over the layout and styling</li>
+<li>Easier to fine-tune individual pages</li>
+<li>More flexibility for <a href="/documentation/business-users/digital-marketing/widget-personalization">personalizing</a> pages <br>
+content</li>
+</ul>
+</td>
+<td colspan="1">
+<ul>
+<li>Focus on content</li>
+<li>Easier to work with data in code</li>
+<li>Better for storing reusable content presented across multiple channels</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td colspan="1">
+<p>Recommended usage</p>
+</td>
+<td colspan="1">
+<ul>
+<li>Campaign pages</li>
+<li>Landing pages</li>
+<li>Home pages</li>
+</ul>
+</td>
+<td colspan="1">
+<ul>
+<li><p>Articles, news, blog posts</p></li>
+<li><p>Offices, Subsidiaries</p></li>
+<li><p>Case studies</p></li>
+<li>
+<p>Reusable content types</p>
+<ul>
+<li>Author bios, Employee profiles</li>
+<li>CTAs, banners, FAQs, videos</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+
+<h3 id="structured-pages">Structured pages</h3>
+<p>Editors create structured pages without the need to focus on their layout. From a developer’s perspective, structured pages are strongly typed and stored in dedicated database tables per <em>content type</em>. Developers can easily <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content">retrieve this data via the API</a> and display it on the live site application according to project requirements. Alternatively, developers can retrieve and display the content in various channels, such as mobile applications or third-party services.</p>
+<p>Structured pages can be formatted using the following approaches:</p>
+<ul>
+<li>Programmatically per page type by assigning a dedicated view file – see <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing">Set up content tree-based routing</a>.</li>
+<li>By editors using page templates assignable per page – see <a href="/documentation/developers-and-admins/development/builders/page-builder/page-templates-for-page-builder">Page templates for Page Builder</a>.</li>
+<li>By editors using widgets that contain a selector functionality that editors use to pick the intended content item from the content tree. Existing <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico/editing-components-in-xperience-by-kentico">selectors</a> allow editors to select any item from the content tree, so when creating the content storage section for reusable content, make the content items easy to find and navigate. You can also consider customization to the <strong>Page selector</strong> and restrict its use to <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">a specific content type</a>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – Structured pages</strong></p>
+<p>We recommend using structured pages for:</p>
+<ul>
+<li>Pages with non-changing content structure and a relatively static layout, such as articles, blogs, news, listing pages, biographies, or company offices.</li>
+<li>Pages that are not accessible under a specific URL.</li>
+</ul>
+</div>
+
+<h3 id="page-builder-content">Page Builder content</h3>
+<p><a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> is a user-friendly interface where non-technical users manage the content and layout of pages using configurable components.</p>
+<p>Editors work with Page Builder on the <em>Page</em> tab in website channel applications. They can build entire pages (or their sections), experiment with different layouts and page designs, and immediately see the results. Equipped with widgets and sections, editors can lay out content without asking developers for help whenever they want to build a new page or adjust the design of an existing page.</p>
+<p>Developers prepare <em>Page Builder</em> components based on project requirements.</p>
+<p>Page Builder was not designed to create entire websites. The content that editors add to the widget is stored per widget instance. This makes the content difficult to work with for developers. Also, it is harder to reuse such content, which can lead to content duplication and content governance nightmares.</p>
+<p>Keep the following points in mind when considering the use of Page Builder:</p>
+<ul>
+<li>Most website pages do not require frequent design or layout changes. For such pages, defining only the content in Xperience and handling the content presentation in code is more convenient.</li>
+<li>Page Builder has been designed for content editors and marketers as they need to be able to alter the layout of some content. However, they don’t need to adjust the layout of all content across the entire site.</li>
+<li>The risk of human error causing an unintended formatting or layout issue (due to incorrect widget configuration, misclicks, etc.) increases with the number of Page Builder-enabled pages.</li>
+</ul>
+<h4 id="when-to-use-page-builder-to-store-data">When to use Page Builder to store data?</h4>
+<ul>
+<li>You need WYSIWYG-style editing for specific pages.</li>
+<li>To maintain one-off, quickly degrading content that often needs adjusting.</li>
+<li>You don’t need to use content in multiple places (except for widgets that allow for presenting structured content; see below).</li>
+<li>To leverage <a href="/documentation/business-users/digital-marketing/widget-personalization">content personalization</a> and help website visitors on their customer journey.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – Page Builder</strong></p>
+<p>Use Page Builder <strong>to layout and design content</strong> stored in a structured format. This approach helps editors focus on creating quality content and reuse it where needed.</p>
+<p>We recommend using Page Builder content for:</p>
+<ul>
+<li>
+<p>Parts of a page to allow for content personalization.</p>
+<ul>
+<li>For example, above-the-fold content on high-traffic pages (home page), prominent areas on listing pages (articles page), project-specific category pages, or user profile pages.</li>
+</ul>
+</li>
+<li><p>Entire pages when creating one-off marketing campaign pages.</p></li>
+</ul>
+<p>You can use the <em>Rich text</em> and <em>Form</em> widgets <a href="/documentation/developers-and-admins/development/builders/page-builder/reference-default-page-builder-widgets">provided out-of-the-box</a> when working with Page Builder.</p>
+</div>
+
+<h3 id="combining-page-builder-and-structured-content">Combining Page Builder and structured content</h3>
+<p>Page Builder and structured content are not mutually exclusive. You can combine Page Builder with structured content to leverage the full potential of both approaches. When you define your content model, consider situations in which you can store the data in a structured format and use Page Builder widgets or sections to present this content. Your widgets and sections can contain properties that allow editors to add design information (size, colors, and other content behavior). Even further, some content types, e.g., Articles listing pages, bring editors more possibilities if you combine Page Builder and structured content.</p>
+<p>In general, your editors will benefit when you combine both approaches:</p>
+<ul>
+<li>Use Page Builder for formatting structured content</li>
+<li>Add Page Builder editable areas to page templates that display structured data to help with content personalization.</li>
+</ul>
+<p>The following diagram shows the benefit of storing data separately from their presentation. From a user perspective, editors can create their data once and reuse it when needed.</p>
+<ul>
+<li>News (<em>content type</em>).</li>
+<li>The editor creates a new page using the News <em>page type</em> and selects the <em>page template</em> they want to use. The <em>News</em> page type has the URL feature enabled to generate the page’s URL and make it accessible to website visitors.</li>
+<li>Data input via the <em>Content tab</em> is stored in the “News” <em>page type</em>, and data presentation (layout and styling) is handled via the <em>page template</em>.</li>
+<li>The <em>Teaser image</em> field in the <em>News</em> page type references a <em>file</em> stored in the <em>Content hub</em>; it doesn’t keep the file itself.</li>
+<li>Landing page (<em>content type</em>)</li>
+<li>The editor creates a new page using the Landing page <em>page type</em> and selects a <em>page template</em>.</li>
+<li>The Landing page <em>page type</em> has Page Builder enabled.</li>
+<li>Using the <em>Featured article</em> widget, the editor displays some data stored in the <em>Article</em>: the <em>Title</em>, <em>Teaser image</em>, and <em>Publication date</em>.</li>
+<li>The widget references the selected <em>news</em> using its GUID. If the widget has any properties that set design information for the displayed data, their configuration applies separately for each widget.</li>
+<li>The editor also adds a <em>Speaker</em> widget that displays some of the data from the <em>Author</em> content type stored in the Content hub.</li>
+<li>The widget references the selected <em>Author</em> using its GUID. Data about the widgets’ configuration on the <em>Landing page</em> is stored in the <em>DocumentPageBuilderWidgets</em> database field in JSON format.</li>
+</ul>
+<p></p>
+
+<div>
+<p><strong>Summary</strong></p>
+<ul>
+<li>The primary method of storing website content in Xperience is <a href="/documentation/business-users/website-content">pages</a> and <a href="/documentation/business-users/content-hub">content items</a>.</li>
+<li>Pages store data using a hierarchical structure visualized in the content tree.</li>
+</ul>
+<p>Three kinds of content you can find in a website channel application:</p>
+<ul>
+<li>
+<strong>Structured content</strong> – contains structured and strongly typed data stored within <a href="/documentation/developers-and-admins/customization/field-editor">page fields</a> (available fields vary depending on used <a href="/documentation/developers-and-admins/development/content-types">page types</a>). Editors add the content on the <em>Content</em> tab and then <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content">retrieve and display</a> it on the live site.</li>
+<li>
+<strong>Page Builder content</strong> – This type of page is managed using Page Builder, which allows users to design pages using configurable widgets. See <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> for more information.</li>
+<li>
+<strong>Folders</strong> – do not store any content and only serve as categories for sub-pages in the structure of the content tree.</li>
+</ul>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>In typical Xperience projects, these three approaches are combined together to create an effective content management experience that supports reusing the content as necessary. Stakeholders must decide how they’ll work with the content when defining the project requirements. However, to make your content future-friendly, we recommend storing it in a structured format.</p>
+</div>
+
+<h2 id="design-content-for-a-website">Design content for a website</h2>
+<p>You can design and present content using the following Xperience features (and their combinations):</p>
+<ul>
+<li>
+<strong>Predefined content templates</strong> (structured content)
+<ul>
+<li>Define a layout for content based on the content types.</li>
+<li>Can be bound only to specific content types (e.g., layouts specifically for articles or blog posts, testimonials, etc.).</li>
+<li>Either assigned automatically or selectable by editors when creating pages.</li>
+<li>Created and managed by the developers.</li>
+</ul>
+</li>
+<li>
+<strong>Page Builder</strong>
+<ul>
+<li>Enables editors to adjust the layout of entire pages or specific sections dynamically.</li>
+<li>Often combined with predefined templates to allow editors to further customize options for displayed content.</li>
+<li>Created and enabled by developers but maintained by editors.</li>
+</ul>
+</li>
+</ul>
+<p>Depending on your projects’s implementation, content editors can have different options to create pages and manage their content. The most common workflows are:</p>
+<ul>
+<li>Editors <a href="#design-content-using-templates">use predefined templates</a> to present structured content. Editors have less control over the final appearance of the content they produce. Instead, the page’s overall layout is determined using MVC view files assigned to each content type. This approach ensures that all pages of a specific type (e.g., articles) use a layout from a predefined set of designs.</li>
+<li>Editors <a href="#design-content-using-page-builder">modify the page content and its layout using Page Builder</a> and provided components – widgets, sections, or Page Builder templates. This approach allows you to combine structured and unstructured content using dedicated Page Builder components.
+<ul>
+<li>For example, using widgets that select a collection of <em>Article</em> pages (structured content) and enable additional formatting options such as a custom <em>Call to action</em> widget, the number of articles displayed per line, or personalized content, such as featuring different articles based on the visitor type (unstructured, Page Builder-specific content).</li>
+</ul>
+</li>
+</ul>
+<h2 id="design-content-using-templates">Design content using templates</h2>
+<p>Templates can combine means to display structured content with areas editable by Page Builder.</p>
+<p>Xperience recognizes two types of templates:</p>
+<ol type="1">
+<li>
+<strong>Page type templates</strong>
+<ul>
+<li>A page type can define a static template for each page without options for editors to adjust it.
+<ul>
+<li>Use this type of template if you need to enforce a unified look and feel for all pages of a particular type (e.g., blog posts), without giving the editors additional freedom of customization.</li>
+</ul>
+</li>
+<li>These templates do not require the Page Builder, which can simplify its production workflow – editors only fill in the necessary fields with their content, and the page is ready to go live. The type of the created page predetermines its design and layout.</li>
+<li>To learn more about how to set up these types of templates see <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing#implement-routing">Set up content tree-based routing</a>.</li>
+</ul>
+</li>
+<li>
+<strong>Page Builder templates</strong>
+<ul>
+<li>Page Builder templates allow content editors to choose from predefined page layouts when creating new pages.</li>
+<li>Editors can use page templates to present structured content, Page Builder content, or their combination.</li>
+<li>Developers prepare the templates and assign them to specific page types.</li>
+<li>Each content type can have multiple default page templates to display content. Editors pick the most suitable configuration when they create a page. They can also save their custom template configurations into page <em>Presets</em> and use these presets for creating new pages.</li>
+<li>To learn more about how to set up these types of templates see <a href="/documentation/developers-and-admins/development/builders/page-builder/page-templates-for-page-builder">Page templates for Page Builder</a>.</li>
+</ul>
+</li>
+</ol>
+<p>Both template types may optionally include <a href="#design-content-using-page-builder">Page Builder sections</a> to provide editors with further customization options using available Page Builder components. This type of content composition is widespread in many Xperience projects.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – templates</strong></p>
+<p>We recommend basing every content type for pages on <em>page templates</em>.</p>
+<ul>
+<li>Basing your pages on templates with editable properties from the beginning ensures that your content editors receive various configuration capabilities from the project’s start.</li>
+<li>Pages that are not based on page templates cannot be switched to use page templates later in the development cycle.</li>
+</ul>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Recommendations – page presets</strong></p>
+<p>To speed up content production and publishing, we recommend creating custom page presets for pages that work with Page Builder.</p>
+<p>For example, a senior editor can create an empty page using the default page template, configure its layout with required sections and (empty) widgets, and save the configuration as a page Preset.</p>
+<p>When editors create a new page of this type, they’ll start working on a preconfigured page. This helps with content production and helps keep design consistency between pages with the same underlying content type.</p>
+</div>
+
+<h2 id="design-content-using-page-builder">Design content using Page Builder</h2>
+<p>Page Builder allows content editors to design parts or whole pages wherever developers enable it (by defining <a href="/documentation/developers-and-admins/development/builders/page-builder/create-pages-with-editable-areas">editable areas</a>). Editors can use two types of components to format content using Page Builder: <a href="/documentation/developers-and-admins/development/builders/page-builder/sections-for-page-builder">sections</a> and <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder">widgets</a>.</p>
+<p><strong>Sections</strong> specify the visual layout for widgets. They represent reusable pieces of markup that can store an arbitrary number of <strong>widget zones</strong> – areas where content editors place <em>widgets</em>.</p>
+<p><strong>Widgets</strong> are reusable components that content editors and non-technical users can quickly work with. Widgets give users more power and flexibility when adjusting page content and basic editing of text and images. By working with widgets, users decide which components and where they are placed on the page. Editors can also use widgets to format structured data.</p>
+<p>Developers can prepare widgets to handle content in three ways:</p>
+<ul>
+<li><a href="#widgets-that-present-structured-content">Widgets that present structured content</a></li>
+<li><a href="#widgets-that-store-and-design-the-content-at-the-same-time">Widgets that store and design the content at the same time</a></li>
+<li><a href="#widgets-that-combine-both-inline-editing-and-structured-content">Widgets that combine both inline editing and structured content</a></li>
+</ul>
+<h3 id="widgets-that-present-structured-content">Widgets that present structured content</h3>
+<p>Editors add these widgets into appropriate Page Builder sections and select the content to display. Xperience can store the content itself in one of the following locations:</p>
+<ul>
+<li>
+<p><strong>As content items in the Content hub</strong>. The widget serves only as a design container for the content stored in the <em>Content hub</em>. For example, a <em>Promotion</em> widget displays data stored in the <em>Promotion</em> content type:</p>
+<p></p>
+</li>
+<li>
+<p><strong>Elsewhere in Xperience website channel application.</strong> The widgets serve only as design containers for the content stored (and presented) elsewhere. For example, a widget that displays only several properties of the “Article” content type:</p>
+<p></p>
+</li>
+</ul>
+<h4 id="what-does-working-with-the-reusable-content-look-like">What does working with the reusable content look like?</h4>
+<p>For example, imagine the editors are building a campaign landing page.</p>
+<p>The page will contain a <em>Hero</em> element. From the design perspective, editors should select only the <em>Hero banner content</em> type from the Content hub to populate a <strong>Banner widget</strong>. From the editor’s perspective, adding reusable content to the page and displaying the structured data might look like the following:</p>
+
+<p>When modeling the content storage, always consider the editor’s workflow. Help them understand what type of content they’re supposed to select. For example, you can use instructions next to the selectors in the widget <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder">properties</a> and your project documentation to ensure editors receive enough guidance.</p>
+<p></p>
+<p>Similarly, ensure that editors will not unintentionally break the page experience by selecting content that doesn’t belong.</p>
+<ul>
+<li>Developers can restrict the selection to pages of specific page types that fulfill required conditions (e.g., have the URL feature enabled). See samples of the Xperience selectors in <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">Reference - Admin UI form components</a>.<br>
+</li>
+<li>Similarly, developers define which type editors select into the widget properties, such as the <em>Benefits</em> widget in the Kbank demo site.<br>
+</li>
+</ul>
+<h3 id="widgets-that-store-and-design-the-content-at-the-same-time">Widgets that store and design the content at the same time</h3>
+<p>With these <em>single-purpose content widgets</em>, editors can manage the content in a WYSIWYG manner using inline editors, use the widget’s properties and add content through the widget’s configuration dialog, or combine both. The out-of-the-box <em>Rich text</em> widget is an example of a widget with advanced text styling capabilities.</p>
+<p>The <em>Banner</em> widget on the Dancing Goat <a href="https://devnet.kentico.com/articles/kentico-xperience-sample-sites-and-their-differences" target="_blank">sample site</a>  shows both <em>inline editors</em> and <em>widget configuration properties</em> where all the input data are stored within one database field.</p>
+<p></p>
+<p>Similarly, the <em>Page heading</em> widget on <a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type#best-practices-in-kbank-demo-site">Kbank demo site</a> allows editors to add content and style it using only widget configuration properties.</p>
+<p></p>
+<h3 id="widgets-that-combine-both-inline-editing-and-structured-content">Widgets that combine both inline editing and structured content</h3>
+<p><em>Mixed-content widgets</em> allow editors to reuse structured content, e.g., by providing a selector to pick content from the content tree. At the same time, editors can use the widget’s editable properties to overwrite some of the content pulled from the selected page or create brand-new content. Editors can also provide additional information or behavior to their content, such as ensuring that hyperlinks to external websites open in a new tab.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>We recommend limiting using mixed-content widgets only to specific pages (sections), as content stored in these widgets can be more difficult to reuse in other channels.</p>
+</div>
+
+<h3 id="page-builder-content-storage">Page Builder content storage</h3>
+<p>All content added directly to a Page Builder widget is stored in a single database field (<em>CMS_ContentItemCommonData</em> → <em>ContentItemCommonDataVisualBuilderWidgets</em>), making it difficult to reuse. On the other hand, widgets that add design to structured content store only a reference to the linked content (using the GUID value).</p>
+<p>Sometimes, projects require WYSIWYG editing through widgets that also store content. While specifying the project requirements, we recommend considering the implications of this design decision. Storing content directly in widgets significantly impacts <strong>content reusability</strong> or the <strong>project’s upgradeability</strong>.</p>
+<h3 id="recommendations-page-builder">Recommendations – Page Builder</h3>
+
+<div>
+
+</div>
+<div>
+<p><strong>Combine structured content and widgets</strong></p>
+<p>To make the website’s content both reusable and future-proof, we recommend storing the content of the widgets using the structured content format. Developers should prepare widget properties that allow editors to format content using WYSIWYG editing capabilities.</p>
+<p>Based on the project requirements, the structured content of widgets can be stored in a dedicated section in the content tree or directly in a hierarchy under the page as child items.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Limit using widgets for single-purpose content</strong></p>
+<p>Xperience stores the content input directly into widgets within one database field for the whole page. We recommend storing content in widgets only when the content is not going (or doesn’t have the potential) to be reused on the website. This content can work on one-off pages, such as campaign landing pages.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Create sections with designing capabilities</strong></p>
+<p>We recommend creating sections with properties to let editors define how the content they add via widgets displays on the website. Some examples of section properties are a field for a URL parameter (Anchor tag) for deep linking, a property to define the number of columns within the section, a property to adjust the margin or padding of widgets, and changing the color of the section, and similar properties.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Set restrictions on editable areas</strong></p>
+<p>Use editable area restrictions to ensure editors can add only desired widgets or sections to specific areas. This ensures page designs do not break (e.g., in different browsers) and creates boundaries for data predictability (when considering future upgrades). Find out more in <a href="/documentation/developers-and-admins/development/builders/page-builder/create-pages-with-editable-areas">Create pages with editable areas</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Create custom widgets to add markup to pages</strong></p>
+<p>Typically, in the early stages of a live project, editors might need to add custom HTML markup or include scripts to embed 3rd party applications. Project owners sometimes need to remember this or similar scenarios when detailing project requirements, so ensure your project gets this low-hanging fruit to make editors happy.</p>
+<p>We recommend creating custom widgets that allow editors to add scripts or HTML markup in the page’s head or body. For example, editors might use an  <em>Anchor widget</em>  to enable linking to a section of the page or a <em>Script widget</em> to add JavaScript that runs a custom-built mortgage calculator.</p>
+<p>Suppose editors will reuse these scripts or markup on different pages. In that case, developers can prepare a custom <em>Script</em> content type with a custom widget. Content editors then add the widget to the appropriate pages, reusing the scripts or markup.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Add instructions to selectors in Page Builder components</strong></p>
+<p>When building widgets that display structured content, provide editors with clear instructions describing what content items they should select.  You can use the <strong>ExplanationText</strong> <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/editing-components">widget property</a> and provide contextual information specific to the selected widget. Providing additional guidance ensures that editors don’t break the visual experience of the website by mistake. Also, include clear instructions about how editors should use every widget on the website in your project documentation.</p>
+</div>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>You’ve learned about the different options for designing Xperience pages. On the <a href="/guides/architecture/content-modeling/content-modeling-guide/design-email-content">next page</a>, you’ll learn about designing content types for emails you can send using <a href="/documentation/business-users/digital-marketing/emails">Xperience emails</a>.</p>
+
+</body>
+</html>

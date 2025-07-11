@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Install a specific version of Xperience by Kentico</title>
+</head>
+<body>
+<p>During the creation of an Xperience by Kentico instance, when you install <em>Kentico.Xperience.Templates</em> without any further specification, the .NET CLI will automatically pull down the newest version.</p>
+<p>While this is typically the desired behavior, you may encounter situations where you need to install an older version. For example, your company already uses a given version or has a lengthy approval process. </p>
+<p>This guide demonstrates installation of an exact version of Xperience by Kentico, using the boilerplate project. We’ll work with version <strong>29.6.1</strong> as an example, though you can substitute any valid version number and simply use this guide as a reference.</p>
+
+<div>
+
+</div>
+<div>
+<p>See the list of all valid version numbers in <a href="/documentation/changelog">the documentation’s <em>Changelog</em> page</a>.</p>
+</div>
+
+<h2 id="before-you-start">Before you start</h2>
+<p>To follow along with this guide, we recommend your machine has the following installed:</p>
+<ul>
+<li><a href="https://dotnet.microsoft.com/en-us/download/dotnet/8.0" target="_blank">.NET 8.0</a></li>
+<li>Microsoft SQL Server 2022 (or compatible version, such as the free <a href="https://www.microsoft.com/en-us/download/details.aspx?id=104781" target="_blank">SQL Server Express Edition</a>)</li>
+<li>an <strong>IDE</strong> that supports ASP.NET Core development, such as <a href="https://visualstudio.microsoft.com/" target="_blank">Visual Studio</a> or <a href="https://code.visualstudio.com/" target="_blank">Visual Studio Code</a>
+</li>
+</ul>
+<h2 id="check-your-existing-template-versions">Check your existing template versions</h2>
+<p>In the .NET CLI, the <code>dotnet new</code> command is used to install NuGet template packages, such as <em>Kentico.Xperience.Templates</em>.</p>
+<p>Running this command’s uninstall argument without specifying what to uninstall brings up a list of the currently installed template packages.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>List installed templates</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet new uninstall
+
+</code></pre>
+</div>
+
+<p>If you have previously installed multiple versions of <em>Kentico.Xperience.Templates</em>, you’ll notice that all of them appear in the list, but only the most recently installed one includes a <em>Templates</em> subsection with a list of specific template names. <strong>This is the version the system is currently actively using.</strong> For example:</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>To clean up and uninstall <em>all templates</em> from your machine you can run:</p>
+<div>
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Uninstall project templates</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet new uninstall kentico.xperience.templates
+
+</code></pre>
+</div>
+</div>
+</div>
+
+<h2 id="install-the-required-version-of-templates">Install the required version of templates</h2>
+<p>Run the following command in your terminal to install the 29.6.1 version of Kentico.Xperience.Templates:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Install project templates</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet new install kentico.xperience.templates::29.6.1 --force
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The <code>--force</code> parameter will ensure the target version is installed correctly, in case you have other Xperience templates on your machine (for example after playing around with the latest version).</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you already have the desired version of Kentico.Xperience.Templates installed (in this case 29.6.1), feel free to skip this step.</p>
+</div>
+
+<p>Now, with the proper template package installed, you can create projects using the Xperience templates.</p>
+<h2 id="create-a-project">Create a project</h2>
+<p>Creating the project also relies on the .NET CLI, which will fill the provided folder with project files for the presentation layer of your site.</p>
+<p>Navigate to the folder that you want to hold this project’s repository.</p>
+<p>Add a <em>src</em> folder within it, and a <em>TrainingGuides.Web</em> folder within the <em>src</em> directory.</p>
+<p>Open a command window in the <em>TrainingGuides.Web</em> directory and create a new project called <em>TrainingGuides.Web.</em>:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Create a new project</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet new kentico-xperience-mvc -n TrainingGuides.Web
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This project will be the top-level MVC project, responsible for the site’s presentation, but it will not be the only project in the solution.</p>
+</div>
+
+<p>Agree when prompted to run a restore command.</p>
+<p>After the run is successful, you will see a new .NET project generated in your <em>TrainingGuides.Web</em> folder. Navigate one level up and create a new folder called <em>License</em> in the <em>src</em> directory.</p>
+<p>Add a file called <em>license.txt</em> with the content of a valid <strong>license key</strong>.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Getting your license key</strong></p>
+<p>You can obtain the license key from your agency, supervisor, or team lead.</p>
+<p>Alternatively, you can create an account at the <a href="https://client.kentico.com/" target="_blank">Client Portal</a>, and generate a <a href="https://client.kentico.com/evaluation-keys" target="_blank">temporary key</a> valid for 30 days.</p>
+
+<p>Learn more about licensing in our <a href="/documentation/developers-and-admins/installation/licenses">documentation</a>.</p>
+</div>
+
+<p>Add a solution to the project. This will allow other projects to be created to work in tandem and keep things organized.</p>
+
+<div>
+
+</div>
+<div>
+<p>Some IDE’s, like Visual Studio Code with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit" target="_blank">C# Dev Kit extension</a>, will generate the solution file automatically after you open the project. We recommend saving the solution directly in the <em>src</em> folder, one level up from <em>TrainingGuides.Web</em>.</p>
+<p>If you are using Visual Studio: </p>
+<ol type="1">
+<li>Open <em>TrainingGuides.Web.csproj</em> in Visual Studio, and highlight the auto-generated solution in the solution explorer.</li>
+<li>Click on <em>File</em>, and choose <em>Save TrainingGuides.Web.sln as</em> from the dropdown.</li>
+<li>Navigate to the <em>src</em> folder, and rename the file to <em>TrainingGuides.sln</em>, then click <em>Save</em>.</li>
+</ol>
+</div>
+
+<h2 id="connect-the-database">Connect the database</h2>
+<p>For the next step, let’s install the database.</p>
+<p>Remember to replace the <code>&lt;sql_server_name&gt;</code> placeholder to match your SQL server before you run the following command.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Create project database</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet kentico-xperience-dbmanager -- -s "&lt;sql_server_name&gt;" -a "TrainingGuides123*" -d "Xperience.TrainingGuides" --hash-string-salt "59642433-67b2-4230-9c5b-ad98d02b0c72" --license-file "..\License\license.txt"
+
+</code></pre>
+</div>
+
+<p>Note the information specified with each parameter, which you can change if you are using this as a reference rather than following along. </p>
+<ul>
+<li>
+<code>-s</code>
+<ul>
+<li>The SQL server where the database should be installed</li>
+</ul>
+</li>
+<li>
+<code>-a</code>
+<ul>
+<li>The password for the <em>administrator</em> account when accessing the administration interface</li>
+</ul>
+</li>
+<li>
+<code>-d</code>
+<ul>
+<li>The name given to the database in the SQL Server</li>
+</ul>
+</li>
+<li>
+<code>--hash-string-salt</code>
+<ul>
+<li>The <em>CMSHashStringSalt</em> value is used for signing macros stored in the database</li>
+</ul>
+</li>
+<li>
+<code>--license-file</code>
+<ul>
+<li>The path to a text file containing your license key</li>
+</ul>
+</li>
+</ul>
+<p>For more details about parameters and configuration options, visit our <a href="/documentation/developers-and-admins/installation#create-the-project-database">documentation</a>.</p>
+<p>Once the database finishes installing, run the site and visit the <em>/admin</em> path.  Log into your Xperience by Kentico instance with the username <em>administrator</em> and the password specified in the command above.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Site not configured message</strong></p>
+<p>When the site loads, you should see a message that says something like this:</p>
+<div>
+<div>
+<pre><code>
+The TrainingGuides.Web site has not been configured yet.
+</code></pre>
+</div>
+</div>
+<p>This is okay; you can still access the administration interface. You can remove this message later when you add content and develop page templates.</p>
+</div>
+
+<p>After successful login, the app will navigate you to the <a href="/documentation/administration-interface-basics">Xperience administration dashboard</a>, the interface content editors use to perform their daily tasks. As a developer, you will use the administration dashboard to configure and customize Xperience by Kentico according to your company’s business needs.</p>
+<p></p>
+<h2 id="whats-next">What’s next?</h2>
+<p>Now you have a fresh boilerplate project running on your specified version, so you can get started with development!</p>
+
+<div>
+<p>Check out also our <a href="https://github.com/Kentico/xperience-by-kentico-manager" target="_blank">Xperience Manager (xman)</a> tool, which can help you simplify installing and managing Xperience by Kentico instances in future projects.</p>
+</div>
+
+
+</body>
+</html>

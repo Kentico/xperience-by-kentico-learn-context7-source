@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Model navigation</title>
+</head>
+<body>
+<p>Let’s create a content model that will allow your editors to be in control of the website’s main navigation.</p>
+<p>We’ll create two content types– one to represent a menu, and one to represent the individual items it contains. The editors can manage these menus in the Content hub to decide what the menu includes.</p>
+<h2 id="define-the-navigation-item-type">Define the navigation item type</h2>
+<p>Start with the content type that represents an individual item in the menu. It needs a title to hold the text of the link, and a target to choose which page the link points to.</p>
+<p>Open the <strong>Content types</strong> application and define a new reusable type. The process will be the same as when you created the <em>Slogan</em> type <a href="/guides/development/developer-kickstart/create-a-reusable-content-type">earlier</a>, but you should use these values instead:</p>
+<ul>
+<li>
+<strong>General</strong>
+<ul>
+<li>
+<strong>Content type name:</strong> Navigation item</li>
+<li>
+<strong>Namespace:</strong> Kickstart</li>
+<li>
+<strong>Name:</strong> NavigationItem</li>
+<li>
+<strong>Icon:</strong> xp-chain (search for ‘chain’)</li>
+<li>
+<strong>Use for:</strong> Reusable content</li>
+</ul>
+</li>
+<li>
+<strong>Fields</strong>
+<ol type="1">
+<li>NavigationItemTitle
+<ul>
+<li>
+<strong>Field name:</strong> NavigationItemTitle</li>
+<li>
+<strong>Data type:</strong> Text</li>
+<li>
+<strong>Size:</strong> 200</li>
+<li>
+<strong>Required:</strong> True (Enabled)</li>
+<li>
+<strong>Display in editing form:</strong> True (Enabled)</li>
+<li>
+<strong>Field caption:</strong> Title</li>
+<li>
+<strong>Form component:</strong> Text input</li>
+</ul>
+</li>
+<li>NavigationItemTarget
+<ul>
+<li>
+<strong>Field name:</strong> NavigationItemTarget</li>
+<li>
+<strong>Data type:</strong> Pages</li>
+<li>
+<strong>Required:</strong> True (Enabled)</li>
+<li>
+<strong>Display in editing form:</strong> True (Enabled)</li>
+<li>
+<strong>Field caption:</strong> Target</li>
+<li>
+<strong>Form component:</strong> Page selector</li>
+<li>
+<strong>Maximum number of pages:</strong> 1</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h2 id="create-the-menu-type">Create the menu type</h2>
+<p>Next, you need another reusable content type to represent the menu as a whole.</p>
+<p>Most importantly, it should have a field for referencing the items it contains, much like the <em>Landing page</em> referenced a <em>Slogan</em> in the <a href="/guides/development/developer-kickstart/define-a-page-content-type">earlier step</a>.</p>
+<p>Additionally, it should have a <em>Display name</em> and <em>Code name</em> in case there are multiple menus that need to be handled in code or displayed in a list.</p>
+<p>Define a new content type with the following values:</p>
+<ul>
+<li>
+<strong>General</strong>
+<ul>
+<li>
+<strong>Content type name:</strong> Navigation menu</li>
+<li>
+<strong>Namespace:</strong> Kickstart</li>
+<li>
+<strong>Name:</strong> NavigationMenu</li>
+<li>
+<strong>Icon:</strong> xp-list-bullets (search for ‘list-bullets’)</li>
+<li>
+<strong>Use for:</strong> Reusable content</li>
+</ul>
+</li>
+<li>
+<strong>Fields</strong>
+<ol type="1">
+<li>NavigationMenuDisplayName
+<ul>
+<li>
+<strong>Field name:</strong> NavigationMenuDisplayName</li>
+<li>
+<strong>Data type:</strong> Text</li>
+<li>
+<strong>Size:</strong> 200</li>
+<li>
+<strong>Required:</strong> True (Enabled)</li>
+<li>
+<strong>Display in editing form:</strong> True (Enabled)</li>
+<li>
+<strong>Field caption:</strong> Display name</li>
+<li>
+<strong>Form component:</strong> Text input</li>
+</ul>
+</li>
+<li>NavigationMenuCodeName
+<ul>
+<li>
+<strong>Field name:</strong> NavigationMenuCodeName</li>
+<li>
+<strong>Data type:</strong> Text</li>
+<li>
+<strong>Size:</strong> 200</li>
+<li>
+<strong>Required:</strong> True (Enabled)</li>
+<li>
+<strong>Display in editing form:</strong> True (Enabled)</li>
+<li>
+<strong>Field caption:</strong> Code name</li>
+<li>
+<strong>Form component:</strong> Text input</li>
+</ul>
+</li>
+<li>NavigationMenuItems
+<ul>
+<li>
+<strong>Field name:</strong> NavigationMenuItems</li>
+<li>
+<strong>Data type:</strong> Content items (<em>Pages and reusable content</em> in newer versions)</li>
+<li>
+<strong>Display in editing form:</strong> True (Enabled)</li>
+<li>
+<strong>Field caption:</strong> Items</li>
+<li>
+<strong>Form component:</strong> Content item selector (<em>Combined content selector</em> in newer versions)</li>
+<li>
+<strong>Content type:</strong> Navigation item</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<p>Now, the list in your <strong>Content types</strong> application should look like this:</p>
+<p></p>
+<h2 id="generate-the-code">Generate the code</h2>
+<p>As with the <em>Slogan</em> type <a href="/guides/development/developer-kickstart/create-a-reusable-content-type#generate-the-class">earlier</a>, open a command window in the <em>Kickstart.Web</em> directory and generate code files for the <em>Navigation item</em> and <em>Navigation menu</em> content types.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location "../Kickstart.Entities/{type}/{name}" --include "Kickstart.NavigationItem;Kickstart.NavigationMenu"
+</code></pre>
+</div>
+
+<h2 id="build-the-main-menu">Build the main menu</h2>
+<p>With these content types in place, we can create new items to define what the main menu should contain.</p>
+<p>In the <strong>Content hub</strong> application, create a new content item of the type <em>Navigation menu</em>.</p>
+<p>Set its <strong>Content item name</strong> to <em>Main navigation</em>.</p>
+<p>On the next screen, set the following properties:</p>
+<ul>
+<li>
+<strong>DisplayName:</strong> Main navigation</li>
+<li>
+<strong>CodeName:</strong> MainNavigation</li>
+</ul>
+<p>Then, under <strong>Items</strong> click <strong>Create new</strong> to define two items corresponding to the website’s pages:</p>
+<ol type="1">
+<li>Home
+<ul>
+<li>
+<strong>Content item name:</strong> Home link</li>
+<li>
+<strong>Location:</strong> Uncategorized (no folder)</li>
+<li>
+<strong>Content type:</strong> Navigation item</li>
+<li>
+<strong>title:</strong> Home persona: developer, architect</li>
+<li>
+<strong>Target:</strong> Home</li>
+</ul>
+</li>
+<li>Contact us
+<ul>
+<li>
+<strong>Content item name:</strong> Contact us link</li>
+<li>
+<strong>Location:</strong> Uncategorized (no folder)</li>
+<li>
+<strong>Content type:</strong> Navigation item</li>
+<li>
+<strong>title:</strong> Contact us persona: developer, architect</li>
+<li>
+<strong>Target:</strong> Contact us</li>
+</ul>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>Make sure to publish each item, either individually or through <a href="/documentation/business-users/content-hub/content-items#cascade-publishing">cascade publishing</a>.</p>
+</div>
+
+<p>At this point, your items in the Content hub should look like this:</p>
+<p></p>
+<p>Keep following along to see how to render this newly-defined menu on your website!</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/implement-navigation">Implement navigation</a></p>
+
+</body>
+</html>

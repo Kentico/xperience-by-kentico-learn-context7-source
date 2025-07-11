@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Configure channels</title>
+</head>
+<body>
+<p>Any time you <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#channel-management">add channels</a> to your Xperience by Kentico application, deployed in SaaS, you need to configure them in the Xperience Portal as well.</p>
+<p>Our initial deployment contains two channels; <em>Dancing Goat Pages</em> (webpage channel) and <em>Dancing Goat Emails</em> (email channel). Let’s look at setting each of them up in cloud.</p>
+<h2 id="configure-the-website-channel">Configure the website channel</h2>
+<p>At this point you can access your Xperience administration in your QA environment, but you have to add a website channel domains in the Xperience Portal to expose the live site.</p>
+<h3 id="add-the-website-channel-in-xperience-portal">Add the website channel in Xperience Portal</h3>
+<p>In your Xperience Portal, under your current Dancing Goat project, navigate to <strong>Channels and Domains → Channels</strong>.</p>
+<p>Click <strong>Add channel</strong>.</p>
+<p></p>
+<p>Next, fill out the channel data:</p>
+<ul>
+<li>Display name: <strong>Dancing Goat Website</strong>
+</li>
+<li>Code name: <strong>DancingGoatPages</strong>
+</li>
+<li>Channel type: <strong>Website</strong>
+</li>
+<li>Channel size: <strong>Standard</strong>
+</li>
+</ul>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>The <strong>Code name</strong>, <strong>Channel type</strong> and <strong>Channel size</strong> must match the values in the <strong>Channel management</strong> application in the Xperience administration:</p>
+<p></p>
+</div>
+
+<p>After you confirm, you should see your channel being created in the <strong>Channels</strong> page in the Xperience Portal.</p>
+<p></p>
+The channel creation will take several minutes.
+
+<div>
+
+</div>
+<div>
+<p>During this time you can still add more channels or adjust channels configuration if you wish.</p>
+</div>
+
+<p>Notice the yellow warning message at the top of the screen:</p>
+
+<div>
+<pre><code>
+Domain or channel operations are in progress. When the operations are finished, you need to confirm the changes and the application will be restarted.
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>A small caveat here: To actually confirm the changes as the message describes, you may need to refresh the page manually. We recommend trying to refresh after a few minutes have passed, until you see a change.</p>
+</div>
+
+<p>After the channel operations have finished, you’ll see your channel’s <strong>Production domain</strong> as <em>Pending</em> and the message up top changes to:</p>
+
+<div>
+<pre><code>
+Domain and channel operations are almost finished. Application restart is required to finalize the changes.
+</code></pre>
+</div>
+
+<p>Click the <strong>Apply changes</strong> button in the message. This is the confirmation previous message was referring to.</p>
+<p></p>
+<p>You will see another pop-up message warning you that during the restart, the channels will not be available. It also shows you what the <a href="/documentation/developers-and-admins/configuration/website-channel-management#manage-channel-domains-in-xperience-portal">default generated domain</a> will be for your channel on each environment.</p>
+<p>Click <strong>Apply changes</strong>.</p>
+<p></p>
+<p>The process will now take a few minutes. The system should navigate you to the Dashboard screen in the meantime, still showing the warning message about channel features not being available.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>You may have to manually refresh the page again to see the updated UI when the process is finished.</p>
+</div>
+
+<p>While you wait, navigate to your channel’s domains by clicking the globe icon on the <em>Pending</em> channel in your <strong>Channels and Domains → Channels</strong> screen:</p>
+<p></p>
+<p>You will see your <a href="/documentation/developers-and-admins/configuration/website-channel-management#manage-channel-domains-in-xperience-portal">default generated domain</a> for each of your environments. For now, we have only created one, so it automatically also becomes the <a href="/documentation/developers-and-admins/configuration/website-channel-management#manage-channel-domains-in-xperience-portal">main domain</a> for both environments.</p>
+<p></p>
+<p>Once the application restarts, you will see both domains as <strong>Active</strong> and the <strong>+ Add domain</strong> button becomes available again.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you’re not seeing any updates after several minutes, try manually refreshing the page again.</p>
+</div>
+
+<p></p>
+<h3 id="check-your-progress">Check your progress</h3>
+<p>Copy-paste the QA main domain name into your browser’s URL bar. You should now see the Dancing Goat live site deployed to your SaaS QA environment!</p>
+<p> </p>
+<p>If you try to visit the PROD domain, you will only see a default Microsoft Azure page. This is because we have not deployed anything into our PROD environment yet.</p>
+
+<div>
+
+</div>
+<div>
+<p>See our documentation to learn more about <a href="/documentation/developers-and-admins/configuration/website-channel-management#website-channels-in-the-saas-environment">website channel management in the SaaS environment</a>.</p>
+</div>
+
+<h2 id="configure-the-email-channel">Configure the email channel</h2>
+<p>Take a quick look at the <strong>General</strong> settings of your Dancing Goat Emails channel in the Xperience administration in the <strong>Channel management</strong> application.</p>
+<p>Right now, the <strong>Sending domain</strong> and <strong>Email service domain</strong> fields are pointing to non-existing domains. You can edit the fields, but in the SaaS setup, this will never work.</p>
+<p></p>
+<p>In practice you will see an issue, for example, with displaying images in emails, shown in the video below. The image cannot load as the system is trying to pull it from a non-existing URL address.</p>
+
+<p>In Kentico SaaS, both sending and email service domains have to be controlled by the Xperience portal. Let’s set it up.</p>
+<h3 id="add-the-email-channel-in-xperience-portal">Add the email channel in Xperience Portal</h3>
+<p>The same way you added the website channel, navigate to the <strong>Channels and Domains → Channels</strong> page and click the <strong>+ Add channel</strong> button.</p>
+<p>Fill out the data as follows:</p>
+<ul>
+<li>Display name: <strong>Dancing Goat Emails</strong>
+</li>
+<li>Code name: <strong>DancingGoatEmails</strong>
+</li>
+<li>Channel type: <strong>Email</strong>
+</li>
+<li>Channel size: <strong>Standard</strong>
+</li>
+</ul>
+<p>As before, the <strong>Code name</strong>, <strong>Channel type</strong> and <strong>Channel size</strong> have to match the setting in the Xperience administration’s <strong>Channel management</strong>. Naturally, in this case the Channel type is <strong>Email</strong>, rather than <strong>Website</strong>.</p>
+<p></p>
+<p>Click <strong>Add channel</strong> again and wait for the process to complete.</p>
+
+<div>
+
+</div>
+<div>
+<p>As before, we recommend manually refreshing the browser page if you don’t see any changes after a few minutes.</p>
+</div>
+
+<p>When prompted, <strong>Apply changes</strong> and wait for the application to restart for the setup of our new domains to be complete.</p>
+<p></p>
+<p>Once the app restart is done, you will see the configuration for both of your Dancing Goat channels in the <strong>Channels and Domains → Channels</strong> page in the Portal. Just like with the website channel, you can see the channel domains by clicking the green globe icon.</p>
+<p></p>
+<p>You now have your <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#manage-email-channel-domains-in-xperience-portal">default Sending and Service domains</a> set up for all your environments (in our example, the QA and the PROD).</p>
+
+<div>
+
+</div>
+<div>
+<p>The Xperience portal allows you to also set up <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#manage-email-channel-domains-in-xperience-portal">custom domains</a>, but you can only do this in PROD, so we will come back to the topic later.</p>
+</div>
+
+<h3 id="check-your-progress-1">Check your progress</h3>
+<p>Visit your Xperience administration again to see how the Dancing Goat Email channel has changed after the changes you’ve made.</p>
+<p>In your <strong>Dancing Goat Emails</strong> channel, Open the <strong>Dancing Goat Regular</strong> email, as we did at the beginning, and observe that the logo image is now displaying correctly.</p>
+
+<p>Additionally, if you navigate to your <strong>Dancing Goat Emails</strong> channel in the administration’s <strong>Channel management</strong>, you will see the <strong>Sending domain</strong> and <strong>Email service domain</strong> fields are now not editable, as the domains are controlled from the Xperience Portal.</p>
+
+<div>
+
+</div>
+<div>
+<p>See our documentation to learn more about <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#email-channels-in-the-saas-environment">email channel management in the SaaS environment</a>.</p>
+</div>
+
+<p>Congratulations, you have successfully deployed and configured the Dancing Goat sample site in your SaaS QA environment!</p>
+<p>In the following pages, we will look into updating your deployment via Xperience Portal API and the PROD environment deployment.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/configuration/saas/saas-walkthrough/saas-update-with-xperience-portal-api">Update a QA deployment using Xperience Portal API</a></p>
+
+</body>
+</html>

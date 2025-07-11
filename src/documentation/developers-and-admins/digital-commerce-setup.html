@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Digital commerce setup</title>
+</head>
+<body>
+
+<div>
+
+</div>
+<div>
+<p><strong>Developer preview feature</strong></p>
+<p>The digital commerce feature is currently not fully functional, and primarily intended to allow technical users to familiarize themselves with the development process of the commerce feature. You can expect the feature to be updated and extended in upcoming releases.</p>
+<p>The related API is <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/general#experimental-attributes" target="_blank">marked as experimental</a> and usage will result in warnings when compiling your project. The warnings are treated as errors for reporting purposes. To use the code, you need to <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/experimental-overview#suppress-warnings" target="_blank">suppress</a> the warnings.</p>
+<p>What should you do with this feature?</p>
+<ul>
+<li>
+<strong>DO</strong> try out development of digital commerce and examine the sample in the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat project template</a>.</li>
+<li>
+<strong>DO</strong> feel free to share your feedback with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</li>
+<li>
+<strong>DO NOT</strong> use this feature in public facing and production applications, as the feature is currently incomplete.</li>
+</ul>
+</div>
+
+<p>The digital commerce feature helps you build simple online stores where you can sell physical or digital products. It gives you the basic tools, data structure, and actions you need to manage your shop and process orders. You can use it to set up product listings, handle purchases, and store customer data. Custom development is needed to fully set up and customize your shop, but this feature takes care of the main building blocks so you don’t have to start from scratch.</p>
+<p>To use the commerce features of Xperience by Kentico:</p>
+<ol type="1">
+<li>
+<a href="#enable-digital-commerce">Enable</a> and <a href="#configure-commerce-features">configure</a> the commerce feature.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-commerce-setup/model-product-catalog">Prepare a product catalog</a> and fill it with products.</li>
+<li>Implement the <a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process">shopping cart and checkout process</a>.</li>
+</ol>
+<h2 id="enable-digital-commerce">Enable digital commerce</h2>
+<p>To enable the commerce feature:</p>
+<ol type="1">
+<li><p>Open your Xperience project in Visual Studio and edit the <em>Program.cs</em> file.</p></li>
+<li>
+<p><a href="/documentation/developers-and-admins/development/website-development-basics/configure-new-projects/enable-application-features">Enable</a> the commerce feature in the application startup:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using Kentico.Xperience.Commerce;
+
+ ...
+
+ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+ ...
+
+ builder.Services.AddKentico(features =&gt;
+ {
+     // Enables digital commerce
+     features.UseCommerce();
+ });
+ </code></pre>
+</div>
+</li>
+</ol>
+<h2 id="configure-commerce-features">Configure commerce features</h2>
+<h3 id="configure-shopping-cart">Configure shopping cart</h3>
+<p>You can configure the expiration time of shopping carts. The value is used as the expiration time of the shopping cart cookie as well as the time after which any shopping cart is deleted. The default value is 1 day.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Note</strong>: The <a href="/documentation/developers-and-admins/customization/scheduled-tasks">scheduled task</a> that deletes shopping carts older than the specified value is executed once per day. Using values of less than 1 day has no effect.</p>
+</div>
+
+<p>To configure the shopping cart:</p>
+<ol type="1">
+<li>Open your Xperience project in Visual Studio and edit the <em>Program.cs</em> file.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options" target="_blank">Configure</a> <code>ShoppingCartOptions</code> and set the available properties, such as <code>Expiration</code>.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Commerce;
+
+...
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+...
+
+builder.Services.Configure&lt;ShoppingCartOptions&gt;(
+    // Sets the expiration time of shopping carts
+    options =&gt; options.Expiration = TimeSpan.FromDays(30)
+    );
+</code></pre>
+</div>
+
+
+</body>
+</html>

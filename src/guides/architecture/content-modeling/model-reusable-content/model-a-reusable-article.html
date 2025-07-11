@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Model a reusable Article</title>
+</head>
+<body>
+<p>Company updates, blog articles, case studies, interviews, and similar content are some of the most common content types companies share regularly with their users. This guide will show you how to model a universal <em>article</em> content type as a reusable component that your editors can display on the website or feature in an email.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>You should have basic knowledge of <a href="/guides/architecture/content-modeling/content-modeling-guide">content modeling principles</a>.</li>
+</ul>
+<h2 id="start-from-your-content-audit">Start from your content audit</h2>
+<p>Auditing your existing content and its lifecycle or content editing workflows should be the core for any changes of updates to your content model.</p>
+
+<div>
+
+</div>
+<div>
+<p>Let’s play this scenario:</p>
+<p>Your marketing team publishes weekly updates, shares customer studies, and interviews with stakeholders on different company sites. They also promote this content in their email blasts and monthly updates.</p>
+</div>
+
+<p>During your <strong>content audit</strong>, you realized that you have to <strong>copy and paste</strong> the <strong>same article</strong> several times when you want to publish it on your <strong>company website</strong> and <strong>promote it</strong> to your users <strong>on the homepage</strong>. Your editors must also copy the same content when sending monthly <strong>email updates</strong> to your newsletter subscribers.</p>
+<p></p>
+<p>You’ve also realized that all of these content artifacts share the same properties, such as:</p>
+<ul>
+<li>Title</li>
+<li>Summary</li>
+<li>Teaser image</li>
+<li>And the body of the text.</li>
+</ul>
+<p>Besides the article, your team has identified that they will need an <strong>Author</strong> content type to indicate who wrote their articles and a taxonomy defining article types – <strong>news</strong>, <strong>interview</strong>, <strong>case</strong> <strong>study</strong>, and <strong>press release</strong>.</p>
+
+<div>
+
+</div>
+<div>
+<p>The <strong>Kbank site</strong> this guide mentions several times is an Xperience by Kentico demo application. You can find more about the application in the Business tutorial and even <a href="https://www.kentico.com/get-started/hosted-trial" target="_blank">request your instance Kbank hosted on our servers</a>.</p>
+<p>Some examples discussed in this guide, such as the Author content type, do not appear on the Kbank demo site.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you haven’t run a content audit, see <a href="https://www.semrush.com/blog/content-audit-for-content-marketing-strategy/" target="_blank">this SEMRush article</a> and find out why and how to run a content audit.</p>
+</div>
+
+<h2 id="consider-your-business-scenarios">Consider your business scenarios</h2>
+<p>Looking at the different content strategies your team wants to implement, you’ve defined the following examples:</p>
+<ul>
+<li>Feature articles on the home page.</li>
+<li>Show various featured articles to users who already read the feature.</li>
+<li>Display related articles.</li>
+<li>Display articles of the same type.</li>
+<li>Personalize the articles based on business-related criteria. (For example, point business users to business-specific content).</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>See the <a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Begin with business needs</a> in the <a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a>.</p>
+</div>
+
+<p>These requirements determine which data you should <strong>store in a structured format</strong> so that it is <strong>reusable across your website and other channels</strong>, such as emails and additional websites.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can also create a simplified relationship diagram to describe connections between individual types. Seeing content types in context can help resurface any repeating patterns that you can extract into separate content types.</p>
+</div>
+
+<p></p>
+<h2 id="define-content-types-editors-need-to-create-an-article">Define content types editors need to create an article</h2>
+<p>Now that you know what content types the marketing team needs (article, author, different article types, etc.) and the conceptual approach you need to take (making articles reusable), you can start looking into how to store the data.</p>
+
+<div>
+
+</div>
+<div>
+<p>Start thinking of your content model as a <strong>data model</strong>. You can organize how your data relate to one another rather than thinking about where (i.e., in what display channel, like a webpage) this data belongs. In short, you start <strong>separating presentation-related data</strong> and the <strong>data that contains the information</strong>.</p>
+</div>
+
+<p></p>
+<p>Your team has identified they will need the following properties:</p>
+<ul>
+<li>Article
+<ul>
+<li>Title</li>
+<li>Summary</li>
+</ul>
+</li>
+<li>Image thumbnail
+<ul>
+<li>Description</li>
+<li>Alt text caption</li>
+</ul>
+</li>
+<li>Article body</li>
+<li>Author
+<ul>
+<li>First name</li>
+<li>Last name</li>
+<li>Portrait image
+<ul>
+<li>Description</li>
+<li>Alt text caption</li>
+</ul>
+</li>
+<li>Job title</li>
+<li>Company/organization</li>
+<li>Bio</li>
+<li>Email</li>
+<li>Social media addresses</li>
+</ul>
+</li>
+<li>Article types (as taxonomy category)
+<ul>
+<li>Interview</li>
+<li>Case study</li>
+<li>News</li>
+<li>Press release</li>
+</ul>
+</li>
+</ul>
+<h3 id="identify-fields-reused-across-different-content-types">Identify fields reused across different content types</h3>
+<p>Some fields like title, image, or description are often needed across different content types. You have two options: define these fields individually for each content type (e.g., ArticleTitle for articles and ProductTitle for products), or take advantage of their similarities by using an Xperience feature called <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>.</p>
+<p>With reusable field schemas, developers can define a collection of fields once and apply them across multiple content types. This allows you to store essential information consistently and display data from different content types using the same content presentation components, such as widgets. By reusing fields in this way, you gain flexibility in presenting content and reduce the need for multiple presentation components simultaneously.</p>
+<h3 id="define-article-taxonomies">Define article taxonomies</h3>
+<p>Taxonomies help your editors organize and categorize their content. The taxonomy example comes from the Kbank demo site example.</p>
+<p>In real life, you will want to create the <strong>case study</strong> as a separate content type to accommodate shared fields that all case studies will need: a customer who submitted the case study, what improved after completing their project, etc. We’re staying with this example for some time. We will describe how we iterate over the content model (in this case, modeling taxonomies) when we update the demo site using features from upcoming releases.</p>
+<p>The <a href="#ContentTypeDefinition">list above</a> shows what properties your editor team expects to work with. That’s the <em>human part</em> of the business working with the <em>Article</em> content type.</p>
+<p>You want to <strong>make your content discoverable</strong>, so you must embrace the idea that you are also building your content model for machines like search engines. Machines expect to see the data in a particular format. How can you ensure that other systems understand your Article content type correctly?</p>
+<h2 id="consult-the-schema.org-schema-to-identify-missing-properties-or-overlooked-opportunities">Consult the <a href="http://schema.org" target="_blank">schema.org</a> schema to identify missing properties or overlooked opportunities</h2>
+<p>As the next step, we recommend consulting <a href="http://schema.org" target="_blank">schema.org</a> to see whether you have captured all the properties typical for the content types your team has identified.</p>
+
+<div>
+
+</div>
+<div>
+<p><a href="http://schema.org" target="_blank">Schema.org</a> is a reference website that provides guidelines about structured data and their standardization. Find out more about <a href="http://schema.org" target="_blank">schema.org</a> on <a href="https://en.wikipedia.org/wiki/schema.org" target="_blank">Wikipedia</a>.</p>
+</div>
+
+<h3 id="article">Article</h3>
+<p>The Article content type corresponds with <a href="http://schema.org" target="_blank">schema.org</a>’s <a href="https://schema.org/Article" target="_blank">article</a> or <a href="https://schema.org/BlogPosting" target="_blank">Blog Posting</a>. Both types have mostly identical structured data properties.</p>
+<p></p>
+<h3 id="author">Author</h3>
+<p><a href="http://Schema.org" target="_blank">Schema.org</a> looks at <a href="https://schema.org/author" target="_blank">article authorship</a> from two perspectives. Either you have the <a href="https://schema.org/Organization" target="_blank">Organization</a> identified as a publisher, or one or more person(s) are creating the article. </p>
+<p>With the Kbank demo site, we have decided to assign all posts to the organization. For this example, let’s define the <strong>author</strong>-type properties using the <strong>Person</strong> type. You will see that you can break the <em>Author</em> type down even further into three more suitable, reusable content types: <em>Company</em>, <em>Address</em>, and <em>Social media</em>.</p>
+<ul>
+<li>
+<strong>Author</strong>
+<ul>
+<li>First name</li>
+<li>Last name</li>
+<li>Job title</li>
+<li>
+<strong>Portrait image</strong>
+<ul>
+<li>Description</li>
+<li>Alt text caption</li>
+</ul>
+</li>
+<li>Bio</li>
+<li>
+<strong>Company/organization</strong>
+<ul>
+<li>Name</li>
+<li>
+<strong>Address</strong>
+<ul>
+<li>Street</li>
+<li>Business Park</li>
+<li>City/Town</li>
+<li>County</li>
+<li>Postcode</li>
+<li>Country</li>
+<li>Longitude</li>
+<li>Latitude</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Email</li>
+<li>
+<strong>Social media addresses</strong>
+<ul>
+<li>Label</li>
+<li>Icon</li>
+<li>Link</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Aiming to support content reusability, you’ve defined several other content types and their properties.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Aim for good enough.</strong></p>
+<p>Do not fall into the perfectionist trap. Content modeling is an iterative process you’ll never get right the first time. Focus on defining the content types you know your team will work with and reuse, gathering feedback from your team, and improving. Rinse and repeat.</p>
+</div>
+
+<h2 id="use-image-content-type-to-store-the-articles-thumbnail-and-authors-portrait">Use Image content type to store the article’s thumbnail and author’s portrait</h2>
+<p>When you define the <em>article</em> and the <em>author</em>, you can easily spot that both types share the <strong>image</strong> data type. What are the implications?</p>
+<p>Marketers and editors rarely consider an <em>image</em> or an <em>asset</em> as a content type that can stand on its own. They are used to adding an image through a WYSIWYG editor and calling it a day. They often realize that assets are, in fact, separate types that need their specific properties when it’s too late, for example, when they want to display a particular image only to logged-in users.</p>
+<p>Given your team’s requirements, you <strong>want to make the content reusable</strong>. Why? It will be easier to attach an image to the article. But that would make the image part of the article type, making using the same image elsewhere almost impossible. Don’t write yourself into a corner with single-channel content; create the image as a separate type. <a href="http://schema.org" target="_blank">Schema.org</a> defines the <a href="https://schema.org/ImageObject" target="_blank">ImageObject</a>.</p>
+<p>Looking at the commonly shared properties, your asset will contain these:</p>
+<ul>
+<li>
+<strong>Asset</strong>
+<ul>
+<li>Description</li>
+<li>Alt text caption</li>
+<li>The file (itself)</li>
+</ul>
+</li>
+</ul>
+<p>Your developers have complete control over the <em>Asset</em> content type. They can set up the necessary fields according to your project’s needs and implement the desired functionality. Uploading Assets into the Content hub allows your team to treat the asset like any other content for reuse. You gain access to extra features, such as creating language versions, applying content management workflows, or restricting access to specific files, for instance, to only signed-in users.</p>
+<p>TIP: Use <a href="http://schema.org" target="_blank">schema.org</a> built-in tools and validate that you’ll be able to dynamically pull data to construct individual types using the <a href="https://schema.org/ImageObject#examples" target="_blank">examples of schema markup</a> for <a href="https://en.wikipedia.org/wiki/JSON-LD" target="_blank">JSON-LD</a> or <em>Structure</em>.</p>
+<p></p>
+<h2 id="define-article-category">Define Article category</h2>
+<p><a href="https://en.wikipedia.org/wiki/Taxonomy" target="_blank">Taxonomies</a> use defined terms (or <em>shared vocabularies</em>) to describe relationships between different entities, in this case, content types, and help organize data sets into hierarchies.</p>
+<p>Since every business has its specifics, let’s stay with the Kbank demo site example. The fictional Kbank’s marketing team uses several taxonomies to categorize their content. The most significant taxonomy group for articles is the Core Taxonomy.</p>
+<p>Editors use Xperience tag selector to mark articles as of a specific type. The system then allows for using the article type, e.g., in the Article listing widget where editors select which articles will become part of the list page.</p>
+
+<div>
+
+</div>
+<div>
+<p>Until this point, this whole exercise has proven one crucial thing:</p>
+<p><strong>A good content model is CMS agnostic.</strong></p>
+<p>The content model reflects how your business uses digital content. It defines the objects your team works with, the lifecycle your content follows, or the business scenarios your content fulfills. The model or content types should not reflect or arise from options that your website management system, like WordPress, provides for storing your content.</p>
+</div>
+
+<h2 id="consult-your-designs-to-verify-that-your-properties-collect-all-the-necessary-data">Consult your designs to verify that your properties collect all the necessary data</h2>
+<p>After completing the previous exercise, you and your team should know what content types they need to store information for reusable articles. It’s time to see if your <em>data model will also fit into the presentation model</em>.</p>
+<p>Look into the designs to ensure <strong>your content types contain</strong> the correct <strong>properties</strong> your designers wanted <strong>to display</strong>. Look also into your business cases and separate other data into separate structured data fields you have missed.</p>
+<p>For example, since Kbank wants to display the publish date article on the website but not in the email, the <em>Publish date</em> can be separate from the reusable article. At the same time, since Kbank’s team wants to share the same collection of related articles with one article on different websites, mobile apps, or other headless channels, you should define a property to capture the <em>relationship</em> on a reusable rather than a channel-specific level.</p>
+<p></p>
+<h2 id="identify-individual-data-types-that-compose-the-content-types-in-the-reusable-article">Identify individual data types that compose the content types in the reusable article</h2>
+<h3 id="start-with-data-types">Start with data types</h3>
+<p>Until now, your developers could implement the content model in any content management system. From this point on, your content modeling steps will focus on the Xperience by Kentico and its capabilities.</p>
+<p>Xperience by Kentico allows developers to define any type in the Content types application. It also provides a set of built-in UI components that editors can use to input data. Break down every property of your types to define the data model for reusable <strong>Article</strong> in Xperience by Kentico.</p>
+
+<div>
+
+</div>
+<div>
+<p>Xperience by Kentico is powered by an SQL database. The system stores content type data in dedicated tables with columns capturing the content type’s properties. You can learn more about the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-database-structure">content item database structure</a> in our documentation.</p>
+</div>
+
+<h3 id="identify-ui-components-and-their-configuration">Identify UI components and their configuration</h3>
+<p>We also recommend that you identify which UI components configuration editors will use to input data into Xperience. For example, the Article summary is of Text data type. For the Text, Xperience contains several UI components, such as Text input, area, URL, and others. Since the graphic designs don’t have any rich text-styled text, editors can use the Text area component.</p>
+
+
+<div>
+
+</div>
+<div>
+<p><a href="https://schema.org/" target="_blank">Schema.org</a> will also help you decide what data type you should use to store the value if you are uncertain which data types systems expect for the specific property.</p>
+</div>
+
+<p>The image shows fields of the Article from Kbank with their respective data type and UI component. For example, “Article text” is listed as type Rich text (HTML) that will be displayed with the Rich text editor.</p>
+<p></p>
+<h3 id="add-essential-guidance-for-editors">Add essential guidance for editors</h3>
+<p>To help editors with data input, you can guide them through each content type field. Xperience allows you to create tooltips or add a textual explanation text below each field.  Tell editors what content to enter into the fields and the format it should be in.</p>
+
+<div>
+
+</div>
+<div>
+<p>We often hear in customers’ projects that developers will add the editor guidance in phase two or three of the project implementation.</p>
+<p>We think any Xperience implementation and accompanying project documentation that the developers provide need to contain editor instructions from the beginning. We recommend including and specifying the guidance into project requirements to ensure your editors know what to do in a new system.</p>
+</div>
+
+<h2 id="verify-the-content-type-diagram-with-the-stakeholders">Verify the content type diagram with the stakeholders</h2>
+<p>Before your developers start creating the types in Xperience, discuss your model with the team.  Ensure everyone on the team understands what they will be working with. In this phase, we expect you’ll gather feedback from the lead developers, business analysts, solution architects, senior content editors, or content strategists involved in the project.</p>
+<p></p>
+<h2 id="create-the-content-type-in-the-xperience-by-kentico-application">Create the content type in the Xperience by Kentico application</h2>
+<p>Now, the actual hands-on (or fun) part of content modeling begins. <a href="/documentation/developers-and-admins/development/content-types">Create all content types</a> necessary to construct a reusable Article in the Xperience’s content types application. If you’ve done your work correctly and your content model contains all the required information about the types, creating content types in Xperience will be a straightforward exercise that any junior on the dev team can work on.</p>
+<p></p>
+<h2 id="have-editors-create-one-or-two-items-in-the-content-hub-using-the-article-content-type">Have editors create one or two items in the Content hub using the Article content type</h2>
+<p>In Xperience, editors work with reusable content types from the Content hub. Data input into the Content hub is not tied to any presentation layer. It is helpful to ask editors to create article items in the Content hub. This will help you (and your editor team) ensure that the content-creating flow is natural and that editors don’t have to jump around the system between different applications just to create and publish a content item.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you have time, your developers might create proof-of-concept components, such as widgets, that will display the data from the content type on the live site. But that’s not required.</p>
+</div>
+
+<h2 id="finalize-your-article-content-type-and-get-business-owners-write-off">Finalize your Article content type and get business owners write-off</h2>
+<p>Finalize the look and feel of your type, add any guidance editors missed during their testing, and resolve potential conflicts in data types and order of fields (content types properties). Once finished, hand over the definition of the content type to your team.</p>
+<p></p>
+<p>While you may try to build a highly adaptable content model that accommodates a variety of options, it’s nearly impossible to anticipate every future change. Marketing strategies shift, technology stacks evolve, and new communication channels emerge—meaning the content model will likely need updates over time.</p>
+<p>When it’s time to adjust your content model, you have a few options. Before diving in, check out this article on <a href="https://community.kentico.com/blog/safely-evolving-a-content-model-with-expand-and-contract" target="_blank">Safely evolving a content model with expand and contract</a> on the <a href="https://community.kentico.com" target="_blank">Kentico Community portal</a>.</p>
+<p>Let’s look at an example from the Kbank project. When we first built the Kbank demo site, Xperience didn’t support reusable field schemas or taxonomies. So, we created specific fields like <em>ArticleTitle</em>, <em>ArticleTeaserImage</em>, and <em>ArticleCategory</em> for the reusable <em>Article</em> content type.</p>
+<p>As Xperience introduced new functionality, we updated the model to demonstrate evolution using the reusable <em>Article</em> content type. In this revised model, the original fields for the title and description remain, but we added a reusable field schema called Core Content. Editors now use this schema when creating new articles. This approach allows us to improve the content model over time without causing significant disruptions for editors which benefits large projects. You can also learn about how developers can approach updating content model in <a href="/guides/development/advanced-content">guides about advanced content</a>.</p>
+<p></p>
+<h2 id="have-editors-test-creating-the-content-type">Have editors test creating the content type</h2>
+<p>If you’ve followed the example in this guide, your editors can create a new reusable article in the Content hub. Your developers will receive clear instructions about what they are making and how the content types need to look to help editors achieve their business goals.</p>
+
+<p>See the short video where editors test how to create reusable articles in their application.</p>
+
+</body>
+</html>

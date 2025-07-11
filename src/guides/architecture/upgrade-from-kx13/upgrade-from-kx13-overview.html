@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Upgrade overview</title>
+</head>
+<body>
+<p>If you’re in charge of moving project from <strong>Kentico Xperience 13 (KX13)</strong> to <strong>Xperience by Kentico (XbyK)</strong>, or considering doing so, you may have some questions about what that process looks like at a high level.</p>
+<p>You’ve probably come across the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank"><em>Kentico Migration Tool</em></a> for Xperience by Kentico, but as you might imagine, simply running the tool is probably not the only magical step to completely migrate your whole solution.</p>
+<p>Let’s take a look at the process together. There are four main parts to consider:</p>
+<ol type="1">
+<li>
+<a href="#set-up-your-environment">Set up your environment</a> and configure the migration tool</li>
+<li>
+<a href="#migrate-your-data">Migrate your data</a> and binary files using the migration tool</li>
+<li>
+<a href="#adjust-your-code">Adjust your code</a> and any custom artifacts not covered by the migration tool</li>
+<li>
+<a href="#think-about-the-future">Think about the future</a> and explore the full potential of Xperience by Kentico</li>
+</ol>
+<p></p>
+<p>In case you’re looking for more explanation than some orange pill shapes on a diagram, let’s break down each point.</p>
+<h2 id="set-up-your-environment">Set up your environment</h2>
+<p>The first step of the upgrade is to make sure your environment supports the migration tool and both platforms, and to prepare them for the upgrade.</p>
+<h3 id="hotfix-to-kentico-xperience-13-refresh-5-or-newer">Hotfix to Kentico Xperience 13 Refresh 5 or newer</h3>
+<p>Make sure to your Kentico Xperience 13 instance is running on Refresh 5 (hotfix 13.0.64) or newer. If not, make sure to <a href="/13/installation/hotfix-instructions-xperience-13">apply a hotfix</a> within the supported range.</p>
+<h3 id="install-a-compatible-version-of-xperience-by-kentico">Install a compatible version of Xperience by Kentico</h3>
+<p>Check the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/README.md#library-version-matrix" target="_blank">Library Version Matrix</a> in the <em>Xperience by Kentico: Kentico Migration Tool</em> repository to see which versions of Xperience by Kentico and the migration tool are compatible.</p>
+<h3 id="download-the-migration-tool">Download the migration tool</h3>
+<p>Clone or download the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Xperience by Kentico: Kentico Migration Tool</a>. Make sure your environment meets the requirements to run the solution specified in the repository.</p>
+<h2 id="migrate-your-data">Migrate your data</h2>
+<p>Once the environment is ready, you can migrate data from <em>Kentico Xperience 13</em> to <em>Xperience by Kentico</em>.</p>
+<p>Thanks to the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migrate-command-parameters" target="_blank">CLI parameters</a> that allow you to specify which objects to migrate, you can iteratively migrate data in multiple runs before adjusting code. Alternatively, you can do so in parallel with code updates.</p>
+<h3 id="configure-the-settings">Configure the settings</h3>
+<p>Follow the guidance in the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/docs/Usage-Guide.md" target="_blank">Usage guide</a> and the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md" target="_blank">CLI README</a> to configure the details of your data migration.</p>
+<h3 id="set-up-page-builder-conversion">Set up Page Builder conversion</h3>
+<p>If you use Page Builder in your Kentico Xperience 13 instance, consider paying special attention to the section about <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#source-instance-api-discovery" target="_blank">Source instance API discovery</a>. By adding a special endpoint to your current live site, you can enable the tool to convert your Page Builder data to a format that uses Xperience by Kentico’s new <a href="https://docs.kentico.com/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components" target="_blank">UI form components</a>.</p>
+<h2 id="adjust-your-code">Adjust your code</h2>
+<p>While past Kentico releases were built as expansions on previous versions, Xperience by Kentico is a brand new product, built from the ground up. It shares many similarities with legacy Kentico products, but also has some important differences you will have to account for when transferring your code.</p>
+<h3 id="update-content-querying">Update content querying</h3>
+<p>Xperience replaces the <a href="/13/custom-development/working-with-pages-in-the-api">DocumentQuery and MultiDocumentQuery APIs</a> from legacy Kentico versions with the <a href="/documentation/developers-and-admins/api/content-item-api">Content item API</a>. Your team will need to update code that retrieved page data to work with the new API.</p>
+<h3 id="adjust-page-builder-components">Adjust Page Builder components</h3>
+<p>If you choose to enable <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#source-instance-api-discovery" target="_blank">Source instance API discovery</a>, you will need to change the editing components used by the properties of your Page Builder components to the new admin UI components.</p>
+<h3 id="re-home-custom-tables">Re-home custom tables</h3>
+<p>Xperience by Kentico does not have a direct analog for the <a href="/13/developing-websites/defining-website-content-structure/managing-custom-tables">Custom tables</a> functionality in legacy Kentico products.</p>
+<p>The Kentico Migration Tool transfers each custom table to a <a href="/documentation/developers-and-admins/customization/object-types">custom object type</a>, but does not provide a user interface. Your team must <a href="/guides/development/customizations-and-integrations/create-basic-module#build-the-module-ui">create a UI</a> for each class, or alternatively, convert the data to <a href="/documentation/business-users/content-hub">reusable content items</a> that editors can manage through the <em>Content hub</em>.</p>
+<h3 id="convert-custom-module-pages">Convert custom module pages</h3>
+<p>Xperience’s admin UI is no longer built with web forms, so your team will have to recreate any <a href="/13/custom-development/creating-custom-modules">custom module pages</a> as <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages">UI pages</a> in the new admin.</p>
+<h3 id="alter-auth-and-user-management">Alter auth and user management</h3>
+<p>Where legacy Kentico products utilized the User entity to represent users of the administration interface and the live site, Xperience by Kentico has a separate <a href="/documentation/business-users/members">Member</a> object type representing those who sign in to the live site. Your team must change <a href="/13/managing-users/user-registration-and-authentication">old registration and authentication code</a> to <a href="/documentation/developers-and-admins/development/registration-and-authentication">work with members.</a></p>
+<h3 id="choose-a-search-integration">Choose a search integration</h3>
+<p>Xperience by Kentico does not include search functionality out-of-box, but rather provides three integration options: <a href="https://github.com/Kentico/xperience-by-kentico-lucene" target="_blank">Lucene</a>, <a href="https://github.com/Kentico/xperience-by-kentico-azure-ai-search" target="_blank">Azure AI search</a>, and <a href="https://github.com/Kentico/xperience-by-kentico-algolia" target="_blank">Algolia</a>. You need to recreate search functionality through one of these services.</p>
+<h3 id="address-differences-in-localization">Address differences in localization</h3>
+<p>Xperience by Kentico supports localization, with the migration tool automatically transferring multilingual pages and Cultures (as <a href="/documentation/developers-and-admins/configuration/languages">Languages</a>). However, some features are not covered.</p>
+<p>Kentico Xperience 13 allowed you to <a href="/13/multilingual-websites/setting-up-a-multilingual-user-interface/working-with-resource-strings#adding-your-own-strings">add custom resource strings</a> to the database through the administration interface. Xperience by Kentico does not include this feature out-of-box, so your team must <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages#translate-other-application-texts">use a resource file</a>, or store custom strings as content items of a specific type in the <a href="/documentation/business-users/content-hub">Content hub</a>.</p>
+<p>Alternatively, you can use or modify Nittin’s <a href="https://github.com/nittin-cz/xperience-community-localization" target="_blank">Xperience community localization</a> module for this functionality, or implement your own <a href="/guides/development/customizations-and-integrations/create-basic-module">custom module</a>.</p>
+<h3 id="migrate-commerce">Migrate commerce</h3>
+<p>Xperience by Kentico does not yet include an <a href="/13/e-commerce-features">out-of-box commerce suite</a> like Kentico Xperience 13. We’ve got you covered, though:</p>
+<p>You can continue to host your products and calculation in KX13 while displaying them on your Xperience by Kentico site using <a href="https://github.com/Kentico/xperience-by-kentico-k13ecommerce" target="_blank">our E-commerce bridge integration</a>. Alternately, you can utilize the <a href="https://github.com/Kentico/xperience-by-kentico-shopify" target="_blank">Shopify integration</a>.</p>
+<h3 id="handle-marketing-changes">Handle marketing changes</h3>
+<p>Xperience by Kentico has many marketing features, but it <strong>does not aim for feature parity</strong> with Kentico Xperience 13, so there are some differences you’ll need to consider when transferring your project. Xperience by Kentico does not support personas or A/B tests natively, and it does not cover all possible <a href="/documentation/business-users/digital-marketing/automation">marketing automation</a> scenarios.</p>
+<p>However, we do offer pathways to help your team handle these potential challenges. Learn more in our <a href="/guides/architecture/upgrade-from-kx13/plan-your-strategy-for-migrating-features">Plan your strategy for migrating features</a> guide.</p>
+<h2 id="think-about-the-future">Think about the future</h2>
+<p>Depending on your constraints, you may want to consider ways of improving your project with Xperience’s new offerings.</p>
+<h3 id="adapt-your-content-model">Adapt your content model</h3>
+<p>Xperience by Kentico boasts a modern, flexible <a href="/guides/architecture/content-modeling">content model</a> where <a href="/documentation/business-users/content-hub">reusable items</a> are referenced from multiple different channels, such as web sites, microsites, mobile applications, and email campaigns.</p>
+<p>In order to take advantage of this headless-enabling flexibility, we recommend that you consider adapting your content to work in this way, leaving web-specific metadata in a <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a> while making the meat of your structured content reusable.</p>
+<h3 id="utilize-new-capabilities">Utilize new capabilities</h3>
+<p>As discussed earlier, we developed Xperience by Kentico from the ground up as a new product. This means that it contains features that work differently than analogous functionality in Kentico Xperience 13, or that didn’t exist in that version altogether. Here are some examples of new features you can take advantage of in Xperience by Kentico:</p>
+<ul>
+<li>
+<a href="/documentation/developers-and-admins/configuration/taxonomies">Taxonomies</a> and their tags represent hierarchical structures of categorization, and cover more advanced content scenarios than tags and categories in Kentico Xperience 13.</li>
+<li>
+<a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Smart folders</a> allow your editors to dynamically filter and group content items, and can feed API queries on the live site.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">Reusable field schemas</a> allow for groups of fields to shared across many content types, with changes reflecting across all content types that use them immediately.</li>
+</ul>
+<h2 id="whats-next">What’s next?</h2>
+<p>The next guides in this series will dive into a bit more detail about each of the points highlighted in this overview. They will cover <a href="/guides/architecture/upgrade-from-kx13/plan-your-strategy-for-migrating-features">high-level looks at analogous features</a> between platforms, <a href="/guides/architecture/upgrade-from-kx13/prep-for-upgrade-and-transfer-data">preparation and data migration</a>, and <a href="/guides/architecture/upgrade-from-kx13/adjust-your-code-and-adapt">code conversion and new features</a>.</p>
+<p>You can also find more information in <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">the documentation</a> and the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/tree/master" target="_blank">Xperience by Kentico: Kentico Migration Tool</a> repository.</p>
+
+</body>
+</html>

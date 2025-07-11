@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Adjust your code and adapt your project</title>
+</head>
+<body>
+<p>While sites built on <strong>Kentico Xperience 13 (KX13)</strong> and <strong>Xperience by Kentico (XbyK)</strong> are all .NET applications, there are some differences in the code to consider when upgrading to XbyK, and considerations for where to go with a project once it is on the new platform.</p>
+<p>This guide will provide more details about the points from the later top-level sections of the <a href="/guides/architecture/upgrade-from-kx13/upgrade-from-kx13-overview">upgrade overview</a>.</p>
+<h2 id="adjust-your-code">Adjust your code</h2>
+<h3 id="update-content-querying-code">Update content querying code</h3>
+<p>Xperience by Kentico uses the <a href="/documentation/developers-and-admins/api/content-item-api">Content item API</a> to query content, in place of <a href="/13/custom-development/working-with-pages-in-the-api">DocumentQuery and MultiDocumentQuery</a> from Kentico Xperience 13.</p>
+<p>The documentation in the above link has more information about the specifics of how it works, but in broad strokes, here are the steps to retrieve content:</p>
+<ul>
+<li>Use a <code>ContentItemQueryBuilder</code> object to construct a query.
+<ul>
+<li>Apply one of the <code>ForContentType</code> or <code>ForContentTypes</code> extension methods to filter the query based on system aspects of the content type. For example, whether content items include a given reusable field schema, whether they <em>link to</em> or <em>are linked from</em> another item, and whether they are part of a given website channel.</li>
+<li>Call the <code>Parameters</code> extension method to add standard query operations like <em>OrderBy</em> and <em>Where</em> conditions that test the values of the content type’s fields.</li>
+<li>Call the <code>InLanguage</code> extension method to determine which language versions of content items Xperience should retrieve.</li>
+</ul>
+</li>
+<li>Use an <code>IContentQueryExecutor</code> to get a result from the query.</li>
+</ul>
+<p>We recommend creating some kind of shared resource that you can use across your project to centralize content querying logic, such as a service.</p>
+
+<div>
+
+</div>
+<div>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">ContentItemRetrieverService</a> from our Training guides repository illustrates this approach, though you may want to create different methods to more closely mirror the content in your KX13 project.</p>
+</div>
+
+<p>There are some notable changes in related functionality as well:</p>
+<ul>
+<li>
+<code>PageDataContext</code> and <code>IPageDataContextRetriever</code> are now <code>WebPageDataContext</code> and <code>IWebPageDataContextRetriever</code>.
+<ul>
+<li>Unlike the <code>Page</code> property of <code>PageDataContext</code> in KX13, XbyK’s <code>WebPageDataContext</code> does not contain the full page data. It contains a <code>RoutedWebPage</code> object with information you can use to retrieve the correct page.</li>
+</ul>
+</li>
+<li>KX13’s <code>IPageUrlRetriever</code> corresponds to <code>IWebPageUrlRetriever</code>, which now works asynchronously.</li>
+<li>The Kentico Migration Tool converts page attachments to asset content items. The assets are created as content items of a <code>Legacy.attachment</code> content type by the migration tool.</li>
+</ul>
+<h3 id="adjust-page-builder-components">Adjust Page Builder components</h3>
+<p>In Kentico Xperience 13, Page Builder components such as <em>widgets</em>, <em>page templates</em>, and <em>sections</em> use C#-based editing components for their properties. These editing components are assigned to properties using attributes such as this one:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Kentico Xperience 13 editing component assignment</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Assigns the 'TextInputComponent' as the editing component of the 'TextProperty' property
+[EditingComponent(TextInputComponent.IDENTIFIER)]
+public string TextProperty { get; set; }
+</code></pre>
+</div>
+
+<p>Xperience by Kentico supports the same format for the sake of backward compatibility, but primarily uses a new format of <a href="https://docs.kentico.com/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components" target="_blank">UI form components</a>. These components are assigned using dedicated attributes, for example:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Xperience by Kentico editing component assignment</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Assigns the 'TextInputComponent' as the editing component of the 'TextProperty' property
+[TextInputComponent(Label = "Enter text")]
+public string TextProperty { get; set; }
+</code></pre>
+</div>
+
+<p>If you choose to enable <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#source-instance-api-discovery" target="_blank">Source instance API discovery</a> during data migration, which we recommend, you will need to change the attributes used by the properties of your Page Builder components to the new UI form components. Otherwise, your project will continue to use Page Builder in <em>Legacy mode</em>, which won’t require these changes but lacks many benefits for the content editors.</p>
+<h3 id="rehome-custom-tables">Rehome custom tables</h3>
+<p>Xperience by Kentico does not have a direct analog for the <a href="/13/developing-websites/defining-website-content-structure/managing-custom-tables">Custom tables</a> functionality in legacy Kentico products.</p>
+<p>The Kentico Migration Tool creates a <a href="/documentation/developers-and-admins/customization/object-types">custom object type</a> for each custom table, but leaves you in charge of defining their user interface.</p>
+<p>If you choose to do so, each <em>custom table</em> will correspond to an <em>object type</em> or class, and each <em>custom table row</em> will correspond to an <em>object</em> of that type. You’ll need a UI application page to host one or more custom tables to define the following parts for each of these custom table types:</p>
+<ul>
+<li>An alternative form that determines which form controls Xperience should render for each field of the object type</li>
+<li>A <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template">listing page</a> that displays a list of the objects and includes delete functionality</li>
+<li>An <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template"><em>Edit section</em> and an <em>Edit page</em></a> that allow editors to alter the values of individual objects</li>
+<li>A <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template#use-edit-pages-to-create-new-objects">Create page</a> to add new objects</li>
+</ul>
+<p>You can choose whether each type should have its own <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-application-pages">UI application page</a> or if they should be located collectively beneath the same application page.</p>
+<p>This may sound complicated, but these basic operations are fairly simple to implement, and you can find an example of building such a UI in our <a href="/guides/development/customizations-and-integrations/create-basic-module#build-the-module-ui">training guides</a>. The CLI tools in <a href="https://github.com/seangwright/xperience-community-dotnet-item-templates" target="_blank">this repository</a> can help to speed up the process.</p>
+<p>We recommend this approach when it is important for your client to edit the values in a dedicated area of the UI.</p>
+<p>If custom table data does not need to be separate from other content, we recommend using <a href="/documentation/business-users/content-hub">reusable content items</a> instead.</p>
+<p>If you define a <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-article">reusable content type</a> corresponding to each custom table and write a one-time script that <a href="/api/content-management/content-items#create-content-items">creates reusable content items</a> you will not need to build a dedicated UI for the existing types, or any similar types your client might want in the future.</p>
+<p>Editors can use the <a href="/documentation/business-users/content-hub">Content hub</a> to manage the items. By selecting a content type in the Content hub’s filter, they can view the custom table’s data.</p>
+<h3 id="convert-custom-module-pages">Convert custom module pages</h3>
+<p>Xperience by Kentico’s admin UI no longer runs on web forms, so you’ll need to recreate any <a href="/13/custom-development/creating-custom-modules">custom module pages</a> as <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages">UI pages</a> in XbyK.</p>
+<p>Most custom modules revolve around performing basic operations on custom objects, so in many cases, the <a href="#rehome-custom-tables">previous heading’s</a> guidance about the types of pages you’ll need still applies.</p>
+<p>Xperience by Kentico also supports custom page templates, if your scenario requires more advanced customization. You can find an example in the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/prepare-your-environment-for-admin-development#client-development-boilerplate">admin boilerplate project</a>.</p>
+<p>You can find resources covering the process of creating custom modules with complex hierarchical structures in the <a href="/guides/development/customizations-and-integrations#custom-modules">training guides</a>.</p>
+<p>You can find general guidance and reference material in the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">admin UI documentation</a>.</p>
+<h3 id="alter-auth-and-user-management">Alter auth and user management</h3>
+<p>Xperience by Kentico introduces a new <a href="/documentation/business-users/members">Member</a> object type to represent people who register and sign in to the live site. Your team must change <a href="/13/managing-users/user-registration-and-authentication">old registration and authentication code</a> to <a href="/documentation/developers-and-admins/development/registration-and-authentication">work with the changes</a>.</p>
+<p>The approaches are fairly similar, as both utilize <a href="https://learn.microsoft.com/en-us/aspnet/identity/overview/getting-started/introduction-to-aspnet-identity" target="_blank">ASP.NET Identity</a>, but syntax has changed. You’ll need to make some alterations to your controllers and initialization.</p>
+<p>At this time, <a href="/documentation/developers-and-admins/configuration/users/user-management#multi-factor-authentication">multi-factor authentication</a> in Xperience by Kentico is supported only for users signing into the administration, not for members.</p>
+<h3 id="choose-a-search-integration">Choose a search integration</h3>
+<p>Xperience by Kentico does not support search functionality natively, but it has three search integrations:</p>
+<ul>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-lucene" target="_blank">Lucene</a></li>
+<li><a href="https://github.com/Kentico/xperience-by-kentico-azure-ai-search" target="_blank">Azure AI search</a></li>
+<li>
+<a href="https://github.com/Kentico/xperience-by-kentico-algolia" target="_blank">Algolia</a>.</li>
+</ul>
+<p>Each integration has its own specifics regarding how the code should look, so we recommend reviewing the <strong>docs</strong> folder of the one you choose for specific advice on how to structure its code.</p>
+<h3 id="address-differences-in-localization">Address differences in localization</h3>
+<p>Xperience by Kentico uses <a href="/documentation/developers-and-admins/configuration/languages">Languages</a>, where KX13 used Cultures.</p>
+<p>In cases where you want to know the preferred language of current site visitor you can use <code>IPreferredLanguageRetriever</code>.</p>
+<p>As mentioned earlier, you can use the <code>InLanguage</code> extension method for content item query to determine which variant of content items Xperience should retrieve.</p>
+<p>Note that languages are global in XbyK, so if you have KX13 code to retrieve cultures associated with a given site, you’ll need to adjust it to account for this.</p>
+<h4 id="localization-of-resource-strings">Localization of resource strings</h4>
+<p>Editors in Kentico Xperience 13 were able to <a href="/13/multilingual-websites/setting-up-a-multilingual-user-interface/working-with-resource-strings#adding-your-own-strings">define custom resource strings</a> in the administration interface. This functionality doesn’t exist natively in XbyK, and there are a few possible approaches to handle custom resource strings.</p>
+<ul>
+<li><p><strong>Move them to a resource file</strong> - If you move custom resource strings to a <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages#translate-other-application-texts">resource file</a>, you can resolve them easily in your application. This, however, does not allow your editors to create new strings.</p></li>
+<li><p><strong>Use the content hub</strong> - If you want to allow editors to create strings, you can create a <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-article">reusable content type</a> to represent a string. Editors will create language versions of this type in the Content hub. Then, in code, you can dynamically look up the appropriate translation via the <a href="/documentation/developers-and-admins/api/content-item-api">Content item API</a>, for example, in your custom <code>IStringLocalizer</code> and <code>IHtmlLocalizer</code> <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/make-content-localizable" target="_blank">implementations</a>.</p></li>
+<li><p><strong>Use the <em>Community localization</em> module</strong> - If it is important to your client to have a separate localization module to manage their custom resource strings rather than working in the content hub, consider the <a href="https://github.com/nittin-cz/xperience-community-localization" target="_blank">Xperience community localization</a> module by Nittin, which recreates the experience from KX13.</p></li>
+<li><p><strong>Implement your own custom module</strong> - If your project requires a specific way of handling resource strings, your team can create a custom implementation using the XbyK <a href="/guides/development/customizations-and-integrations/create-basic-module">custom module</a> that suits your client’s needs.</p></li>
+</ul>
+<h3 id="migrate-commerce">Migrate commerce</h3>
+<p>Since Xperience by Kentico does not yet support commerce natively, the way your code will need to change will depend heavily on which service you choose to integrate with.</p>
+<p>If you choose the <a href="https://github.com/Kentico/xperience-by-kentico-k13ecommerce" target="_blank">E-commerce bridge integration</a>, you can leave calculation logic unchanged on the KX13 side. Then, you can use the approaches exemplified in the repo to list products and interface with the KX13 shopping cart from the XbyK side.</p>
+<p>If you choose to migrate your commerce to Shopify and use the <a href="https://github.com/Kentico/xperience-by-kentico-shopify" target="_blank">Shopify integration</a>, you won’t need your calculation and checkout code, as these things are handled directly in Shopify. From the Xperience side, you’ll need to add code to manage the contents of shopping carts and discount coupons.</p>
+<h3 id="handle-marketing-changes">Handle marketing changes</h3>
+<p>XbyK and KX13 both feature online marketing, but key differences exist. Let’s take a look into some of them.</p>
+<p>When you log custom activities from server-side code in Xperience by Kentico, use <code>ICustomActivityLogger</code> instead of <code>IActivityLogService</code>. Custom activities no longer need an <em>initializer</em> class for the logger to work. Note that XbyK also allows you to log custom activities with <em>client-side code</em>.</p>
+<p>Custom automation steps like those in Kentico Xperience 13 are not currently available, so you can archive their code for now.</p>
+<p>Since A/B tests are not supported natively yet, you can also archive any code related to them, such as custom conversions. This functionality is currently on <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">our roadmap</a>.</p>
+<p>Regarding marketing and consents, note that you should register custom cookies by configuring <code>CookieLevelOptions</code> during startup, rather than using <code>CookieHelper</code>. Additionally, set cookies in the visitor’s browser using <code>ICookieAccessor</code>.</p>
+<h2 id="think-about-the-future">Think about the future</h2>
+<h3 id="adapt-your-content-model-post-data-migration">Adapt your content model post data migration</h3>
+<p>In the previous guide we talked about the data migration as <a href="/guides/architecture/upgrade-from-kx13/prep-for-upgrade-and-transfer-data#adapt-your-content-model">an opportunity to re-think and adjust your content model</a> in order to best utilize new content modeling features of the XbyK solution.</p>
+<p>Although this is an approach we recommend, you may have reasons to decide against remodeling during the data migration, or to make only partial adjustments to the content model. In this case, you can always take the <a href="https://community.kentico.com/blog/safely-evolving-a-content-model-with-expand-and-contract" target="_blank">expand-contract approach</a> to future-proof your content model after the data migration, for example:</p>
+<p>In order to convert flat KX13 pages that contain both web-specific fields and content fields into this new structure, you can follow these general steps:</p>
+<ol type="1">
+<li>Create a new reusable content type that has all the same fields as your web page type.</li>
+<li>Add a <em>Content items</em> field to the <em>Web page content type</em>, referencing an item of the <em>reusable content type</em>.</li>
+<li>Create a one-off script that utilizes Xperience APIs to do the following:
+<ol type="a">
+<li>Create a new item of the <em>reusable type</em>, copying all the values of their matching fields.</li>
+<li>Reference the new reusable item from the web page item’s <em>Content items</em> field.</li>
+</ol>
+</li>
+<li>Delete all the web page-specific fields from the <em>reusable content type</em>.</li>
+<li>Delete all the content-specific fields from the <em>web page content type</em>.</li>
+</ol>
+<h3 id="utilize-new-capabilities">Utilize new capabilities</h3>
+<h4 id="reusable-field-schemas">Reusable field schemas</h4>
+<p>The migration tool’s configuration and customization options allow you to create <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> out of your existing content types. If you choose to avoid this conversion during data migration, similarly to the <a href="#adapt-your-content-model-post-data-migration">above approach</a> for reusable content items, you can create one-off scripts later on to help convert common fields that exist in several content types into <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>.</p>
+<p>Just add the schema to all the child content types, write a one-off script to copy content from the old fields to the schema fields, and then delete the old fields.</p>
+<h4 id="taxonomies">Taxonomies</h4>
+<p>If you want to take advantage of the new <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a> feature, you’ll have to consider how to hierarchically structure the tags to best fit your content model. Then, you can filter content queries based on taxonomies, as in <a href="/guides/development/advanced-content/filter-content-based-on-taxonomies">this example</a>.</p>
+<h4 id="smart-folders">Smart folders</h4>
+<p>If your editors utilize <a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">smart folders</a>, you can incorporate their contents into the live site and <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-content-items-from-smart-folders">filter content item queries</a>.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>We hope you feel a little more prepared for the upgrade to Xperience by Kentico after this series of guides.</p>
+<p>Let us know if you come across anything that needs additional explanation over the course of your upgrade, and we will do our best to cover it in future materials.</p>
+<p>In the meantime, you can find more information on the process in <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">the documentation</a> and the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/tree/master" target="_blank">Xperience by Kentico: Kentico Migration Tool</a> repository. For additional context, check out <a href="https://dev.to/truelime/tips-for-migrating-from-kx13-to-xperience-by-kentico-709" target="_blank">this blog</a> by Jeroen Fürst of TrueLime, who put together useful tips and key things to consider before the KX13 to XbyK upgrade.</p>
+<p>If you are a hands-on learner, check out our <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough">upgrade walkthrough</a> guide, showcasing an upgrade of the Dancing Goat sample site from KX13 to XbyK step-by-step.</p>
+
+</body>
+</html>

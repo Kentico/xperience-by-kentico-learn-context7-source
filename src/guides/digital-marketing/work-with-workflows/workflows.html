@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Workflows</title>
+</head>
+<body>
+<p>Content management workflows help marketers streamline content creation, ensure consistency, and control the quality of their content.</p>
+<p>In this article, you’ll learn about what workflows in Xperience by Kentico are and how to use them to optimize and align the content approval process with strategic business goals.</p>
+
+<div>
+<p>Prerequisites: - If you want to test the scenario, have the Kbank demo site available. If you don’t have it, request your instance <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Kbank</a> hosted on our servers.</p>
+</div>
+
+<p><strong>Workflow</strong> in Xperience a process editors use to define the content lifecycle. It consists of steps from creating a content item and working with it in an intended way to publishing it. You can apply workflows to different content types, including reusable content items, web pages, emails, and headless items.</p>
+<p>Each workflow starts by default with a <strong>Draft</strong> step and finishes with a <strong>Published</strong> step. You can add any number of custom steps in between to ensure you cover any approval or other process your company requires. You cannot add any steps after the default <strong>Published</strong> step.</p>
+<p>However, after the page is published, you can either <strong>Edit</strong> the page or <strong>Unpublish</strong> it. In both cases, you’ll have to go through the workflow cycle again (unless it changed). The difference between <strong>Edit</strong> and <strong>Unpublish</strong> is that <strong>Edit</strong> keeps the page publicly available on your website and reflects any changes the moment you publish it again, and the <strong>Unpublish</strong> step removes the page from public access.</p>
+
+<div>
+<p>To create a custom workflow, you need appropriate permissions. Ask your manager or system administrator if you don’t see the <strong>Workflows</strong> application on your dashboard.</p>
+</div>
+
+<h2 id="what-can-workflows-help-with">What can workflows help with</h2>
+<p>Content management workflows guarantee that each item, from web pages to emails, undergoes review and approval to ensure it upholds your business’s standards and meets editorial demands.</p>
+<p>Let’s see an example scenario: The editors’ manager wants to create a workflow for editors to make sure the articles they create get checked and proofread by someone else before release.</p>
+<p>Another example could be a web page that for example legal team has to check for all the content before being published. Imagine, for example, a product page with the wrong price or an event page with different dates. That could cause your company big trouble.</p>
+<p>A <strong>content type</strong> (page, content item, email, etc.) can have only one workflow. You cannot assign two or more different workflows to one content type. If you assign a workflow to a content type, this content type will not be available when assigning other workflows. (You’ll see this later in this article.)</p>
+
+<div>
+<p>When you assign a workflow to a content type, it <strong>doesn’t automatically apply</strong> to all existing content items, pages, etc. Items that are already in the <strong>Draft</strong> step when you assign the workflow are not pushed to the next step in the new workflow. You have to create a new item or a new version of a published item.</p>
+</div>
+
+<p>The new workflow applies to items that start a new editing cycle, meaning completely new items or new versions of published items.</p>
+<h2 id="create-a-workflow">Create a workflow</h2>
+<p>Let’s see how you can create a new workflow in Xperience. If you have a demo Kbank, you can follow the steps.</p>
+
+<div>
+<p><strong>Scenario</strong>: Imagine you want to create a specific workflow for a product page. There are important pieces of information, and several people will be involved. First, an editor creates the page and adds content to it. Then, it goes to a Product manager, who checks that all the information is correct. The manager then pushes the page to a Marketing department, which decides when the page will be published so it aligns with their marketing plans.</p>
+</div>
+
+<h3 id="create-a-new-workflow">1. Create a new workflow</h3>
+<p>Find the <strong>Workflows</strong> application in the <strong>Configuration</strong> section.</p>
+<p>Create a <strong>New workflow</strong>, name it, and save it. Now, you can add steps and assign the appropriate roles. In our example, we create a workflow for <em>Product pages</em>.</p>
+<p></p>
+<h3 id="choose-the-content-type">2. Choose the content type</h3>
+<p>Switch to the <strong>Scope</strong> tab to <strong>Select content types</strong>. Choose the content types to which you want to apply this new workflow. In our case, we’ll be looking at the <em>Product page</em>.</p>
+<p></p>
+
+<div>
+<p>If you assign a content type to a workflow, you can no longer choose the same content type when creating a different workflow. As you can see in the image above, the <em>Article</em> and <em>Article page</em> content types are unavailable because they already have their own workflows.</p>
+</div>
+
+<p>If you need to work with a channel, you can choose the respective content types, such as <em>Simple email</em> or <em>Social media</em>.</p>
+<p></p>
+<h3 id="define-the-workflow-steps">3. Define the workflow steps</h3>
+<p>Once you have selected all the content types you want, add the workflow steps. Switch to the <strong>Steps</strong> tab and add a <strong>New step</strong>.</p>
+<p>Create a <strong>name</strong> for each step and choose an <strong>icon</strong>. The icons are a great visual aid that can help editors recognize and navigate in the flow. Choose the <strong>roles</strong> that can manage this step.</p>
+
+<div>
+<p>Some roles can manage any step by default; they don’t have to be assigned to the steps.</p>
+<p>You can also have custom workflow steps prepared by developers that run programmatically without manual touches. For example, validating a page’s SEO performance, analyzing text quality through AI sentiment analysis, or running HTML validation.</p>
+</div>
+
+<p></p>
+<p>We’ll create two steps - an <em>Information check</em> for a Product manager and a <em>Schedule publishing</em> for the Marketing team.</p>
+<p></p>
+
+<div>
+<p>The steps you create will keep the content in draft status. The content going through your workflow is not published until the <strong>Publish</strong> step.</p>
+</div>
+
+<h2 id="a-note-about-notifications">A note about notifications</h2>
+<p>Xperience doesn’t have out-of-box notifications informing the responsible roles about the step change. However, your developers or partner can set up custom <a href="/documentation/developers-and-admins/customization/handle-global-events/set-up-custom-workflow-notifications">workflow notifications</a>.</p>
+<h2 id="adjust-or-remove-a-workflow">Adjust or remove a workflow</h2>
+<p>If you need to slightly adjust an existing workflow, you don’t have to remove it and create it again from scratch. But there are some rules you should keep in mind.</p>
+<h3 id="adding-steps">Adding steps</h3>
+<p>If you want to add new steps, you can do so the same way described above, and rearrange their order as needed. The steps you added will immediately apply to every workflow, even those that are already running and are in process.</p>
+<h3 id="deleting-steps-or-workflow">Deleting steps or workflow</h3>
+<p>If you want to remove a workflow or adjust it by deleting workflow steps, you cannot do so while you still have items in the workflow steps. It doesn’t apply to items that were in the <strong>Draft</strong> status before you created the workflow.</p>
+<p>When you remove the content type from the workflow’s scope, items based on this type currently in the workflow will still go through the workflow steps until they’re published. A new item of the same type created after the content type removal will only go through the default <strong>Draft</strong> and <strong>Published</strong> steps.</p>
+<h2 id="in-summary">In summary</h2>
+<p>Workflows are a great tool for ensuring that everyone works with the content in the intended way, step by step. You can create custom workflows that fulfill your company’s needs.</p>
+<h3 id="exercise">Exercise</h3>
+<p>Let’s test this knowledge in the following exercise. Imagine you work for big international insurance company and create a new workflow to make sure every new product is correct from factual and legal point of view.</p>
+
+<div>
+<p>To perform the exercise, you need the Kbank demo site. You can request it <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">here</a>.</p>
+</div>
+
+<h3 id="task">Task</h3>
+<p>Create a workflow for <strong>Product</strong>, <strong>Product feature</strong>, and <strong>Benefit</strong> content items, that follows this process:</p>
+<ul>
+<li>A <strong>content creator</strong> gets information about a product, its features, and its benefits in the form of a bullet list. The content creator prepares catchy promotional texts for each type of content item mentioned above.</li>
+<li>An <strong>editor</strong> takes over and reviews the texts, fixes any typos, and polishes the overall outcome.</li>
+<li>The reviewed content items then go to a <strong>product manager</strong>, who checks them for any information errors. They need to make sure all data are correct.</li>
+<li>Because the insurance company works with sensitive data from people all over the world, it’s necessary to make sure the provided information are correct from the legal point of view. This is a job for a <strong>legal department</strong>.</li>
+<li>When everything is checked and ready, the content items are published.</li>
+</ul>
+
+<div>
+<p>You may need to create new roles for this exercise. For the sake of this exercise, create just empty roles that you name appropriately. You can check how to do it in <a href="/guides/configuration/work-with-users-and-roles/work-with-roles/create-new-role">this guide</a>.</p>
+</div>
+
+<h3 id="hint">Hint</h3>
+<p>If you need a little help, here are the steps you should take:</p>
+<ol type="1">
+<li>Open the <strong>Workflows</strong> application.</li>
+<li>Create <strong>new workflow</strong> and give it descriptive <strong>name</strong>.</li>
+<li>Define the <strong>scope</strong>:
+<ol type="a">
+<li>Add the content types mentioned in the task: Product, Product feature, and Benefit.</li>
+</ol>
+</li>
+<li>Set up the <strong>steps</strong>:
+<ol type="a">
+<li>Give each step a <strong>name</strong> explaining what happens in this step.</li>
+<li>Add an <strong>icon</strong>.</li>
+<li>
+<strong>Assign the role(s)</strong> that take over the next workflow step.</li>
+<li>Repeat for each step.</li>
+</ol>
+</li>
+</ol>
+<p>The final look of your workflow depends on your naming convention and roles you created. But here is ours so you can compare:</p>
+
+
+</body>
+</html>

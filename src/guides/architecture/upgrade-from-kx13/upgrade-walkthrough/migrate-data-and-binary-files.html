@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Migrate data and binary files</title>
+</head>
+<body>
+<p>Now, we will migrate the data from the KX13 (source) instance to the XbyK (target) instance. The video below goes over the migration tool configuration and shows how to run the data migration.</p>
+<p>In the video we run the data migration in <strong>two iterations</strong>:</p>
+<ul>
+<li>first to migrate <em>sites</em> only.</li>
+<li>then to migrate the rest of the data necessary to display the <strong>Contacts</strong> page: <em>settings keys</em>, <em>page types</em>, <em>pages</em>, <em>attachments</em> and <em>forms</em>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>In your own project, you can run the data migration in <strong>as many iterations as you wish</strong>. To avoid repetitive migration of the same type of object, use the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migrate-command-parameters" target="_blank"><code>--bypass-dependency-check</code> parameter</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>We highly recommend creating a <strong>database backup</strong> before each iteration.</p>
+</div>
+
+<p>Under the video, see the sample configuration files, links, and important remarks mentioned in the video.</p>
+
+<h2 id="configuration">Configuration</h2>
+<p>These are sample configuration files used in the video above.</p>
+
+<div>
+
+</div>
+<div>
+<p>See the explanation of all the configuration options and more examples in the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#configuration" target="_blank">Kentico Migration Tool GitHub documentation</a>.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>JS</span>
+</div>
+<strong>Migration.Tool.CLI/appsettings.json</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+  "Settings": {
+    "MigrationProtocolPath": "&lt;ABSOLUTE_PATH_TO_STORE_THE_-_LOG&gt;\\Migration.Toolkit.Protocol.log",
+    "KxConnectionString": "Data Source=&lt;YOUR_DB_SERVER_NAME&gt;;Initial Catalog=&lt;SOURCE_KX13_DB_NAME&gt;;Integrated Security=True;Persist Security Info=False;Connect Timeout=60;Encrypt=False;Current Language=English;",
+    "KxCmsDirPath": "&lt;ABSOLUTE_PATH_TO_YOUR_SOURCE_KX13_INSTANCE&gt;\\CMS",
+    "XbKDirPath": "&lt;ABSOLUTE_PATH_TO_YOUR_TARGET_XBYK_INSTANCE&gt;\\src",
+    "XbyKApiSettings": {
+      "ConnectionStrings": {
+          "CMSConnectionString": "Data Source=&lt;YOUR_DB_SERVER_NAME&gt;;Initial Catalog=&lt;TARGET_XBYK_DB_NAME&gt;;Integrated Security=True;Persist Security Info=False;Connect Timeout=60;Encrypt=False;Current Language=English;"
+      }
+    },
+    "MigrateOnlyMediaFileInfo": false,
+    "MigrateMediaToMediaLibrary": false,
+    "LegacyFlatAssetTree": false,
+    "AssetRootFolders": {},
+    "UseDeprecatedFolderPageType": false,
+    "ConvertClassesToContentHub": "",
+    "CreateReusableFieldSchemaForClasses": "",
+    "OptInFeatures": {
+      "QuerySourceInstanceApi": {
+        "Enabled": true,
+        "Connections": [
+          {
+            "SourceInstanceUri": "http://localhost:&lt;SOURCE_INSTANCE_PORT&gt;/",
+            "Secret": "my_secret"
+          }
+        ]
+      }
+    },
+...
+</code></pre>
+</div>
+
+<p><code>ToolApiController</code> copied from the Kentico Migration Tool, <em>KX13.Extensions.cs</em>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong><source_instance_path>/DancingGoatCore/Controllers/ToolApiController.cs</source_instance_path></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.Collections.Generic;
+...
+
+public class ToolApiController : Controller
+{
+    private const string Secret = "my_secret";
+    ...
+    // the rest of the file stays the same
+}
+</code></pre>
+</div>
+
+<p>Registering the actions of the <code>ToolApi</code> controller:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong><source_instance_path>/DancingGoatCore/Startup.cs</source_instance_path></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+app.UseEndpoints(endpoints =&gt;
+{
+    endpoints.Kentico().MapRoutes();
+
+    // added code
+    endpoints.MapControllerRoute(
+        name: "ToolExtendedFeatures",
+        pattern: "{controller}/{action}",
+        constraints: new
+        {
+            controller = "ToolApi"
+        }
+    );
+...
+}
+...
+</code></pre>
+</div>
+
+<h2 id="links-and-remarks">Links and remarks</h2>
+<p>See the list of <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool?tab=readme-ov-file#quick-start" target="_blank">data migration steps in our documentation</a>.</p>
+<p>For successful data migration, make sure that:</p>
+<ul>
+<li>Your <em>source</em> instance <strong>is running</strong> during migration.</li>
+<li>Your <em>target</em> instance <strong>is NOT running</strong> during migration.</li>
+</ul>
+<p>Create a <strong>database backup</strong> each time before you run the <code>migrate</code> command.</p>
+<p>If you run into issues during the data migration process, check out the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/MIGRATION_PROTOCOL_REFERENCE.md#migration-protocol-reference" target="_blank">Migration Protocol Reference</a> to troubleshoot common errors.</p>
+<p>In the video, we utilize <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#api-discovery-setup" target="_blank">Source instance API discovery</a> to ensure the migrated Page Builder data can work with the new <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico/editing-components-in-xperience-by-kentico">Editing components in Xperience by Kentico</a> rather than in the legacy compatibility mode. While it is not a mandatory step, <strong>we highly recommend this approach.</strong></p>
+<h3 id="walkthrough-progress">Walkthrough progress</h3>
+<p>Follow to the next article where you'll learn about <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough/adjust-global-code">global code that you’ll need to adjust</a>.</p>
+
+</body>
+</html>

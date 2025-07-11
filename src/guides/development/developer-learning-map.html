@@ -1,0 +1,577 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Developer learning map</title>
+</head>
+<body>
+<p>Welcome to the Developer Learning Map for Xperience by Kentico. This curated collection of training materials, documentation articles, and additional resources is structured to guide you through the sequential learning process tailored for developers.</p>
+<p>We have put together this collection for developers working with Kentico 12 or Kentico 13 and those new to the Kentico community. These guides are organized in a recommended order to help you navigate different materials. If you are new to certain aspects of .NET framework or specific parts of Xperience by Kentico development, you will find links to resources that will prepare you before you dive into more detailed Kentico-specific information.</p>
+
+<div>
+<p>Are you a visual learner? You can find the same resources organized <a href="https://roadmap.sh/r?id=66bdc03491320df4bddcabc8" target="_blank">into a roadmap</a>.</p>
+</div>
+
+<h2 id="xperience-development-basics">1. Xperience development basics</h2>
+<p>You’ll learn the basics of application and development setup, how to leverage CI/CD processes to enhance solutions’ scalability and robustness, and how the channels work. Xperience by Kentico does not use Entity Framework but its own API layer for efficient content handling.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Development basics prerequisites</strong></p>
+<p>Before you start with Xperience development basics, ensure that you understand the basics of .NET 8 and develop applications with the MVC pattern. If you are new to the .NET framework, you might find the following resources helpful. (Kentico did not create these resources, and payment might be required to access them.)</p>
+<ul>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/start-mvc?view=aspnetcore-8.0&amp;tabs=visual-studio" target="_blank">Get started with ASP.NET Core MVC</a>, as the MVC is the recommended development pattern.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/?view=aspnetcore-8.0" target="_blank">Host and deploy ASP.NET Core</a> – Learn the basics of deploying ASP.NET Core applications in Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/azure/app-service/quickstart-dotnetcore?tabs=net80&amp;pivots=development-environment-vs" target="_blank">Deploy an ASP.NET web app</a> – Go through a Microsoft tutorial that walks you through deploying a web application into Azure Web Apps.</li>
+<li>
+<a href="https://www.pluralsight.com/courses/aspnet-core-fundamentals" target="_blank">Pluralsight: ASP.NET Core tutorial</a> – Learn all the features you’ll need to build ASP.NET Core applications.</li>
+<li>
+<a href="https://www.youtube.com/watch?v=1oeMTz7LwrU" target="_blank">.NET Developer roadmap in 2024</a> – If you are new to .NET framework, see an unofficial roadmap for learning .NET development presented by Nick Chapsas, Microsoft MVP.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-getting-started-resources">
+<h3>Kentico-specific getting started resources</h3>
+<ol type="1">
+<li>
+<a href="https://www.kentico.com/platforms/xperience-by-kentico" target="_blank">What is Xperience by Kentico</a> – Learn about the next-gen DXP developed by Kentico Software.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/website-development-basics">Xperience by Kentico development basics</a> – Get a basic of the Xperience environment and the responsibilities of individual roles that interact with the system.</li>
+<li>
+<a href="/guides/development/get-started/install-xperience-by-kentico">Install Xperience by Kentico</a> – See a brief Xperience Dancing Goat sample site installation walkthrough.</li>
+<li>
+<a href="/guides/development/developer-kickstart">Xperience developer kickstart</a> – Learn how to set up the environment for development, create pages that hold data, display the content on the live site using the Model-View-Controller design pattern, and prepare the page builder feature to allow dynamic modification of page content.</li>
+<li>
+<a href="/documentation/developers-and-admins/deployment">Deploy Xperience websites</a> – See the deployment options for Xperience projects.</li>
+<li>
+<a href="/guides/architecture/xperience-implementation-handbook">Xperience implementation handbook</a> – Leverage the collective experience of Kentico solution architects to implement best practices for implementing Xperience projects.</li>
+<li>
+<a href="https://community.kentico.com/blog/developing-with-xperience-by-kentico-on-macos" target="_blank">Developing with Xperience by Kentico on macOS</a> - Read an introduction to running Xperience by Kentico on macOS by Sean Wright, Kentico’s Lead Evangelist.</li>
+<li>
+<a href="https://www.milanlund.com/knowledge-base/setting-up-a-solution-for-integrating-custom-code-in-xperience-by-kentico-on-macos" target="_blank">Setting up a solution for integrating custom code in Xperience by Kentico</a> - Read a short article written by Milan Lund, <a href="https://www.milanlund.com/" target="_blank">freelance full-stack web developer</a> and <a href="https://community.kentico.com/community/programs#kentico-community-leaders" target="_blank">Kentico Community Leader</a>.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-content-modeling">2. Xperience content modeling</h2>
+<p>Content modeling is crucial for structuring and managing digital content effectively. In this section, you’ll learn the best practices for creating optimal content models for Xperience by Kentico projects.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Content modeling prerequisites</strong></p>
+<p>You might find the following resources helpful if you are new to content modeling and designing applications’ information architectures. (These resources were not developed by Kentico and might not reflect Kentico recommended practices for Xperience by Kentico projects.)</p>
+<ul>
+<li>
+<a href="https://kontent.ai/learn/model/overview" target="_blank">Kontent: Content modeling overview</a> – Learn introduction to content modeling from an excellent series created by the Kontent.ai documentation team.</li>
+<li>
+<a href="https://schema.org/" target="_blank">Schema.org</a> – See the community-driven project to create shared vocabulary you can use with different encodings.</li>
+<li>
+<a href="https://www.nngroup.com/articles/ia-study-guide/" target="_blank">Nielsen Group: Information Architecture</a> – A collection of links will help you learn the information architecture (IA), how to run an IA research study, and how to design navigation effectively.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-content-modeling-resources">
+<h3>Kentico-specific content modeling resources</h3>
+<ol type="1">
+<li>
+<a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a> – Learn what content modeling is, how to tie the content model to your marketing goals in Xperience by Kentico applications, and general content modeling recommendations.</li>
+<li>
+<a href="/guides/architecture/content-modeling/model-reusable-content">Model reusable content</a> – Discover techniques for modeling reusable structured content, such as articles or products, and enable your team to manage and repurpose your content across your digital marketing channel.</li>
+<li>
+<a href="/guides/architecture/content-modeling/model-website-content-types">Model website content types</a> – See how to tailor content types to the website’s requirements, such as articles and navigation elements, to foster uniformity and clarity across your entire digital ecosystem.</li>
+<li>
+<a href="/guides/architecture/content-modeling/xperience-content-modeling-basics/differences-between-structured-content-and-page-builder-content">Differences between Page Builder content and structured content</a> – Find out more about the different approaches to content in Xperience website channels.</li>
+<li>
+<a href="/guides/architecture/content-modeling/model-website-presentation-components">Model website presentation components</a> – Learn how to structure key website presentation components like widgets, page templates, or sections that help editors create a unified visual design while giving them the flexibility to achieve their marketing goals.</li>
+<li>
+<a href="https://community.kentico.com/blog/safely-evolving-a-content-model-with-expand-and-contract" target="_blank">How to safely evolve a content model</a> – see how developers can manage an evolving solution that will inevitably have breaking changes while maintaining business continuity.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-advanced-content-presentation">3. Xperience advanced content presentation</h2>
+<p>In this section, you will learn options to retrieve and present content using advanced techniques with Xperience Builders, including how to use the Page Builder, define editable areas, and create dynamic components for different marketing channels.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Advanced content presentation prerequisites</strong></p>
+<p>If you are new to .NET, these resources will help you understand ViewComponents, use Tag Helpers to render HTML, and manage views for data presentation in ASP.NET Core.</p>
+<ul>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/views/view-components?view=aspnetcore-8.0" target="_blank">View components in ASP.NET Core</a> – Get familiar with ViewComponents using Microsoft documentation.</li>
+<li>
+<a href="https://andrewlock.net/an-introduction-to-viewcomponents-a-login-status-view-component/" target="_blank">An introduction to ViewComponents</a> – See a detailed introduction to ViewComponents by <a href="https://andrewlock.net/about/" target="_blank">Andrew Lock</a>.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/views/tag-helpers/intro?view=aspnetcore-8.0" target="_blank">Tag Helpers in ASP.NET Core</a> – Learn how to enable server-side code to create and render HTML elements in Razor files from Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/views/overview?view=aspnetcore-8.0" target="_blank">Views in .NET</a> – See the basics of handling the app’s data presentation and user interaction in Microsoft documentation.</li>
+</ul>
+<p><strong>Multilingual ASP.NET applications</strong></p>
+<ul>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization?view=aspnetcore-8.0" target="_blank">Globalization and localization in ASP.NET Core</a> – Freshen up on the fundamentals of creating localized ASP.NET applications in Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/localization" target="_blank">Localization – .NET</a> – Find out more about localizing .NET applications in Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/best-practices-for-developing-world-ready-apps" target="_blank">Best practices for developing world-ready applications</a> – See Microsoft’s best practices to follow when developing world-ready applications.</li>
+</ul>
+<p><strong>Headless applications</strong></p>
+<ul>
+<li>
+<a href="https://graphql.org/learn/" target="_blank">Learn GraphQL</a> – Learn about GraphQL that Xperience used to retrieve content in Xperience headless channels.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-advanced-content-presentation-resources">
+<h3>Kentico-specific advanced content presentation resources</h3>
+<ol type="1">
+<li>
+<a href="/guides/development/page-builder">Page Builder</a> – Go through a comprehensive guide that provides step-by-step instructions on implementing and optimizing Xperience using Kentico Page Builder components.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/builders/form-builder">Form Builder</a> – Read how to enable marketers to create dynamic forms using the built-in Xperience in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/reference-tag-helpers">Reference - Tag Helpers</a> – See how to add tag helpers to views in Xperience by Kentico applications.</li>
+<li>
+<a href="https://community.kentico.com/blog/defining-editable-area-restrictions" target="_blank">Defining Editable Area Restrictions</a> – Learn how to limit the options available to marketers in the Page Builder to specific combinations that work best together.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/rich-text-editor-configuration">Configuring Rich text editor</a> – See how you can customize the built-in editor by changing its configuration (e.g., the set of available formatting options) or by adding custom plugins that extend its available feature set.</li>
+<li>
+<a href="/guides/development/advanced-content/filter-content-based-on-taxonomies">Taxonomies in Xperience applications</a> – Learn how to leverage taxonomy tags to fetch and display related content in Xperience by Kentico documentation.</li>
+<li>
+<a href="https://community.kentico.com/blog/creating-a-video-embed-widget-with-visibility-conditions" target="_blank">Creating a video embed widget with visibility conditions</a> – See how you can use multiple visibility conditions in the properties of page builder and form builder components on a custom Video widget.</li>
+<li>
+<a href="/guides/development/multilingual">Multilingual</a> – Learn how to localize Xperience applications and manage URLs for multilingual pages while implementing a user-friendly language selector.</li>
+<li>
+<a href="/guides/development/advanced-content/deliver-content-dynamically-with-smart-folders">Delivering content using smart folders</a> – Learn how you can dynamically deliver content through Xperience Smart folders.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-from-media-libraries">Retrieve content from media libraries</a> – See how to retrieve different types of files from media libraries in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-headless-content">Retrieving headless content</a> – Learn how to retrieve headless content in the JSON data format through the GraphQL API endpoint.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-configurations">4. Xperience configurations</h2>
+<p>You’ll learn how to configure the foundational settings of Xperience by Kentico to optimize your development environment. You’ll explore configurations for essential components like the event log, Content Hub, media library, and rich text editor, ensuring you can tailor these elements to meet your project’s needs. You’ll also learn more about available system settings and configuration keys for precise control over your application’s functionality.</p>
+<section id="kentico-specific-configuration-resources">
+<h3>Kentico-specific configuration resources</h3>
+<ol type="1">
+<li>
+<a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">Digital marketing channels in Xperience</a> – Learn how Xperience understands digital channels, especially what the website channels are and how they fit into the digital experience you can build with Xperience by Kentico DXP.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/settings">Settings</a> – See the different settings you can use in the administration to configure system features in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/content-hub-configuration">Content hub configuration</a> – Learn about the different configuration options you can use to customize your project in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/website-channel-management">Website channel management</a> – See how to configure websites in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/headless-channel-management">Headless channel management</a> – Learn how to configure Xperience to support delivering content through headless channels, including the content preview.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/media-library-configuration">Media libraries configuration</a> – See how to configure media libraries used to store multimedia files such as photos, pictures, sound files, videos, package files, or documents.</li>
+<li>
+<a href="/guides/configuration/work-with-users-and-roles/work-with-users">Work with users</a> – Learn about user management in Xperience by Kentico and empower your team with the right roles and permissions for efficient content creation and personalization.</li>
+<li>
+<a href="/guides/configuration/work-with-users-and-roles/work-with-roles">Work with roles</a> – See how Xperience by Kentico leverages the role-based access control system to manage which applications and actions editors and marketers can perform.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/reference-configuration-keys">Reference - Configuration keys</a> – Find out more how to extend settings available in Xperience administration using low-level application settings.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/notifications">Notifications</a> – Find out how to provide information to administration users about various events in the system.</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/scheduled-tasks">Scheduled tasks</a> - See how to run custom code leveraging built-in scheduler.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-data-access-techniques">5. Xperience data access techniques</h2>
+<p>In this section, you’ll learn how to design data access techniques for Xperience projects, including implementing the Repository and CQRS patterns to enhance performance, scalability, and security.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Data access techniques prerequisites</strong></p>
+<p>If you are new to .NET, find out more about how to design your application’s infrastructure using the Repository and CQRS patterns.</p>
+<ul>
+<li>
+<a href="https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design" target="_blank">Design the infrastructure persistence layer</a> – Learn about the Repository pattern in the Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs" target="_blank">CQRS architecture pattern</a> – Learn how you can separate read and update operations for storing data to increase application’s performance, scalability and security. (This pattern is used in the <a href="https://github.com/Kentico/community-portal" target="_blank">Kentico Community portal</a>).</li>
+</ul>
+</div>
+
+<section id="kentico-specific-resources-about-data-access-techniques">
+<h3>Kentico-specific resources about data access techniques</h3>
+<ol type="1">
+<li>
+<a href="/guides/development/get-started/use-abstraction-and-enterprise-level-architecture-in-xperience-projects">Use abstraction and enterprise-level architecture in Xperience projects</a> – Learn about the benefits of abstraction in enterprise projects and the advantages of layering for code maintenance. See examples of displaying content with clean architecture in Xperience by Kentico.</li>
+<li>
+<a href="https://www.milanlund.com/knowledge-base/guide-to-repository-pattern-with-a-generic-type-in-xperience-by-kentico" target="_blank">Guide to Repository pattern with a Generic Type in Xperience by Kentico</a> – Go through a step-by-step process of creating repositories that retrieve data from the Xperience by Kentico database written by Milan Lund, <a href="https://www.milanlund.com/" target="_blank">freelance full-stack web developer</a> and <a href="https://community.kentico.com/community/programs#kentico-community-leaders" target="_blank">Kentico Community Leader</a>.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-caching-testing-and-optimization">6. Xperience caching, testing, and optimization</h2>
+<p>In this section, you’ll learn how to use caching to improve website performance by storing data for faster access, explore various caching types like data, output, and file caching to reduce load times and understand Xperience’s server-side caching mechanisms, including how to manage cache keys and dependencies for efficient content delivery.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Caching, testing, and optimization prerequisites</strong></p>
+<p>If you are new to .NET, discover the fundamentals of caching techniques and debugging practices for ASP.NET Core and Visual Studio, and learn about different testing methods to validate your code.</p>
+<ul>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/overview?view=aspnetcore-8.0" target="_blank">Overview of caching in ASP.NET Core</a> – Learn about the different types of caching in .NET Core in Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/caching" target="_blank">Caching in .NET</a> – See the different caching mechanisms in .NET in Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-debugger?view=vs-2022" target="_blank">Debug C# code in Visual Studio</a> – See the step-by-step tutorial about Visual Studio debugger in Microsoft documentation.</li>
+<li>
+<a href="https://code.visualstudio.com/docs/editor/debugging" target="_blank">Debugging in Visual Studio Code</a> – Learn about the VS Code’s built-in debugger helps accelerate your edit, compile, and debug loop.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/dotnet/core/testing/" target="_blank">Testing in .NET</a> – Learn about the different types of tests in .NET to validate your code in Microsoft documentation.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-caching-testing-and-optimization-resources">
+<h3>Kentico-specific caching, testing, and optimization resources</h3>
+<ol type="1">
+<li>
+<a href="/documentation/developers-and-admins/development/caching">Caching</a> – Learn about the built-in caching mechanisms to improve performance and content delivery.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/event-log">Event log</a> – See how you can view logged information about system-level events in the documentation article.</li>
+<li>
+<a href="https://github.com/Kentico/xperience-by-kentico-miniprofiler" target="_blank">Xperience by Kentico MiniProfiler</a> – The integration allows you to use a simple but effective mini-profiler for .NET and other languages. Michael Eustace, <a href="https://community.kentico.com/community/programs#kentico-mvps" target="_blank">Kentico MVP</a>, describes how to use this integration in his article <a href="https://dev.to/michael419/get-to-know-xperience-by-kentico-unlocking-performance-insights-with-miniprofiler-2b2c" target="_blank">Get to know Xperience by Kentico: Unlocking performance insights with MiniProfiler</a>.</li>
+<li>
+<a href="https://community.kentico.com/blog/diagnosing-xperience-by-kentico-page-template-issues" target="_blank">Diagnose Page Builder template</a> – Learn about different template configuration errors and how to solve them.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-user-management-membership-registration-and-authentication">7. Xperience user management, membership, registration, and authentication</h2>
+<p>In this section, you’ll learn how to create and manage different memberships for website visitors and backend users, set up registration, control access to tools and content, and add custom fields to user profiles.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Registration and authentication prerequisites</strong></p>
+<p>If you are new to Identity, explore these resources to understand ASP.NET Core’s security features, including documentation on authentication, user management, and integrating Microsoft’s Identity platforms like the Entra ID and Azure Active Directory into your web applications.</p>
+<ul>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/security/?view=aspnetcore-8.0" target="_blank">ASP.Core security topics</a> – See a list of links for different security-related topics in Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/?view=aspnetcore-8.0" target="_blank">Overview of ASP.NET Core authentication</a> – Go through several examples of authentication and authorization in Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity?view=aspnetcore-8.0&amp;tabs=visual-studio" target="_blank">(optional) Introduction to Identity on ASP.NET Core</a> – This documentation by Microsoft covers the basics of managing users, passwords, profile data, roles, claims, tokens, email confirmation, and more with the default framework’s libraries and Identity API.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-web-app-dotnet-core-sign-in" target="_blank">Quickstart: Sign in users and call the Microsoft Graph API from an ASP.NET Core web app</a> – See a short tutorial on how to sign in users with the authorization code flow using Microsoft Authentication Library for .NET and Microsoft Identity Web to handle authentication.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/azure-active-directory/?view=aspnetcore-8.0" target="_blank">Microsoft Entra ID with ASP.NET Core</a>– Follow a short tutorial Microsoft that demonstrates how to implement Identity platform and Entra ID in ASP.NET Core.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-registration-and-authentication-resources">
+<h3>Kentico-specific registration and authentication resources</h3>
+<ol type="1">
+<li>
+<a href="/documentation/business-users/members">Members</a> – Learn about the members, who are visitors registered on the website who can browse the website, and access secured content but don’t have access to the administration UI.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/registration-and-authentication/add-fields-to-member-objects">Add fields to member objects</a> – See how you can extend the default field set of your member objects.</li>
+<li>
+<a href="/guides/development/members">Members</a> – Read a series of guides that show you how to implement a <a href="/guides/development/members/implement-member-registration">member registration widget</a>, <a href="/guides/development/members/create-a-profile-page">create a profile page</a> or <a href="/guides/development/members/require-authentication-for-certain-content">require authentication for certain content</a>.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/users/administration-registration-and-authentication">Administration - Registration and authentication</a> – Learn about how to configure the ASP.NET Identity for admin UI or implement external authentication provider in the documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/users">Users</a> – Learn about managing users and roles and enabling registration and authentication, and working with user and role management in the Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/saas/xperience-portal">Reference - Xperience Portal user roles</a> – Find out about the different users and roles to access the Xperience Portal administration and read through a detailed <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">reference</a> that explains the Xperience Portal’s roles and privileges.</li>
+<li>
+<a href="/documentation/developers-and-admins/development/registration-and-authentication">Developing registration and authentication</a> – Learn how to implement different registration and authentication mechanisms in Xperience by Kentico documentation.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-deployment">8. Xperience deployment</h2>
+<p>In this section, you’ll learn about Xperience by Kentico’s hosting options, ranging from <a href="/documentation/developers-and-admins/deployment/deploy-to-private-cloud">private cloud</a> on dedicated or virtual servers to managed solutions on Microsoft Azure, and how to deploy and maintain websites as a standard .NET project in both traditional and SaaS environments, separating production from non-production instances.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Deployment prerequisites</strong></p>
+<p>If you are new to deploying .NET applications, these resources will help you skill up on various deployment strategies, such as hosting and deploying ASP.NET Core applications, using the Azure App Service, understanding deployment best practices, or leveraging Azure Pipelines for efficient CI/CD workflows.</p>
+<ul>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/?view=aspnetcore-8.0" target="_blank">Host and deploy ASP.NET Core</a> – Learn about different types of deployment options in Microsoft documentation.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/azure/app-service/quickstart-dotnetcore?tabs=net80&amp;pivots=development-environment-vs" target="_blank">Deploy an ASP.NET web app</a> – See how to create and deploy ASP.NET web application to Azure App Service in a Microsoft step-by-step tutorial.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/azure/app-service/deploy-best-practices" target="_blank">Deployment Best Practices</a> – Read Microsoft’s guide to deployment best practices.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/get-started/key-pipelines-concepts?view=azure-devops" target="_blank">Key concepts for new Azure Pipelines users</a> – Learn about effective building, testing, and deploying through Azure Pipelines in Microsoft documentation, which you can leverage in Xperience by Kentico projects.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/azure/app-service/manage-scale-up" target="_blank">Scale up an app in Azure App Service</a> – Learn about two workflows to increase the app’s performance in Microsoft documentation.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-deployment-resources">
+<h3>Kentico-specific deployment resources</h3>
+<ol type="1">
+<li>
+<a href="/guides/configuration/saas/saas-walkthrough">Deploy to the SaaS environment</a> – See how you can deploy to multiple environments to isolate the production and non-production application instances using the Xperience Portal in our step-by-step practical guide.</li>
+<li>
+<a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments">Manage SaaS deployments</a> – Learn how to work with Xperience Portal to manage and debug different environments, monitor the uptime of application deployments, or evaluate the performance of your projects in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/deployment/deploy-to-private-cloud">Deploy to private cloud</a> – See how you can run Xperience on dedicated or virtual servers or manage your hosting on the Microsoft Azure in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/deployment/deploy-to-private-cloud/deploy-without-the-administration">Deploy without the administration</a> – See how to remove the Xperience administration interface and all related customizations when publishing to production in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/auto-scaling-support">Auto-scaling support in Xperience</a> – Learn about the built-in support for autoscaling you can use to distribute computing among multiple applications or increase availability in Xperience by Kentico documentation.</li>
+<li>
+<a href="https://community.kentico.com/blog/xperience-by-kentico-ci-cd-developer-scenarios" target="_blank">Xperience by Kentico CI/CD developer scenarios</a> – Get inspiration from various scenarios for managing and deploying code using Continuous Deployment, and other Xperience features.</li>
+<li>
+<a href="https://konabos.com/blog/xperience-by-kentico-release-process-considerations-and-deployment-on-the-saas-environment" target="_blank">Xperience by Kentico – release process considerations and deployment on the SaaS environment</a> – Read an article by Lukas Skowroński, a Senior Solutions Architect at Kentico partner agency.</li>
+<li>
+<a href="https://www.milanlund.com/knowledge-base/kentico-xperience-portal-and-saas-from-setup-to-production" target="_blank">Kentico’s Xperience Portal and SaaS: From Setup to Production</a> – Read an article by Milan Lund, <a href="https://www.milanlund.com/" target="_blank">freelance full-stack web developer</a> and <a href="https://community.kentico.com/community/programs#kentico-community-leaders" target="_blank">Kentico Community Leader</a>.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-maintenance-hotfixing-and-upgrades">9. Xperience maintenance, hotfixing, and upgrades</h2>
+<p>In this section, you’ll learn how to maintain an Xperience project by regularly updating your system, managing tasks through a SaaS portal, and automating updates with tools like Dependabot for continuous integration and security.</p>
+<section id="kentico-specific-maintenance-resources">
+<h3>Kentico-specific maintenance resources</h3>
+<ol type="1">
+<li>
+<a href="/guides/architecture/xperience-implementation-handbook/maintain-what-you-have-built">Maitain your solution</a> – Remind yourself about different maintenance scenarios in <a href="/guides/architecture/xperience-implementation-handbook">Xperience implementation handbook</a>.</li>
+<li>
+<a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects">Update Xperience by Kentico projects</a> – See the documentation for an overview of recommended approaches to updating Xperience by Kentico projects.</li>
+<li>
+<a href="/documentation/changelog">Changelog</a> – Get familiar with the Xperience changelog.</li>
+<li>
+<a href="https://www.goldfinch.me/blog/keeping-your-xperience-by-kentico-project-up-to-date-using-dependabot" target="_blank">Keeping your Xperience by Kentico project up-to-date using Dependabot</a> – Learn from Liam Goldfinch, <a href="https://community.kentico.com/community/programs#kentico-mvps" target="_blank">Kentico MVP</a>, how to use Dependabot to regularly scan your project to identify vulnerabilities, outdated packages, or even raise pull requests.</li>
+<li>
+<a href="https://www.youtube.com/watch?v=qCXIgbSFXZ8&amp;ab_channel=MichaelEustace" target="_blank">How to automate Xperience by Kentico upgrades in your deployment pipeline</a> – Watch a video by Michael Eustace, <a href="https://community.kentico.com/community/programs#kentico-mvps" target="_blank">Kentico MVP</a>, about how you can leverage PowerShell scripts to upgrade sites.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-administration-customizations">10. Xperience administration customizations</h2>
+<p>In this section, you’ll learn about creating custom and extending existing modules in Xperience, such as building a website settings module, adding fields to the Contact profile or customizing system providers.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Administration customization prerequisites</strong></p>
+<p>If you are primarily a back-end developer tasked with expanding Xperience administration resources will guide you through learning React for building user interfaces and TypeScript for adding strong typing to your projects, as utilized in the Xperience UI.</p>
+<ul>
+<li>
+<a href="https://react.dev/learn" target="_blank">Quick Start: React</a> – Use the React documentation to refresh your knowledge of React, which is used to build the Xperience UI.</li>
+<li>
+<a href="https://react.dev/learn/describing-the-ui" target="_blank">Describing the UI</a> – Scan through an overview of how to build a simple UI component in React.</li>
+<li>
+<a href="https://www.youtube.com/watch?v=u6gSSpfsoOQ" target="_blank">React JavaScript Framework for Beginners</a> – Use this FreeCodeCamp course for beginners to learn React.</li>
+<li>
+<a href="https://www.typescriptlang.org/" target="_blank">TypeScript</a> – Use the TypeScript documentation to refresh your understanding of the language that’s used to strongly type the Xperience by Kentico UI components.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-customization-resources">
+<h3>Kentico-specific customization resources</h3>
+<p><strong>Custom module</strong></p>
+<ol type="1">
+<li>
+<a href="/guides/development/customizations-and-integrations/create-basic-module">Create a basic module in Xperience</a> – Follow a series of guides that show you how to implement a module that holds custom settings.</li>
+<li>
+<a href="/guides/development/customizations-and-integrations/add-custom-contact-field">Add a custom field to the Contact profile</a> – See how to extend the contact profile to allow marketers to track custom domain-specific data about visitors.</li>
+</ol>
+<p><strong>Extending UI pages</strong></p>
+<ol type="1">
+<li>
+<a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">Extend the administration interface</a> – See how to extend the existing Xperience UI in the documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/integrate-custom-code">Integrate custom code</a> – Learn the recommended approach to adding custom code into your project.</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/administration-interface-ui-tests">Administration interface UI tests</a> – Learn about the recommended practices for testing custom UI code created to extend Xperience administration.</li>
+</ol>
+<p><strong>Extend default functionality</strong></p>
+<ol type="1">
+<li>
+<a href="https://community.kentico.com/blog/extending-xperience-by-kentico-administration-ui-pages" target="_blank">Extending Xperience by Kentico Administration UI Pages</a> – Learn how to extend the existing UI pages to display the required information.</li>
+<li>
+<a href="https://community.kentico.com/blog/extending-xperience-by-kentico-administration-ui-pages-2-enhanced-system-overview" target="_blank">Extending Xperience by Kentico Administration UI Pages #2 - Enhanced System Overview</a> – See how you can extend the Xperience administration UI to help developers track deployments in multiple environments.</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/handle-global-events">Handle global events</a> – Learn about the different options you can use to execute custom code whenever specific actions occur within the system.</li>
+<li>
+<a href="https://community.kentico.com/blog/excluding-content-items-from-continuous-deployment-using-global-events" target="_blank">Excluding Content Items from Continuous Deployment</a> – See the different ways you can use to remove specific object types from continuous deployment.</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/customize-system-providers">Customize system providers</a> – Learn about providers in Xperience API that you can use to manipulate objects and perform various actions.</li>
+</ol>
+</section>
+<hr>
+<h2 id="xperience-digital-marketing">11. Xperience digital marketing</h2>
+<p>In this section on Kentico’s digital marketing features of Xperience, you’ll learn how to build Xperience by Kentico projects that allow marketers to attract new visitors, promote your products and business, analyze traffic, and maintain engagement with existing contacts. As a developer or administrator, you will explore detailed scenarios that guide you through setting up, configuring, and possibly extending these features using custom code.</p>
+
+<div>
+<p><strong>Digital marketing in Xperience</strong></p>
+<p><a href="/guides/digital-marketing/xperience-essentials/digital-marketing-essentials-introduction">Digital marketing essentials</a> – Learn about several Xperience applications marketers use to shape your visitors’ experiences and brush up on your digital marketing terminology in Kentico <a href="https://www.kentico.com/discover/lexik" target="_blank">LexiK</a>.</p>
+</div>
+
+<h2 id="data-protection-and-cookies-prerequisites">11.1 Data protection and cookies prerequisites</h2>
+<p>In this section, you’ll learn how to create cookie configuration pages with detailed consent levels, design simple cookie banners, and use identity collectors, data collectors, and data erasers to manage visitor information and ensure GDPR compliance efficiently within your Xperience platform.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Data protection and cookies prerequisites</strong></p>
+<ul>
+<li>
+<a href="https://github.com/LINCnil/GDPR-Developer-Guide" target="_blank">CNIL: GDPR guide for developers</a> – An overview of GDPR best practices prepared by French Comission Nationale Informatique &amp; Libertés (CNIL) to assist web and application developers make their work GDPR-compliant.</li>
+<li>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-8.0" target="_blank">Working with SameSite cookies in ASP.NET Core</a> – See an overview of SameSite cookies to protect your application against CSRF attacks in Microsoft documentation.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-data-protection-resources">
+<h3>Kentico-specific data protection resources</h3>
+<ol type="1">
+<li>
+<a href="/guides/development/data-protection">Data protection</a> – Learn how to implement data protection and the cookie consents in a series of guides.</li>
+</ol>
+</section>
+<h2 id="activity-tracking">11.2 Activity tracking</h2>
+<p>In this section, you’ll learn advanced tracking techniques with Xperience by Kentico, including standard activity tracking, custom activity logging, and consent-driven form displays, how to use contacts for detailed behavior analysis across channels, and how to implement both website-based and headless tracking to monitor activities from a centralized hub for diverse content channels.</p>
+<section id="kentico-specific-activity-tracking-resources">
+<h3>Kentico-specific activity tracking resources</h3>
+<ol type="1">
+<li>
+<a href="/guides/development/activities-and-marketing">Activities and digital marketing</a> – Learn about standard activity tracking, logging custom activities, and other scenarios in a dedicated series of guides on digital marketing.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/contact-configuration">Contact configuration</a> – See an overview of what contacts are and how they work in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/headless-tracking">Activity tracking in headless channels</a> – Read documentation about how to track visitors as contacts and log their activities in Xperience headless channels.</li>
+</ol>
+</section>
+<h2 id="content-personalization">11.3 Content personalization</h2>
+<p>In this section, you’ll learn about content personalization in Xperience by Kentico, including enhancing Page Builder widgets with dynamic changes based on user interactions and integrating personalization to your project’s code across components, controllers, views, or other classes.</p>
+<section id="kentico-specific-content-personalization-resources">
+<h3>Kentico-specific content personalization resources</h3>
+<ol type="1">
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/content-personalization">Content personalization</a> – Learn about different approaches to enable marketers to tailor visitor content based on their preferences.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/content-personalization/develop-personalization-condition-types">Develop personalization condition types</a> – See how you can create conditions marketers will use to personalize widgets.</li>
+</ol>
+</section>
+<h2 id="email-markerting">11.4 Email markerting</h2>
+<p>You’ll learn about setting up and managing email channels in Xperience, creating and customizing email templates to enhance your digital marketing strategies, and exploring advanced email customization techniques, including tracking setups, using autoresponders, and integrating custom workflow notifications to automate communication effectively.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Emails prerequisites</strong></p>
+<p>If you are primarily a back-end developer and interested in email development, these resources will help you start with HTML emails, understand the MJML language for responsive designs, and learn to render Razor views to strings in ASP.NET Core for sending various types of emails.</p>
+<ul>
+<li>
+<a href="https://github.com/lukas-xb/starter-html-email-resources" target="_blank">Get started with HTML emails</a> – List of resources to start with developing HTML emails.</li>
+<li>
+<a href="https://documentation.mjml.io/" target="_blank">MJML Guides</a> – Learn about the MJML markup language designed to code responsive emails.</li>
+</ul>
+<p><strong>Sending emails from Xperience using code</strong></p>
+<ul>
+<li>
+<a href="https://weblog.west-wind.com/posts/2022/Jun/21/Back-to-Basics-Rendering-Razor-Views-to-String-in-ASPNET-Core" target="_blank">Back to Basics: Rendering Razor Views to String in ASP.NET Core</a> – Refresh the techniques you can use to send custom email confirmations and account verifications, status updates, or scheduler notifications.</li>
+</ul>
+</div>
+
+<section id="kentico-specific-emails-resources">
+<h3>Kentico-specific emails resources</h3>
+<ol type="1">
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">Email channel management</a> – Find out how to configure channels marketers can use to send and administer emails.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">Email templates</a> – Learn how to create templates in Xperience by Kentico documentation.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-email-tracking">Set up email tracking</a> – See how to enhance emails that allow marketers to track sent emails and monitor recipients’ interactions.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-email-tracking/log-email-activities">Log email activities</a> – See how to implement logic that enables tracking activities while staying GDPR-compliant.</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/email-customization">Email customizations</a> – Learn how to customize the Xperience’s email-sending process.</li>
+<li>
+<a href="https://community.kentico.com/blog/programmatically-sending-templated-emails-with-dynamic-data" target="_blank">Programmatically sending templated emails with dynamic data</a> – Learn to build custom templated emails for the system to send when specific events occur.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-marketing-setup/custom-form-autoresponder-emails">Custom form autoresponder emails</a> – Learn how to send simple autoresponder emails after form submissions.</li>
+<li>
+<a href="https://community.kentico.com/blog/custom-autoresponder-emails-with-razor-components" target="_blank">Custom Autoresponder Emails with Razor Components</a> – See how to create “developer-managed” autoresponder emails that fully customize automatic responses for form submissions.</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/handle-global-events/set-up-custom-workflow-notifications">Set up custom workflow notifications</a> – Follow this guide to set up notifications about workflow steps.</li>
+</ol>
+</section>
+<hr>
+<h2 id="advanced-working-with-xperience-api">12. Advanced: Working with Xperience API</h2>
+<p>This section contains a list of important documentation pages that cover advanced topics for developing sites in Xperience by Kentico. You’ll learn about available APIs and macro syntax you can use to manipulate Xperience objects.</p>
+<section id="kentico-specific-api-resources">
+<h3>Kentico-specific API resources</h3>
+<ul>
+<li>
+<a href="/documentation/developers-and-admins/api/use-the-xperience-by-kentico-api-externally">Use the Xperience by Kentico API externally</a> – See how to configure and external .NET application to work with Xperience API.</li>
+<li>
+<a href="/api/">Xperience by Kentico API Examples</a> – See the API examples documentation to learn the basics of the Xperience by Kentico API, and serves as a library of code snippets.</li>
+<li>
+<a href="/documentation/developers-and-admins/api/content-item-api">Content item API</a> – Learn about the API available for working with content items.</li>
+<li>
+<a href="/documentation/developers-and-admins/api/objectquery-api">ObjectQuery API</a> – Find out more about the QbjectQuery API that creates an abstraction layer over the SQL database.</li>
+<li>
+<a href="/documentation/developers-and-admins/api/database-table-api">Database table API</a> – Learn about the API for managing the data stored in database tables.</li>
+<li>
+<a href="/documentation/developers-and-admins/api/files-api-and-cms-io">Files API and CMS.IO</a> – Find out more about the CMS.IO namespace that provides an interlayer between the business layer of Xperience and storage used for physical files.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/macro-expressions">Macro expressions</a> – Go through a section of Xperience by Kentico documentation that covers macro expressions and raises different considerations for developing and deploying code containing macros.</li>
+</ul>
+</section>
+<hr>
+<h2 id="xperience-integrations-and-migrations">13. Xperience integrations and migrations</h2>
+<p>In this section, you will learn how to improve Xperience by Kentico with third-party integrations, including external authentication and search features using Algolia, Lucene, and Azure AI Search, and how to upgrade from Kentico 13 to Xperience by Kentico.</p>
+<section id="kentico-specific-integration-resources">
+<h3>Kentico-specific integration resources</h3>
+<ol type="1">
+<li>
+<a href="/guides/development/customizations-and-integrations/tools-for-integrations">Choose the right tools for your integration</a> – Learn the available entry points for integrating Xperience projects with third-party services.</li>
+<li>
+<a href="/documentation/developers-and-admins/third-party-integrations">Xperience third-party integrations</a> – See an overview of different third-party integrations in Xperience by Kentico documentation.</li>
+</ol>
+<p><strong>Search</strong></p>
+<ol type="1">
+<li>
+<a href="https://github.com/Kentico/xperience-by-kentico-algolia" target="_blank">Xperience by Kentico Algolia</a> – Learn about the integration you can use to create Algolia search indexes to index content of web pages from an Xperience website channel using a code-first approach.</li>
+<li>
+<a href="https://github.com/Kentico/xperience-by-kentico-azure-ai-search" target="_blank">Xperience by Kentico Azure AI Search</a> – Learn about an integration that allows you to AzureSearch search indexes to index content of pages from the Xperience content tree using a code-first approach.</li>
+<li>
+<a href="https://github.com/Kentico/xperience-by-kentico-lucene" target="_blank">Xperience by Kentico Lucene</a> – Learn about the integration leveraging the latest 4.8 beta version of Lucene.NET, enabling auto-indexing of content in Xperience based on application-local, code-defined search indexes and search results retrieval.</li>
+</ol>
+<p><strong>Scheduled tasks</strong></p>
+<ol type="1">
+<li>
+<a href="https://www.bluesoft.cz/en/blog/missing-scheduletasks-in-xperience-by-kentico" target="_blank">Missing Scheduled Tasks in Xperience by Kentico? Simply integrate Hangfire</a> – Read an article written by Milan Sustek, Kentico Partner agency CIO.</li>
+</ol>
+<p><strong>Migrations</strong></p>
+<ol type="1">
+<li>
+<a href="/guides/architecture/upgrade-from-kx13/upgrade-from-kx13-overview">Migrate from Kentico Xperience 13</a> – Read a four-article series about <a href="/guides/architecture/upgrade-from-kx13">migrating to Xperience by Kentico</a>, including advice on <a href="/guides/architecture/upgrade-from-kx13/adjust-your-code-and-adapt">how to prepare for code changes</a>.</li>
+<li>
+<a href="https://github.com/Kentico/xperience-by-kentico-migration-toolkit" target="_blank">Xperience by Kentico Migration Toolkit</a> – Learn about the tools designed to help teams migrate content from various data sources into Xperience by Kentico solutions.</li>
+</ol>
+</section>
+<hr>
+<h2 id="keep-advancing-your-skills-in-xperience-by-kentico">Keep advancing your skills in Xperience by Kentico</h2>
+<p>Congratulations on completing these resources to improve your understanding of Xperience by Kentico.</p>
+<p>We encourage you to keep exploring and deepening your knowledge to further your developer journey. Remember, every step you take builds more expertise and confidence in using Xperience by Kentico to create exceptional solutions. Follow the <a href="https://community.kentico.com/" target="_blank">Community Portal</a>, find more resources in the <a href="https://community.kentico.com/resource-hub" target="_blank">Resource hub</a>. If you find a helpful resource that you think we should include into this learning path (or have other feedback), let us know through the feedback form below!</p>
+<p>Keep learning and growing as you tackle new challenges! And after you have delivered an Xperience project or two, why not take the <a href="https://www.kentico.com/services/certification/xperience-developer-certification" target="_blank">Certified developer exam</a>, share your Xperience by Kentico knowledge on a <a href="https://community.kentico.com/blog" target="_blank">blog</a> , and even <a href="https://community.kentico.com/blog/you-could-be-a-kentico-mvp" target="_blank">become a Kentico MVP</a>.</p>
+<p>The sky is the limit!</p>
+
+</body>
+</html>

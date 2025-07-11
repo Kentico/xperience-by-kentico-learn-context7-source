@@ -1,0 +1,679 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Deploy to the SaaS environment</title>
+</head>
+<body>
+<p>Xperience by Kentico enables you to deploy, host, and maintain Xperience websites in a Software-as-a-Service (SaaS) environment. You can deploy to multiple environments to isolate the production and non-production application instances.</p>
+<p>Kentico manages the deployment infrastructure and selected third-party services for you – such as <a href="/documentation/developers-and-admins/configuration/saas-configuration#microsoft-application-insights-integration">Microsoft Application Insights</a>, <a href="/documentation/developers-and-admins/configuration/saas-configuration#cloudflare-cdn">CloudFlare CDN</a>, and <a href="/documentation/developers-and-admins/configuration/email-configuration#Emailconfiguration-EnableManagedSendGrid">Twilio SendGrid</a>. This allows you to focus on website and content development.</p>
+<p>Develop a website for deployment to the SaaS environment:</p>
+<ol type="1">
+<li>
+<a href="/documentation/developers-and-admins/saas/xperience-portal#XperiencePortal-AccessPortal">Get access to your project in Xperience Portal</a>.</li>
+<li>
+<a href="#prepare-a-project-for-deployment-to-the-saas-environment">Prepare a .NET project for deployment to the SaaS environment</a>.</li>
+<li>
+<a href="/documentation/developers-and-admins/development">Develop</a> and <a href="/documentation/developers-and-admins/configuration">configure</a> features in your project.</li>
+<li>
+<a href="#DeploytotheSaaSenvironment-deploy">Deploy</a> your application to the SaaS environment.</li>
+<li>
+<a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments">Manage</a> your deployed application in Xperience Portal.</li>
+</ol>
+<p></p>
+<h2 id="prepare-a-project-for-deployment-to-the-saas-environment">Prepare a project for deployment to the SaaS environment</h2>
+<p>You can now prepare a .NET project for deployment to the SaaS environment.</p>
+<ol type="1">
+<li><p><a href="/documentation/developers-and-admins/installation#install-project-templates-package">Install the Xperience project templates</a>.</p></li>
+<li>
+<p><a href="/documentation/developers-and-admins/installation#create-a-project">Create an Xperience project</a>.</p>
+<ul>
+<li>Use the <code>--cloud</code> parameter when <a href="/documentation/developers-and-admins/installation#create-a-project">creating the Xperience project</a>. This parameter ensures the necessary configuration is included:
+<ul>
+<li>The <a href="https://www.nuget.org/packages/Kentico.Xperience.Cloud" target="_blank">Kentico.Xperience.Cloud</a> NuGet package</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/email-configuration#managed-sendgrid-integration">SendGrid</a> and <a href="/documentation/developers-and-admins/configuration/saas-configuration#DeploytotheSaaSenvironment-EnableAppInsights">Microsoft Application Insights</a> startup configurations</li>
+<li>A PowerShell script for <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#create-a-deployment-package">generating the deployment package</a> and a <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment#generate-cd-configuration-files">CD configuration file</a>
+</li>
+<li>
+<strong>StorageInitializationModule.cs</strong> file with a sample storage initialization module (for <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage#default-kentico-managed-azure-blob-storage-configuration">mapping of files to Azure Blob storage</a>)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><a href="/documentation/developers-and-admins/installation#create-the-project-database">Create the project database</a>.</p>
+<ul>
+<li>Generate <a href="/documentation/developers-and-admins/installation/licenses#license-keys-for-saas-local-development">a developer license key</a>.</li>
+<li>Set the value of the <code>--hash-string-salt</code> parameter to the one found on the <a href="/documentation/developers-and-admins/saas/xperience-portal#hash-string-salt-for-the-xperience-portal-project">Xperience Portal Dashboard</a>.</li>
+</ul>
+</li>
+<li>
+<p>Include the <code>UseKenticoCloud</code> component in the <a href="/documentation/developers-and-admins/development/website-development-basics/configure-new-projects#configure-application-startup">project’s middleware pipeline</a>.</p>
+<ul>
+<li>Use the <code>.IsQa()</code> and <code>.IsUat()</code> <a href="/documentation/developers-and-admins/configuration/saas-configuration#environment-identification-extension-methods">extension methods</a> to include environment-specific configuration or code</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/saas-configuration#microsoft-application-insights-integration">Call</a> <code>AddXperienceCloudApplicationInsights</code> when building the web application</li>
+<li>Configure cache headers for <a href="/documentation/developers-and-admins/configuration/saas-configuration#cloudflare-cdn">Cloudflare CDN</a>
+</li>
+</ul>
+</li>
+<li>
+<p>Build the project. Run the following command from the project’s root directory or build the project using Visual Studio.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ dotnet build
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<p>The project is now ready for further <a href="/documentation/developers-and-admins/development">development</a> and <a href="/documentation/developers-and-admins/customization">customization</a>. You can add content to the project or <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">extend</a> the connected Xperience administration. The following code example demonstrates the required SaaS configuration. Ellipsis indicates breaks where other middleware may be added:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs - SaaS configuration</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Web.Mvc;
+using Kentico.Xperience.Cloud;
+
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Required for projects that will be deployed to the SaaS environment
+builder.Services.AddXperienceCloudApplicationInsights(builder.Configuration);
+
+// Required for projects that will be deployed to the SaaS environment
+if (builder.Environment.IsQa() || builder.Environment.IsUat() || builder.Environment.IsProduction() || builder.Environment.IsEnvironment(CloudEnvironments.Custom))
+{
+    builder.Services.AddKenticoCloud(builder.Configuration);
+    builder.Services.AddXperienceCloudSendGrid(builder.Configuration);
+    builder.Services.AddXperienceCloudDataProtection(builder.Configuration);
+}
+
+builder.Services.AddKentico();
+builder.Services.AddAuthentication();
+builder.Services.AddControllersWithViews();
+
+...
+
+app.UseAuthentication();
+
+// SaaS-specific middleware (required for SaaS deployment)
+app.UseKenticoCloud();
+
+app.UseKentico();
+
+...
+
+// Starts the application
+app.Run();
+
+</code></pre>
+</div>
+
+<h2 id="deploy-to-the-saas-environment">Deploy to the SaaS environment</h2>
+<p>Once you have your Xperience project <a href="#prepare-a-project-for-deployment-to-the-saas-environment">prepared</a> and <a href="/documentation/developers-and-admins/configuration/saas-configuration">configured</a> in a local development environment, deploy the application to the SaaS environment by <a href="#create-a-deployment-package">creating a deployment package</a> and <a href="#upload-a-deployment-package-to-your-xperience-portal-project">uploading it to your Xperience Portal project</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>You need to create and upload a new deployment package whenever you wish to update an existing deployment.</p>
+<p>Certain types of content can be transferred without re-deployment if you <a href="/documentation/developers-and-admins/configuration/content-sync-configuration">configure content sync</a> for your environments.</p>
+</div>
+
+<h3 id="deployment-process-overview">Deployment process overview</h3>
+<p>It is important to understand, that deployment of a new package does not mean that all data is copied from the source to the target environment. The following steps describe in theory the entire lifecycle of a deployment.</p>
+<ol type="1">
+<li>You <a href="/documentation/developers-and-admins/installation">install</a>, <a href="/documentation/developers-and-admins/configuration/saas-configuration">configure</a> and <a href="/documentation/developers-and-admins/development">develop</a> an Xperience project from a <a href="/documentation/developers-and-admins/installation#available-project-templates">template</a>. A project installed with the <code>--cloud</code> option contains the following:
+<ul>
+<li>An Xperience .NET application.</li>
+<li>Adjustments for SaaS deployment in the application’s service collection and middleware pipeline within the <strong>Program.cs</strong> file.</li>
+<li>A configuration file for the <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment (CD)</a> repository, used to deploy database objects.</li>
+<li>The <strong>Export-DeploymentPackage.ps1</strong> PowerShell script that creates a deployment package for the project.</li>
+<li>
+<strong>StorageInitializationModule.cs</strong> class with methods that map folders containing physical files such as <a href="/documentation/business-users/content-hub/content-item-assets">content item assets</a> and binary files to Azure Blob storage and local storage for development. See <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a>.</li>
+</ul>
+</li>
+<li>You <a href="#create-a-deployment-package">create a deployment package</a> from the project. A deployment package is a ZIP archive that contains the following:
+<ul>
+<li>Application libraries and static files.</li>
+<li>
+<code>$CDRepository</code> folder containing serialized database objects.</li>
+<li>A specified <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">CD configuration</a>.</li>
+<li>(<em>Optional</em>) <code>$StorageAssets</code> folder for physical files.</li>
+</ul>
+</li>
+<li>When you <a href="#upload-a-deployment-package-to-your-xperience-portal-project">upload</a> the deployment package to the SaaS environment, it is restored in the QA environment according to the specified <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">CD configuration</a>.</li>
+<li>When you <a href="#deploy-the-application-package-to-another-deployment-environment">deploy the package to another environment</a>, the same deployment package is applied to the selected environment and restored according to the <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">CD configuration</a>.
+<ul>
+<li>Changes in the administration interface done during testing on the previous environment will not be reflected in other environments.</li>
+<li>Databases of different environments are completely independent and never copied between environments. They are only updated by new deployments or users performing action in the administration interface.</li>
+</ul>
+</li>
+<li>When deploying a package to the production environment, the same deployment package is applied and restored according to the <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">CD configuration</a>.
+<ul>
+<li>See <a href="#deploy-data-to-the-production-environment">Deploy data to the production environment</a> to learn how to upload content to the production environment.</li>
+</ul>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Notes</strong></p>
+<ul>
+<li>Currently, the <strong>maximum size of the deployment package is 2 GB</strong>. Binary files and media libraries are bundled in the deployment package. If you need to deploy a larger package (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), <a href="https://www.kentico.com/services/support" target="_blank">contact our support</a> for assistance. We plan to address the issue of transferring a large amount of content into SaaS in one of the upcoming <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">refreshes</a>.</li>
+<li>It is essential to consider what <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">CD configuration</a> to be used with each deployment package. You can <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">exclude objects</a> from the CD repository to limit what objects are restored in the SaaS environment. You can also specify a <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment#cdrestoremode">CD restore mode</a> used to restore the CD repository.</li>
+<li>When deploying to a SaaS environment containing an existing deployment, the Xperience version that you deploy <strong>cannot be lower</strong> than the version in the target environment. You can only deploy the same or newer version.</li>
+<li>Non-production environments (<em>QA</em>, <em>UAT</em> or custom) only serve to test the functionality of your project. Any data or content edited in these environments <strong>will not</strong> be transferred during deployment to the <em>Production</em> environment.</li>
+<li>After promoting a build to the <em>Production</em> environment, production data can be added. Use <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a> to prevent incomplete data from appearing publicly.</li>
+<li>Only the latest deployed package can be promoted to the next environment.</li>
+<li>You can use the <em>Content sync</em> feature to set up content staging for SaaS environments. See <a href="/documentation/developers-and-admins/configuration/content-sync-configuration#content-sync-for-saas-environments">Content sync for SaaS environments</a>.</li>
+</ul>
+</div>
+
+<h3 id="create-a-deployment-package">Create a deployment package</h3>
+<p>A deployment package is a ZIP archive with application libraries and static files, and a <em>$CDRepository</em> folder with serialized database objects, and optionally a <em>$StorageAssets</em> folder for physical files.</p>
+<p>Follow the procedure to build your application and create a deployment package:</p>
+<ol type="1">
+<li>
+<p>Use <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> to serialize database objects to the file system:</p>
+<ol type="1">
+<li>
+<p>Edit the <strong>$CDRepository/repository.config</strong> file according to your object filtering and deployment requirements. See <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">Exclude objects from CI/CD</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>You cannot adjust the location of the Continuous Deployment repository. The deployment process expects the <em>$CDRepository</em> folder to be in the project root.</p>
+</div>
+</li>
+<li>
+<p>Prepare <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts">migration scripts</a> for any database changes not covered by Continuous Deployment.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Run SQL scripts on the database</strong><br>
+You can use <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts">CD migration scripts</a> to perform SQL queries on the database of applications deployed in <a href="#deploy-the-application-package-to-another-deployment-environment">SaaS environments</a>, for example, to fix database inconsistencies. However, remember to always <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#create-a-manual-backup">create a backup</a> before modifying the database.</p>
+</div>
+</li>
+<li>
+<p>Run the CD store command from the project’s root directory:</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ dotnet run --no-build -- --kxp-cd-store --repository-path ".\$CDRepository"
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Escaping the ‘$’ character</strong></p>
+When performing this action in certain command line interfaces (e.g., PowerShell running on MacOS and the default Windows Terminal), you need to escape the dollar sign (<code>$</code>) by prefixing it with the grave accent (<code>`</code>).
+</div>
+</li>
+</ol>
+</li>
+<li><p>Deploy <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content#store-files-in-xperience">Media library files</a> and other unmanaged binary files used by the application to <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a>, as Continuous Deployment does not serialize these files.</p></li>
+<li>
+<p>Create the deployment package with the <strong>Export-DeploymentPackage.ps1</strong> script.</p>
+
+<div>
+
+</div>
+<div>
+<p>On Windows environments, the executing account must have permissions to run PowerShell scripts from external sources:</p>
+<div>
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ # Bypass all execution checks for the current user
+ Set-ExecutionPolicy Bypass -Scope CurrentUser -Force
+
+ </code></pre>
+</div>
+</div>
+<p>See <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy" target="_blank">Set-ExecutionPolicy</a> for other types of permission levels.</p>
+</div>
+
+<ul>
+<li>
+<p>Refer to the list of parameters before running the script.</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+  .\Export-DeploymentPackage.ps1 -AssemblyName "DancingGoat"
+
+  </code></pre>
+</div>
+
+<ul>
+<li>
+<p><code>-AssemblyName</code> – the name of the main web application assembly used during project publishing.</p>
+<ul>
+<li>The value <strong>must be equal</strong> to the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.reflection.assemblyname?view=net-6.0" target="_blank">assembly name</a> of the Xperience project (by default, the assembly name is equal to the project <em>.csproj</em> file name without an extension).</li>
+</ul>
+</li>
+<li>
+<p><em>(Optional)</em> <code>-OutputPackagePath</code> – the full path where the deployment package will be exported. Must include the package file name and extension.</p>
+<ul>
+<li>For example, <code>./DeploymentPackage.zip</code>.</li>
+<li>When omitted, the deployment package <strong>DeploymentPackage.zip</strong> is exported to the directory from which the script was executed.</li>
+</ul>
+</li>
+<li>
+<p><em>(Optional)</em> <code>-KeepProductVersion</code> – by default, the deployment package is created with a <strong>Build number</strong> equal to the source project’s package version, suffixed with the export date and time in format ‘<em>yyyyMMddHHmm</em>’.</p>
+<ul>
+<li>Add this parameter if you wish to exclude the date and time from the <strong>Build number</strong>.</li>
+<li>The <strong>Build number</strong> is displayed in the <strong>Deployment history</strong> within Xperience Portal.</li>
+</ul>
+</li>
+<li>
+<p><em>(Optional)</em> <code>-StorageAssetsDeploymentMode [-Create] [-CreateUpdate]</code> – determines whether the export preserves or overwrites the storage assets already present in <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a>:</p>
+<ul>
+<li><p>When omitted, the <code>-Create</code> mode is used, and existing storage assets will not be overwritten and only new assets are added.</p></li>
+<li>
+<p>Use the <code>-CreateUpdate</code> parameter to allow overwriting of existing storage assets.</p>
+
+<div>
+
+</div>
+<div>
+<p>If your deployment package contains <a href="/documentation/business-users/media-libraries/manage-media-files">media library files</a>, the <code>StorageAssetsDeploymentMode</code> value must match the <code>RestoreMode</code> element value in the CD configuration file. See <a href="/documentation/developers-and-admins/ci-cd/reference-ci-cd-object-types#content-management">Reference - CI/CD object types</a>.</p>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>The deployment package is now created, and you can deploy to the SaaS environment by <a href="#upload-a-deployment-package-to-your-xperience-portal-project">uploading the deployment package to your Xperience Portal project</a>.</p>
+<h3 id="upload-a-deployment-package-to-your-xperience-portal-project">Upload a deployment package to your Xperience Portal project</h3>
+<p>Once you have <a href="#create-a-deployment-package">created a deployment package</a>, trigger the deployment to the <strong>QA</strong> environment by uploading a deployment package to your Xperience Portal project directly from <a href="#upload-a-deployment-package-from-xperience-portal">Xperience Portal</a> or programmatically using <a href="#upload-a-deployment-package-using-xperience-portal-api">Xperience Portal API</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Uploading a deployment package to Xperience Portal is unavailable during <a href="/documentation/developers-and-admins/saas/xperience-portal#schedule-maintenance-of-xperience-portal-projects">scheduled Xperience Portal project maintenance</a> and initial project creation.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The deployment package is currently limited by a <strong>maximum size of 2 GB</strong>. If you need to deploy a larger package (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), <a href="https://www.kentico.com/services/support" target="_blank">contact our support</a> for assistance.</p>
+</div>
+
+<h4 id="upload-a-deployment-package-from-xperience-portal">Upload a deployment package from Xperience Portal</h4>
+<ol type="1">
+<li>
+<a href="/documentation/developers-and-admins/saas/xperience-portal#XperiencePortal-AccessPortal">Access your Xperience Portal project</a>.</li>
+<li>Navigate to the <strong>Deployments</strong> application.</li>
+<li>Under the <strong>QA</strong> environment, select <strong>Upload package</strong>.
+<ul>
+<li>Users in <strong>DevOps Engineer</strong> or <strong>Tenant Administrator</strong> <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">roles</a> can also upload deployment packages directly to other non-production environments, or even directly to the <em>PROD</em> environment in extraordinary circumstances. See <a href="#deploy-emergency-fixes-to-the-saas-environment">Deploy emergency fixes to the SaaS environment</a>.</li>
+</ul>
+</li>
+<li>Choose a valid deployment package (a ZIP archive with a maximum size of 2 GB) and select <strong>Upload</strong>. You will be redirected to the <strong>Deployments</strong> application after the upload is complete.</li>
+<li>The progress of any current deployments can be tracked in the <strong>Deployment progress</strong> section, where you can check the status of the deployment. After the deployment is completed, you can review it in the <strong>Deployment history</strong> section.</li>
+</ol>
+<p>After the deployment finishes, your site is ready and running in the <strong>QA</strong> (or another selected) environment. Access the deployed application with the URL displayed under the selected environment section in the <strong>Deployments</strong> application in your Xperience Portal project.</p>
+<p>To debug the deployment, you can download an archive with <strong>deployment logs</strong> under the <strong>Deployment history</strong> section.</p>
+<h4 id="upload-a-deployment-package-using-xperience-portal-api">Upload a deployment package using Xperience Portal API</h4>
+<p>You can upload the deployment package programmatically by sending a POST request authenticated with your <a href="/documentation/developers-and-admins/saas/xperience-portal#XperiencePortal-PAT">Personal access token (PAT)</a> to the <em>deployment</em> Xperience Portal API endpoint:</p>
+<ol type="1">
+<li><p>Generate a <a href="/documentation/developers-and-admins/saas/xperience-portal#XperiencePortal-PAT">Personal access token (PAT)</a> and store it in a local file.</p></li>
+<li><p>Get your <code>PROJECT_GUID</code> in <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a> Dashboard, in the <strong>Project info</strong> section, or from any URL when accessing Xperience Portal, for example, <em>https://xperience-portal.com/&lt;PROJECT_GUID&gt;/dashboard</em>.</p></li>
+<li>
+<p>Send a POST request to the <em>deployment</em> API endpoint. You can use the following PowerShell or cURL examples:</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong>Upload using PowerShell</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ # Due to a PowerShell issue, we recommended disabling the progress bar to boost the performance significantly. 
+ # See https://github.com/PowerShell/PowerShell/issues/2138 for more information.
+ # Disable the progress bar
+ $ProgressPreference = 'SilentlyContinue'
+
+ # Upload the deployment package
+ $headers = @{ Authorization = "Bearer &lt;PERSONAL_ACCESS_TOKEN&gt;" }
+ Invoke-RestMethod -Uri https://xperience-portal.com/api/deployment/upload/&lt;PROJECT_GUID&gt;/qa -Method Post -InFile &lt;FILE_PATH&gt; -ContentType "application/zip" -Headers $headers
+
+ # Enable the progress bar
+ $ProgressPreference = 'Continue'
+
+ </code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong>Upload using cURL</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ curl -X POST -T &lt;FILE_PATH&gt; -H 'Content-Type: application/zip' -H 'Authorization: Bearer &lt;PERSONAL_ACCESS_TOKEN&gt;' https://xperience-portal.com/api/deployment/upload/&lt;PROJECT_GUID&gt;/qa
+
+ </code></pre>
+</div>
+
+<ul>
+<li>Users in <strong>DevOps Engineer</strong> or <strong>Tenant Administrator</strong> <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">roles</a> can also upload deployment packages directly to other non-production environments, or even directly to the <em>PROD</em> environment in extraordinary circumstances. See <a href="#deploy-emergency-fixes-to-the-saas-environment">Deploy emergency fixes to the SaaS environment</a>.</li>
+</ul>
+</li>
+<li><p>Navigate to the <strong>Deployments</strong> application.</p></li>
+<li><p>Allow a few minutes for the deployment progress to be displayed in the <strong>Deployment history</strong> section, where you can check the deployment progress.</p></li>
+</ol>
+<p>After the deployment finishes, your site is ready and running in the <strong>QA</strong> environment. Access the deployed application with the URL displayed under the <strong>QA</strong> environment section in the <strong>Deployments</strong> application in your Xperience Portal project.</p>
+<p>To debug the deployment, you can download an archive with <strong>deployment logs</strong> under the <strong>Deployment history</strong> section.</p>
+<h3 id="deploy-data-to-the-production-environment">Deploy data to the production environment</h3>
+<p>Keep the following in mind when performing standard deployments to production:</p>
+<ul>
+<li>Deployment packages are intended for deploying the project only with initial data and content:
+<ul>
+<li>Website/email/headless channels, content types representing the content model, page tree structure, basic emails, essential content items</li>
+<li>Assets that are essential for the design and branding, such as a favicon, background images, graphics, icons, and company logos</li>
+</ul>
+</li>
+<li>Large binary files should be uploaded directly to the production environment:
+<ul>
+<li>All marketing assets, images, videos, large documents</li>
+</ul>
+</li>
+<li>If you need to deploy a package larger than 2 GB (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), <a href="https://www.kentico.com/services/support" target="_blank">contact our support</a> for assistance. We plan to address the issue of transferring a large amount of content into SaaS in one of the upcoming <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">refreshes</a>.</li>
+<li>If you use Xperience by Kentico to manage content imported from external sources, it is recommended to import the content directly to the production or staging environment.</li>
+</ul>
+<p>The <a href="/documentation/developers-and-admins/configuration/content-sync-configuration">Content sync</a> feature allows you to set up content staging for SaaS environments. See <a href="/documentation/developers-and-admins/configuration/content-sync-configuration#content-staging-best-practices">Content staging best practices</a> to learn which environments are suitable for staging.</p>
+<h2 id="deploy-the-application-package-to-another-deployment-environment">Deploy the application package to another deployment environment</h2>
+<p>The following SaaS <strong>deployment environments</strong> are available, depending on your <a href="/documentation/developers-and-admins/saas/saas-service-plans">service plan</a>:</p>
+<ul>
+<li>
+<strong>QA</strong> – A QA engineer tests the deployed application in the QA environment and deploys the deployment package to the UAT (<a href="https://en.wikipedia.org/wiki/Acceptance_testing#User_acceptance_testing" target="_blank">User Acceptance Testing</a>) environment, if available.</li>
+<li>
+<strong>UAT</strong> – A project manager tests the final functionality in the UAT environment and promotes the deployment package to the production (PROD) environment.
+
+<div>
+
+</div>
+<div>
+The UAT environment is only available for <strong>Custom</strong> <a href="/documentation/developers-and-admins/saas/saas-service-plans">service plans</a>.
+</div>
+</li>
+<li>
+<strong>STG</strong> – An environment where editors and other staff can prepare content, and then transfer it to the production (PROD) environment using <a href="/documentation/business-users/content-sync">content sync</a>. Staging environments are designed to be nearly identical to production environments in most aspects, such as performance, availability, backup policies, and the option to set custom domains. See <a href="/documentation/developers-and-admins/configuration/content-sync-configuration#content-staging-best-practices">Content staging best practices</a>.
+
+<div>
+
+</div>
+<div>
+The STG environment can optionally be purchased for any <a href="/documentation/developers-and-admins/saas/saas-service-plans">service plan</a>.
+</div>
+</li>
+<li>
+<strong>PROD</strong> – A live production environment. Use this environment to deploy a tested iteration of your application.</li>
+</ul>
+<p>After <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#DeploytotheSaaSenvironment-deploy">deploying a deployment package</a> to the QA environment, you can deploy it to another environment in <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a>:</p>
+<ol type="1">
+<li><p>Navigate to the <strong>Deployments</strong> application.</p></li>
+<li><p>Select <strong>Deploy to</strong>, located under the environment where the package is currently deployed. A drop-down menu is displayed.</p></li>
+<li><p>Select the environment where you want to deploy the package.</p></li>
+<li>
+<p>Select whether you want to deploy the package immediately or <a href="#schedule-a-production-deployment-for-a-later-date">schedule a production deployment for a later date</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>The SaaS environment checks if the production deployment causes downtime. Most small deployments are seamless and incur no downtime, however, if the system discovers a downtime would occur, you can <a href="#schedule-a-production-deployment-for-a-later-date">schedule a production deployment for a later date</a>. It is also recommended to define a custom <a href="/documentation/developers-and-admins/configuration/saas-configuration#define-a-custom-app-offline-file">App Offline page</a>.</p>
+</div>
+</li>
+<li>
+<p>Allow a minute for the deployment process to be displayed in the <strong>Deployment progress</strong>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Repeating the procedure triggers a new deployment.</p>
+</div>
+</li>
+<li>
+<p>Check the <strong>Deployment history</strong> section to verify the package is deployed to the environment you selected. Note that the deployment may be queued and will begin once previous SaaS processes have finished.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you need to debug a failed deployment, see the <strong>Logs</strong> in the <strong>Deployment history</strong> section.</p>
+</div>
+</li>
+</ol>
+<p>Your application is now deployed and running in the selected environment.</p>
+<h3 id="schedule-a-production-deployment-for-a-later-date">Schedule a production deployment for a later date</h3>
+<p>Deployment to a production or staging environment can cause application downtime and is critical for a seamless customer experience. </p>
+<p>When you trigger a deployment with the <strong>Deploy to</strong> action, the SaaS environment reports if the deployment causes downtime. You can decide whether to proceed with the deployment, schedule the deployment, or cancel the deployment.</p>
+<p>Select the <strong>Cancel scheduled deployment</strong> button in the <strong>Deployments</strong> application to cancel the scheduled deployment.</p>
+
+<div>
+
+</div>
+<div>
+<p>Scheduling the production deployment blocks instant production/staging deployment and additional scheduling.</p>
+<p>Cancel the existing scheduled deployment in the <strong>Deployments</strong> application to enable these actions.</p>
+</div>
+
+<p>If the scheduled deployment fails to start, the project’s <strong>Tenant administrators</strong> and the user that scheduled the deployment receive a notification email<strong>,</strong> and the production/staging environment is unaffected.</p>
+
+<div>
+
+</div>
+<div>
+<p>If the scheduled deployment starts successfully, but the deployment pipeline fails, users will not receive a notification email.</p>
+<p>See the deployment <strong>Logs</strong> in the <strong>Deployment history</strong> section to debug the failed deployment.</p>
+</div>
+
+<h2 id="deploy-emergency-fixes-to-the-saas-environment">Deploy emergency fixes to the SaaS environment</h2>
+<p>Emergency deployments allow users in <strong>DevOps Engineer</strong> or <strong>Tenant Administrator</strong> <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">roles</a> to bypass the standard deployment flow and push critical fixes or version updates directly to environments other than <em>QA</em>.</p>
+<p>The emergency deployment process is suitable for the following situations:</p>
+<ul>
+<li>The Xperience version deployed in your <em>PROD</em> environment is, for example, 30.0.0. In the <em>QA</em> environment, the deployed version is 30.1.0 with some new features you are currently testing. In version 30.2.0, Kentico releases a security advisory and you want to immediately update to this version. However, your <em>QA</em> environment is “blocked” by the tested feature.</li>
+<li>You have recently released a new functionality that contains an issues that impedes the usability of your application. The fix for this issue is simple, but you need to promote it to the <em>PROD</em> environment as soon as possible. However, your <em>QA</em> environment is “blocked” by a new feature that is already tested in this environment.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Handle deployments to Production with care</strong></p>
+<p>Do not use emergency deployments for fixes if you are not absolutely sure that you can deploy these changes to the <em>PROD</em> environment without first testing them on any other SaaS environment. If you have any environment other than <em>QA</em> and <em>PROD</em> available (e.g., <em>UAT</em>, <em>STG</em>), it is safer to deploy directly to this environment, test the fix, and then <a href="#deploy-the-application-package-to-another-deployment-environment">deploy</a> to <em>PROD</em> from there.</p>
+<hr>
+<p><strong>Product versions across different environments</strong></p>
+<p>Keep in mind that downgrading a product version is not possible. Consider the following setup:</p>
+<ul>
+<li>Product version 30.1.0 is deployed in the <em>QA</em> environment.</li>
+<li>Product version 30.2.0 is deployed in the <em>PROD</em> environment using the emergency deployment.</li>
+</ul>
+<p>It is not currently possible to promote the package from the <em>QA</em> environment to the <em>PROD</em> environment. You need to first update the package in <em>QA</em> to an equal or newer version than <em>PROD</em> (30.2.0 or newer in this example).</p>
+</div>
+
+<h3 id="deploy-emergency-fixes-from-xperience-portal">Deploy emergency fixes from Xperience Portal</h3>
+
+<div>
+
+</div>
+<div>
+<p><strong>Notes</strong></p>
+<ul>
+<li>This action is available only for users in <strong>DevOps Engineer</strong> or <strong>Tenant Administrator</strong> <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">roles</a>.</li>
+<li>This action may cause downtime of the target environment.</li>
+</ul>
+</div>
+
+<ol type="1">
+<li>
+<a href="#create-a-deployment-package">Create</a> the emergency deployment package.</li>
+<li>
+<a href="#upload-a-deployment-package-from-xperience-portal">Upload the package from Xperience Portal</a>. In the <strong>Deployments</strong> application, select the <strong>Upload package</strong> button under the desired environment.</li>
+</ol>
+<h3 id="deploy-emergency-fixes-using-xperience-portal-api">Deploy emergency fixes using Xperience Portal API</h3>
+
+<div>
+
+</div>
+<div>
+<p><strong>Notes</strong></p>
+<ul>
+<li>This action is available only for users in <strong>DevOps Engineer</strong> or <strong>Tenant Administrator</strong> <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">roles</a>.</li>
+<li>This action may cause downtime of the target environment.</li>
+</ul>
+</div>
+
+<ol type="1">
+<li><p><a href="#create-a-deployment-package">Create</a> the emergency deployment package.</p></li>
+<li><p>If you don’t have one already, create a <a href="/documentation/developers-and-admins/saas/xperience-portal#personal-access-tokens">Personal access token</a> with the required permissions for respective environments: <em>Deploy to production environments</em> or <em>Deploy to non-production environments</em>.</p></li>
+<li>
+<p><a href="#upload-a-deployment-package-using-xperience-portal-api">Upload a package using Xperience Portal API</a>. When sending the POST request to the <em>deployment</em> API endpoint, modify or add the last path segment and set the value to the desired environment (e.g., <code>prod</code> for <em>Production</em> or <code>stg</code> for <em>Staging</em>).</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong>Upload to PROD environment</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ # Due to a PowerShell issue, we recommended disabling the progress bar to boost the performance significantly. 
+ # See https://github.com/PowerShell/PowerShell/issues/2138 for more information.
+ # Disable the progress bar
+ $ProgressPreference = 'SilentlyContinue'
+
+ # Upload the deployment package
+ $headers = @{ Authorization = "Bearer &lt;PERSONAL_ACCESS_TOKEN_WITH_REQUIRED_PERMISSION&gt;" }
+ Invoke-RestMethod -Uri https://xperience-portal.com/api/deployment/upload/&lt;PROJECT_GUID&gt;/prod -Method Post -InFile &lt;FILE_PATH&gt; -ContentType "application/zip" -Headers $headers
+
+ # Enable the progress bar
+ $ProgressPreference = 'Continue'
+
+ </code></pre>
+</div>
+</li>
+</ol>
+
+</body>
+</html>

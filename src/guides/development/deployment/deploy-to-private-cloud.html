@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Deploy to your private cloud</title>
+</head>
+<body>
+<p>This guide goes over the process of using <em>Command-line interfaces</em> to deploy an Xperience by Kentico application, focusing specifically on hosting in either Azure Web Apps or IIS in your <a href="/documentation/developers-and-admins/deployment/deploy-to-private-cloud">private cloud</a>.</p>
+<p>Headings that are specific to either platform will be labelled accordingly.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you want guidance on how to deploy to the Xperience SaaS environment, where you can manage your projects through the <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a>, see the <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">documentation’s instructions</a> for how to do so.</p>
+</div>
+
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, general development operations concepts, and working with <a href="https://en.wikipedia.org/wiki/Command-line_interface" target="_blank">Command-line interfaces (CLIs)</a>
+</li>
+<li>An instance of Xperience by Kentico to deploy. The samples in this guide use an instance running on version <a href="/documentation/changelog">29.3.0</a>.</li>
+</ul>
+<h2 id="start-with-a-working-project">Start with a working project</h2>
+<p>Let’s examine the initial deployment process, using the <a href="https://github.com/Kentico/xperience-by-kentico-kickstart" target="_blank">Kickstart project</a> as an example.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can still follow along with your own project, you’ll just need to account for the names of files and folders being different.</p>
+</div>
+
+<p>Start by following the Kickstart repository’s instructions to set up the project and database locally. Don’t forget to run the <code>kxp-ci-restore</code> command and double check that the site’s two pages render properly.</p>
+<h2 id="configure-external-storage">Configure external storage</h2>
+<p>We recommend hosting assets, form files, and media files in some kind of external storage in all cases, but especially when your application is hosted in <em>Azure Web Apps</em> or other similar environments that do not guarantee persistent storage.</p>
+<p>Aside from preserving your files in the event of unexpected restarts, using external storage will prevent future code deployments from destroying or overwriting them.</p>
+<p>Xperience offers two solutions out-of-the-box. The documentation contains instructions for <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">setting up Azure Blob Storage</a> and <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/amazon-s3">Amazon S3</a>, along with a way to <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/custom-file-system-providers">customize file system providers</a> to integrate with alternative services.</p>
+<p>If you plan to have more than one published environment, or use external storage in your development environment as well, make sure to use a separate container or bucket per environment to prevent them from overwriting one another’s files.</p>
+<h2 id="set-up-the-database">Set up the database</h2>
+<p>Whether you plan to host your deployed application files in Azure or on your own server with IIS, you can theoretically host your database anywhere the application can access. You can have on-premise servers accessing Azure SQL databases, Azure Web Apps that talk to on-premise SQL servers, or any number of combinations involving other hosting providers. This guide will focus on two options: hosting your database in Azure, or in your own SQL server.</p>
+<h3 id="azure---host-your-database">Azure - Host your database</h3>
+<h4 id="set-up-a-server-to-host-the-database.">Set up a server to host the database.</h4>
+<p>If you don’t already have one, log into the Azure portal and create a new database server resource. For example, <em>SQL server (logical server)</em>.</p>
+<p>Configure the server according to your organizations needs and policies. Once it is up and running, go to <strong>Security → Networking</strong> and make sure that your IP is allowed to access the server in the firewall rules.</p>
+<h4 id="export-the-database-locally">Export the database locally</h4>
+<p>In SQL Server Management Studio, connect the object explorer to your local database server.</p>
+<p>Find the database you want to copy to Azure, in this case the <em>Xperience.Kickstart</em> database that you restored from the Kickstart repository.</p>
+<p>Right-click and choose <strong>Tasks → Export Data-tier Application</strong>, and go through the wizard to save a <strong>.bacpac</strong> file.</p>
+<h4 id="import-the-database-to-the-live-server">Import the database to the live server</h4>
+<p>Connect the object explorer to your new Azure SQL server in SQL Server Management Studio.</p>
+<p>Then, right-click the <strong>Databases</strong> folder and choose <strong>Import Data-tier Application</strong>.</p>
+<p>Follow the wizard to import the database, specifying the details of the service plan and database name.</p>
+<p>This database will serve as the live database for the deployed application.</p>
+<h3 id="host-your-database-in-your-own-sql-server">Host your database in your own SQL Server</h3>
+<p>If you want to host your database on a standard SQL server, connect to the local version with SQL Server Management Studio (SSMS), and create a full backup of your local <em>Xperience.Kickstart</em> database, taking note of the folder where you save the <em>.bak</em> file.</p>
+<p>Then connect SSMS to the database server that will host the published site’s database, right-click on the <strong>Databases</strong> folder, and choose <em>Restore</em>. Choose the <em>.bak</em> file from the previous backup, and restore it as a new database on the target server.</p>
+<h2 id="separate-the-app-settings">Separate the app settings</h2>
+<p>In your Xperience by Kentico solution (<em>Kickstart.sln</em>), make a copy of <strong>appsettings.json</strong> named <strong>appsettings.development.json</strong>.</p>
+<p>Leave the new <em>appsettings.development.json</em> file as-is, but change the connection string of <strong><em>appsettings.json</em></strong> to connect to the live database.</p>
+
+<div>
+
+</div>
+<div>
+<p>Alternatively, you can employ things like <a href="https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-8.0" target="_blank">user secrets and environment variables</a> to make sure different environments have the appropriate connection strings.</p>
+</div>
+
+<p>This way, you can test with your local kickstart database while developing, but the published version of the application will connect to the live database.</p>
+<p>You can also use this to store settings to determine which container or bucket each environment uses if you have set up external storage.</p>
+<h2 id="create-a-publishable-package">Create a publishable package</h2>
+<p>Navigate to the <em>Kickstart.Web</em> folder where the main project’s <em>.csproj</em> file lives, and open a command line.</p>
+<p>Use the <code>dotnet publish</code> command, setting the <code>configuration</code> option to <code>Release</code>.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Publish with the .NET CLI</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet publish --configuration Release
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You can use the <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-publish#options" target="_blank">available options</a> to configure aspects of the resulting application.</p>
+<p>You can also configure the published app by adding elements to the <em>.csproj</em> file before you publish. For example, you can set a <a href="https://learn.microsoft.com/en-us/dotnet/core/rid-catalog" target="_blank">Runtime Identifier</a> in the project file if you want to always build the project for a specific target platform without specifying the <code>runtime</code> option of the <code>dotnet publish</code> command.</p>
+</div>
+
+<h2 id="azure---deploy-the-application-to-your-web-app">Azure - Deploy the application to your Web App</h2>
+<p>This guide uses Azure CLI to deploy your application to a Web App in Azure.</p>
+<p>If you don’t already have this CLI installed, use <code>winget</code> to download and install it.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Install Azure CLI</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+winget install -e --id Microsoft.AzureCLI
+</code></pre>
+</div>
+
+<p>After running this command, close any reopen any active terminal windows so that you can use the new tool.</p>
+<p>Run the <code>az login</code> command to initiate an authentication flow in your browser, allowing you to access your Azure subscriptions.</p>
+<h3 id="set-up-a-web-app">Set up a web app</h3>
+<p>If you don’t already have an empty web app where you want to deploy your code, you’ll need to create one.</p>
+<p>You can do this through the <a href="https://portal.azure.com/" target="_blank">Azure portal</a> or with the <code>az webapp</code> command group of the Azure CLI.</p>
+
+<div>
+
+</div>
+<div>
+<p>Make sure that the web app can access your SQL server. For example, if your database is also hosted in Azure, you can create a firewall exception at the <a href="https://learn.microsoft.com/en-us/azure/azure-sql/database/firewall-configure?view=azuresql" target="_blank">database level</a> <a href="https://learn.microsoft.com/en-us/azure/azure-sql/database/firewall-create-server-level-portal-quickstart?view=azuresql" target="_blank">server level</a>, or you can <a href="https://learn.microsoft.com/en-us/azure/azure-sql/database/authentication-aad-configure?view=azuresql&amp;tabs=azure-portal" target="_blank">set up Microsoft Entra ID</a> for your applications.</p>
+</div>
+
+<h3 id="zip-and-deploy-the-application.">Zip and deploy the application.</h3>
+<p>Open a command window and navigate to the <strong>.\bin\Release\net8.0\publish</strong> directory within the <em>Kickstart.Web</em> folder where you previously ran <code>dotnet publish</code>.</p>
+<p>We’re going to <a href="https://learn.microsoft.com/en-us/azure/app-service/deploy-zip?tabs=cli" target="_blank">deploy this folder as a zip file</a>, so start by putting its contents into a zip folder. You may be able to do this in the command line, depending on your environment, for example, with <code>Compress-Archive</code> in <em>PowerShell</em> or with <code>zip</code> in <em>Bash</em>.</p>
+<p>Now, run the <code>az webapp deploy</code> command, specifying the name of your resource group, web app, and zip.</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Deploy with the Azure CLI</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+az webapp deploy --resource-group Kickstart --name KickstartWebApp --src-path .\KickstartDeployment.zip
+</code></pre>
+</div>
+
+<h2 id="iis---deploy-the-application-to-your-web-server">IIS - Deploy the application to your web server</h2>
+<h3 id="install-the-.net-core-hosting-bundle">Install the .NET Core Hosting Bundle</h3>
+<p>In order to host .NET core apps, you’ll need to make sure to install the <a href="https://dotnet.microsoft.com/permalink/dotnetcore-current-windows-runtime-bundle-installer" target="_blank">.NET Core Hosting Bundle</a> for IIS on the web server where you want your published application to live.</p>
+<h3 id="set-up-the-web-site">Set up the web site</h3>
+<p>On the web server where you will host your application, add a new <a href="https://learn.microsoft.com/en-us/iis/get-started/getting-started-with-iis/create-a-web-site" target="_blank">site</a> or <a href="https://learn.microsoft.com/en-us/iis/configuration/system.applicationhost/sites/site/application/" target="_blank">application</a> in IIS, depending on your requirements. Specify a <strong>Physical path</strong> where it should exist in the filesystem, and take note of this location for later.</p>
+<p>Configure any domains and certificates your application requires.</p>
+<h3 id="deploy-the-application">Deploy the application</h3>
+<p>On your development machine, navigate to the <strong>.\bin\Release\net8.0\publish</strong> directory within the <em>Kickstart.Web</em> folder where you previously ran <code>dotnet publish</code>.</p>
+<p>Copy the contents of this folder to the <strong>Physical path</strong> location that the IIS site or application points to on the web server.</p>
+<p>Depending on your network and security settings, this may be possible to do with the command line, for example, with <code>robocopy</code> in <em>cmd.exe</em>, <code>Copy-Item</code> in <em>PowerShell</em>, or <code>cp</code> in <em>Bash</em>. We recommend setting up a reusable script to run these commands along with other checks and tasks that you want to perform during deployment.</p>
+<h2 id="configure-the-site">Configure the site</h2>
+<p>Now, when you access your site, wherever it is hosted, you’ll likely see an <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500" target="_blank">HTTP 500 error</a>.</p>
+<p>This error appears because the Kickstart repo does not contain a license key for the domain that hosts your published application.</p>
+<p>Access the <strong>/admin</strong> path of your application to log into the Xperience admin UI. Add a license key for all necessary domains in the <strong>License keys</strong> application.</p>
+<h2 id="deploy-new-code-to-an-existing-published-application">Deploy new code to an existing published application</h2>
+<p>You will have to take a different approach for deploying new code to an existing published project depending on whether or not you <a href="#configure-external-storage">configured external storage</a>.</p>
+<p>If you’ve configured external storage according to our recommendations, you should be able to clear the existing deployment and re-deploy with the same steps as the initial deployment- first <a href="#create-a-publishable-package">publish</a> your application and then deploy the published files according to your platform.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you host your app in an <em>Azure Web App</em>, you can use the <code>--clean</code> parameter of the <code>az webapp deploy</code> command to clear out the deployment slot before you do anything.</p>
+<p>If you use IIS, we recommend creating a reusable script that clears out the deployment location and copies the publishable files.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>If you do not use external storage</strong>, you’ll need to copy <em>asset files</em>, <em>media files</em>, and <em>form submission files</em> to a safe location before clearing the existing deployment, then copy them back after deployment.</p>
+<p>Otherwise, <strong>they may be lost permanently</strong>.</p>
+<p>We recommend creating a script to automate this process.</p>
+</div>
+
+<h2 id="deploy-new-data-to-an-existing-published-application">Deploy new data to an existing published application</h2>
+<h3 id="standard-continuous-deployment">Standard Continuous Deployment</h3>
+<p>In some cases, you may want to create some data in your development environment and deploy it to the published environment. For example, you might create a custom module, which contains classes and class data alongside code.</p>
+<p>We recommend using <strong>Continuous deployment (CD)</strong> to keep the data in sync between your environments. You can follow the guidance in the <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment documentation</a>.</p>
+<h3 id="asymmetric-continuous-deployment-workaround">Asymmetric Continuous Deployment workaround</h3>
+<p>If you want to have different data between your development environment and your published environment, standard CD procedures may cause issues, overwriting objects in the production database with data that you only want to exist locally.</p>
+<p>In this case, you can use the following workaround:</p>
+<h4 id="set-up-your-environments">Set up your environments</h4>
+<p>Make sure CD is enabled locally, along with some kind of source control. Also follow the advice in the <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment#synchronize-macro-signatures">CD documentation</a> to keep macro signatures in sync with your production environment.</p>
+<h4 id="make-your-data-changes">Make your data changes</h4>
+<p>Add the data to your development instance, allowing Continuous Deployment to serialize the data in your source control repository.</p>
+<h4 id="copy-your-dev-environment">Copy your dev environment</h4>
+<p>Make a new copy of your <em>Development application</em> that exists outside of your source control system. We’ll refer to it as the <strong>Copy instance</strong> in this section. Make sure the <em>Copy instance</em> exists outside of your source control. It should be a distinct project, not a branch.</p>
+<p>Disable your <em>Published app</em>, and change the connection string of the <em>Copy instance</em> to point to the <em>Published database</em>. Then run a <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment#store-objects-to-a-cd-repository">CD store</a> from the <em>Copy instance</em>. This serializes the data from the <em>Published database</em> into the <em>Copy instance</em>’s CD repository folder.</p>
+<h4 id="transfer-the-data">Transfer the data</h4>
+<p>Using your source control history, isolate the new serialized files that were created or modified as a result of your data changes in your <em>Development app</em>, including any dependent objects that may have been affected.</p>
+<p>Copy these files into the corresponding folders of the <em>Copy instance</em>’s CD repository. Then, run a <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment#restore-the-cd-repository-to-the-database">CD restore</a> to propagate the changes to the <em>Published database</em>.</p>
+<p>Then you can delete the <em>Copy instance</em> and <a href="#deploy-new-code-to-an-existing-published-application">deploy any new code changes</a> to the <em>Published app</em> before reactivating it.</p>
+<h2 id="update-the-xperience-version-of-a-published-deployment">Update the Xperience version of a published deployment</h2>
+<p>At some point after deploying your application, you’ll probably want to apply a hotfix or refresh to your application. Let’s look into the update process.</p>
+<p>Your approach can vary depending on what your environment allows, we will look into examples that are relevant to the deployment processes described in this guide.</p>
+<h3 id="upgrade-directly-in-your-published-environment">Upgrade directly in your published environment</h3>
+<p>In some cases, you can access your published environment directly and perform a large part of the upgrade there. See <a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects#update-process-overview">the documentation’s update overview</a> for more details.</p>
+<p>For this approach, you need to run dotnet CLI commands directly on your published environment to update the published database.</p>
+<p>This can be done through the <a href="https://github.com/projectkudu/kudu/wiki/Kudu-console" target="_blank">Kudu console</a> for Azure Web Apps, or by logging in or remotely accessing your web server if you are using standard IIS.</p>
+<h3 id="update-a-local-copy-of-your-published-site">Update a local copy of your published site</h3>
+<p>If you prefer not to run the update in your published environment, we recommend setting up a local version of the application and database to perform the update, before re-deploying.</p>
+<h4 id="create-backups">Create backups</h4>
+<p>Make sure to take backups of your development and published databases before starting this process. If you are not using source control, make a backup of your application files as well.</p>
+<h4 id="prepare-the-files">Prepare the files</h4>
+<p>Start by creating a new branch or copy of your development project. Update the Xperience NuGet packages to the version you want to target.</p>
+<p>Fix any code errors that appear as a result of the updated libraries.</p>
+<p>Then, take your published application offline, or institute a content freeze.</p>
+<h4 id="copy-the-database-to-your-local-machine">Copy the database to your local machine</h4>
+<p>Move a copy of the live database to your local SQL server using the same <a href="#export-the-database-locally">.bacpac</a> or <a href="#host-your-database-in-your-own-sql-server">.bak</a> method you used to initially copy it to the published SQL server.</p>
+<p>Update the connection string of the development instance to point to the new copy of the live database</p>
+<h4 id="run-the-update">Run the update</h4>
+<p>Disable Continuous Integration (CI) and Continuous Deployment (CD). Then run the <code>kxp-update</code> command of the .NET CLI to update database data. After the update completes successfully, you can re-enable CI and/or CD.</p>
+<p>Test your project to make sure it is in working order.</p>
+<p>Once everything is ready, change the connection string back to its previous state.</p>
+<h4 id="re-deploy-your-application">Re-deploy your application</h4>
+<p>Take your published application offline if it is not already.</p>
+<p>Copy the newly updated database to the live server using the same method you started with. You can do one of the following:</p>
+<ul>
+<li>Delete the original live database and import the updated version with the same name.</li>
+<li>Import the updated database alongside the original, then switch their names.</li>
+<li>Import the updated database alongside the original, and change the published application’s connection string to point to the new database.</li>
+</ul>
+<p>Then clear and deploy your updated application files, and bring the published application back online.</p>
+<p>At this point, you can access your updated published application normally.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>Keep your eye out for future materials covering other deployment scenarios, and let us know if you think anything needs specific attention.</p>
+
+</body>
+</html>

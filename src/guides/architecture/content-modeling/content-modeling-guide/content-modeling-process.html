@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Content modeling process</title>
+</head>
+<body>
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from beginning to end.</p>
+<ul>
+<li>
+<a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a>
+<ul>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">What is a content type</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">Structured and unstructured content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Start with business needs</a></li>
+<li><strong>Content modeling process</strong></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">Model taxonomies</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">Store content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-website-content">Design website content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-email-content">Design email content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">Design headless content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/general-content-modeling-recommendations">General content modeling recommendations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2 id="design-platform-agnostic-content-models">Design platform-agnostic content models</h2>
+<p>The goal of any content modeling process is to create a universal content model that will work independently of any specific <a href="https://en.wikipedia.org/wiki/Content_management_system" target="_blank">content management system</a>. The <strong>content model</strong> should focus on the semantic meaning of the content, in other words, what the content represents, rather than on how editors will manage this content in a particular system.</p>
+<p>During a content modeling process, your team defines:</p>
+<ul>
+<li>The structure of the content.</li>
+<li>The different <a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">content types</a> required to meet the organization’s marketing objectives.</li>
+<li>The relationships between individual content types to ensure editors can reuse or modify the content items easily.</li>
+</ul>
+<h2 id="who-needs-to-be-involved">Who needs to be involved</h2>
+<p>A content model is not something one person creates and others blindly use. Defining a future-friendly content model requires collaboration between multiple stakeholders’ roles within the organization to ensure the content model covers all necessary angles. Make sure that you organize your content modeling team from the following roles:</p>
+<ul>
+<li>
+<strong>Senior content creators/editors</strong> – Understand the day-to-day needs of the content team.</li>
+<li>
+<strong>Marketers (email, content)</strong> – Provide insights into how they want to use the content in campaigns to ensure the content model aligns with broader marketing goals.</li>
+<li>
+<strong>Business analysts</strong> – Ensure the content model and individual content types fit common business standards and the organization’s operational needs.</li>
+<li>
+<strong>Developers</strong> – Ensure the model is technically feasible and scalable.</li>
+<li>
+<strong>Designers</strong> – Help define the layout and presentation components that display the content across different channels and ensure that the content marketers will publish fits the design framework and brand guidelines.</li>
+</ul>
+<h2 id="pros-and-cons-of-the-content-modeling-process">Pros and cons of the content modeling process</h2>
+<p>Like any process, content modeling has its benefits and drawbacks.</p>
+<h3 id="content-modeling-pros">Content modeling pros</h3>
+<ul>
+<li>
+<strong>Consistency</strong> – A well-defined content model ensures that all content types follow a consistent structure that fits all stakeholders’ needs, making scaling and content curation easier.</li>
+<li>
+<strong>Reusability</strong> – With transparent relationships between content types, marketers and editors can reuse content across different channels or campaigns.</li>
+<li>
+<strong>Future-Proofing</strong> – A universal content model can outlast individual content management systems, allow for growth and expansion depending on specific needs, and reduce the need for frequent redesigns when technology changes.</li>
+</ul>
+<h3 id="content-modeling-cons">Content modeling cons</h3>
+<ul>
+<li>
+<strong>Time-consuming</strong> – The initial investment from identifying the needs, defining individual content types and their relationships, specifying how the content model enables every involved team, prototyping, and validating takes time. We have often seen that content and developer teams do not talk to one another. Any lack of communication makes the content modeling process costly. We recommend running the content modeling sessions with an action group that consists of representatives of stakeholders to maximize benefits to the organization.</li>
+<li>
+<strong>Risk of oversimplification</strong> – If you use a cookie-cutter, boilerplate solution, your content model may be too generic. It will likely ignore your team’s specific needs and will be hard to maintain as your organization’s content strategy evolves.</li>
+</ul>
+<p>What happens if you get it wrong? Poor content models lead to inconsistent content, missed opportunities for reuse, and even content silos where different teams manage the same content in incompatible ways. This results in inefficiencies that affect your entire digital strategy.</p>
+<h2 id="content-modeling-sessions">Content modeling sessions</h2>
+<p>Do not expect a wise person to come to your organization with all the answers and hand you <em>THE</em> content model, including project requirements and developer specifications.</p>
+<p>Defining a good content model usually requires running a series of structured, collaborative workshops involving various stakeholders. The number of sessions and their topics depend on the organization’s needs. The initial sessions typically consist of brainstorming, analyzing the current situation, and defining content types that support the organization’s business needs.</p>
+<h3 id="before-creating-the-content-model">Before creating the content model</h3>
+<ul>
+<li>
+<strong>Run a content audit</strong> – Review existing content and identify your organization’s content and what content is missing. Your content modeling sessions can support large content-related initiatives, like updating the company’s content strategy or brand redesign.</li>
+<li>
+<strong>Identify the content lifecycle</strong> – Sit with your editor team and describe each content type:
+<ul>
+<li>The content’s internal workflow (who and where creates the content, edits, reviews, and publishes it).</li>
+<li>How long a piece of content remains relevant.</li>
+<li>When it needs to be revised, updated, or archived.</li>
+</ul>
+</li>
+<li>
+<strong>Assess the editing team</strong> – Identify the people responsible for content creation and editing and ensure their responsibilities are clear.</li>
+</ul>
+<h3 id="while-defining-the-content-model">While defining the content model</h3>
+<ul>
+<li>
+<strong>Prioritize a good editing experience</strong> – Your content model should aim for an intuitive editing workflow. To avoid creating complicated, hard-to-use content types, we recommend that every stakeholder who participates in the content modeling sessions creates several items based on the modeled content prototypes. Creating test items helps streamline the editing process and ensures editors will only end up with a straightforward editing flow and using well-defined content types.</li>
+<li>
+<strong>Define basic workflows</strong> – Outline how content will be created, reviewed, and published within the system. We also recommend that you consider the editor team’s experience and discuss the amount and complexity of guidance you should include for the different content types.</li>
+</ul>
+<p>Every field in the content type should have a clear purpose. If the field’s label needs to be clarified more, use a tooltip or text below the field to guide editors through how they should input data or explain behavior so editors don’t need to guess.</p>
+<p></p>
+<h3 id="evolving-content-model">Evolving content model</h3>
+<p>You’ll never get it right for the first time. Your content and content strategy will evolve as your team learns what tactics and processes work.</p>
+<p>You should ensure you don’t lock yourself into one specific solution during the content modeling process. This usually happens when editors request to work with content directly in the presentation layer, typically sprinkling their data with HTML styling tags. We recommend you resist the temptation of storing the content with its design.</p>
+<p>Instead, <strong>prepare your content for evolution</strong>. A well-structured content model enables you to reuse content types easily across different campaigns or channels, making your marketing efforts more efficient and consistent.</p>
+<p>Your content model needs to be flexible enough to grow with your content needs. During the content modeling process, remember to discuss how you’ll handle requests to improve specific content types based on editors’ feedback once you launch the project. Describe what the approach to updating content types will look like and get a buy-in from stakeholders.</p>
+<p>There are different approaches to how your content model can evolve. Check out a short article that outlines the potential strategies of <a href="https://community.kentico.com/blog/safely-evolving-a-content-model-with-expand-and-contract" target="_blank">safely evolving a content model</a>.</p>
+<h2 id="where-to-document-your-content-model">Where to document your content model</h2>
+<p>Teams typically store their content models using various software and tools depending on their specific needs, preferences, and the level of complexity of their content strategy.</p>
+<p>We’ve seen different options from collaboration tools like Excel spreadsheets, Word or Google documents, notes in Notion, diagramming tools like <a href="https://miro.com/" target="_blank">Miro</a>, <a href="https://www.figma.com/figjam/" target="_blank">FigJam</a>, <a href="http://Diagrams.net" target="_blank">Diagrams.net</a>, or specialized custom-built tools.</p>
+
+<div>
+
+</div>
+<div>
+<p>For example, we keep the content model for our Kbank demo site in a single FigJam file.</p>
+</div>
+
+<p>Ultimately, which tool you choose depends on your team’s size, content complexity, technical expertise, collaboration needs, and integration with existing workflows. Assess your team’s requirements and goals before you select the most suitable tool for storing and managing your content model.</p>
+<h3 id="use-shared-vocabulary-to-standardize-your-content-types">Use shared vocabulary to standardize your content types</h3>
+<p>Though no two content models are the same, it helps when teams follow general guidance.  Remember, your content model defines how editors manage content and create meaningful messages for their audience. Though it’s not often mentioned, other computers and systems, such as search engines, are part of your audience. It’s vital to structure your content model so that both humans and machines understand it.</p>
+<p>When talking to Kentico’s clients, we found that clients who used a standardized library of content types helped them answer related business challenges, such as how to define <em>metadata</em> schemas for their marketing content or commerce products that other systems either feed (e.g., data pulled from an ERP system) or consume, such as search engine crawlers.</p>
+<p>The most commonly mentioned source of inspiration for defining properties (aka shared vocabulary) for different content types is <a href="https://schema.org/" target="_blank">Schema.org</a>, which currently contains over 800 type definitions. After you define the content types that your business domain will likely use in broad strokes, we recommend looking at what properties are usually associated with the types you’ve identified.</p>
+<h3 id="make-your-content-types-semantic">Make your content types semantic</h3>
+<p>Defining the content types doesn’t begin when your designers finish the designs or wireframes. With a bit of stretch, you can say it’s the other way around: your content team should be able to deliver any content, including any marketing messages they want in any designs or using any content management system. Different systems will have somewhat different ways to edit the content types. Still, each content type’s meaning and purpose should stay the same nonetheless.</p>
+<p>Instead of designers telling the marketing team what the page or email will look like, the content modeling team, which includes content creators, SEO specialists, and email marketing specialists, needs to inform the designers what data they need to display across different channels.</p>
+<p>We recommend that the content types reflect the business domain’s reality; if the team publishes product information, store the data in a structured format that reflects the data type. The structured and predicable format makes the content easily reusable on a different marketing channel.</p>
+<p></p>
+<p>Kbank demo site contains several <em>product-like</em> content types modeled using <a href="https://schema.org/FinancialProduct" target="_blank">financial product</a> and <a href="https://schema.org/CreditCard" target="_blank">Credit card</a> in the <a href="https://schema.org/" target="_blank">https://schema.org/</a> for inspiration.</p>
+<p>The correct content model with the right content types will allow your marketing team to <strong>benefit from Xperience’s content versatility</strong>. At the same time, if you want to provide your customers with <strong>smooth interactions</strong> with your business and your marketing team with a <strong>pleasant editing experience</strong>, your content types within your model should respect Xperience by Kentico’s specifics.</p>
+<h3 id="empower-your-marketers-through-effective-content-model">Empower your marketers through effective content model</h3>
+<p>We’ll repeat ourselves in this place, but our Customer Success team learned from many different projects that content modeling is a critical process. A good content model will enable marketers to design powerful digital experiences. It creates a strong basis for any marketing strategy. Your content team can focus on creating effective content. They can rest assured that they are not omitting critical day-to-day parts, such as adding new pages to the website channels. A good content model allows the content team to tailor their content to their specific marketing needs. See more in a <a href="https://www.kentico.com/discover/blog/what-is-content-modeling" target="_blank">blog post</a> on <a href="https://www.kentico.com" target="_blank">kentico.com</a>.</p>
+<h3 id="recommendations-planning-content-production">Recommendations – planning content production**</h3>
+<p>Before diving into prototyping your application in Xperience, we recommend that you:</p>
+<ol type="1">
+<li>Gather your project’s <a href="/guides/architecture/xperience-implementation-handbook/gather-requirements">environmental and functional requirements</a>.</li>
+<li>Audit your existing content and align it with your content strategy.</li>
+<li>Identify different types of content that you want to serve through Xperience during the content audit. At this stage, our customers often repeat the same or similar mistakes that lead to a broken content experience. How can you avoid them?
+<ul>
+<li><p>Think of customer journeys. What is the purpose of each different content type? How will your customers interact with these types? What action (conversion) do you want this content to drive? In which parts of the customer journey?</p></li>
+<li>
+<p>Think about your content: an article, a testimonial, a company address, an annual report, a biography, FAQs, videos, or case studies.</p>
+<ul>
+<li>It’s common to look at content from the perspective of what it will look like (design) rather than what your team will use the content for (purpose). Focusing too much on the layout usually results in binding content types with their presentation–which is often unique for a specific channel, such as a website or emails. And when your editors decide to reuse content across different channels, they’ll have to clear the data off any presentation information. Ever tried to copy a piece of content from Word to a website page? You know what we mean.</li>
+</ul>
+</li>
+<li><p>When finished, you should have the structure and purpose of all content types (usually in a large spreadsheet) and a clear idea of the functionality your developers need to build.</p></li>
+</ul>
+</li>
+<li>Have a clear idea about what you want to achieve with your content and which strategies will help you effectively serve your content to your website visitors.</li>
+<li>Make sure you know what <a href="/documentation/developers-and-admins/development/website-development-basics">developing Xperience applications</a> requires in general.</li>
+</ol>
+<p>With this information in mind and content types defined, the following pages will explain the different options for storing and displaying content with Xperience. This guide will give you a solid foundation for creating the content model for your website.</p>
+<p>In the meantime, your designers can start prototyping and wireframing your customer experiences. Stay calm in your project just because you don’t know all the bells and whistles of how specifically Xperience stores and displays content.</p>
+<p>At the end of the content modeling session, you should have a complete, fully defined <strong>content model</strong> that covers:</p>
+<ul>
+<li>All <strong>content types</strong> the organization produces.</li>
+<li>The <strong>relationships</strong> between content types.</li>
+<li>The <strong>data and structure</strong> each content type stores and provides.</li>
+<li>The <strong>lifecycle</strong> of each content type.</li>
+</ul>
+<h2 id="additional-resources-about-content-modeling">Additional resources about content modeling</h2>
+<p>If you are new to content modeling, we have collected the following third-party resources that cover this vital topic.</p>
+<ul>
+<li>HeadlessCreator weekly:
+<ul>
+<li><a href="https://www.headlesscreator.com/course/content-modeling-weekly" target="_blank">https://www.headlesscreator.com/course/content-modeling-weekly</a></li>
+</ul>
+</li>
+<li>Content modeling free e-book:
+<ul>
+<li><a href="https://contentmodeling.com/index.php/free-e-book/" target="_blank">https://contentmodeling.com/index.php/free-e-book/</a></li>
+</ul>
+</li>
+<li>Kontent: What is content modeling:
+<ul>
+<li><a href="https://kontent.ai/learn/model/intro-to-content-modeling" target="_blank">https://kontent.ai/learn/model/intro-to-content-modeling</a></li>
+</ul>
+</li>
+<li>Sanity’s Content Modeling Guide:
+<ul>
+<li><a href="https://www.sanity.io/content-modeling" target="_blank">https://www.sanity.io/content-modeling</a></li>
+<li><a href="https://www.sanity.io/content-modeling/content-modeling-foundations" target="_blank">https://www.sanity.io/content-modeling/content-modeling-foundations</a></li>
+<li><a href="https://www.sanity.io/content-modeling/how-to-create-a-content-model" target="_blank">https://www.sanity.io/content-modeling/how-to-create-a-content-model</a></li>
+<li><a href="https://www.sanity.io/structured-content" target="_blank">https://www.sanity.io/structured-content</a></li>
+</ul>
+</li>
+<li>Contentful’s content modeling basics:
+<ul>
+<li><a href="https://www.contentful.com/help/content-modelling-basics/" target="_blank">https://www.contentful.com/help/content-modelling-basics/</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="whats-next">What’s next?</h2>
+<p>You’ve gained a basic overview of what the content modeling process looks like and what you should consider when you’ll define the content model for your team. The <a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">next page</a> explains how categorize your content in Xperience applications. You’ll learn about different options for building taxonomies, and how you can leverage taxonomies to drive your presentation layer’s behavior.</p>
+
+</body>
+</html>

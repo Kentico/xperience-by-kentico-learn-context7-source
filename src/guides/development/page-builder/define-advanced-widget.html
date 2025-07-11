@@ -1,0 +1,1063 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Define an advanced widget</title>
+</head>
+<body>
+<p>Now that we’ve gone over the process of building a simple widget, let’s dive into a more complex example with many configuration options.</p>
+<p>The code samples here are for a product widget with many properties to control which product data it shows and how the data are presented.</p>
+<p>Combined with the <a href="/guides/development/page-builder/create-versatile-templates-part-1">Page templates</a> and <a href="/guides/development/page-builder/implement-flexible-sections">Page Builder section</a> from earlier in this series, it works to achieve the page designs specified by these mockups:</p>
+<p></p>
+<p></p>
+<p></p>
+<p>For a more detailed breakdown of how templates, sections, and widgets can be applied to achieve the mockups, check out <a href="/guides/development/page-builder/meet-requirements-with-page-builder">the start of this series</a>.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>This guide assumes you have:</p>
+<ul>
+<li>basic knowledge of C# and .NET framework concepts</li>
+<li>familiarity with the basics of <a href="/documentation/developers-and-admins/development/builders/page-builder"><em>Page Builder</em></a> in Xperience by Kentico.</li>
+</ul>
+<p>The code samples in this guide revolve around creating a <em>Product</em> widget, located in the <em>~/Features/Products/Widgets/Product</em> folder of the <em>TrainingGuides.Web</em> project in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/main" target="_blank">training guides repository</a>.</p>
+<p>If you are working on your own project, make sure your instance of <strong>Xperience by Kentico is </strong><a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico"><strong>version 29.6.1 or higher</strong></a>.</p>
+<p>If you’d like to follow along with this specific example, we recommend starting from <a href="/guides/development/page-builder/meet-requirements-with-page-builder">the first guide in the Page Builder series</a>. Many of the code samples in this guide rely on classes created in the previous guides.</p>
+<p>If you’ve never created a widget before, but you don’t have time to follow along with the whole series, we recommend starting with the <a href="/guides/development/page-builder/build-simple-cta-widget">Simple CTA widget guide</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>For a finished example implementation, take a look at the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished/src/TrainingGuides.Web/Features/Shared/Sections/General" target="_blank">General section folder</a> in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch of our training guides repository</a>.</p>
+</div>
+
+<h2 id="create-the-widget-view-model">Create the widget view model</h2>
+<p>Begin with the widget view model, so that you have a focus on the final result the widget will render from the beginning.</p>
+
+<div>
+
+</div>
+<div>
+<p>Focus only on what the view needs at this point. We can gather, transform, and process the data however we like between the widget’s properties and view component.</p>
+</div>
+
+<ol type="1">
+<li>
+<p>Think of what your widget will need to display under different circumstances and decide what values will be necessary to achieve that.</p>
+<ul>
+<li><p>Consider whether your view can reuse existing tools from your project and account for the parameters they need. For example, if we have a tag helper that renders a formatted date based on a <code>DateTime</code> object, we can include an unprocessed <code>DateTime</code> value in the view model rather than a formatted date string.</p></li>
+<li><p>If your widget needs to show multiple possible layouts or designs, make sure to include properties that control the widget’s appearance.</p></li>
+</ul>
+</li>
+<li>
+<p>If your team has an interface or abstract class for widget view models, make sure you’ve implemented all the appropriate members.</p>
+<p>If this is your first widget, consider creating such a resource to promote consistency among widget view models where appropriate.</p>
+<p>For example, you may include an abstract property to indicate if a widget is configured incorrectly. This invites the developers of future widgets to consider when to display an error message to business users.</p>
+<p>Here is an example from the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">training guides repository</a>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WidgetViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+     namespace TrainingGuides.Web.Features.Shared.Models;
+
+     public abstract class WidgetViewModel
+     {
+         public abstract bool IsMisconfigured { get; }
+     }
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+Many of the sample widgets in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the training guides repository inherit from the class above, such as the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/LandingPages/Widgets/HeroBanner/HeroBannerWidgetViewModel.cs" target="_blank">Hero banner</a> and <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Articles/Widgets/ArticleList/ArticleListWidgetViewModel.cs" target="_blank">Article list</a>.
+</div>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductWidgetViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using TrainingGuides.Web.Features.Products.Models;
+using TrainingGuides.Web.Features.Shared.Models;
+
+namespace TrainingGuides.Web.Features.Products.Widgets.Product;
+
+public class ProductWidgetViewModel : WidgetViewModel
+{
+    public ProductPageViewModel? Product { get; set; }
+    public bool ShowProductFeatures { get; set; }
+    public AssetViewModel ProductImage { get; set; } = new();
+    public bool ShowAdvanced { get; set; }
+    public string ParentElementCssClasses { get; set; } = string.Empty;
+    public string MainContentElementCssClasses { get; set; } = string.Empty;
+    public string ImageElementCssClasses { get; set; } = string.Empty;
+    public string ColorScheme { get; set; } = string.Empty;
+    public string CornerStyle { get; set; } = string.Empty;
+    public string CallToActionCssClasses { get; set; } = string.Empty;
+    public bool IsImagePositionSide { get; set; } = false;
+
+    public override bool IsMisconfigured =&gt; Product == null;
+}
+</code></pre>
+</div>
+
+<h2 id="display-the-widget">Display the widget</h2>
+<h3 id="display-messages-to-editors-but-not-live-site-visitors">Display messages to editors but not live site visitors</h3>
+<p>When editors work with widgets, we should help them by providing messages about how to work with the widget. Some messages make the most sense to display in the widget’s output, so that editors can see them outside of the widget properties dialog. However, we must make sure that these messages are not displayed on the live site, so visitors do not see messages that don’t concern them.</p>
+<p>Create a <em>tag helper</em> or <em>view component</em> that displays its content only when the page is in <em>Page Builder</em> or <em>Preview</em> mode. For example:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>PageBuilderContentTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using Microsoft.AspNetCore.Razor.TagHelpers;
+    using Kentico.Content.Web.Mvc;
+    using Kentico.PageBuilder.Web.Mvc;
+    using Kentico.Web.Mvc;
+
+    namespace TrainingGuides.Web.Features.Shared.Helpers.TagHelpers;
+
+    /// &lt;summary&gt;
+    /// Displays the inner content of the Tag Helper only when the page is being viewed
+    /// in Page Builder or Preview mode
+    /// &lt;/summary&gt;
+    [HtmlTargetElement("tg-page-builder-content", TagStructure = TagStructure.NormalOrSelfClosing)]
+    public class PageBuilderContentTagHelper : TagHelper
+    {
+        private readonly IHttpContextAccessor accessor;
+
+        public PageBuilderContentTagHelper(IHttpContextAccessor accessor)
+        {
+            this.accessor = accessor;
+        }
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            var httpContext = accessor.HttpContext;
+
+            bool isNotInPageBuilder = httpContext.Kentico().PageBuilder().GetMode() == PageBuilderMode.Off;
+            bool isNotInPreview = !httpContext.Kentico().Preview().Enabled;
+
+            if (isNotInPageBuilder &amp;&amp; isNotInPreview)
+            {
+                output.SuppressOutput();
+            }
+
+            output.TagName = "";
+        }
+    }
+</code></pre>
+</div>
+
+<p>The <code>PageBuilderContentTagHelper</code> sample above can display static messages when the page is in <em>Preview</em> or <em>Page Builder</em> mode, but it can also work with dynamic content.</p>
+<p>For example, here’s another tag helper that displays a message when the widget is not configured properly:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ConfigureWidgetInstructionsTagHelper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Web.Mvc;
+
+namespace TrainingGuides.Web.Features.Shared.Helpers.TagHelpers;
+
+/// &lt;summary&gt;
+/// Displays a helpful message that a Widget needs to be configured when the page is viewed
+/// in Page Builder or Preview mode.
+/// &lt;/summary&gt;
+[HtmlTargetElement("tg-configure-widget-instructions", TagStructure = TagStructure.WithoutEndTag)]
+public class ConfigureWidgetInstructionsTagHelper : TagHelper
+{
+    private readonly IHttpContextAccessor accessor;
+    public string Message { get; set; } = string.Empty;
+
+    private const string P_TAG = "p";
+    private const string INSTRUCTIONS_EDIT_MODE = "This widget needs some setup. Click the &lt;strong&gt;Configure widget&lt;/strong&gt; gear icon in the top right to configure content and design for this widget.";
+    private const string INSTRUCTIONS_READONLY_MODE = "This widget needs some setup. Click &lt;strong&gt;Edit page&lt;/strong&gt; and then the &lt;strong&gt;Configure widget&lt;/strong&gt; gear icon in the top right to configure content and design for this widget.";
+    private const string INSTRUCTIONS_PREVIEW_MODE = "This widget needs some setup. Switch to the &lt;strong&gt;Page Builder&lt;/strong&gt; and &lt;strong&gt;Edit page&lt;/strong&gt;.&lt;br/&gt;Then click the &lt;strong&gt;Configure widget&lt;/strong&gt; gear icon in the top right to configure content and design for this widget.";
+
+    public ConfigureWidgetInstructionsTagHelper(IHttpContextAccessor accessor)
+    {
+        this.accessor = accessor;
+    }
+
+    public override void Process(TagHelperContext context, TagHelperOutput output)
+    {
+        output.TagName = P_TAG;
+        output.TagMode = TagMode.StartTagAndEndTag;
+
+        var httpContext = accessor.HttpContext;
+        string messageToShow = string.IsNullOrEmpty(Message)
+            ? (httpContext.Kentico().PageBuilder().GetMode() switch
+            {
+                PageBuilderMode.Edit =&gt; INSTRUCTIONS_EDIT_MODE,
+                PageBuilderMode.ReadOnly =&gt; INSTRUCTIONS_READONLY_MODE,
+                PageBuilderMode.Off =&gt; INSTRUCTIONS_PREVIEW_MODE,
+                _ =&gt; INSTRUCTIONS_PREVIEW_MODE
+            })
+            : Message;
+
+        output.Content.SetHtmlContent(new HtmlString(messageToShow));
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="implement-the-widget-view">Implement the widget view</h3>
+<ol type="1">
+<li><p>Display helpful messages for editors when the widget is not configured properly.</p></li>
+<li><p>Use tag helpers and view components to handle shared logic used in other parts of the system.</p></li>
+<li><p>Use conditional logic to render different data and visual elements based on the values of the view model’s properties</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>ProductWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    @using System.Globalization
+    @using TrainingGuides.Web.Features.Products
+    @using TrainingGuides.Web.Features.Products.Widgets.Product
+    @using TrainingGuides.Web.Features.Products.Models
+    @using TrainingGuides.Web.Features.Shared.OptionProviders.Heading
+    @using TrainingGuides.Web.Features.Shared
+    @using TrainingGuides.Web.Features.Shared.OptionProviders.ColumnLayout
+    @using TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme
+    @using TrainingGuides.Web.Features.Shared.Services
+
+    @inject IHttpRequestService httpRequestService
+
+    @model ProductWidgetViewModel
+
+    @{
+        var baseUrl = httpRequestService.GetBaseUrl();
+    }
+
+    @if (Model is null || Model.IsMisconfigured)
+    {
+        &lt;tg-page-builder-content&gt;
+            &lt;tg-configure-widget-instructions /&gt;
+        &lt;/tg-page-builder-content&gt;
+
+        return;
+    }
+
+    &lt;div class="@Model.ParentElementCssClasses"&gt;
+        &lt;a href="@Model.Product!.Link.LinkUrl"
+            target="@(Model.Product.Link.OpenInNewTab ? "_blank": "")"
+            title="@Model.Product.Link.LinkTitleText"&gt;
+
+            @* image *@
+            @if (Model.ProductImage != null &amp;&amp; !string.IsNullOrEmpty(Model.ProductImage.FilePath) &amp;&amp; !Model.IsImagePositionSide)
+            {
+                &lt;tg-styled-image
+                    corner-style="@Model.CornerStyle"
+                    class="@Model.ImageElementCssClasses"
+                    src="@Url.Content(Model.ProductImage.FilePath)"
+                    alt="@Model.ProductImage.AltText"&gt;
+                &lt;/tg-styled-image&gt;
+            }
+            &lt;tg-component-style
+                color-scheme="@Model.ColorScheme"
+                corner-style="@Model.CornerStyle"
+                class="@Model.MainContentElementCssClasses"&gt;
+                &lt;div class="tg-row"&gt;
+                    &lt;div
+                        class="tg-col align-self-center m-3"&gt;
+                        @* title *@
+                        &lt;h3 class="mt-2 mb-1"&gt;@Model.Product.NameHtml&lt;/h3&gt;
+                        
+                        @* short description *@
+                        &lt;p&gt;@Model.Product.ShortDescriptionHtml&lt;/p&gt;
+
+                        @* benefits *@
+                        @foreach (var benefit in Model.Product.Benefits)
+                        {
+                            &lt;div class="tg-product_benefits c-icon-box mt-1 me-7"&gt;
+                                &lt;div class="c-icon-box_icon"&gt;
+                                    @if (benefit.Icon != null)
+                                    {
+                                        &lt;img
+                                            src="@Url.Content(benefit.Icon.FilePath)"
+                                            alt="@benefit.Icon.AltText" class="c-icon" /&gt;
+                                    }
+                                &lt;/div&gt;
+                                &lt;div class="c-icon-box_body"&gt;
+                                    @benefit.DescriptionHtml
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        }
+                    &lt;/div&gt;
+                    @if (Model.ProductImage != null &amp;&amp; !string.IsNullOrEmpty(Model.ProductImage.FilePath) &amp;&amp; Model.IsImagePositionSide)
+                    {
+                        &lt;tg-styled-image
+                            corner-style="@Model.CornerStyle"
+                            class="@Model.ImageElementCssClasses"
+                            src="@Url.Content(Model.ProductImage.FilePath)"
+                            alt="@Model.ProductImage.AltText"&gt;
+                        &lt;/tg-styled-image&gt;
+                    }
+                &lt;/div&gt;
+                @* features *@
+                @if(Model.ShowProductFeatures)
+                {
+                    &lt;div class="row"&gt;
+                        &lt;div class="c-pricelist"&gt;                        
+                            &lt;div class="col"&gt;
+                                &lt;tg-component-style color-scheme="@ColorSchemeOption.Light1" corner-style="@Model.CornerStyle" class="c-table"&gt;
+                                    @foreach (var feature in Model.Product.Features)
+                                    {
+                                        &lt;div class="c-table_row"&gt;
+                                            &lt;div class="c-table_cell"&gt;&lt;div class="c-table_cell"&gt;@feature.LabelHtml&lt;/div&gt;&lt;/div&gt;
+                                            &lt;div class="c-table_cell text-end"&gt;
+                                                &lt;tg-product-feature-value feature="@feature"/&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    }
+                                &lt;/tg-component-style&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                }
+                @* cta *@
+                @if (!string.IsNullOrEmpty(Model.Product.Link.CallToAction))
+                {
+                    &lt;div class="mt-2"&gt;
+                        &lt;a type="submit"
+                            href="@Model.Product.Link.LinkUrl"
+                            class="btn text-uppercase @Model.CallToActionCssClasses"
+                            target="@(Model.Product.Link.OpenInNewTab ? "_blank" : "")"
+                            title="@Model.Product.Link.Name"&gt;@Model.Product.Link.CallToAction&lt;/a&gt;
+                    &lt;/div&gt;
+                }
+            &lt;/tg-component-style&gt;
+        &lt;/a&gt;
+    &lt;/div&gt;
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Alongside the tag helpers we’ve just implemented, the sample above uses multiple tag helpers from the earlier page templates examples. You can review the details of their implementation here:</p>
+<ul>
+<li>
+<a href="/guides/development/page-builder/create-versatile-templates-part-1#apply-the-styles-with-a-tag-helper">ComponentStyleTagHelper</a> and its <a href="/guides/development/page-builder/create-versatile-templates-part-1#create-a-service-to-retrieve-styles">prerequisite service</a>
+</li>
+<li><a href="/guides/development/page-builder/create-versatile-templates-part-1#create-an-image-tag-helper">StyledImageTagHelper</a></li>
+</ul>
+</div>
+
+<h2 id="define-the-widgets-properties">Define the widget’s properties</h2>
+
+<div>
+
+</div>
+<div>
+<p>Widget properties are meant to gather only necessary data from editors. They do not need to include everything that the view model needs, because the data can be supplemented and transformed by the view component. Properties only require the input necessary to find everything the view model needs.</p>
+<p>Some widgets that operate based on hard-coded values or settings stored elsewhere do not need properties at all. However, widgets meant to empower editors with flexible options rely heavily on properties.</p>
+</div>
+
+<ol type="1">
+<li>
+<p>If a flexible data source suits your scenario, create a property to determine where the widget sources its data.</p>
+
+<div>
+
+</div>
+<div>
+For example, a widget can use data from its page by default, and pull data from a different page depending on the value of a property.
+</div>
+</li>
+<li><p>If more details are required based on any of the data sources, use <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-visibility-conditions">visibility conditions</a> to display additional properties only when the corresponding option is selected.</p></li>
+<li>
+<p>If you are displaying structured data, add properties to determine what should be included or hidden.</p>
+
+<div>
+
+</div>
+<div>
+For example, your editors may want to be able to choose whether or not a thumbnail image should appear alongside text-based content.
+</div>
+</li>
+<li>
+<p>Add properties to configure the visual display of the widget.</p>
+
+<div>
+
+</div>
+<div>
+For example, the widget may need multiple options for layout and color scheme.
+</div>
+</li>
+<li><p>If there are a lot of visual options, use visibility conditions to hide them by default. Display them only if the editor chooses to configure advanced properties with a checkbox.</p></li>
+<li><p>Define any standard widget properties that should appear regardless of the other selections.</p></li>
+<li>
+<p>Consider how the properties should be ordered.</p>
+
+<div>
+
+</div>
+<div>
+Remember that what seems logical to a developer is not necessarily intuitive for business users. If you typically focus on back-end development, it may be worth consulting a UX expert from your team.
+</div>
+</li>
+<li><p>Include <code>ExplanationText</code> for properties often, to alleviate confusion and ambiguity for your editors.</p></li>
+<li>
+<p>Define any constants, dropdown providers, and sets of options to make maintenance easier.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using System.ComponentModel;
+ using Kentico.PageBuilder.Web.Mvc;
+ using Kentico.Xperience.Admin.Base.FormAnnotations;
+ using Kentico.Xperience.Admin.Websites.FormAnnotations;
+ using TrainingGuides.Web.Features.Shared.OptionProviders;
+ using TrainingGuides.Web.Features.Shared.OptionProviders.CornerStyle;
+ using TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme;
+
+ namespace TrainingGuides.Web.Features.Products.Widgets.Product;
+
+ public class ProductWidgetProperties : IWidgetProperties
+ {
+     // A property that determines the datasource of the widget
+     [RadioGroupComponent(
+         Label = "Select which Product page to display",
+         Options = $"{ProductWidgetMode.CURRENT_PAGE};{ProductWidgetMode.CURRENT_PAGE_DESCRIPTION}"
+             + $"\n{ProductWidgetMode.SELECT_PAGE};{ProductWidgetMode.SELECT_PAGE_DESCRIPTION}",
+         Order = 10)]
+     public string Mode { get; set; } = ProductWidgetMode.CURRENT_PAGE;
+
+     // A conditional property based on the selected data source
+     [VisibleIfEqualTo(nameof(Mode), ProductWidgetMode.CURRENT_PAGE,
+         StringComparison.OrdinalIgnoreCase)]
+     [TextInputComponent(
+         Label = "Product page anchor",
+         ExplanationText = "If displaying current page, optionally set what page anchor to navigate to when visitor clicks the widget or its call to action link.",
+         Order = 20)]
+     public string PageAnchor { get; set; } = string.Empty;
+
+     // A conditional property based on the selected data source
+     [VisibleIfEqualTo(nameof(Mode),
+         ProductWidgetMode.SELECT_PAGE, StringComparison.OrdinalIgnoreCase)]
+     [WebPageSelectorComponent(
+         Label = "Select product page",
+         ExplanationText = "Choose the product page to be dispayed in the widget.",
+         Order = 30)]
+     public IEnumerable&lt;WebPageRelatedItem&gt; SelectedProductPage { get; set; } = [];
+
+     // Properties that determine if specific data should be displayed or hidden
+     [CheckBoxComponent(
+         Label = "Display product image",
+         Order = 40)]
+     public bool ShowProductImage { get; set; } = true;
+
+     [CheckBoxComponent(
+         Label = "Display product benefits",
+         Order = 50)]
+     public bool ShowProductBenefits { get; set; } = true;
+
+     [CheckBoxComponent(
+         Label = "Display product features",
+         Order = 60)]
+     public bool ShowProductFeatures { get; set; } = false;
+
+     // Standard widget properties that do not depend on other selections
+     [TextInputComponent(
+         Label = "Call to action (CTA) text",
+         ExplanationText = "Add a call to action text, e.g., \"Read more\".",
+         Order = 70)]
+     public string CallToAction { get; set; } = string.Empty;
+
+     [CheckBoxComponent(
+         Label = "Open in new tab",
+         ExplanationText = "Opens Product page in new tab when visitor clicks the widget or CTA",
+         Order = 80)]
+     public bool OpenInNewTab { get; set; } = true;
+
+     // Property to determine if advanced styling configuration should be shown
+     [CheckBoxComponent(
+         Label = "Show advanced options",
+         Order = 90)]
+     public bool ShowAdvanced { get; set; } = false;
+
+     // Advanced styling properties, hidden if the ShowAdvanced checkbox is not enabled.
+     [VisibleIfTrue(nameof(ShowAdvanced))]
+     [DropDownComponent(
+         Label = "Color scheme",
+         ExplanationText = "Select widget color scheme.",
+         DataProviderType = typeof(DropdownEnumOptionProvider&lt;ColorSchemeOption&gt;),
+         Order = 100)]
+     public string ColorScheme { get; set; } = nameof(ColorSchemeOption.Dark1);
+
+     [VisibleIfTrue(nameof(ShowAdvanced))]
+     [DropDownComponent(
+         Label = "Corner style",
+         DataProviderType = typeof(DropdownEnumOptionProvider&lt;CornerStyleOption&gt;),
+         Order = 110)]
+     public string CornerStyle { get; set; } = nameof(CornerStyleOption.Sharp);
+
+     [VisibleIfTrue(nameof(ShowAdvanced))]
+     [CheckBoxComponent(
+         Label = "Drop shadow",
+         Order = 120)]
+     public bool DropShadow { get; set; } = false;
+
+     [VisibleIfTrue(nameof(ShowAdvanced))]
+     [VisibleIfTrue(nameof(ShowProductImage))]
+     [DropDownComponent(
+         Label = "Image position",
+         ExplanationText = "Select the image position with respect to text.",
+         DataProviderType = typeof(DropdownEnumOptionProvider&lt;ImagePositionOption&gt;),
+         Order = 130)]
+     public string ImagePosition { get; set; } = nameof(ImagePositionOption.FullWidth);
+
+     [VisibleIfTrue(nameof(ShowAdvanced))]
+     [DropDownComponent(
+         Label = "Text alignment",
+         DataProviderType = typeof(
+             DropdownEnumOptionProvider&lt;ContentAlignmentOption&gt;),
+         Order = 140)]
+     public string TextAlignment { get; set; } = nameof(ContentAlignmentOption.Left);
+
+     [VisibleIfTrue(nameof(ShowAdvanced))]
+     [VisibleIfNotEmpty(nameof(CallToAction))]
+     [DropDownComponent(
+         Label = "CTA button style",
+         DataProviderType = typeof(DropdownEnumOptionProvider&lt;LinkStyleOption&gt;),
+         Order = 150)]
+     public string CallToActionStyle { get; set; } = nameof(LinkStyleOption.Medium);
+ }
+
+ // Add options for the position of the image in the widget
+ public enum ImagePositionOption
+ {
+     [Description("Full width")]
+     FullWidth,
+     [Description("Left side")]
+     Left,
+     [Description("Right side")]
+     Right,
+     [Description("Ascending shape")]
+     Ascending,
+     [Description("Descending shape")]
+     Descending
+ }
+
+ // Add options for how the content of the widget is aligned
+ public enum ContentAlignmentOption
+ {
+     Left,
+     Center,
+     Right
+ }
+
+ // Add constants for names and descriptions
+ public static class ProductWidgetMode
+ {
+     public const string CURRENT_PAGE = "currentProductPage";
+     public const string CURRENT_PAGE_DESCRIPTION = "Use the current product page. (If this widget is placed on existing Product page, automatically displays the correspongind Product data.)";
+
+     public const string SELECT_PAGE = "productPage";
+     public const string SELECT_PAGE_DESCRIPTION = "Select a product page.";
+ }
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+In some cases you may find it beneficial to move option enumerations into their own dedicated files.
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LinkStyleOption.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ using System.ComponentModel;
+
+ namespace TrainingGuides.Web.Features.Shared.OptionProviders.ColorScheme;
+
+ // Change description of color scheme enumeration options to apply to links/CTA buttons
+ public enum LinkStyleOption
+ {
+     [Description("Button, dark")]
+     Dark = ColorSchemeOption.Dark1,
+
+     [Description("Button, medium")]
+     Medium = ColorSchemeOption.Dark2,
+
+     [Description("Button, light 1")]
+     Light1 = ColorSchemeOption.Light1,
+
+     [Description("Button, light 2")]
+     Light2 = ColorSchemeOption.Light2,
+
+     [Description("Button, light 3")]
+     Light3 = ColorSchemeOption.Light3,
+
+     [Description("Plain link, dark")]
+     TransparentDark = ColorSchemeOption.TransparentDark,
+
+     [Description("Plain link, medium")]
+     TransparentMedium = ColorSchemeOption.TransparentMedium,
+
+     [Description("Plain link, light")]
+     TransparentLight = ColorSchemeOption.TransparentLight
+ }
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>For information about creating <code>IDropdownOptionProvider</code> implementations such as the <code>DropdownEnumOptionProvider</code> in this sample, see the <a href="/guides/development/page-builder/map-enum-to-dropdown">custom dropdown example from earlier</a>.</p>
+</div>
+</li>
+</ol>
+<h2 id="build-the-widget-view-component">Build the widget view component</h2>
+<p>A widget’s view component is often the core of its functionality.</p>
+<p>The view component contains the business logic that supplies all the values for the view model, usually by interacting with the <a href="/documentation/developers-and-admins/api">Xperience API</a>, or some external endpoint. It often uses widget properties to parameterize API interactions based on input from the editors.</p>
+<ol type="1">
+<li><p>Use an identifier constant to <strong>register the widget</strong>.</p></li>
+<li><p>If you have any properties that are meant to change the data source of the widget, add conditional code that reacts to them accordingly.</p></li>
+<li>
+<p>If you have properties meant to affect how the widget interacts with APIs, make sure to take them into account.</p>
+
+<div>
+
+</div>
+<div>
+For example, you may have a property to narrow the results of a query.
+</div>
+</li>
+<li>
+<p>Appraise your existing tools, such as services and extensions, to share code across your project and avoid redundancy.</p>
+
+<div>
+
+</div>
+<div>
+If your application does not have any reusable resources that apply, and the widget shares functionality with other parts of your application, consider making new shared code.
+</div>
+</li>
+<li><p>Pass along display-related properties that are handled in the view, while processing display-related properties that are not handled by the view.</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using Microsoft.IdentityModel.Tokens;
+using CMS.Helpers;
+using Kentico.Content.Web.Mvc;
+using Kentico.PageBuilder.Web.Mvc;
+using TrainingGuides.Web.Features.Products.Models;
+using TrainingGuides.Web.Features.Products.Services;
+using TrainingGuides.Web.Features.Products.Widgets.Product;
+using TrainingGuides.Web.Features.Shared.Services;
+using TrainingGuides.Web.Features.Shared.OptionProviders.CornerStyle;
+using TrainingGuides.Web.Features.Shared.Models;
+
+// Register the widget
+[assembly: RegisterWidget(
+    identifier: ProductWidgetViewComponent.IDENTIFIER,
+    viewComponentType: typeof(ProductWidgetViewComponent),
+    name: "Product",
+    propertiesType: typeof(ProductWidgetProperties),
+    Description = "Displays selected product.",
+    IconClass = "icon-ribbon")]
+
+namespace TrainingGuides.Web.Features.Products.Widgets.Product;
+
+public class ProductWidgetViewComponent : ViewComponent
+{
+    // Identifier constant
+    public const string IDENTIFIER = "TrainingGuides.ProductWidget";
+    private const string BS_DROP_SHADOW_CLASS = "shadow";
+    private const string BS_MARGIN_CLASS = "m-3";
+    private const string BS_PADDING_CLASS_3 = "p-3";
+    private const string BS_PADDING_CLASS_5 = "p-5";
+
+    private readonly IContentItemRetrieverService&lt;ProductPage&gt; productRetrieverService;
+    private readonly IComponentStyleEnumService componentStyleEnumService;
+    private readonly IProductPageService productPageService;
+    private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
+
+    public ProductWidgetViewComponent(
+        IContentItemRetrieverService&lt;ProductPage&gt; productRetrieverService,
+        IComponentStyleEnumService componentStyleEnumService,
+        IProductPageService productPageService,
+        IWebPageDataContextRetriever webPageDataContextRetriever)
+    {
+        this.productRetrieverService = productRetrieverService;
+        this.componentStyleEnumService = componentStyleEnumService;
+        this.productPageService = productPageService;
+        this.webPageDataContextRetriever = webPageDataContextRetriever;
+    }
+
+    public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ProductWidgetProperties properties)
+    {
+        var model = await GetProductWidgetViewModel(properties);
+        return View("~/Features/Products/Widgets/Product/ProductWidget.cshtml", model);
+    }
+
+    private async Task&lt;ProductWidgetViewModel&gt; GetProductWidgetViewModel(ProductWidgetProperties properties)
+    {
+        if (properties == null)
+            return new ProductWidgetViewModel();
+
+        var productPageViewModel = await GetProductPageViewModel(properties);
+
+        return new ProductWidgetViewModel()
+        {
+            Product = productPageViewModel,
+            ShowProductFeatures = properties.ShowProductFeatures,
+            ProductImage = properties.ShowProductImage
+                ? productPageViewModel?.Media.FirstOrDefault() ?? new AssetViewModel()
+                : new AssetViewModel(),
+            ShowAdvanced = properties.ShowAdvanced,
+            ColorScheme = properties.ColorScheme,
+            CornerStyle = properties.CornerStyle,
+            ParentElementCssClasses = GetParentElementCssClasses(properties).Join(" "),
+            MainContentElementCssClasses = GetMainContentElementCssClasses(properties).Join(" "),
+            ImageElementCssClasses = properties.ShowProductImage ? GetImageElementCssClasses(properties).Join(" ") : string.Empty,
+            IsImagePositionSide = IsImagePositionSide(properties.ImagePosition),
+            CallToActionCssClasses = componentStyleEnumService
+                .GetColorSchemeClasses(componentStyleEnumService.GetLinkStyle(properties.CallToActionStyle ?? string.Empty))
+                .Join(" ")
+        };
+    }
+
+    // Conditionally retrieve the widget's data source (current page or selected page)
+    private async Task&lt;ProductPage?&gt; GetProductPage(ProductWidgetProperties properties)
+    {
+        ProductPage? productPage;
+
+        if (properties.Mode.Equals(ProductWidgetMode.CURRENT_PAGE))
+        {
+            productPage = await productRetrieverService
+                .RetrieveWebPageById(webPageDataContextRetriever.Retrieve().WebPage.WebPageItemID,
+                    ProductPage.CONTENT_TYPE_NAME,
+                    3);
+        }
+        else
+        {
+            // Use properties that affect how the widget interacts with the API
+            var guid = properties.SelectedProductPage?.Select(webPage =&gt; webPage.WebPageGuid).FirstOrDefault();
+
+            productPage = guid.HasValue
+                ? await productRetrieverService.RetrieveWebPageByGuid(
+                    guid,
+                    ProductPage.CONTENT_TYPE_NAME,
+                    4)
+                : null;
+        }
+
+        return productPage;
+    }
+    private async Task&lt;ProductPageViewModel?&gt; GetProductPageViewModel(ProductWidgetProperties properties)
+    {
+        var productPage = await GetProductPage(properties);
+
+        if (!properties.PageAnchor.IsNullOrEmpty())
+            properties.PageAnchor = properties.PageAnchor!.StartsWith('#') ? properties.PageAnchor : $"#{properties.PageAnchor}";
+
+        return productPage != null
+            ? await productPageService.GetProductPageViewModel(
+                productPage: productPage,
+                // Pass along display-related properteis to the view
+                getMedia: properties.ShowProductImage,
+                getFeatures: properties.ShowProductFeatures,
+                getBenefits: properties.ShowProductBenefits,
+                callToAction: properties.CallToAction,
+                callToActionLink: properties.PageAnchor,
+                openInNewTab: properties.OpenInNewTab,
+                getPrice: properties.ShowProductFeatures)
+            : null;
+    }
+
+    //Process display-related properties that are not handled by the view
+    private List&lt;string&gt; GetParentElementCssClasses(ProductWidgetProperties properties)
+    {
+        const string PARENT_ELEMENT_BASE_CLASS = "tg-product";
+        const string LAYOUT_FULL_WIDTH_CLASS = "tg-layout-full-width";
+        const string LAYOUT_IMAGE_LEFT_CLASS = "tg-layout-image-left";
+        const string LAYOUT_IMAGE_RIGHT_CLASS = "tg-layout-image-right";
+        const string LAYOUT_ASCENDING_CLASS = "tg-layout-ascending";
+        const string LAYOUT_DESCENDING_CLASS = "tg-layout-descending";
+
+        List&lt;string&gt; cssClasses = [PARENT_ELEMENT_BASE_CLASS];
+
+        if (properties.ShowProductImage)
+        {
+            string imagePositionCssClass = properties.ImagePosition switch
+            {
+                nameof(ImagePositionOption.Left) =&gt; LAYOUT_IMAGE_LEFT_CLASS,
+                nameof(ImagePositionOption.Right) =&gt; LAYOUT_IMAGE_RIGHT_CLASS,
+                nameof(ImagePositionOption.Ascending) =&gt; LAYOUT_ASCENDING_CLASS,
+                nameof(ImagePositionOption.Descending) =&gt; LAYOUT_DESCENDING_CLASS,
+                nameof(ImagePositionOption.FullWidth) =&gt; LAYOUT_FULL_WIDTH_CLASS,
+                _ =&gt; LAYOUT_FULL_WIDTH_CLASS
+            };
+            cssClasses.Add(imagePositionCssClass);
+
+            if (IsImagePositionFullSize(properties.ImagePosition))
+            {
+                cssClasses.Add(BS_MARGIN_CLASS);
+
+                cssClasses.AddRange(
+                    componentStyleEnumService.GetCornerStyleClasses(
+                        componentStyleEnumService.GetCornerStyle(properties.CornerStyle!)));
+
+                if (properties.DropShadow)
+                    cssClasses.Add(BS_DROP_SHADOW_CLASS);
+            }
+        }
+
+        return cssClasses;
+    }
+
+    private List&lt;string&gt; GetMainContentElementCssClasses(ProductWidgetProperties properties)
+    {
+        const string MAIN_CONTENT_BASE_CSS_CLASS = "tg-product_main";
+        const string ROUND_CORNERS_BOTTOM_ONLY_CLASS = "bottom-only";
+        const string TEXT_ALIGN_LEFT_CLASS = "align-left";
+        const string TEXT_ALIGN_CENTER_CLASS = "align-center";
+        const string TEXT_ALIGN_RIGHT_CLASS = "align-right";
+
+        List&lt;string&gt; cssClasses = [MAIN_CONTENT_BASE_CSS_CLASS];
+
+        cssClasses.AddRange(GetChildElementCssClasses(properties));
+
+        if (properties.ShowProductImage)
+        {
+            if (IsImagePositionSide(properties.ImagePosition))
+                cssClasses.Add(BS_PADDING_CLASS_5);
+            else
+                cssClasses.Add(BS_PADDING_CLASS_3);
+
+            if (IsImagePositionFullSize(properties.ImagePosition)
+                &amp;&amp; HasRoundCorners(properties.CornerStyle))
+            {
+                cssClasses.Add(ROUND_CORNERS_BOTTOM_ONLY_CLASS);
+            }
+        }
+
+        string textAlignmentClass = properties.TextAlignment switch
+        {
+            nameof(ContentAlignmentOption.Left) =&gt; TEXT_ALIGN_LEFT_CLASS,
+            nameof(ContentAlignmentOption.Center) =&gt; TEXT_ALIGN_CENTER_CLASS,
+            nameof(ContentAlignmentOption.Right) =&gt; TEXT_ALIGN_RIGHT_CLASS,
+            _ =&gt; TEXT_ALIGN_LEFT_CLASS
+        };
+
+        cssClasses.Add(textAlignmentClass);
+        return cssClasses;
+    }
+
+    private List&lt;string&gt; GetImageElementCssClasses(ProductWidgetProperties properties)
+    {
+        const string IMAGE_BASE_CSS_CLASS = "tg-product_img";
+        const string ROUND_CORNERS_TOP_ONLY_CLASS = "top-only";
+        List&lt;string&gt; imageLeftRightClasses = ["tg-col", "c-product-img", "object-fit-cover"];
+
+        List&lt;string&gt; cssClasses = [IMAGE_BASE_CSS_CLASS];
+
+        cssClasses.AddRange(GetChildElementCssClasses(properties));
+
+        if (IsImagePositionSide(properties.ImagePosition))
+        {
+            cssClasses.AddRange(imageLeftRightClasses);
+        }
+
+        if (IsImagePositionFullSize(properties.ImagePosition)
+        &amp;&amp; HasRoundCorners(properties.CornerStyle))
+        {
+            cssClasses.Add(ROUND_CORNERS_TOP_ONLY_CLASS);
+        }
+
+        return cssClasses;
+    }
+
+    private List&lt;string&gt; GetChildElementCssClasses(ProductWidgetProperties properties)
+    {
+        List&lt;string&gt; cssClasses = [];
+
+        if (!IsImagePositionFullSize(properties.ImagePosition))
+        {
+            if (properties.DropShadow)
+                cssClasses.Add(BS_DROP_SHADOW_CLASS);
+
+            cssClasses.Add(BS_MARGIN_CLASS);
+        }
+        return cssClasses;
+    }
+
+    private bool IsImagePositionFullSize(string imagePosition) =&gt;
+        Equals(imagePosition, nameof(ImagePositionOption.FullWidth));
+
+    private bool IsImagePositionSide(string imagePosition) =&gt;
+        Equals(imagePosition, nameof(ImagePositionOption.Left)) || Equals(imagePosition, nameof(ImagePositionOption.Right));
+
+    private bool HasRoundCorners(string cornerStyle) =&gt;
+        Equals(cornerStyle, nameof(CornerStyleOption.Round)) || Equals(cornerStyle, nameof(CornerStyleOption.VeryRound));
+}
+</code></pre>
+</div>
+
+<p>If your project has a dedicated class for component identifiers, add the identifier for your widget.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentIdentifiers.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    ...
+    public static class ComponentIdentifiers
+    {
+        public static class Sections
+        {
+            ...
+        }
+
+        public static class Widgets
+        {
+            ...
+            //Include the widget in the component identifiers list
+            public const string PRODUCT = ProductWidgetViewComponent.IDENTIFIER;
+            ...
+        }
+    }
+</code></pre>
+</div>
+
+<h2 id="document-your-widget">Document your widget</h2>
+<p>When you develop a new widget, make sure you train your editors about how to use it, and create documentation for it. Things that seem self-explanatory to development teams may not be so clear to non-technical users, so it’s important to give editors and other business users instructions on how to use what you make for them.</p>
+<h2 id="see-the-results">See the results</h2>
+<p>If you’ve followed along with this series about Page Builder, you can now use the <a href="/guides/development/page-builder/create-versatile-templates-part-1">General template</a>, <a href="/guides/development/page-builder/implement-flexible-sections">General section</a>, <a href="/guides/development/page-builder/build-simple-cta-widget">Simple CTA widget</a>, and Product widget to recreate the pages depicted in the mockups.</p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p></p>
+<p>You’re welcome to tweak the styling to get the pages to appear even closer to the mockups. You can also apply your knowledge to add additional configurations to the template, section, and widgets.</p>
+<p>Additionally, the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch of our training guides repository</a> has several additional widgets that you can look over and modify for your own purposes.</p>
+
+</body>
+</html>

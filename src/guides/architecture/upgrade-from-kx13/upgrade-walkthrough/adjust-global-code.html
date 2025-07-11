@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Adjust global code on the backend</title>
+</head>
+<body>
+<p>Now that you have successfully migrated the data and media files from the source instance of Dancing Goat, let’s work toward displaying them. First, we’ll look into tasks and code that are global for the whole solution.</p>
+<h2 id="generate-new-code-files-for-system-objects">Generate new code files for system objects</h2>
+<p>There are a several differences between code files generated for system objects by <a href="/13/developing-websites/generating-classes-for-xperience-objects">KX13</a> and <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">XbyK</a>. Therefore we need to generate them fresh, rather than transfer the code files from the source instance.</p>
+<h3 id="add-a-new-project-to-hold-generated-files">Add a new project to hold generated files</h3>
+<p>For separation of concerns, we recommend storing the generated files in a special project. Let’s create a new <em>DancingGoat.Entities</em> project for this purpose.</p>
+<p>Add a new <em>Class library</em> project to your <em>DancingGoat</em> solution, called <em>DancingGoat.Entities</em>.</p>
+<p>Ensure it targets your desired version of .NET framework and includes the <em>Kentico.Xperience.Core</em> NuGet package compatible with the version in <em>DancingGoat.Web</em>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Our code samples are targeting .NET 8.</p>
+</div>
+
+<p>Then, add an <code>AssemblyAttribute</code> to <em>DancingGoat.Entities.csproj</em> to <a href="/documentation/developers-and-admins/customization/integrate-custom-code">enable class discovery</a>.</p>
+
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>DancingGoat.Entities.csproj</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;Project Sdk="Microsoft.NET.Sdk"&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net8.0&lt;/TargetFramework&gt;
+    ...
+  &lt;/PropertyGroup&gt;
+
+  &lt;ItemGroup&gt;
+    &lt;AssemblyAttribute Include="CMS.AssemblyDiscoverableAttribute"&gt;
+    &lt;/AssemblyAttribute&gt;
+  &lt;/ItemGroup&gt;
+
+  &lt;ItemGroup&gt;
+    &lt;PackageReference Include="Kentico.Xperience.Core" Version="&lt;your_XbyK_version&gt;" /&gt;
+  &lt;/ItemGroup&gt;
+
+&lt;/Project&gt;
+
+</code></pre>
+</div>
+
+<p>Finally, reference the <em>DancingGoat.Entities</em> in your <em>DancingGoat.Web</em> project.</p>
+
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>DancingGoat.Web.csproj</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;Project Sdk="Microsoft.NET.Sdk.Web"&gt;
+  ...
+  
+  &lt;ItemGroup&gt;
+    &lt;ProjectReference Include="..\DancingGoat.Entities\DancingGoat.Entities.csproj" /&gt;
+  &lt;/ItemGroup&gt;
+&lt;/Project&gt;
+</code></pre>
+</div>
+
+<p>Rebuild your solution.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you have trouble building, double-check that the .NET and Kentico NuGet packages versions in your two projects are matching.</p>
+</div>
+
+<h3 id="generate-code-files">Generate code files</h3>
+<p>Xperience by Kentico allows you to <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">generate code files</a> using .NET CLI and the <code>dotnet run</code> command.</p>
+<p>For this upgrade walk-through, we need to generate <code>PageContentTypes</code> and <code>ReusableContentTypes</code>.</p>
+<p>Run the following command from your <em>./src/DancingGoat.Web</em> folder:</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet run --no-build -- --kxp-codegen --type "PageContentTypes" --location "../DancingGoat.Entities/{type}/{name}"
+</code></pre>
+</div>
+
+<p>After a successful run, you should see a new <em>PageContentTypes</em> folder in <em>DancingGoat.Entities</em> with generated files.</p>
+<p></p>
+<p>Similarly, run the command to generate files for <em>ReusableContentTypes</em>. It will create a <em>ReusableContentTypes</em> folder with files for <em>Attachment</em> and <em>MediaFile</em> content types.</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location "../DancingGoat.Entities/{type}/{name}"
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>In your own project, consider what other types of objects you need to regenerate files for. See details about the command parameters in <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#generate-code-files">our documentation</a>.</p>
+</div>
+
+<h2 id="copy-relevant-global-code-from-source">Copy relevant global code from source</h2>
+<p>Copy-paste the following files from the source instance’s <em>DancingGoatCore</em> folder into the target instance’s <em>DancingGoat.Web</em> project:</p>
+<h3 id="shared-views">Shared views</h3>
+<ul>
+<li>
+<em>./Views/_ViewImports.cshtml</em>
+<ul>
+<li>Copy the file into the <em>DancingGoat.Web</em> root.</li>
+<li>Replace the injected <code>IHtmlLocalizer</code> service with an <code>IStringLocalizer</code>.</li>
+<li>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>_ViewImports.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+@inject IStringLocalizer&lt;SharedResources&gt; localizer
+...
+</code></pre>
+</div>
+</li>
+</ul>
+</li>
+<li>
+<em>./Views/_ViewStart.cshtml</em>
+<ul>
+<li>Copy the file into the <em>DancingGoat.Web</em> root.</li>
+</ul>
+</li>
+<li>
+<em>./Views/Shared/_Layout.cshtml</em>
+<ul>
+<li>Copy the file into the matching location within the <em>DancingGoat.Web</em> project.</li>
+<li>Rename occurrences of the <code>HtmlLocalizer</code> service to <code>localizer</code>.</li>
+<li>Comment out any code that causes compiler errors.
+
+<div>
+
+</div>
+<div>
+In real-world upgrades, make sure to more carefully comb through the layout view and differentiate which code relates to functionality you haven’t migrated.
+</div>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="styles-and-scripts">Styles and scripts</h3>
+<ul>
+<li>
+<em>./wwwroot/Content</em> and <em>./wwwroot/Scripts</em> folders</li>
+</ul>
+<h3 id="localization">Localization</h3>
+<ul>
+<li>
+<em>./Resources</em> - copy the entire folder with the <code>SharedResources</code> class and string translations</li>
+</ul>
+<h3 id="identifiers">Identifiers</h3>
+<ul>
+<li><em>./ContentItemIdentifiers.cs</em></li>
+<li><em>./Components/ComponentIdentifiers.cs</em></li>
+</ul>
+<p>For now, feel free to comment out all the actual identifiers in the classes to be able to build. We will uncomment the relevant ones in later steps.</p>
+<h3 id="services-registration">Services registration</h3>
+<ul>
+<li><em>Helpers/IServiceCollectionExtensions.cs</em></li>
+</ul>
+<p>Rename the class to <code>ServiceCollectionExtensions</code> and comment out the lines referencing non-existent services for now. We will uncomment the relevant ones and add on to this class in later steps.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DancingGoat
+{
+    public static class ServiceCollectionExtensions
+    {
+        public static void AddDancingGoatServices(this IServiceCollection services)
+        {
+            AddViewComponentServices(services);
+
+            AddRepositories(services);
+
+            // services.AddSingleton&lt;TypedProductViewModelFactory&gt;();
+            // services.AddSingleton&lt;TypedSearchItemViewModelFactory&gt;();
+            // services.AddSingleton&lt;ICalculationService, CalculationService&gt;();
+            // services.AddSingleton&lt;ICheckoutService, CheckoutService&gt;();
+            // services.AddSingleton&lt;RepositoryCacheHelper&gt;();
+        }
+
+        private static void AddRepositories(IServiceCollection services)
+        {
+            ...
+            // services.AddSingleton&lt;CafeRepository&gt;();
+            ...
+        }
+
+        private static void AddViewComponentServices(IServiceCollection services)
+        {
+            // services.AddSingleton&lt;ArticleWithSidebarPageTemplateService&gt;();
+            // services.AddSingleton&lt;ArticlePageTemplateService&gt;();
+        }
+    }
+}
+
+</code></pre>
+</div>
+
+<h2 id="configure-the-project-to-display-content">Configure the project to display content</h2>
+<h3 id="enable-content-tree-based-routing-and-page-builder">Enable Content tree-based routing and Page Builder</h3>
+<p>Open your <em>Program.cs</em> file.</p>
+<p>Remove the following line of code:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+app.MapGet("/", () =&gt; "The DancingGoat.Web site has not been configured yet.");
+</code></pre>
+</div>
+
+<p>Next, enable the <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> and <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">Content tree-based routing</a> in your middleware pipeline.</p>
+<p>Un-comment the lines calling <code>UsePageBuilder</code> and <code>UseWebPageRouting</code> from the <code>features</code> collection passed to <code>builder.Services.AddKentico</code>, and add the necessary <code>using</code> directives.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc;
+...
+// Enable desired Kentico Xperience features
+builder.Services.AddKentico(features =&gt;
+{
+    features.UsePageBuilder();
+    // features.UseActivityTracking();
+    features.UseWebPageRouting();
+    // features.UseEmailStatisticsLogging();
+    // features.UseEmailMarketing();
+});
+...
+</code></pre>
+</div>
+
+<h3 id="add-future-custom-service-registrations-and-localization">Add future custom service registrations and localization</h3>
+<p>Add <code>using DancingGoat</code> directive and call the <code>AddDancingGoatServices</code> method from <em>ServiceCollectionExtensions.cs</em> above in the <em>Program.cs</em>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using DancingGoat;
+
+...
+builder.Services.AddAuthentication();
+// builder.Services.AddAuthorization();
+
+// new code
+builder.Services.AddDancingGoatServices();
+builder.Services.AddLocalization();
+//end new code
+
+builder.Services.AddControllersWithViews();
+
+var app = builder.Build();
+app.InitKentico();
+...
+</code></pre>
+</div>
+
+<p>Build and run your solution. You will still see an error when the site runs because we have not fixed the home page yet. However, if you navigate to <em>/admin</em> you should be able to sign into the administration interface normally.</p>
+
+
+<div>
+
+</div>
+<div>
+<p>If you are unable to build your solution, make sure you have commented out all the code that references any non-existent classes and services.</p>
+</div>
+
+<h3 id="adjust-system-url">Adjust system URL</h3>
+<p>If you are running your site locally, notice that it is running on a certain port. In our example, it’s <em>localhost:56305</em>.</p>
+<p>However, if you look at any of your migrated DancingGoatCore pages in your content tree, e.g., Contacts, you’ll see the port is not included in the URL. This is because we didn’t create the page directly in Xperience but migrated it over.</p>
+<p></p>
+<p>To avoid errors when navigating to pages in the future, let’s fix it in the <strong>Channel management → DancingGoatCore → General</strong>.</p>
+<p>Add the port into the <strong>Website domain</strong> field and hit <strong>Save</strong>. Now the page URLs include the port and we are all set to continue with the next step.</p>
+
+<h3 id="walkthrough-progress">Walkthrough progress</h3>
+<p>Learn how you can <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough/display-an-upgraded-page">display an upgraded page</a> that contains both Page Builder and structured data.</p>
+
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Implement navigation</title>
+</head>
+<body>
+<p>With the navigation content types in place, let’s use a view component to render the <em>Navigation menu</em> that exists in the Content hub.</p>
+<h2 id="create-view-models">Create view models</h2>
+<p>Start by creating view models that correspond to the <em>Navigation item</em> and <em>Navigation menu</em> classes.</p>
+<p>Add a new <em>Navigation</em> folder under <em>Kickstart.Web/Features</em>, to hold all the navigation-related files.</p>
+<p>Inside, create the <code>NavigationItemViewModel</code>. It only needs two properties - <em>Title</em> and <em>Url</em>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>NavigationItemViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace Kickstart.Web.Features.Navigation;
+public class NavigationItemViewModel
+{
+    public string Title { get; set; }
+
+    public string Url { get; set; }
+}
+</code></pre>
+</div>
+
+<p>You might remember that in the <a href="/guides/development/developer-kickstart/build-a-page-template#add-a-view-model-class">page template step</a>, you defined a method that created a <code>LandingPageViewModel</code> based on a <code>LandingPage</code> object.</p>
+<p>We need a similar method to create a <code>NavigationItemViewModel</code> from a <code>NavigationItem</code>, but it will require dependency injection to find the page’s URL, so we’ll move it to a <a href="#add-a-service">separate service (in the next section)</a> rather than a view model. Because we’ll have this service anyway, we might as well also include the analogous method for <code>NavigationMenuViewModel</code> in the service to keep them together.</p>
+<p>As a result, the <code>NavigationViewModel</code> class only needs properties to represent its <em>Name</em> and <em>Items</em>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>NavigationMenuViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.Collections.Generic;
+
+namespace Kickstart.Web.Features.Navigation;
+
+public class NavigationMenuViewModel
+{
+    public string Name { get; set; }
+
+    public IEnumerable&lt;NavigationItemViewModel&gt; Items { get; set; }
+}
+</code></pre>
+</div>
+
+<h2 id="add-a-service">Add a service</h2>
+<p>Define a service interface with the two methods mentioned above.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>INavigationService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Threading.Tasks;
+
+namespace Kickstart.Web.Features.Navigation;
+public interface INavigationService
+{
+    Task&lt;NavigationItemViewModel&gt; GetNavigationItemViewModel(NavigationItem navigationItem);
+
+    Task&lt;NavigationMenuViewModel&gt; GetNavigationMenuViewModel(NavigationMenu navigationMenu);
+}
+
+</code></pre>
+</div>
+
+<p>Moving on to implement this interface, we’ll need the following building blocks for <code>GetNavigationItemViewModel</code>:</p>
+<ul>
+<li>
+<code>IWebPageUrlRetriever</code> to get the URL of the page referenced by the <code>NavigationItemTarget</code>.</li>
+<li>
+<code>IPreferredLanguageRetriever</code> to ensure we get the URL of the correct language version of the target page.</li>
+</ul>
+<p>Return <code>null</code> if the provided item is null or missing its target. Otherwise, use the GUID of the target page to retrieve a URL and build a view model.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>NavigationService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.Linq;
+using System.Threading.Tasks;
+using CMS.Websites;
+using Kentico.Content.Web.Mvc.Routing;
+using Microsoft.IdentityModel.Tokens;
+
+namespace Kickstart.Web.Features.Navigation;
+
+public class NavigationService : INavigationService
+{
+    private readonly IWebPageUrlRetriever webPageUrlRetriever;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+
+    public NavigationService(IWebPageUrlRetriever webPageUrlRetriever,
+    IPreferredLanguageRetriever preferredLanguageRetriever)
+    {
+        this.webPageUrlRetriever = webPageUrlRetriever;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+    }
+    
+    public async Task&lt;NavigationItemViewModel&gt; GetNavigationItemViewModel(NavigationItem navigationItem)
+    {
+        if (navigationItem?.NavigationItemTarget?.IsNullOrEmpty() ?? true)
+        {
+            return null;
+        }
+
+        var targetGuid = navigationItem.NavigationItemTarget.FirstOrDefault().WebPageGuid;
+
+        var targetUrl = await webPageUrlRetriever.Retrieve(targetGuid, preferredLanguageRetriever.Get());
+
+        return new NavigationItemViewModel
+        {
+            Title = navigationItem.NavigationItemTitle,
+            Url = targetUrl.RelativePath
+        };
+    }
+}
+
+</code></pre>
+</div>
+
+<p>Then, add the method that gets a menu view model for the provided <code>NavigationMenu</code> object, calling the <code>GetNavigationItemViewModel</code> method for each menu item.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>NavigationService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public async Task&lt;NavigationMenuViewModel&gt; GetNavigationMenuViewModel(NavigationMenu navigationMenu)
+{
+    if (navigationMenu?.NavigationMenuItems?.IsNullOrEmpty() ?? true)
+    {
+        return null;
+    }
+
+    var menuItems = await Task.WhenAll(
+        navigationMenu.NavigationMenuItems.Select(GetNavigationItemViewModel));
+
+    return new NavigationMenuViewModel
+    {
+        Name = navigationMenu.NavigationMenuDisplayName,
+        Items = menuItems
+    };
+}
+...
+</code></pre>
+</div>
+
+<p>The resulting service implementation should look <a href="https://github.com/Kentico/xperience-by-kentico-kickstart/blob/main/src/Kickstart.Web/Features/Navigation/NavigationService.cs" target="_blank">like this file</a>.</p>
+<p>Finally, go to the <em>Program.cs</em> file in the root of the <em>Kickstart.Web</em> project and register the service implementation to the application’s <code>IServiceCollection</code> at some point between the <code>WebApplication.CreateBuilder</code> and <code>builder.Build</code> calls.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+var builder = WebApplication.CreateBuilder(args);
+...
+builder.Services.AddSingleton&lt;INavigationService, NavigationService&gt;();
+...
+var app = builder.Build();
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Add a using directive for the <code>Kickstart.Web.Features.Navigation</code> namespace where the service lives.</p>
+</div>
+
+<h2 id="define-a-view-component">Define a view component</h2>
+<p>Websites often have multiple navigation menus. Let’s make a view component that renders the menu. You can reuse the view component across the site.</p>
+<p>Define an asynchronous view component with a string parameter to indicate which menu item to retrieve.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>NavigationMenuViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Kickstart.Web.Features.Navigation;
+public class NavigationMenuViewComponent : ViewComponent
+{
+    private readonly INavigationService navigationService;
+
+    public NavigationMenuViewComponent(
+        INavigationService navigationService)
+    {
+        this.navigationService = navigationService;
+    }
+
+    public async Task&lt;IViewComponentResult&gt; InvokeAsync(string navigationMenuCodeName)
+    {
+        // A placeholder representing the logic that retrieves the `NavigationMenu` item from the database.
+        var menu = await RetrieveMenu(navigationMenuCodeName);
+
+        if (menu == null)
+        {
+            // We will define this view in the next step.
+            return View("~/Features/Navigation/NavigationMenuViewComponent.cshtml", new NavigationMenuViewModel());
+        }
+
+        var model = await navigationService.GetNavigationMenuViewModel(menu);
+
+        return View("~/Features/Navigation/NavigationMenuViewComponent.cshtml", model);
+    }
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you copy-paste the code above, you will see a couple of issues:</p>
+<ol type="1">
+<li>The <code>RetrieveMenu</code> method does not exist - for now, we are using a placeholder to represent the logic that retrieves the menu item from the database.</li>
+<li>The <code>~/Features/Navigation/NavigationMenuViewComponent.cshtml</code> view does not exist yet.</li>
+</ol>
+<p>We will fix both of these shortly.</p>
+</div>
+
+<p>Add a private method to retrieve the menu.</p>
+<p>Query the content items with the same approach we used for the <code>LandingPageController</code> in <a href="/guides/development/developer-kickstart/build-a-page-template#query-the-landing-page">the earlier step</a>, but filtering based on a provided codename rather than the <code>WebPageDataContext</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>NavigationMenuViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+private async Task&lt;NavigationMenu&gt; RetrieveMenu(string navigationMenuCodeName)
+{
+    var builder = new ContentItemQueryBuilder()
+        .ForContentType(NavigationMenu.CONTENT_TYPE_NAME,
+        config =&gt; config
+            .Where(where =&gt; where.WhereEquals(nameof(NavigationMenu.NavigationMenuCodeName), navigationMenuCodeName))
+            .WithLinkedItems(2))
+        .InLanguage(preferredLanguageRetriever.Get());
+
+    var queryExecutorOptions = new ContentQueryExecutionOptions
+    {
+        ForPreview = webSiteChannelContext.IsPreview
+    };
+
+    var items = await contentQueryExecutor.GetMappedResult&lt;NavigationMenu&gt;(builder, queryExecutorOptions);
+
+    return items.FirstOrDefault();
+}
+...
+</code></pre>
+</div>
+
+<p>Once you add the necessary using directives and inject the required components, the view component should look <a href="https://github.com/Kentico/xperience-by-kentico-kickstart/blob/main/src/Kickstart.Web/Features/Navigation/NavigationMenuViewComponent.cs" target="_blank">like this</a>.</p>
+<h2 id="design-the-components-view">Design the component’s view</h2>
+<p>Now, we just need a view to render the model provided by <code>NavigationMenuViewComponent</code>.</p>
+<p>Add a file called <em>NavigationMenuViewComponent.cshtml</em> that renders a <code>nav</code> element containing a list of links from the model’s <code>Items</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Spice up the design of the menu with some Bootstrap CSS classes.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>NavigationMenuViewComponent.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using Kickstart.Web.Features.Navigation
+
+@model NavigationMenuViewModel
+
+@if (Model?.Items?.Any() ?? false)
+{
+    &lt;nav&gt;
+        &lt;ul class="navbar-nav nav-underline"&gt;
+            @foreach (var item in Model.Items)
+            {
+                &lt;li class="nav-item"&gt;
+                    &lt;a href="@item.Url" class="nav-link link-light"&gt;@item.Title&lt;/a&gt;
+                &lt;/li&gt;
+            }
+        &lt;/ul&gt;
+    &lt;/nav&gt;
+}
+</code></pre>
+</div>
+
+<p>Finally, add the view component to the <em>_Layout.cshtml</em> view beneath the site heading, specifying <em>MainNavigation</em> as the codename of the menu to retrieve. Adjust the Bootstrap CSS classes as necessary.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_Layout.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+&lt;div class="navbar navbar-primary navbar-expand-sm navbar-dark bg-primary p-3"&gt;
+    &lt;div class="navbar-brand"&gt;
+        &lt;h2&gt;Xperience Kickstart&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;vc:navigation-menu navigation-menu-code-name="MainNavigation" /&gt;
+&lt;/div&gt;
+...
+</code></pre>
+</div>
+
+<p>With all these elements in place, you should have a working navigation menu that looks something like this:</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>If you haven’t already, check out our <a href="https://github.com/Kentico/xperience-by-kentico-kickstart" target="_blank">Kickstart repository</a> to see the complete implementation of the website we created together in this series. To run the project, follow the <em>README</em> instructions.</p>
+</div>
+
+<p>Continue to the next step for additional exercises and resources.</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/next-steps">Next steps</a></p>
+
+</body>
+</html>

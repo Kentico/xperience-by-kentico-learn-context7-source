@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Add a custom dropdown provider for administration components</title>
+</head>
+<body>
+<p>When editors create pages with <a href="/documentation/developers-and-admins/development/builders/page-builder"><em>Page Builder</em></a>, they utilize components (page templates, sections, widgets), prepared by the developers. Each component has properties, that editors set in the Xperience administration using <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">UI controls</a>, for example, a dropdown selector.</p>
+<p></p>
+<p>As a developer, you can populate an <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#dropdown-selector">Xperience dropdown selector</a> with data in two ways:</p>
+<ol type="1">
+<li><p>Pass a “hardcoded” string of options, as you can see in <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/a58ae4215eaba8941ab98d797c1b8146875b8525/src/TrainingGuides.Web/Features/LandingPages/LandingPageTemplateProperties.cs#L24" target="_blank">this example</a>.</p></li>
+<li><p>Create a dropdown provider that maps options dynamically.</p></li>
+</ol>
+<p>This guide covers the second approach. In our example, we use an <strong>enumeration</strong> to define the dropdown options.</p>
+
+<div>
+
+</div>
+<div>
+<p>Setting up dropdown mapping is an important building block for the later guides in this <a href="/guides/development/page-builder/meet-requirements-with-page-builder">Page Builder series</a>, which use dropdown components heavily.</p>
+</div>
+
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+<li>Basic knowledge of the <a href="/documentation/developers-and-admins/development/builders/page-builder"><em>Page Builder</em></a> in Xperience by Kentico.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>For a finished example implementation, take a look at the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/85feba75add184397fd29cc291e7f332abc75718/src/TrainingGuides.Web/Features/Shared/OptionsProviders/DropdownEnumOptionsProvider.cs" target="_blank"><em>DropdownEnumOptionsProvider.cs</em></a> file. To see this provider in action, check out <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/85feba75add184397fd29cc291e7f332abc75718/src/TrainingGuides.Web/Features/LandingPages/LandingPageTemplateProperties.cs" target="_blank"><em>LandingPageTemplateProperties.cs</em></a> file in the same repo.</p>
+</div>
+
+<h2 id="implement-a-generic-mapper-class">Implement a generic mapper class</h2>
+The <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#dropdown-selector">Xperience Dropdown selector</a> has a <code>DataProviderType</code> property that can take a class, mapping a custom enumeration to specific dropdown options.
+
+<div>
+
+</div>
+<div>
+<p>While it is viable to implement a custom class per enumeration, a reusable <strong>generic</strong> class will save you time and lines of code.</p>
+</div>
+
+<p>First, create a generic <code>DropdownEnumOptionProvider</code> class that:</p>
+<ul>
+<li>Implements <code>IDropDownOptionsProvider</code>
+</li>
+<li>Accepts <code>struct</code> and <code>Enum</code> as the generic type</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>If you are working in the training guides repository, we recommend placing the class inside <em>~/Features/Shared/OptionProviders</em> folder in the <em>TrainingGuides.Web</em> project.</p>
+</div>
+
+<p>Then implement the following methods:</p>
+<ul>
+<li>
+<code>GetOptionItems</code>
+<ul>
+<li>Tells Xperience how to map the enumeration members to dropdown items.</li>
+</ul>
+</li>
+<li>
+<code>Parse</code>
+<ul>
+<li>Casts a <code>string</code> value to the enumeration type. The value from the dropdown selector control comes back as <code>string</code> by definition, so the method will come in handy later in your code.</li>
+</ul>
+</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>To work with enumerations, our samples use the <a href="https://www.nuget.org/packages/Enums.NET/" target="_blank">EnumsNET NuGet package</a>. The library allows you to access the enumeration attributes, like <em>Description</em>, which is handy, for example, to store UI labels for each dropdown option.</p>
+</div>
+
+<p>Below is the complete code of a generic <code>DropdownEnumOptionProvider</code> class, for your reference:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>DropdownEnumOptionProvider.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel;
+using EnumsNET;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+
+namespace TrainingGuides.Web.Features.Shared.OptionProviders;
+
+public class DropdownEnumOptionProvider&lt;T&gt; : IDropDownOptionsProvider
+    where T : struct, Enum
+{
+    public Task&lt;IEnumerable&lt;DropDownOptionItem&gt;&gt; GetOptionItems()
+    {
+        // map enum members to DropDownOptionItem
+        var results = Enums.GetMembers&lt;T&gt;(EnumMemberSelection.All)
+            .Select(enumItem =&gt;
+            {
+                // dropdown item label:
+                // if available, use Description attribute, otherwise use enum item name
+                string text = enumItem.Attributes
+                    .OfType&lt;DescriptionAttribute&gt;()
+                    .FirstOrDefault()?.Description
+                    ?? enumItem.Name;
+                
+                // dropdown item value 
+                string value = enumItem.Value.ToString();
+
+                return new DropDownOptionItem { Value = value, Text = text };
+            });
+
+        return Task.FromResult(results.AsEnumerable());
+    }
+ 
+    public virtual T Parse(string value, T defaultValue) =&gt;
+        Enums.TryParse&lt;T&gt;(value, true, out var parsed)
+            ? parsed
+            : defaultValue;
+}
+</code></pre>
+</div>
+
+<h2 id="use-the-new-mapper-class">Use the new mapper class</h2>
+<p>Let’s demonstrate the enumeration mapping on an existing <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/a58ae4215eaba8941ab98d797c1b8146875b8525/src/TrainingGuides.Web/Features/LandingPages/LandingPageTemplateProperties.cs#L24" target="_blank">dropdown selector property</a> of the Landing page template in the main branch of our training guides repository.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you are working on your own project, feel free to define a property and enumeration values that fit your use case. You will still be able to follow most of the steps below.</p>
+</div>
+
+<h3 id="define-your-enumeration">Define your enumeration</h3>
+Examine the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/85feba75add184397fd29cc291e7f332abc75718/src/TrainingGuides.Web/Features/LandingPages/LandingPageTemplateProperties.cs" target="_blank"><code>LandingPageTemplateProperties.cs</code> file</a> in <code>TrainingGuides.Web/Features/LandingPages</code>. The dropdown values are currently defined by a string constant:
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LandingPageTemplateProperties.cs - BEFORE MAPPING</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+private const string OPTIONS =
+    "H1;Heading 1" + "\n" +
+    "H2;Heading 2" + "\n" +
+    "H3;Heading 3" + "\n" +
+    "H4;Heading 4" + "\n" +
+    "P;Paragraph" + "\n";
+
+[DropDownComponent(
+    Label = "Message tag type",
+    Options = OPTIONS,
+    ExplanationText = DESCRIPTION)]
+public string MessageType { get; set; } = "H4";
+...
+</code></pre>
+</div>
+
+Define the <code>LandingPageHeadingTypeOption</code> enumeration accordingly.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+    using System.ComponentModel;
+    ...
+
+    public enum LandingPageHeadingTypeOption
+    {
+        [Description("Heading 1")]
+        H1,
+        [Description("Heading 2")]
+        H2,
+        [Description("Heading 3")]
+        H3,
+        [Description("Heading 4")]
+        H4,
+        [Description("Paragraph")]
+        P
+    }
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Each enumeration item should match one option in the dropdown component.</p>
+<p>The <em>Description</em> of each item is what editors will see as labels in the Xperience administration. If you don’t define a <em>Description</em> attribute, the item’s name becomes the label by default.</p>
+</div>
+
+<h3 id="map-the-enumeration-to-the-dropdown-component">Map the enumeration to the dropdown component</h3>
+<p>Assign the type of <code>DropdownEnumOptionProvider&lt;YOUR_ENUMERATION&gt;</code> to the <code>DataProviderType</code> property of the <code>DropDownComponent</code>.</p>
+<p>Next, remove the <code>Options</code> property, which is no longer needed.</p>
+See below for the complete new <em>LandingPageTemplateProperties.cs</em>, with the <code>LandingPageHeadingTypeOption</code> enumeration mapped to the <code>MessageType</code> dropdown property.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LandingPageTemplateProperties.cs - AFTER MAPPING</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.ComponentModel;
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+using TrainingGuides.Web.Features.Shared.OptionProviders;
+
+namespace TrainingGuides.Web.Features.LandingPages;
+
+public class LandingPageTemplateProperties : IPageTemplateProperties
+{
+    private const string DESCRIPTION = "Select the type of Html tag that wraps the home page message";
+
+    [DropDownComponent(
+        Label = "Message tag type",
+        ExplanationText = DESCRIPTION,
+        DataProviderType = typeof(DropdownEnumOptionProvider&lt;LandingPageHeadingTypeOption&gt;)
+    )]
+    public string MessageType { get; set; } = nameof(LandingPageHeadingTypeOption.H2);
+}
+
+// enumeration defining the dropdown values and labels
+public enum LandingPageHeadingTypeOption
+{
+    [Description("Heading 1")]
+    H1,
+    [Description("Heading 2")]
+    H2,
+    [Description("Heading 3")]
+    H3,
+    [Description("Heading 4")]
+    H4,
+    [Description("Paragraph")]
+    P
+}
+</code></pre>
+</div>
+
+<p>If you followed along with the example above, run the <em>TrainingGuides.Web</em> project. When you edit the <strong>Home page</strong> template in the Xperience administration, the <strong>Message tag type</strong> property should let you change the style of the <em>“Welcome to Training guides!”</em> message – the same way as before the refactor.</p>
+
+<h2 id="whats-next">What’s next</h2>
+<p>You can now utilize the <code>DropdownEnumOptionProvider</code> class across your project, for dropdown selector properties of page templates, Page Builder sections, or widgets alike. As you’ll see later in this series, you can work with enumerations that are shared or reuse other enumeration values.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you have been following along using the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">the training guides repository</a>, take a look at the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/LandingPages/LandingPagePageTemplate.cshtml" target="_blank">Landing page view in the finished branch</a>. You’ll notice it utilizes a <strong>tag helper</strong> that works with the heading type enum, rather than the in-template logic you can see in your version of the same file. Try to look for opportunities to extract reusable parts in your own projects.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Note, that not all <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">Xperience UI form components</a> have the <code>DataProviderType</code> property and support the dynamic data source.</p>
+</div>
+
+<p>If you’d like to read more about how to approach working with <a href="/documentation/developers-and-admins/development/builders/page-builder"><em>Page Builder</em></a> in Xperience by Kentico projects, <a href="/guides/development/page-builder/meet-requirements-with-page-builder">Meet business requirements with Page Builder</a> provides a great introductory explanation.</p>
+<p>The <a href="/guides/development/page-builder/create-versatile-templates-part-1">next guide of this series</a> will walk you through the process of creating versatile page templates.</p>
+
+</body>
+</html>

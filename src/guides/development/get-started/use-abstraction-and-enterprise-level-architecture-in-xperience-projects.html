@@ -1,0 +1,2312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Use abstraction and enterprise-level architecture in Xperience projects</title>
+</head>
+<body>
+<p>As enterprise projects grow over time, with several developers working together, having an organized architecture becomes increasingly important for automated testing and code maintenance. However, digital experience platforms like Xperience by Kentico offer a wide array of features spanning many parts of the project, making it difficult to decide where to draw the lines between layers of a project and minimize dependence on infrastructure.</p>
+<p>This guide sheds light on this topic, demonstrating an approach similar to <a href="https://www.youtube.com/watch?v=yF9SwL0p0Y0" target="_blank"><em>Ports and adapters</em> or <em>Clean architecture</em></a>. It covers:</p>
+<ul>
+<li>Benefits of abstraction in enterprise projects</li>
+<li>Advantages of layering for code maintenance</li>
+<li>Tradeoffs involved in enterprise architecture</li>
+<li>Examples of displaying content with clean architecture in Xperience by Kentico</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>This guide is more conceptual and does NOT have a corresponding repository in the <a href="https://github.com/Kentico" target="_blank">Kentico GitHub</a>.<br>
+If you are familiar with our other guides, e.g. <a href="/guides/development/activities-and-marketing">the <em>Activities and marketing</em> series</a>, note that there are differences between the examples they reference and the architecture presented in this guide.</p>
+<p>Enterprise architecture sacrifices initial development overhead and readability in exchange for easier code maintenance and automated testing. This makes it ideal for large, long-lived production projects, but not for proofs of concept that demonstrate how to use various Kentico features in isolation.</p>
+</div>
+
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">dependency injection</a></p>
+<p>Basic understanding of the <a href="https://dotnet.microsoft.com/en-us/apps/aspnet/mvc" target="_blank">ASP.NET MVC pattern</a></p>
+<h2 id="examine-abstraction-in-the-context-of-architecture">Examine abstraction in the context of architecture</h2>
+<p>When defining the concept of abstraction in programming, most sources focus on simplification— discarding irrelevant information to work with only the data you need. Since modern software development is rarely from scratch, abstraction often manifests through new, lean classes that your business logic uses instead of more generalized, featureful types provided by whatever system or service you are working in or integrating with.</p>
+<p>In such cases, the code that retrieves objects of a complex type from the external system is best kept in one place. This allows complex types to be converted to the simpler type in a centralized location, rather than everywhere data is accessed. Doing this for every object type in the external system results in a whole <strong>layer of abstraction</strong> between the business logic and data access.</p>
+<p>This situation is often left out of simple definitions, because it is difficult to wrap into a concise description of one or two sentences, and relates to a specific scenario. However, it has significant benefits.</p>
+<p>One central location for the data access and conversion of an external system’s type means that any breaking changes introduced by that external system only need to be fixed in one place, rather than everywhere your business logic accesses data from that system.</p>
+
+<p>📕 For example</p>
+<p>Imagine your application connects to a third-party commerce service to sell books and e-books. The service’s API may return <em>Product</em> objects, which include a property <em>ProductSKUNumber</em> and Product<em>Weight</em>.</p>
+<p>One year after your site goes live, the commerce service decides to move <em>ProductSKUNumber</em> to a class called <em>CommonProductProperties</em> and <em>ProductWeight</em> to a class called <em>PhysicalProductProperties</em>.</p>
+<p>If you have code sprinkled throughout your project that queries the commerce service’s APIs for Product objects and access their <em>ProductSKUNumber</em> and <em>ProductWeight</em> properties directly, you’ll have a major headache on your hands to update all of the references.</p>
+<p>However, if you have an abstraction layer, with a class that queries the API and filters on a few pre-defined parameters, then converts the <em>Product</em> objects to a custom <em>MyProduct</em> class, then you only have to change a few methods, and how the resulting data is mapped to <em>MyProduct</em> objects.</p>
+
+<p>This layer in between also makes it easier to swap in fake classes for automated testing, or even to change tools completely, especially if your business logic uses some kind of dependency inversion to dynamically get a class that provides it with abstracted objects. If the business layer is completely separated from data access in this way, it doesn’t need to worry about how the objects are populated.</p>
+<h3 id="the-repository-pattern">The repository pattern</h3>
+<p>The <a href="https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design#the-repository-pattern" target="_blank">repository pattern</a> is a specific example of the data access abstraction discussed above.</p>
+<p>It involves creating <strong>repository interfaces</strong>, which define methods that return abstracted types. These classes are defined in your application and independent of any third-party system.</p>
+<p>The method signatures of these interfaces specify the data and operations your business logic needs regarding that type.</p>
+<p><strong>Repository classes</strong> that implement these interfaces are resolved or injected dynamically, and can use any data access logic necessary to meet the requirements defined in the repository interface.</p>
+<p>It is one of the most popular ways to implement this kind of layer of abstraction, and will be included in the example later in this guide.</p>
+<h3 id="drawbacks">Drawbacks</h3>
+<p>While creating a layer of abstraction between business and data access logic may provide important benefits, it is not without drawbacks:</p>
+<h4 id="development-overhead">⚠ Development overhead</h4>
+<ul>
+<li>
+<p>If you’re not using the repository pattern, it’s fairly straightforward to create a page that retrieves and displays some data. With the repository pattern, though, this same process involves the following steps:<br>
+    1. Create a model with only the information you need<br>
+    2. Define a repository interface with several methods for working with objects<br>
+    3. Implement that interface with data access code, and convert the data to fit your model</p>
+<p>Similar headaches can occur when requirements change in the future, and all of these things must be updated.</p>
+</li>
+</ul>
+<h4 id="readability-and-onboarding">⚠ Readability and onboarding</h4>
+<ul>
+<li>When a new developer looks at the solution, they may find it more complicated to jump between several files to accomplish the same task. They may get used to the pattern, and eventually be able to understand the abstracted code quickly, but this means your company may have to invest additional time and resources in getting the developer up to speed.</li>
+</ul>
+<p>Depending on your team, project requirements, and budget, you may find it appropriate to compromise, and find some other way to reduce the impact of changes in your project.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>An example of a compromise</strong></p>
+<p>The <code>ContentItemRetrieverService</code> class in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">training guides repository</a> is an example of somewhat-centralized data access, which works to mitigate some issues while not going quite as far as a full-blown abstraction layer.</p>
+<p>In this case, the object types it returns are Xperience content types, whose properties are determined by the organization who owns the site rather than Kentico. Thanks to this, it avoids some of the typical risk, while centralizing as much of the <em>Content query</em> logic as possible.</p>
+<p>If the <em>Content query</em> API has breaking changes in the future, you only need to refactor the service.</p>
+<p>The fact that it is an implementation of an interface registered with the dependency injection container means it can still be easily swapped out with a fake class in testing scenarios.</p>
+</div>
+
+<h2 id="understand-clean-architecture">Understand clean architecture</h2>
+<p>Details vary slightly from place to place, but terms like <em>ports and adapters, clean architecture,</em> and <em>domain-driven design</em> all relate to a certain way of thinking about architecture in software projects.</p>
+<p>Much like the separation between business logic and data access offered by the repository pattern, this type of architecture seeks to break the system into more modular, independent layers.</p>
+<p>It takes the concept a few steps further by using project structure to enforce the separation, rather than relying on developers to follow rules. It separates projects in such a way that creating dependencies to the wrong layer is not possible. It also aims to put the application’s business logic and the objects it uses at the center of its design, with other layers being molded to meet its requirements.</p>
+<h3 id="the-layers">The layers</h3>
+<p>This type of architecture typically has three layers: <em>Domain</em>, <em>Infrastructure</em>, and <em>UI</em>.</p>
+<p></p>
+<h4 id="domain">🧱 Domain</h4>
+<ul>
+<li>
+<p>The domain layer contains the types or <strong>domain models</strong> that your business logic works with. These are typically referred to as <em>Value objects, Entities,</em> and <em>Aggregates</em>. These are all classes that are distinguished on a conceptual level.<br>
+An <em>entity</em> represents a thing, while a <em>value object</em> represents an attribute of a thing, and an <em>aggregate</em> represents a collection of entities and value objects.</p>
+<p>For each <em>Aggregate root</em>, or aggregate that represent meaningful concepts in the domain, the domain layer contains a <a href="#the-repository-pattern">repository interface</a>. This emphasizes data consistency over efficiency in data retrieval, ensuring that all relevant data is present, and parent and child entities can each be updated based on changes to the other.</p>
+<p>The domain layer also contains business logic, using interfaces that can be implemented by other layers. This includes things like events, event handlers, and domain services.</p>
+<p>Domain layer project(s) should not reference projects from the other layers. The domain layer should be the central piece on which the others depend.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Shared kernel</strong></p>
+<p>If the application serves a wide enough variety of users to require <a href="https://martinfowler.com/bliki/BoundedContext.html" target="_blank">bounded contexts</a> within the domain layer, pieces shared between these contexts can be separated into a shared kernel, but it is a best practice in .NET development to distribute this kernel as a NuGet package, rather than adding a project dependency to the domain projects.</p>
+</div>
+</li>
+</ul>
+<h4 id="infrastructure">🧱 Infrastructure</h4>
+<ul>
+<li>
+<p>The infrastructure layer is a little more self-explanatory, as it relates to the infrastructure on which your application is built. It holds implementations of the domain layer’s repositories, fulfilling their requirements by reaching out to the various platforms and services that your app is built upon. <strong>It should be the only layer that deals directly with any of these platforms and services.</strong> These include in-house resources like databases and email servers, as well as integrations with any microservices that don’t directly relate to the UI.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you have services and other functionality that relates to the infrastructure and is only used within the infrastructure projects, both their interfaces and implementations should be housed in the infrastructure projects.</p>
+</div>
+
+<p>Depending on the breadth of platforms and services that your application touches, you might break this layer into multiple projects, but it is important that they only reference the domain project, and never any projects from the UI layer.</p>
+</li>
+</ul>
+<h4 id="ui">🧱 UI</h4>
+<ul>
+<li>
+<p>The UI layer is also somewhat self-explanatory, holding the code that renders and manages the user interface. It uses dependency injection or some other <em>inversion of control (IOC)</em> solution to resolve the interfaces for repositories, services, etc. specified in the domain layer without having a project reference to the infrastructure layer, and uses them to retrieve and manipulate data according to the UI’s needs.</p>
+
+<div>
+
+</div>
+<div>
+<p>The basic implementation of dependency injection built into .NET does not handle this kind of resolution currently, so a custom-built or third-party IOC solution will be necessary to avoid referencing the infrastructure project(s) from the UI project(s) in .NET solutions.</p>
+</div>
+
+<p>Because there is no project reference, it is impossible for the UI layer to misuse classes from the infrastructure layer. If the infrastructure layer were to be swapped out for a test project full of fakes or even a completely different system, as long as it properly implements any necessary interfaces from the domain layer, there would be no need to change anything in the UI layer. This is one of the key benefits of this architecture.</p>
+<p>This layer should also contain any integrations that relate specifically to the UI, for example, a web site’s integrations with web analytics services.</p>
+</li>
+</ul>
+<h3 id="tradeoffs">Tradeoffs</h3>
+<p>When compared to projects where everything is mixed together, this type of architecture has some clear advantages:</p>
+<ul>
+<li>
+<strong>Organization</strong>
+<ul>
+<li>If the project grows and expands over the course of several years, the structure makes it much easier to manage the growing number of files.</li>
+</ul>
+</li>
+<li>
+<strong>Automated testing</strong>
+<ul>
+<li>The modularity of the layers allows for easy inclusion of automated testing into the solution. Everything being based on interfaces with clearly defined requirements and resolved dynamically makes unit and integration tests easier, opening the door to things like full-fledged test-driven development.</li>
+</ul>
+</li>
+<li>
+<strong>Resilience to change</strong>
+<ul>
+<li>Clean architecture keeps the areas affected by major changes as confined as possible, as long as the underlying business needs and functionality do not change.<br>
+The infrastructure layer, dealing with the various platforms and services your solution incorporates, is the only place affected by upgrades and migrations to different platforms.<br>
+The UI layer, controlling the presentation and interactivity of your application, is the only place you need to make changes for visual overhauls and restyling of the application.</li>
+</ul>
+</li>
+</ul>
+<p>However, like any approach, clean architecture also has drawbacks. </p>
+<p>They are essentially the same as those mentioned in <a href="#drawbacks">the earlier section on abstraction of data access</a>.</p>
+<p>The modular design of clean architecture projects requires a lot of additional development time at the start of a project, along with anytime you change domain objects and business logic.</p>
+
+<p>🔤 For example</p>
+<p>If you have a web project, and you decide to change which properties are in the domain model, you must also consider if these changes affect your repository interface. For example, if you decide to incorporate letters into formerly numerical IDs, then the signature of a <code>GetProductById</code> method in your repository interface will need to be updated.</p>
+<p>You must also change the infrastructure layer’s repository, so that the values needed to populate the changed properties are retrieved from the CMS. Then you must update the function that maps the CMS API’s objects to the domain object type to account for this change. You also need to account for the changes in write methods, and any business logic implementations that exists in the repository and its related services.</p>
+<p>After that, you need to update the UI layer, everywhere it retrieves objects of that type, anywhere it maps them to its own view models or other DTOs, and anywhere it displays or takes input for those properties.</p>
+
+<p>The issues of readability from earlier also apply. The complicated architecture can be confusing for developers who are not familiar with the pattern, so your team will likely have to spend more resources training junior developers.</p>
+<h2 id="implement-an-example">Implement an example</h2>
+<p>Now let’s look over an example of these concepts in Xperience by Kentico. It demonstrates a three-layered approach to displaying a listing of university courses.</p>
+<p>The guide includes a general overview of the following, with some supporting code snippets:</p>
+<ul>
+<li>Defining the domain models and a repository interface</li>
+<li>Implementing the interface with data access logic and translating the data to the domain models</li>
+<li>Creating a web site to display the UI and translating from domain models to view models.</li>
+</ul>
+<p>The sample scenario revolves around university courses. A course, like <em>Accounting 101</em>, can be taught to several different groups of students by several different professors over the course of multiple terms. These specific instances of the course are called <em>sections</em>. There are also <em>professors,</em> <em>lessons,</em> and <em>materials</em>, associated with the sections.</p>
+<p></p>
+<p>This example provides an overview of an application that displays a listing page of courses as well as course details, following the clean architecture as closely as possible.</p>
+<h3 id="plan-how-projects-will-correspond-to-layers">Plan how projects will correspond to layers</h3>
+<p>Let’s break this example into projects that correspond to the different layers of enterprise architecture.</p>
+
+<div>
+
+</div>
+<div>
+<p>Each project will be discussed in greater detail in the next sections.</p>
+</div>
+
+<p>For the sake of this guide about abstraction, <em>TrainingGuides.Abstraction</em> as the name of the solution, and as a prefix for the projects within:</p>
+<ul>
+<li>
+<a href="#create-the-domain-layer">Domain layer</a>
+<ul>
+<li>
+<strong>TrainingGuides.Abstraction.Core</strong> contains all of the domain models (e.g., Professor, Section) and the repository interface.</li>
+</ul>
+</li>
+<li>
+<a href="#implement-the-infrastructure-layer">Infrastructure layer</a>
+<ul>
+<li>
+<strong>TrainingGuides.Abstraction.Infrastructure</strong> contains the implementation of the repository interface, along with a service it uses to retrieve content form Xperience.</li>
+<li>
+<strong>TrainingGuides.Abstraction.Generated</strong> contains generated classes from Xperience that correspond to content types.</li>
+</ul>
+</li>
+<li>
+<a href="#add-the-ui-layer">UI layer</a>
+<ul>
+<li>
+<strong>TrainingGuides.Abstraction.Web</strong> contains the display logic for the application’s web site.</li>
+</ul>
+</li>
+</ul>
+<h3 id="create-the-domain-layer">Create the domain layer</h3>
+<p>The domain layer of our sample has only one project - <em>TrainingGuides.Abstraction.Core.</em></p>
+<p>This project contains the classes of all the domain models, as well as the interface for the Course repository.</p>
+<h4 id="decide-the-structure">Decide the structure</h4>
+<p></p>
+<p>The project is organized first by business concern, then by technical concern. We recommend <a href="https://xperience-by-kentico-styleguide.netlify.app/guides/solution-setup/#use-feature-folders-vertical-slice-architecture" target="_blank">alternating between the two</a> as you add deeper levels to your directories. It will help point developers in the right direction when they need to make changes.</p>
+<p>Classes directly related to courses are in the <em>Courses</em> folder.<br>
+<code>Download</code>, which represents a downloadable file optionally used by the <code>Material</code> class<em>,</em> can be used outside of the context of courses. (For instance, the admission department of the university might have a downloadable map of the university campus for prospective students taking tours.)<br>
+For this reason, <em>Download</em> is stored beneath the <em>Shared</em> folder.</p>
+<h4 id="understand-the-relationships">Understand the relationships</h4>
+<p>Let’s go over the relationships between the models for this example:</p>
+<p>The <code>Course</code> class contains a collection of <code>Section</code> objects, among other properties. <code>Section</code>, in turn, contains collections of <code>Professor</code> and <code>Lesson</code> objects. Multiple professors are allowed per section, in case any of them are co-taught. Each <code>Lesson</code> in a section has scheduling information, as well as properties describing what the lesson is about and a collection of <code>Material</code> objects, representing learning materials the students should look at before or during the lecture.  <code>Material</code> contains properties for linking to an external source, in case the learning material is hosted elsewhere, as well as a <code>Download</code> object, in case it is a downloadable file.</p>
+<p></p>
+<p>You can look over the code samples below to see these classes and their properties in full.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Course.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+namespace TrainingGuides.Abstraction.Core.Courses.Models;
+
+public class Course
+{
+    public string? Title { get; set; }
+    public string? Department { get; set; }
+    public int Code { get; set; }
+    public string? Description { get; set; }
+    public string? Location { get; set; }
+    public int Credits { get; set; }
+    public IEnumerable&lt;Section&gt;? Sections { get; set; }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Section.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+namespace TrainingGuides.Abstraction.Core.Courses.Models;
+
+public class Section
+{
+    public int Code { get; set; }
+    public IEnumerable&lt;Professor&gt;? Professors { get; set; }
+    public IEnumerable&lt;Lesson&gt;? Lessons { get; set; }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Professor.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+namespace TrainingGuides.Abstraction.Core.Courses.Models;
+
+public class Professor
+{
+    public string? Title { get; set; }
+    public string? GivenName { get; set; }
+    public string? Surname { get; set; }
+    public string? Photo { get; set; }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Lesson.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+namespace TrainingGuides.Abstraction.Core.Courses.Models;
+
+public class Lesson
+{
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public DateTime Start { get; set; }
+    public DateTime End { get; set; }
+    public IEnumerable&lt;Material&gt;? Materials { get; set; }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Material.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using TrainingGuides.Abstraction.Core.Shared.Models.Downloads;
+
+namespace TrainingGuides.Abstraction.Core.Courses.Models;
+
+public class Material
+{
+    public string? ExternalLinkText { get; set; }
+    public string? ExternalLinkAltText { get; set; }
+    public string? ExternalLinkUrl { get; set; }
+    public Download? Download { get; set; }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Download.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+namespace TrainingGuides.Abstraction.Core.Shared.Models.Downloads;
+
+public class Download
+{
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? FileName { get; set; }
+    public string? Url { get; set; }
+}
+
+</code></pre>
+</div>
+
+<h4 id="define-the-functionality">Define the functionality</h4>
+<p>Now that we have the classes we need to work with, let’s decide what functionality we need. For the sake of this example, let’s consider <em>Course</em>to be the aggregate root and create a repository for it.</p>
+
+<div>
+
+</div>
+<div>
+<p>During this part of the process, try not to think about Xperience by Kentico, or the SQL Server database, or the site that’s going to be displaying the courses. Focus solely on what makes sense from a business perspective.</p>
+</div>
+
+<p>To begin with, the Course repository should have a method for getting a specific course. Whatever infrastructure the application utilizes is bound to have some kind of numerical Id, so add the signature for a <code>GetById</code> method.</p>
+<p>A method that returns a collection of all courses will come in handy for students seeing what the school has to offer, so add a method signature called <code>GetAll</code>. It can be left up to the infrastructure layer to decide which courses are valid and should be displayed in the “all” listing in the implementation that fulfills this method.</p>
+<p>The Course repository should also be able to retrieve some kind of more specific listing. For example, all courses belonging to a specific department, all courses with open sections this semester, or all courses of the 300 level. Let’s say that these listings need a numerical Id, and let the infrastructure layer figure out how to fulfill that. Add a method signature called <code>GetListingById</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ICourseRepository.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using TrainingGuides.Abstraction.Core.Courses.Models;
+
+namespace TrainingGuides.Abstraction.Core.Courses.Repositories;
+
+public interface ICourseRepository
+{
+    Task&lt;Course&gt; GetById(int id);
+    Task&lt;IEnumerable&lt;Course?&gt;&gt; GetAll();
+    Task&lt;IEnumerable&lt;Course&gt;&gt; GetListingById(int id);
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Generic repositories</strong></p>
+<p>This guide creates <code>ICourseRepository</code> and its implementation <code>CourseRepository</code> as a proof of concept.</p>
+<p>However, you may encounter situations where several of your repositories, or all of them, have the same functionality, but for different object types.</p>
+<p>In this case, you can use a generic type parameter to have several implementations based on one repository interface.</p>
+<p>For example,</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IRepository.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using TrainingGuides.Abstraction.Core.Courses.Models;
+
+namespace TrainingGuides.Abstraction.Core.Courses.Repositories;
+
+public interface IRepository&lt;T&gt; where T : class
+{
+    Task&lt;T&gt; GetById(int id);
+    Task&lt;IEnumerable&lt;T&gt;&gt; GetAll();
+    Task&lt;IEnumerable&lt;T&gt;&gt; GetListingById(int id);
+}
+
+</code></pre>
+</div>
+</div>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CourseRepository.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+public class CourseRepository : IRepository&lt;Course&gt;
+{
+    ...
+    Task&lt;Course&gt; GetById(int id)
+    {
+        //Use the Xperience Content Query to get content of whatever content type(s) correspond to Course
+        //Then map the data from Xperience to Course's properties
+        ...
+    }
+    ...
+}
+
+</code></pre>
+</div>
+</div>
+<p>It may even be possible, depending on your scenario, to make a generic implementation:</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Repository.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+public class Repository&lt;T&gt; : IRepository&lt;T&gt;
+{
+    ...
+    Task&lt;T&gt; GetById(int id)
+    {
+        //Use the Xperience API to get content 
+        //Reference some kind of mapping to figure out which content type(s) correspond to the provided domain model 
+        //Also reference a mapping to determine which of properties from the Xperience type correspond to the properties of the domain model.
+        ...
+    }
+    ...
+}
+
+</code></pre>
+</div>
+</div>
+</div>
+
+<h3 id="implement-the-infrastructure-layer">Implement the infrastructure layer</h3>
+<p>The infrastructure layer has two projects:</p>
+<ul>
+<li>
+<p><strong>TrainingGuides.Abstraction.Generated</strong><br>
+This project is holds classes that are created by Xperience by Kentico’s <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">code generation tool</a>, and any customizations made to them through partial classes.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Generated files project</strong></p>
+<p>It is not necessary to keep them in a separate project, but we recommend doing so. The extra level of separation reduces the chance of developers accidentally modifying the files, only to have their changes overwritten the next time the files are regenerated.</p>
+<p>It also makes it possible for any other projects that use Xperience objects to do so without referencing <em>all</em> of the infrastructure code.</p>
+</div>
+</li>
+<li><p><strong>TrainingGuides.Abstraction.Infrastructure</strong>This project contains the main infrastructure logic of the application. For this example, that means it contains the Xperience-specific implementation of the repository interface from the Core project, along with a service that it uses.<br>
+In a full fledged project, it would contain implementations of all the interfaces from the domain layer.</p></li>
+</ul>
+<h4 id="decide-the-structure-1">Decide the structure</h4>
+<p>As with the <em>Core</em> project, the <em>Infrastructure</em> project is organized by business concern first, then technical concern.</p>
+<p></p>
+<p>It has fewer files, as the generated classes that loosely correspond to the domain models are stored separately.</p>
+<h4 id="examine-the-generated-files">Examine the generated files</h4>
+<p>The files in the Generated project are sorted according to technical concern, which is most conducive to the command line parameters used to generate them. Xperience doesn’t know which content types relate to groups of features.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Differences from the domain</strong></p>
+<p>The reusable content types that hold the structured data of the objects have the <em>Item</em> suffix, so that code files that use domain models and generated content item classes do not have naming collisions.</p>
+<p>Similarly, the corresponding web page types have the <em>Page</em> suffix.</p>
+<p>There are also some content types that don’t directly correspond to domain models, namely <code>CourseListingPage</code>, <code>DepartmentItem</code>, and <code>AssetItem</code>. </p>
+</div>
+
+<p>You can look through the snipptes below to see the specifics of the generated classes.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CourseListingPage.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.Websites;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a page of type &lt;see cref="CourseListingPage"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class CourseListingPage : IWebPageFieldsSource
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Generated.CourseListingPage";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a web page item.
+        /// &lt;/summary&gt;
+        public WebPageFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// CourseListingCourses.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;WebPageRelatedItem&gt; CourseListingCourses { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CoursePage.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.Websites;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a page of type &lt;see cref="CoursePage"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class CoursePage : IWebPageFieldsSource
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Generated.CoursePage";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a web page item.
+        /// &lt;/summary&gt;
+        public WebPageFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// CoursePageContent.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;CourseItem&gt; CoursePageContent { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>AssetItem.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.ContentEngine;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a content item of type &lt;see cref="AssetItem"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class AssetItem
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Abstraction.AssetItem";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a content item.
+        /// &lt;/summary&gt;
+        public ContentItemFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// AssetItemFile.
+        /// &lt;/summary&gt;
+        public ContentItemAsset AssetItemFile { get; set; }
+
+        /// &lt;summary&gt;
+        /// AssetItemTitle.
+        /// &lt;/summary&gt;
+        public string AssetItemTitle { get; set; }
+
+        /// &lt;summary&gt;
+        /// AssetItemDescription.
+        /// &lt;/summary&gt;
+        public string AssetItemDescription { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CourseItem.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.ContentEngine;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a content item of type &lt;see cref="CourseItem"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class CourseItem
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Generated.CourseItem";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a content item.
+        /// &lt;/summary&gt;
+        public ContentItemFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// CourseItemTitle.
+        /// &lt;/summary&gt;
+        public string CourseItemTitle { get; set; }
+
+        /// &lt;summary&gt;
+        /// CourseItemDepartment.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;DepartmentItem&gt; CourseItemDepartment { get; set; }
+
+        /// &lt;summary&gt;
+        /// CourseItemCode.
+        /// &lt;/summary&gt;
+        public int CourseItemCode { get; set; }
+
+        /// &lt;summary&gt;
+        /// CourseItemDescription.
+        /// &lt;/summary&gt;
+        public string CourseItemDescription { get; set; }
+
+        /// &lt;summary&gt;
+        /// CourseItemSections.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;SectionItem&gt; CourseItemSections { get; set; }
+
+        /// &lt;summary&gt;
+        /// CourseItemCredits.
+        /// &lt;/summary&gt;
+        public int CourseItemCredits { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>DepartmentItem.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.ContentEngine;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a content item of type &lt;see cref="DepartmentItem"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class DepartmentItem
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Generated.DepartmentItem";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a content item.
+        /// &lt;/summary&gt;
+        public ContentItemFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// DepartmentItemTitle.
+        /// &lt;/summary&gt;
+        public string DepartmentItemTitle { get; set; }
+
+        /// &lt;summary&gt;
+        /// DepartmentItemCode.
+        /// &lt;/summary&gt;
+        public string DepartmentItemCode { get; set; }
+
+        /// &lt;summary&gt;
+        /// DepartmentItemHead.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;ProfessorItem&gt; DepartmentItemHead { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LessonItem.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.ContentEngine;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a content item of type &lt;see cref="LessonItem"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class LessonItem
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Generated.LessonItem";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a content item.
+        /// &lt;/summary&gt;
+        public ContentItemFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// LessonItemTitle.
+        /// &lt;/summary&gt;
+        public string LessonItemTitle { get; set; }
+
+        /// &lt;summary&gt;
+        /// LessonItemDescription.
+        /// &lt;/summary&gt;
+        public string LessonItemDescription { get; set; }
+
+        /// &lt;summary&gt;
+        /// LessonItemStart.
+        /// &lt;/summary&gt;
+        public DateTime LessonItemStart { get; set; }
+
+        /// &lt;summary&gt;
+        /// LessonItemEnd.
+        /// &lt;/summary&gt;
+        public DateTime LessonItemEnd { get; set; }
+
+        /// &lt;summary&gt;
+        /// LessonItemMaterials.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;MaterialItem&gt; LessonItemMaterials { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MaterialItem.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.ContentEngine;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a content item of type &lt;see cref="MaterialItem"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class MaterialItem
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Generated.MaterialItem";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a content item.
+        /// &lt;/summary&gt;
+        public ContentItemFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// MaterialItemExternalLinkText.
+        /// &lt;/summary&gt;
+        public string MaterialItemExternalLinkText { get; set; }
+
+        /// &lt;summary&gt;
+        /// MaterialItemExternalLinkAltText.
+        /// &lt;/summary&gt;
+        public string MaterialItemExternalLinkAltText { get; set; }
+
+        /// &lt;summary&gt;
+        /// MaterialItemExternalLinkUrl.
+        /// &lt;/summary&gt;
+        public string MaterialItemExternalLinkUrl { get; set; }
+
+        /// &lt;summary&gt;
+        /// MaterialItemDownload.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;AssetItem&gt; MaterialItemDownload { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProfessorItem.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.ContentEngine;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a content item of type &lt;see cref="ProfessorItem"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class ProfessorItem
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Generated.ProfessorItem";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a content item.
+        /// &lt;/summary&gt;
+        public ContentItemFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// ProfessorItemTitle.
+        /// &lt;/summary&gt;
+        public string ProfessorItemTitle { get; set; }
+
+        /// &lt;summary&gt;
+        /// ProfessorItemGivenName.
+        /// &lt;/summary&gt;
+        public string ProfessorItemGivenName { get; set; }
+
+        /// &lt;summary&gt;
+        /// ProfessorItemSurname.
+        /// &lt;/summary&gt;
+        public string ProfessorItemSurname { get; set; }
+
+        /// &lt;summary&gt;
+        /// ProfessorItemPhoto.
+        /// &lt;/summary&gt;
+        public ContentItemAsset ProfessorItemPhoto { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SectionItem.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+//--------------------------------------------------------------------------------------------------
+// &lt;auto-generated&gt;
+//
+//     This code was generated by code generator tool.
+//
+//     To customize the code use your own partial class. For more info about how to use and customize
+//     the generated code see the documentation at https://docs.xperience.io/.
+//
+// &lt;/auto-generated&gt;
+//--------------------------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using CMS.ContentEngine;
+
+namespace TrainingGuides.Abstraction.Generated
+{
+    /// &lt;summary&gt;
+    /// Represents a content item of type &lt;see cref="SectionItem"/&gt;.
+    /// &lt;/summary&gt;
+    public partial class SectionItem
+    {
+        /// &lt;summary&gt;
+        /// Code name of the content type.
+        /// &lt;/summary&gt;
+        public const string CONTENT_TYPE_NAME = "TrainingGuides_Generated.SectionItem";
+
+        /// &lt;summary&gt;
+        /// Represents system properties for a content item.
+        /// &lt;/summary&gt;
+        public ContentItemFields SystemFields { get; set; }
+
+        /// &lt;summary&gt;
+        /// SectionItemProfessors.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;ProfessorItem&gt; SectionItemProfessors { get; set; }
+
+        /// &lt;summary&gt;
+        /// SectionItemLessons.
+        /// &lt;/summary&gt;
+        public IEnumerable&lt;LessonItem&gt; SectionItemLessons { get; set; }
+
+        /// &lt;summary&gt;
+        /// SectionItemCode.
+        /// &lt;/summary&gt;
+        public int SectionItemCode { get; set; }
+    }
+}
+
+</code></pre>
+</div>
+
+<h4 id="retrieve-content-items">Retrieve content items</h4>
+<p>By nature, following the repository pattern helps to centralize code so that maintenance is easier, but that doesn’t mean putting all your data access logic directly in the repository methods is the best approach. The pattern can be refined further with a reusable service that serves all of the repositories.</p>
+<p>Let’s create a service that uses the content query API in Xperience. It can be used across multiple repositories in the <em>Infrastructure</em> project, further centralizing the data access code.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.ContentEngine;
+using CMS.Websites;
+
+namespace TrainingGuides.Abstraction.Infrastructure.Shared.Services;
+
+public interface IContentItemRetrieverService&lt;T&gt;
+{
+    public Task&lt;T?&gt; RetrieveWebPageById(int webPageItemId,
+        string contentTypeName,
+        int depth = 1);
+
+    public Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageContentItems(string contentTypeName,
+        Func&lt;ContentTypeQueryParameters, ContentTypeQueryParameters&gt; queryFilter);
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.ContentEngine;
+using CMS.Websites;
+using CMS.Websites.Routing;
+using Kentico.Content.Web.Mvc.Routing;
+
+namespace TrainingGuides.Abstraction.Infrastructure.Shared.Services;
+
+public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+{
+    private readonly IContentQueryExecutor contentQueryExecutor;
+    private readonly IWebsiteChannelContext webSiteChannelContext;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+
+    public ContentItemRetrieverService(
+        IContentQueryExecutor contentQueryExecutor,
+        IWebsiteChannelContext webSiteChannelContext,
+        IPreferredLanguageRetriever preferredLanguageRetriever)
+    {
+        this.contentQueryExecutor = contentQueryExecutor;
+        this.webSiteChannelContext = webSiteChannelContext;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+    }
+
+
+    /// &lt;summary&gt;
+    /// Retrieves Web page content item by Id using ContentItemQueryBuilder
+    /// &lt;/summary&gt;
+    /// &lt;param name="webPageItemId"&gt;The Id of the Web page content item.&lt;/param&gt;
+    /// &lt;param name="contentTypeName"&gt;Content type name of the Web page.&lt;/param&gt;
+    /// &lt;param name="depth"&gt;The maximum level of recursively linked content items that should be included in the results. Default value is 1.&lt;/param&gt;
+    /// &lt;returns&gt;A Web page content item of specified type, with the specifiied Id&lt;/returns&gt;
+    public async Task&lt;T?&gt; RetrieveWebPageById(
+        int webPageItemId,
+        string contentTypeName,
+        int depth = 1)
+    {
+        var pages = await RetrieveWebPageContentItems(
+                contentTypeName,
+                config =&gt; config
+                    .Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), webPageItemId))
+                    .WithLinkedItems(depth));
+        return pages.FirstOrDefault();
+    }
+
+    /// &lt;summary&gt;
+    /// Retrieves web page content items using ContentItemQueryBuilder
+    /// &lt;/summary&gt;
+    /// &lt;param name="contentTypeName"&gt;Content type name of the Web page.&lt;/param&gt;
+    /// &lt;param name="queryFilter"&gt;A delegate used to configure query for given contentTypeName&lt;/param&gt;
+    /// &lt;returns&gt;An enumerable set of items&lt;/returns&gt;
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageContentItems(
+        string contentTypeName,
+        Func&lt;ContentTypeQueryParameters, ContentTypeQueryParameters&gt; queryFilter)
+    {
+        var builder = new ContentItemQueryBuilder()
+                            .ForContentType(
+                                contentTypeName,
+                                config =&gt; queryFilter(config)
+                                .ForWebsite(webSiteChannelContext.WebsiteChannelName)
+                            )
+                            .InLanguage(preferredLanguageRetriever.Get());
+
+        var queryExecutorOptions = new ContentQueryExecutionOptions
+        {
+            ForPreview = webSiteChannelContext.IsPreview
+        };
+
+        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
+
+        return pages;
+    }
+
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Because the service deals with infrastructure-specific objects and does not need to be used in other projects, its interface is also in the infrastructure layer instead of the domain layer. Try to avoid the idea that interfaces of any kind must go in the domain layer while their implementations go in the infrastructure layer.</p>
+</div>
+
+<h4 id="implement-the-repository">Implement the repository</h4>
+<p>With the content item retriever service in place, you can move on to implementing the repository.</p>
+<p>The service makes retrieving content items from Xperience fairly straightforward, but you still have to worry about converting the generated class objects from Xperience into domain model objects.</p>
+<p>Make sure to include a method that handles this mapping. You need to account for the differences between the layers.</p>
+
+<div>
+
+</div>
+<div>
+<p>While it is required to meet the needs defined by the domain, the infrastructure layer does not need to mirror its models exactly. It simply needs to find some way to fulfill the requirement. It’s okay to have structures that are not perfectly symmetrical.</p>
+</div>
+
+<ul>
+<li>To populate <code>Download</code> objects from the domain, you’ll need <code>AssetItem</code> objects from Xperience.</li>
+<li>For the <code>Course</code>’s <code>Department</code> property, you’ll need a <code>DepartmentItem</code> object from Xperience, which has no analog in the domain.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>The specifics of these methods will change based on how you model your content types in Xperience.</p>
+<p>For example, depending on your requirements, it may be better to have listing pages hold collections of reusable content items, rather than web page content items. You could skip the extra step of querying specific course pages, in this case, but then you wouldn’t be able to link to the course pages from the listing page.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CourseRepository.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using CMS.Websites;
+using Kentico.Content.Web.Mvc.Routing;
+using TrainingGuides.Abstraction.Core.Courses;
+using TrainingGuides.Abstraction.Generated;
+using TrainingGuides.Abstraction.Core.Shared.Models.Downloads;
+using TrainingGuides.Abstraction.Core.Courses.Repositories;
+using TrainingGuides.Abstraction.Core.Courses.Models;
+using TrainingGuides.Abstraction.Infrastructure.Shared.Services;
+
+namespace TrainingGuides.Abstraction.Infrastructure.Courses.Repositories;
+
+public class CourseRepository : ICourseRepository
+{
+    private readonly IContentItemRetrieverService&lt;CoursePage&gt; courseContentItemRetrieverService;
+    private readonly IContentItemRetrieverService&lt;CourseListingPage&gt; listingContentItemRetrieverService;
+    private readonly IWebPageUrlRetriever webPageUrlRetriever;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+
+    public CourseRepository
+        (IContentItemRetrieverService&lt;CoursePage&gt; courseContentItemRetrieverService,
+        IContentItemRetrieverService&lt;CourseListingPage&gt; listingContentItemRetrieverService,
+        IWebPageUrlRetriever webPageUrlRetriever,
+        IPreferredLanguageRetriever preferredLanguageRetriever)
+    {
+        this.courseContentItemRetrieverService = courseContentItemRetrieverService;
+        this.listingContentItemRetrieverService = listingContentItemRetrieverService;
+        this.webPageUrlRetriever = webPageUrlRetriever;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+    }
+
+    public async Task&lt;Course&gt; GetById(int id)
+    {
+        CoursePage? coursePage = await courseContentItemRetrieverService.RetrieveWebPageById(
+            webPageItemId: id,
+            contentTypeName: CoursePage.CONTENT_TYPE_NAME,
+            depth: 5);
+        return await mapCourseFromWebPageItem(coursePage);
+    }
+
+    public async Task&lt;IEnumerable&lt;Course&gt;&gt; GetListingById(int id)
+    {
+        var courseListingPage = await listingContentItemRetrieverService.RetrieveWebPageById(
+            webPageItemId: id,
+            contentTypeName: CourseListingPage.CONTENT_TYPE_NAME,
+            depth: 1);
+
+        var webPageGuids = courseListingPage?.CourseListingCourses.Select(item =&gt; item.WebPageGuid).ToList();
+
+        var coursePages = await courseContentItemRetrieverService.RetrieveWebPageContentItems(
+            contentTypeName: CoursePage.CONTENT_TYPE_NAME,
+            queryFilter: config =&gt; config
+                .Where(where =&gt; where.WhereIn(nameof(WebPageFields.WebPageItemGUID), webPageGuids?.ToList()))
+                .WithLinkedItems(5));
+
+        return await Task.WhenAll(coursePages.Select(mapCourseFromWebPageItem));
+
+    }
+
+    public async Task&lt;IEnumerable&lt;Course?&gt;&gt; GetAll()
+    {
+        var coursePages = await courseContentItemRetrieverService.RetrieveWebPageContentItems(
+            contentTypeName: CourseItem.CONTENT_TYPE_NAME,
+            queryFilter: config =&gt; config.WithLinkedItems(5));
+
+        return await Task.WhenAll(coursePages.Select(mapCourseFromWebPageItem));
+    }
+
+    private async Task&lt;Course&gt; mapCourseFromWebPageItem(CoursePage? coursePage)
+    {
+        if (coursePage == null || coursePage.CoursePageContent.Count() &lt; 1)
+            return new Course();
+
+        var courseItem = coursePage.CoursePageContent.FirstOrDefault();
+
+        string url = (await webPageUrlRetriever.Retrieve(coursePage, preferredLanguageRetriever.Get())).RelativePath;
+
+        return new Course
+        {
+            Title = courseItem.CourseItemTitle,
+            Department = courseItem.CourseItemDepartment?.FirstOrDefault()?.DepartmentItemCode,
+            Code = courseItem.CourseItemCode,
+            Description = courseItem.CourseItemDescription,
+            Credits = courseItem.CourseItemCredits,
+            Location = url,
+            Sections = courseItem.CourseItemSections
+                .Select(sectionItem =&gt; new Section
+                {
+                    Code = sectionItem.SectionItemCode,
+                    Professors = sectionItem.SectionItemProfessors
+                        .Select(professorItem =&gt; new Professor
+                        {
+                            Title = professorItem.ProfessorItemTitle,
+                            GivenName = professorItem.ProfessorItemGivenName,
+                            Surname = professorItem.ProfessorItemSurname,
+                            Photo = professorItem.ProfessorItemPhoto.Url
+                        }),
+                    Lessons = sectionItem.SectionItemLessons
+                        .Select(lessonItem =&gt; new Lesson
+                        {
+                            Title = lessonItem.LessonItemTitle,
+                            Description = lessonItem.LessonItemDescription,
+                            Start = lessonItem.LessonItemStart,
+                            End = lessonItem.LessonItemEnd,
+                            Materials = lessonItem.LessonItemMaterials
+                                .Select(materialItem =&gt; new Material
+                                {
+                                    ExternalLinkText = materialItem.MaterialItemExternalLinkText,
+                                    ExternalLinkAltText = materialItem.MaterialItemExternalLinkAltText,
+                                    ExternalLinkUrl = materialItem.MaterialItemExternalLinkUrl,
+                                    Download = materialItem.MaterialItemDownload
+                                        .Select(assetItem =&gt; new Download
+                                        {
+                                            Title = assetItem.AssetItemTitle,
+                                            Description = assetItem.AssetItemDescription,
+                                            FileName = assetItem.AssetItemFile?.Metadata.Name,
+                                            Url = assetItem.AssetItemFile?.Url
+                                        }).FirstOrDefault()
+                                })
+                        })
+                }),
+        };
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The code samples in this guide rely on a <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/TrainingGuidesWebPageUrlRetriever.cs" target="_blank">decorated version</a> of <code>IWebPageUrlRetriever</code> that includes exception handling.</p>
+<p>If you do not plan to use a similar customization, make sure to handle errors that the <code>Retrieve</code> method may throw when it cannot find a page.</p>
+</div>
+
+<h3 id="add-the-ui-layer">Add the UI layer</h3>
+<p>The UI layer of this sample contains a single project - <em>TrainingGuides.Abstraction.Web</em>.</p>
+<p>It is where things get a little complicated when dealing with a digital experience platform (DXP) like Xperience by Kentico, because DXPs typically offer features to help integrate the UI into the content management experience.</p>
+<p>This blurs the lines between the infrastructure and UI layers, as the UI will contain code specific to the platform.</p>
+<p>It is technically possible to completely separate these layers, if you use only <a href="/documentation/developers-and-admins/configuration/headless-channel-management">Headless channels</a> in Xperience, but this defeats the purpose of using a DXP platform in some ways. In order to utilize features like <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">content tree-based routing</a>, <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a>, and <a href="/documentation/developers-and-admins/development/builders/page-builder/page-templates-for-page-builder">page templates</a>, you need to include code from Kentico in the UI layer, and reference the project where the generated classes are stored.</p>
+<p>This sample elects to use those features.</p>
+<p></p>
+<p>The web project has a lot more going on in the root, so the files organized by business concern are kept in a folder called <em>Features</em>.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Differences to the domain layer</strong></p>
+<p>Like with the content items in the infrastructure layer, this example has some differences between the view models in the UI layer and the models in the domain layer. The <code>CourseListingViewModel</code> doesn’t directly correspond to any domain model, and the <code>LinkViewModel</code> exists, rather than anything directly corresponding to the <code>Download</code> domain model.</p>
+<p>While the UI layer depends on the domain layer and uses its models, it does not need to mirror them one to one. Each layer is allowed to have its own requirements and concerns, as long as they correctly connect through the domain objects.</p>
+</div>
+
+<p>You can look over the code in the following snippets to see the details of the view model classes.</p>
+
+<div>
+
+</div>
+<div>
+<p>Pay attention to each class’s GetViewModel method, which converts between the domain objects and the view models, which at times have different properties.</p>
+<p>For example, <code>MaterialViewModel</code> and <code>LinkViewModel</code>, which take a somewhat different approach than the domain.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CourseListingViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Collections.Generic;
+using System.Linq;
+using TrainingGuides.Abstraction.Core.Courses.Models;
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses.ViewModels;
+
+public class CourseListingViewModel
+{
+    public IEnumerable&lt;CourseViewModel&gt; Courses { get; set; }
+
+    public static CourseListingViewModel GetViewModel(IEnumerable&lt;Course&gt; courses) =&gt;
+        new CourseListingViewModel
+        {
+            Courses = courses.Select(course =&gt; CourseViewModel.GetViewModel(course))
+        };
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CourseViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Collections.Generic;
+using System.Linq;
+using TrainingGuides.Abstraction.Core.Courses.Models;
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses.ViewModels;
+
+public class CourseViewModel
+{
+    public string Title { get; set; }
+    public string Department { get; set; }
+    public int Code { get; set; }
+    public string Description { get; set; }
+    public int Credits { get; set; }
+    public string Location { get; set; }
+    public IEnumerable&lt;SectionViewModel&gt; Sections { get; set; }
+
+    public static CourseViewModel GetViewModel(Course course) =&gt;
+        new CourseViewModel
+        {
+            Title = course.Title,
+            Department = course.Department,
+            Description = course.Description,
+            Code = course.Code,
+            Credits = course.Credits,
+            Location = course.Location,
+            Sections = course.Sections.Select(section =&gt; SectionViewModel.GetViewModel(section))
+        };
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LessonViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Collections.Generic;
+using System;
+using System.Linq;
+using TrainingGuides.Abstraction.Core.Courses.Models;
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses.ViewModels;
+
+public class LessonViewModel
+{
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public DateTime Start { get; set; }
+    public DateTime End { get; set; }
+    public IEnumerable&lt;MaterialViewModel&gt; Materials { get; set; }
+
+    public static LessonViewModel GetViewModel(Lesson lesson) =&gt;
+        new LessonViewModel
+        {
+            Title = lesson.Title,
+            Description = lesson.Description,
+            Start = lesson.Start,
+            End = lesson.End,
+            Materials = lesson.Materials
+                .Select(material =&gt; MaterialViewModel.GetViewModel(material))
+        };
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MaterialViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Collections.Generic;
+using TrainingGuides.Abstraction.Core.Courses.Models;
+using TrainingGuides.Abstraction.Web.Features.Shared.ViewModels;
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses.ViewModels;
+
+public class MaterialViewModel
+{
+    public IEnumerable&lt;LinkViewModel&gt; Links { get; set; }
+
+    public static MaterialViewModel GetViewModel(Material material)
+    {
+        var links = new List&lt;LinkViewModel&gt;();
+
+        if (!string.IsNullOrEmpty(material.ExternalLinkUrl))
+        {
+            links.Add(LinkViewModel.GetViewModel(
+                linkText: material.ExternalLinkText ?? material.ExternalLinkUrl,
+                linkAltText: material.ExternalLinkAltText ?? "External link",
+                linkUrl: material.ExternalLinkUrl,
+                linkIsDownlaod: false
+
+            ));
+        }
+
+        if (material.Download is not null)
+        {
+            links.Add(LinkViewModel.GetViewModel(material.Download));
+        }
+
+        return new MaterialViewModel
+        {
+            Links = links
+        };
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProfessorViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using TrainingGuides.Abstraction.Core.Courses.Models;
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses.ViewModels;
+
+public class ProfessorViewModel
+{
+    public string Title { get; set; }
+    public string GivenName { get; set; }
+    public string Surname { get; set; }
+    public string Photo { get; set; }
+
+    public static ProfessorViewModel GetViewModel(Professor professor) =&gt;
+        new ProfessorViewModel
+        {
+            Title = professor.Title,
+            GivenName = professor.GivenName,
+            Surname = professor.Surname,
+            Photo = professor.Photo,
+        };
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SectionViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Collections.Generic;
+using System.Linq;
+using TrainingGuides.Abstraction.Core.Courses.Models;
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses.ViewModels;
+
+public class SectionViewModel
+{
+    public int Code { get; set; }
+    public IEnumerable&lt;ProfessorViewModel&gt; Professors { get; set; }
+    public IEnumerable&lt;LessonViewModel&gt; Lessons { get; set; }
+
+    public static SectionViewModel GetViewModel(Section section) =&gt;
+        new SectionViewModel
+        {
+            Code = section.Code,
+            Professors = section.Professors
+                .Select(professor =&gt; ProfessorViewModel.GetViewModel(professor)),
+            Lessons = section.Lessons
+                .Select(lesson =&gt; LessonViewModel.GetViewModel(lesson))
+        };
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>LinkViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using TrainingGuides.Abstraction.Core.Shared.Models.Downloads;
+
+namespace TrainingGuides.Abstraction.Web.Features.Shared.ViewModels;
+
+public class LinkViewModel
+{
+    public string LinkText { get; set; }
+    public string LinkAltText { get; set; }
+    public string LinkUrl { get; set; }
+    public bool LinkIsDownload { get; set; }
+
+    public static LinkViewModel GetViewModel(string linkText, string linkAltText, string linkUrl, bool linkIsDownlaod = false) =&gt;
+        new LinkViewModel
+        {
+            LinkText = linkText,
+            LinkAltText = linkAltText,
+            LinkUrl = linkUrl,
+            LinkIsDownload = linkIsDownlaod
+        };
+
+    public static LinkViewModel GetViewModel(Download download) =&gt;
+        new LinkViewModel
+        {
+            LinkText = download.Title,
+            LinkAltText = download.Description,
+            LinkUrl = download.Url,
+            LinkIsDownload = true
+        };
+}
+
+</code></pre>
+</div>
+
+<h4 id="create-the-pages">Create the pages</h4>
+<p>Create and register page controllers for the <code>CourseListingPage</code> and <code>CoursePage</code> content types. The controllers should each resolve an <code>ICourseRepository</code> and use it to retrieve <code>Course</code> objects with the methods from earlier.</p>
+<p>Then, use the view model methods to convert the domain model objects to view models. Pass the view models to page templates designed to work with them, and display the data.</p>
+
+<div>
+
+</div>
+<div>
+<p>Make sure the only places that you use the Xperience generated classes in your <em>Web</em> project are the registration attributes of content tree-based routing controllers and page templates.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Compiler-enforced compliance</strong></p>
+<p>This is an example where having the generated classes separate comes in handy. You can have a project reference from <em>Web</em> to <em>Generated</em> without also referencing <em>Infrastructure.</em></p>
+<p>With an IOC controller that lets you resolve implementations from <em>Infrastructure</em> without a project reference, then developers in your <em>Web</em> project cannot directly reference the <code>CourseRepository</code> class implemented there.</p>
+<p>If a developer tries to do this, the compiler will throw an exception when they try to build the project. This is more reliable than a set of rules and procedures, because it does not rely on someone else noticing the mistake and asking the developer to fix it.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CourseListingPageController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Content.Web.Mvc;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using TrainingGuides.Abstraction.Core.Courses.Repositories;
+using TrainingGuides.Abstraction.Generated;
+using TrainingGuides.Abstraction.Web.Features.Courses.ViewModels;
+
+[assembly: RegisterWebPageRoute(
+    contentTypeName: CourseListingPage.CONTENT_TYPE_NAME,
+    controllerType: typeof(TrainingGuides.Abstraction.Web.Features.Courses.CourseListingPageController))]
+namespace TrainingGuides.Abstraction.Web.Features.Courses;
+
+public class CourseListingPageController : Controller
+{
+    private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
+    private readonly ICourseRepository courseRepository;
+
+    public CourseListingPageController(IWebPageDataContextRetriever webPageDataContextRetriever, 
+        ICourseRepository courseRepository)
+    {
+        this.webPageDataContextRetriever = webPageDataContextRetriever;
+        this.courseRepository = courseRepository;
+    }
+
+    public async Task&lt;IActionResult&gt; Index()
+    {
+        var context = webPageDataContextRetriever.Retrieve();
+        var courses = await courseRepository.GetListingById(context.WebPage.WebPageItemID);
+        var model = CourseListingViewModel.GetViewModel(courses);
+
+        return new TemplateResult(model);
+
+    }
+
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>CourseListingPagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using Kentico.Content.Web.Mvc.PageBuilder
+@using TrainingGuides.Abstraction.Web.Features.Courses.ViewModels
+@using TrainingGuides.Abstraction.Web.Features.Shared.ViewModels
+
+@model TemplateViewModel
+
+@{
+    var templateModel = Model.GetTemplateModel&lt;CourseListingViewModel&gt;();
+}
+&lt;ul&gt;
+    @foreach(CourseViewModel course in templateModel.Courses)
+    {
+        string name = $"{course.Department}-{course.Code} {course.Title}";
+        &lt;li&gt;
+            &lt;a href = "@course.Location" alt="link to course @name"&gt;
+                &lt;div&gt;
+                    @name
+                &lt;/div&gt;
+                &lt;div&gt;
+                    @course.Description
+                &lt;/div&gt;
+            &lt;/a&gt;
+        &lt;/li&gt;
+    }
+&lt;/ul&gt;
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CourseListingPagePageTemplate.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using TrainingGuides.Abstraction.Generated;
+using TrainingGuides.Abstraction.Web.Features.Courses;
+
+[assembly: RegisterPageTemplate(
+    identifier: CourseListingPagePageTemplate.IDENTIFIER,
+    name: "Course listing page content type template",
+    customViewName: "~/Features/Courses/CourseListingPagePageTemplate.cshtml",
+    ContentTypeNames = [CourseListingPage.CONTENT_TYPE_NAME],
+    IconClass = "xp-a-lowercase")]
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses;
+
+public class CourseListingPagePageTemplate
+{
+    public const string IDENTIFIER = "TrainingGuides.Abstraction.CourseListingPagePageTemplate";
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CoursePageController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Content.Web.Mvc;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using TrainingGuides.Abstraction.Core.Courses.Repositories;
+using TrainingGuides.Abstraction.Generated;
+using TrainingGuides.Abstraction.Web.Features.Courses.ViewModels;
+
+[assembly: RegisterWebPageRoute(
+    contentTypeName: CoursePage.CONTENT_TYPE_NAME,
+    controllerType: typeof(TrainingGuides.Abstraction.Web.Features.Courses.CoursePageController))]
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses;
+
+public class CoursePageController : Controller
+{
+    private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
+    private readonly ICourseRepository courseRepository;
+
+    public CoursePageController(
+        ICourseRepository courseRepository,
+        IWebPageDataContextRetriever webPageDataContextRetriever)
+    {
+        this.courseRepository = courseRepository;
+        this.webPageDataContextRetriever = webPageDataContextRetriever;
+    }
+
+    public async Task&lt;IActionResult&gt; Index()
+    {
+        var context = webPageDataContextRetriever.Retrieve();
+        var course = await courseRepository.GetById(context.WebPage.WebPageItemID);
+        var model = CourseViewModel.GetViewModel(course);
+
+        return new TemplateResult(model);
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>CoursePagePageTemplate.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using Kentico.Content.Web.Mvc.PageBuilder
+@using TrainingGuides.Abstraction.Web.Features.Courses.ViewModels
+@using TrainingGuides.Abstraction.Web.Features.Shared.ViewModels
+
+@model TemplateViewModel
+
+@{
+    var templateModel = Model.GetTemplateModel&lt;CourseViewModel&gt;();
+    string departmentAndCourseCode = $"{templateModel.Department}-{templateModel.Code}";
+    string heading = $"[{departmentAndCourseCode}] {templateModel.Title}";
+}
+
+&lt;div&gt;
+    &lt;h1&gt;@heading&lt;/h1&gt;
+&lt;/div&gt;
+&lt;div&gt;
+    &lt;span&gt;@departmentAndCourseCode&lt;/span&gt;
+&lt;/div&gt;
+&lt;div&gt;
+    &lt;span&gt;Department: @templateModel.Department&lt;/span&gt;
+&lt;/div&gt;
+&lt;div&gt;
+    &lt;span&gt;Credits: @templateModel.Credits&lt;/span&gt;
+&lt;/div&gt;
+&lt;div&gt;
+    @templateModel.Description
+&lt;/div&gt;
+&lt;div&gt;
+    &lt;h2&gt;Sections&lt;/h2&gt;
+    &lt;ul&gt;
+        @foreach(SectionViewModel courseSection in templateModel.Sections)
+        {
+            &lt;li&gt;
+                &lt;h3&gt;@($"{departmentAndCourseCode}-{courseSection.Code}")&lt;/h3&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;
+                        &lt;div&gt;
+                            &lt;h4&gt;Professors&lt;/h4&gt;
+                            &lt;ul&gt;
+                                @foreach(ProfessorViewModel professor in courseSection.Professors)
+                                {
+                                    string prof = $"{professor.Title} {professor.GivenName} {professor.Surname}";
+                                    &lt;li&gt;
+                                        &lt;div&gt;
+                                            &lt;img src="@professor.Photo" alt="photo for @prof" style="max-width:200px"/&gt;
+                                        &lt;/div&gt;
+                                        &lt;div&gt;
+                                            @prof
+                                        &lt;/div&gt;
+                                    &lt;/li&gt;
+                                }
+                            &lt;/ul&gt;
+                        &lt;/div&gt;
+                    &lt;/li&gt;
+                    &lt;li&gt;
+                        &lt;div&gt;
+                            &lt;h4&gt;Lessons&lt;/h4&gt;
+                            &lt;ul&gt;
+                                @foreach (LessonViewModel lesson in courseSection.Lessons)
+                                {
+                                    TimeSpan duration = lesson.Start.Subtract(lesson.End);
+                                    string displayDuration = $"{Math.Abs(duration.Hours)}h {Math.Abs(duration.Minutes)}m";
+                                    &lt;li&gt;
+                                        &lt;div&gt;
+                                            &lt;span&gt;title: @lesson.Title&lt;/span&gt;
+    persona: developer
+                                        &lt;/div&gt;
+                                        &lt;div&gt;
+                                            &lt;span&gt;Date: @lesson.Start.ToShortDateString()&lt;/span&gt;
+                                        &lt;/div&gt;
+                                        &lt;div&gt;
+                                            &lt;span&gt;Length: @displayDuration&lt;/span&gt;
+                                        &lt;/div&gt;
+                                        &lt;div&gt;
+                                            &lt;span&gt;Description: @lesson.Description&lt;/span&gt;
+                                        &lt;/div&gt;
+                                        Materials:
+                                        &lt;ul&gt;
+                                            @foreach (MaterialViewModel material in lesson.Materials)
+                                            {
+                                                foreach(LinkViewModel link in material.Links)
+                                                {
+                                                    &lt;li&gt;
+                                                        &lt;a href="@link.LinkUrl" alt="@link.LinkAltText" @(link.LinkIsDownload ? "download" : string.Empty)&gt;@link.LinkText&lt;/a&gt;
+                                                    &lt;/li&gt;
+                                                }
+
+                                            }
+                                        &lt;/ul&gt;
+                                    &lt;/li&gt;
+                                }
+                            &lt;/ul&gt;
+                        &lt;/div&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/li&gt;
+        }
+    &lt;/ul&gt;
+&lt;/div&gt;
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CoursePagePageTemplate.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using TrainingGuides.Abstraction.Generated;
+using TrainingGuides.Abstraction.Web.Features.Courses;
+
+[assembly: RegisterPageTemplate(
+    identifier: CoursePagePageTemplate.IDENTIFIER,
+    name: "Course page content type template",
+    customViewName: "~/Features/Courses/CoursePagePageTemplate.cshtml",
+    ContentTypeNames = [CoursePage.CONTENT_TYPE_NAME],
+    IconClass = "xp-a-lowercase")]
+
+namespace TrainingGuides.Abstraction.Web.Features.Courses;
+
+public class CoursePagePageTemplate
+{
+    public const string IDENTIFIER = "TrainingGuides.Abstraction.CoursePagePageTemplate";
+}
+
+</code></pre>
+</div>
+
+<h4 id="finish-the-project.">Finish the project.</h4>
+<p>With the controllers and page templates in place, only a few steps remain to get the project running:</p>
+<ul>
+<li>When the application starts
+<ul>
+<li>Set up the IOC container</li>
+<li>Initialize Xperience with the proper parameters to allow content tree-based routing and Page Builder for these content types.</li>
+</ul>
+</li>
+<li>Create supporting display files like a layout view, view start file, and view imports.</li>
+<li>Add data to Xperience.</li>
+</ul>
+<p>We invite you to finish setting up this project as an exercise, following the principles you learned in this guide.</p>
+<p>With that, you should be able to display any courses added to the Xperience instance.</p>
+<p></p>
+<h2 id="whats-next">What’s next?</h2>
+<p>Now that you’ve seen an example of data retrieval with a repository in the context of an enterprise layered architecture, you can start thinking about how it could be expanded.</p>
+<p>Perhaps you’d like to add methods for Create, Update, and Delete to the repository. Perhaps you’d like to expand the domain layer beyond just the repository. You can try adding new object types like <code>Student</code> and <code>CourseRegistration</code> and an event handler in the domain layer that sends an email though a service implemented in the infrastructure layer whenever the time of a lesson is updated.</p>
+<p>Moving forward, try to consider what degree of layering and abstraction will benefit your projects and strike the proper balance to fit your scenario.</p>
+
+</body>
+</html>

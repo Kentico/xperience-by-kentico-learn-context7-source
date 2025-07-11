@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>How to model a 404 page</title>
+</head>
+<body>
+<p>When you’re exploring the digital world, a 404 error page comes into play if you, the user, try to visit a page that doesn’t exist or has been removed. The 404 is a server response code indicating a user is trying to access an invalid URL. There are many <a href="https://www.semrush.com/blog/http-status-codes/" target="_blank">HTTP status codes</a> that respond to user requests, each one of them with a different meaning.</p>
+<p>When a supposedly functional URL leads a visitor to a page that no longer exists or has been taken down, a well-designed 404 should navigate them back to your website. With Xperience, you can create a 404 page that aligns with your company’s brand design and ensures a positive user experience rather than making the visitors leave confused.</p>
+
+<div>
+<p>You can check some best practices for the 404 pages <a href="/guides/digital-marketing/work-with-error-page/404-best-practices">here</a>.</p>
+</div>
+
+<h2 id="set-up-a-404-page-in-xperience">Set up a 404 page in Xperience</h2>
+<p>Let’s see how you can create a 404 page in Xperience by Kentico. We’ll use Kbank’s demo website as an example.</p>
+
+<div>
+<p>The 404 page you see in the Kbank demo is created to match Kbank guidelines. Your 404 design, the widgets you’ll use, and their configuration will depend on how your Xperience application is implemented.</p>
+</div>
+
+<h3 id="store-the-error-pages-in-one-place">Store the error pages in one place</h3>
+<p>Before you create the page, think about where you want to store it in the content tree. If you plan to create more than one error page, keeping them together in one place is a good idea. This way, you know where to look for them.</p>
+<p>As you can see in the example below, there is a folder in the content tree dedicated to <em>Special pages</em>, with an <em>Errors</em> subfolder.</p>
+<p></p>
+<h3 id="create-the-404-page">Create the 404 page</h3>
+
+<div>
+<p>Let’s imagine a scenario where you already have a <em>Special pages</em> folder in the content tree and want to add a new folder for error pages. You know you plan to create just the 404 page for now, but you may add more error pages in the future.</p>
+</div>
+
+<p>To create a new folder, select the <em>Special pages</em> in the content tree. Open the drop-down menu next to the <strong>New page</strong> button. Use the <strong>New folder</strong> button to create an <em>Errors</em> folder.</p>
+<p></p>
+<p>Now select the folder you’ve just created and add a <strong>New page</strong>. Choose the <strong>Error page</strong> type and name it <strong>404</strong>.</p>
+<p></p>
+<p>Fill in a <strong>Status code</strong>. It tells Xperience to display this page when the specific server error appears. So, in this scenario, the <strong>Status code</strong> will be <em>404</em>.</p>
+<p></p>
+<p>Save your changes and switch to the <strong>Page Builder</strong> tab to set up the page content.</p>
+
+<div>
+<p>The way editors created the 404 in Kbank is just a band-aid. They wanted to save time so they used existing widgets and created a very simple page. For them, it wasn’t worth it to create special designs or custom widgets.</p>
+</div>
+
+<ol type="1">
+<li>
+<p>The first banner we use is a <strong>Rich text</strong>. Error pages are a good example of using the <em>Rich text widget</em> with non-reusable content. The error page is one of a kind, and its content is so specific that there is no need to make this content reusable and save it in the <em>Content hub</em>. Add the “<em>404</em>” header and a paragraph explaining the page was not found.</p>
+<p></p>
+<p>To adjust the widget’s styling, open the <em>Rich text</em> editor, select the <strong>More misc</strong> option on the right, and choose the <strong>Code view</strong>. You can change the background using the HTML code.</p>
+<p></p>
+<p></p>
+</li>
+<li>
+<p>The first widget explains to the visitors what happened. The second one helps them return to the <em>home page</em> and start their journey all over. Use the <strong>CTA</strong> widget, name it “<em>Back to home</em>,” and link it to the home page.</p>
+<p></p>
+</li>
+<li>
+<p>The last two widgets offer the visitors links to the latest articles. Use the <strong>Page heading</strong> for the section title and the <strong>Article list</strong> widget, which links the <em>News</em> section of the content tree and will display the newest articles.</p>
+<p></p>
+</li>
+</ol>
+<h3 id="use-personalization">Use personalization</h3>
+<p>When you complete the error page, feel free to further refine and enhance the experience. If you <a href="https://docs.xperience.io/xp/business-users/digital-marketing/contact-groups">collect information about your visitors</a>, you can offer them tailored content. Content personalization is a great tool that may help your visitors find what they are looking for and keep them on your website.</p>
+<p>Let’s assume that some of the visitors are interested in travel insurance, and you want to guide them on their journey and offer them relevant articles. To do so, you decided to personalize the <strong>Page heading</strong> and <strong>Article list</strong> to catch their interest.</p>
+<ol type="1">
+<li>
+<p>First, add a personalized variant of the widget. You have a contact group gathering visitors who showed interest in anything insurance-related, so you’ll create a new variant of the widget targeting this group.</p>
+<p></p>
+<p></p>
+<p></p>
+</li>
+<li>
+<p>Once the variant is ready, let’s change the heading. <strong>Configure widget</strong> to open the configure dialogue window and adjust the heading. It’s good to include keywords matching the targeted group. You want to engage visitors who showed interest in travel insurance before, so the keyword here will be <em>insurance</em>.</p>
+<p></p>
+<p></p>
+</li>
+<li>
+<p>Similarly, prepare the personalization of the <strong>Article list</strong> widget.</p>
+<p></p>
+<p>Open the <em>widget properties</em> and select the existing category. Choose the <em>Insurance</em> category, which filters only the news in this category. In other words, you can say the chosen articles have an <em>Insurance</em> tag.</p>
+
+<div>
+<p>Kbank uses a content type called <em>Category</em> items to tag content with a specific category. Selecting the <em>insurance</em> category filters all articles editors tagged with the category into the article listing.</p>
+</div>
+
+<p></p>
+</li>
+<li>
+<p>The personalization is done. This is what the widgets for the specific contact group look like:</p>
+<p></p>
+</li>
+</ol>
+
+<div>
+<p>You’re not limited in the number of personalizations, so you can adjust the page for more contact groups.</p>
+</div>
+
+<p>Watch a short step-by-step guide on creating a personalized 404 page in Xperience by Kentico.</p>
+
+<p>You’ve just seen how you can create and personalize a simple 404 error page in Xperience by Kentico. It’s a good practice to have a 404 page and if you design it well, it can enhance user experience and turn inconvenience into opportunity.</p>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Maintain what you have built</title>
+</head>
+<body>
+<h2 id="maintaining">Maintaining</h2>
+<p>Analyze the data you gather from your project to determine what actions to take. Focus on optimizations of content and performance.</p>
+<h3 id="environment-maintenance">Environment maintenance</h3>
+<ul>
+<li>Define a backup strategy (e.g., database file system backups and a disaster restore / recovery plan).</li>
+<li>Perform SQL maintenance (e.g., shrink the transaction log, rebuild indexes).</li>
+<li>Plan outages and take necessary steps to notify the appropriate people.</li>
+</ul>
+<h3 id="application-maintenance">Application maintenance</h3>
+<ul>
+<li>Review and address performance issues <a href="https://dev.to/michael419/get-to-know-xperience-by-kentico-unlocking-performance-insights-with-miniprofiler-2b2c" target="_blank">using tools like MiniProfiler</a>.</li>
+<li>Keep software patched and up-to-date, <a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects">including Xperience</a>, the operating system, SQL server, etc.</li>
+</ul>
+<h3 id="data-maintenance">Data maintenance</h3>
+<ul>
+<li>Archive old data that is no longer needed.</li>
+<li>Remove unnecessary objects (e.g., unused media assets, unused reusable content items, inactive contacts, unsent emails, old contact activities, etc.).</li>
+<li>Update and optimize content (e.g., update outdated content, fix broken links, etc.).</li>
+<li>Deploy new content and changes from a staging environment to keep the production environment clear of unfinished drafts.</li>
+</ul>
+<h3 id="scenario">Scenario</h3>
+<h4 id="large-database-causing-performance-issues">Large database causing performance issues</h4>
+<p>A client was utilizing nearly all available features.</p>
+<p>Since they did not have any data monitoring or a maintenance strategy, the size of the database was growing rapidly (100+GB) and started slowing down the system. Eventually, the added load exceeded the capabilities of their environment and the site went down.</p>
+<p>In this case, the project was a large website with hundreds of thousands of pages, and over 100 million contacts, activities, and analytics entries.</p>
+<p>With the data cleaned up, they implemented a plan to monitor the database size and manage data growth, for example, deleting inactive contacts and activities.</p>
+<h2 id="monitoring">Monitoring</h2>
+<p>Monitoring your project provides insight into what you can optimize and improve, and informs you of the solution’s overall health.</p>
+<h3 id="environment">Environment</h3>
+<ul>
+<li>Monitor resource utilization on the server (e.g., CPU, RAM, HDD).
+<ul>
+<li>Consider tools offered by your hosting environment, like the Xperience SaaS environment’s <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#application-monitoring">Monitoring tools</a>, Azure’s <a href="https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview" target="_blank">Application insights</a>, etc.</li>
+</ul>
+</li>
+<li>Monitor website availability with uptime services.</li>
+<li>Monitor website responsiveness / performance.
+<ul>
+<li>Consider checking the performance from different geographic locations.</li>
+</ul>
+</li>
+</ul>
+<h3 id="application">Application</h3>
+<ul>
+<li>Monitor application errors, warnings, 404 errors, etc.
+<ul>
+<li>You can use a reporting service such as <a href="https://learn.microsoft.com/en-us/sql/reporting-services/create-deploy-and-manage-mobile-and-paginated-reports?" target="_blank">SQL Server Reporting Services</a> to monitor entries in the <em>CMS_EventLog</em> table and send alerts when too many errors appear.</li>
+</ul>
+</li>
+</ul>
+<h3 id="data">Data</h3>
+<ul>
+<li>Keep an eye on online marketing data and any custom analytics data that you may store in your database.
+<ul>
+<li>Monitor all data, like visitors and their activities, page views, etc., as they can grow rapidly when traffic is high.</li>
+<li>Create automatic processes to delete inactive contacts.</li>
+<li>Keep online marketing data for 6 to 12 months to provide the necessary data for contact groups, marketing automation, and other marketing features.</li>
+</ul>
+</li>
+<li>Monitor the size of all database tables.</li>
+<li>Define rules to handle outdated content.</li>
+<li>Monitor content for broken links.</li>
+</ul>
+<h2 id="whats-next">What’s next?</h2>
+<p>We hope this handbook has given you an idea of some important things to consider and look out for over the course of your Xperience project.</p>
+<p>Let us know if you come across anything that needs additional explanation, and we will do our best to cover it in updates and future materials.</p>
+<p>For now, check out the <a href="https://community.kentico.com/blog" target="_blank">community blog</a> for more useful information relating to Xperience by Kentico.</p>
+<p>As your team prepares for and begins development, the <a href="/guides/">Training guides</a> and <a href="/documentation/">Documentation</a> will also be important resources.</p>
+
+</body>
+</html>

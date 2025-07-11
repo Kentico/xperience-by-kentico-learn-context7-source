@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Taxonomies</title>
+</head>
+<body>
+<p>Taxonomy is a way to organize and categorize content. Taxonomizing content is like sorting different things into groups based on some shared characteristics so they are easier to find.</p>
+<p>Taxonomy in Xperience by Kentico is an out-of-the-box feature. You can tag your content to structure the content items, pages, or digital assets into categories and subcategories or parent-child hierarchies based on what they are about or who they are for.</p>
+<p>Implemented taxonomy allows you to, for example, filter goods in an e-shop, restrict some content from certain types of users or categorize a live site or content across different channels.</p>
+<p>There are more <a href="https://blog.hubspot.com/marketing/website-taxonomy" target="_blank">types of taxonomy structures</a>; Xperience uses a hierarchical one. Let’s see what it means.</p>
+<h2 id="hierarchical-taxonomies-in-xperience-by-kentico">Hierarchical taxonomies in Xperience by Kentico</h2>
+<p>Xperience uses a <strong>hierarchical structure</strong>, creating categories and subcategories of tags. The tags in each taxonomy are related. As you go deeper into the taxonomy tree, the tags in the structure go from the most general to the most specific.</p>
+<p>Imagine you run a fashion shop with various types of products. The main taxonomy category can be <em>fashion</em>, with subcategories divided into <em>clothes</em>, <em>shoes</em>, <em>accessories</em>, and others. Each subcategory has its own subcategories, and the hierarchy drills down to smaller and smaller groups.</p>
+<p>Such taxonomy could look like this:</p>
+<p></p>
+<h2 id="what-are-taxonomy-trees-tags-or-parent-child-relationships">What are taxonomy trees, tags, or parent-child relationships</h2>
+<p>Before we dive deeper into the topic, let’s define the terminology used in Xperience and see some examples.</p>
+<ul>
+<li>
+<strong>Tags</strong> are keywords describing an attribute, characteristic, or quality of content. A piece of content can have one or more tags. A tag can be, for example, the color or material of a product, a type of transportation, or part of a body to filter medical examinations. A piece of content can have more tags used for different purposes, for example, to categorize the content or show a relationship with other content items.</li>
+<li>Tags in taxonomy are organized into <strong>parent-child relationships</strong>; in other words, it’s a hierarchy of category-subcategory.</li>
+<li>
+<strong>Taxonomies</strong> are tags in a hierarchical structure. A taxonomy is like a tree, with categories and subcategories or a parent-child relationship between tags. The tags in one taxonomy are related. There can be more taxonomies in Xperience, each grouping different tags based on different properties or purposes. For example, <em>Clothes’ color</em>—white, black, red; <em>Medical examinations</em>—head, spine, internal organs; and <em>Types of transport</em>—bus, train, boat.*</li>
+<li>A <strong>Taxonomy group</strong> is a group of tags based on their relationship. For example, as mentioned in the Taxonomies bullet point above, one group is <em>Clothes’ color</em>, the other is <em>Medical examinations</em> and the last is the <em>Types of transport</em>.</li>
+<li>
+<strong>Taxonomy tree</strong> is a structured taxonomy group in a hierarchical structure.</li>
+</ul>
+<h2 id="types-of-taxonomy-groups">Types of taxonomy groups</h2>
+
+<div>
+<p>Developers and business analysts define the taxonomy groups editors can work with.</p>
+</div>
+
+<p>You can use taxonomy groups for different purposes. One group can, for example, define semantic relationships. In this case, editors can tag content to show that certain content has a relationship based on the tag meaning, like showing a couple of articles on the same topic or specific services. Use these relationships to allow website visitors to filter content for products they are looking for. Other groups can affect how Xperience works with the content, for example, by tagging products based on their availability in a specific region or country. The website can then display products relevant to that specific country or region.</p>
+<p></p>
+
+<div>
+<p>At the moment, it is not possible to extend standard taxonomy fields. If you need to store more contextual information about your tags, e.g., images or different descriptions, use a combination of dedicated content types, e.g., Category items.</p>
+</div>
+
+<h2 id="use-taxonomy-to-deliver-persona-specific-content">Use taxonomy to deliver persona-specific content</h2>
+<p>Taxonomies can distinguish between various content available to different groups of visitors. Let’s see in more detail how to use taxonomy to deliver content to specific personas.</p>
+<p>Imagine our fashion company that wants to distinguish between different membership levels and offer content based on the group they’re in. Xperience allows you to grant secure access to specific content items (PDFs, whitepapers, case studies) - you can use this feature and combine it with taxonomies. By <a href="/documentation/business-users/content-hub/content-items#secure-content-items">securing access</a>, you make sure that the material is not visible to visitors who are not logged in to your website. Then, you create a taxonomy for different types of personas, for example, members and VIP members, and label the desired content accordingly. To link the content to the corresponding persona, create a contact group for each persona and connect the taxonomy.</p>
+<p>This way, you can personalize the content. Developers just need to ensure more than one taxonomy group is assigned to the content type. Following our example, one taxonomy group defines which group of members has access to the tagged content, and another describes the content itself.</p>
+<p></p>
+<h2 id="multilingual-taxonomies">Multilingual taxonomies</h2>
+<p>Imagine our fashion company runs an e-shop in different countries. Taxonomies can help with selecting products to be visible in specific countries or regions by tagging them with the respective tags.</p>
+<p>You can also use taxonomies to allow your visitors to filter the content. To make things easy for your visitors, you need to translate the tags into the local language. This is similar to creating <a href="/guides/digital-marketing/work-with-multilingual">language variants of pages and content</a>. However, editors can easily translate taxonomies in the Taxonomies application, where you add just the translated version for selected (or all) languages and don’t have to interfere with or recreate the taxonomy functionality.</p>
+<p></p>
+<p>You can translate the tags directly in the <strong>Taxonomies</strong> application, where you add the translation for selected (or all) languages. However, taxonomies don’t have the same capabilities as multilingual content, so they don’t have fallback languages. If a tag is translated and used for content in a target language, it automatically shows in the target language. If you don’t translate the tag and want to use it in the target language environment, Xperience shows it in the default language.</p>
+<p>For example, our default language is English. We created a Czech version of a product page and want to add a tag. The desired tag shows on the Czech page if the content has a Czech language translation. If the tag doesn’t have the Czech translation (regardless of whether it’s translated into other languages), it shows on the Czech page in English, as English is the default language.</p>
+<h2 id="creating-and-updating-taxonomies">Creating and updating taxonomies</h2>
+<p>When you think about or work with taxonomy structure, you can consider these two basic approaches to hierarchical taxonomy. Let’s see their characteristics:</p>
+
+<table>
+<thead>
+<tr>
+<td>
+<p><strong>Single taxonomy</strong></p>
+</td>
+<td>
+<p><strong>Multiple taxonomies</strong></p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<ul>
+<li>Easier for editors to work with.</li>
+<li>The tags are available everywhere.</li>
+<li>Rich tags group for filtering or searching.</li>
+<li>Adding new tags doesn’t affect the code.</li>
+<li>Shuffling tags around can break the implementation.</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Editors have to understand how to work with different taxonomy groups.</li>
+<li>The tags are limited in their usage.</li>
+<li>A number of taxonomy groups allow for more complex filtering and search.</li>
+<li>New taxonomy group potentially requires a code change.</li>
+<li>New types of taxonomies can vary in their function.</li>
+</ul>
+</td>
+</tr>
+</table>
+
+
+<div>
+<p>Xperience by Kentico doesn’t automatically check who can change taxonomies. So, if the developers granted you permission to change or update tags in taxonomy trees, be careful. Unprepared changes can lead to a functionality break, and your websites may not work as intended.</p>
+</div>
+
+<h2 id="to-sum-up">To sum up</h2>
+<p>This guide gave you a basic introduction to taxonomies. You’ve learned about what taxonomies are in Xperience by Kentico and how they can be helpful for your company or project.</p>
+<h2 id="next-steps">Next steps</h2>
+<p>The following guide will show you the <a href="/guides/digital-marketing/work-with-taxonomies/work-with-taxonomies-in-kbank">practical use of taxonomies</a>, how to work with taxonomy trees and tags, or how to translate the tags to different languages.</p>
+
+</body>
+</html>

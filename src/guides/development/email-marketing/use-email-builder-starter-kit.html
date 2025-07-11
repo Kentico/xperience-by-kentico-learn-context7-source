@@ -1,0 +1,462 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Use the Email Builder Starter Kit in your project</title>
+</head>
+<body>
+<p><a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a> in Xperience by Kentico empowers non-technical users to define the appearance of emails with a friendly drag-and-drop interface. Through <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#templates">Templates</a>, <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#sections">Sections</a>, and <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#widgets">Widgets</a>, marketers have more flexibility than standard <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">email templates</a> to control the structure, visual design, and content of emails.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit" target="_blank">Email Builder Starter Kit</a> provides a pre-made set of Email Builder components that you can use in your project, saving time that you can spend on additional custom components or other areas of the project.</p>
+<p>Let’s look into the process of integrating the Starter Kit into an existing project, using the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">Training guides repository</a> as an example.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">30.5.0</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide have only been tested in <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview" target="_blank">.NET 8</a>.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="prepare-your-solution-for-email-builder">Prepare your solution for Email Builder</h2>
+<p>To begin, install the <strong>Kentico.Xperience.Mjml</strong> and <strong>Microsoft.AspNetCore.Components.Web</strong> NuGet packages to your solution.</p>
+
+<div>
+
+</div>
+<div>
+<p>Make sure to install the version of <strong>Kentico.Xperience.Mjml</strong> that matches your other Kentico NuGet packages (30.5.0 in this example).</p>
+</div>
+
+<p>The process may vary depending on your approach, but in the <em>Training guides</em> repository, you can simply edit the <strong>Directory.Packages.props</strong> file.</p>
+
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>Directory.Packages.props</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;Project&gt;
+  ...
+  &lt;ItemGroup&gt;
+    ...
+    &lt;PackageVersion Include="kentico.xperience.mjml" Version="30.5.0" /&gt;
+    
+    &lt;PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="8.0.14" /&gt;
+...
+</code></pre>
+</div>
+
+<h2 id="copy-the-starter-kit-to-your-solution">Copy the Starter Kit to your solution</h2>
+<p>Clone or download the <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit" target="_blank">Email Builder Starter Kit repository</a> from GitHub.</p>
+<p>Copy the entire <strong>Kentico.Xperience.Mjml.StarterKit.Rcl</strong> directory from the <strong>src</strong> folder of the <em>Email Builder Starter Kit</em> repository to your project, for example, into the <strong>src</strong> folder of the <em>Training guides</em> repository. Remember to include the Starter Kit’s project, <strong>Kentico.Xperience.Mjml.StarterKit.Rcl.csproj</strong>, in your solution. Your development environment likely has a way to do this in the UI, and it is also possible through the .NET CLI:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>.NET CLI, running from the /src folder of the Training guides repo</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet sln TrainingGuides.sln add Kentico.Xperience.Mjml.StarterKit.Rcl\Kentico.Xperience.Mjml.StarterKit.Rcl.csproj
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Depending on the configuration of your project and environment, you may need to modify the Starter Kit’s project file. For the <em>Training guides</em> solution, we need to disable default embedded resources to avoid build errors</p>
+<div>
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>Kentico.Xperience.Mjml.StarterKit.Rcl.csproj</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+&lt;PropertyGroup&gt;
+    ...
+    &lt;EnableDefaultEmbeddedResourceItems&gt;false&lt;/EnableDefaultEmbeddedResourceItems&gt;
+&lt;/PropertyGroup&gt;
+...
+</code></pre>
+</div>
+</div>
+</div>
+
+<h2 id="map-the-starter-kits-models-to-your-content-types">Map the Starter Kit’s models to your content types</h2>
+<p>The Starter Kit repository includes widgets that display <em>images</em> and <em>products</em>.</p>
+<p>However, there is no way to guarantee that these entities are represented by identical content types in every project, so we need to create a <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit/blob/main/docs/Usage-Guide.md#implement-image-and-product-model-mappers" target="_blank">mapping</a> between the models used by the Starter Kit widgets and our project’s content types.</p>
+
+<div>
+
+</div>
+<div>
+<p>The Starter Kit repository contains <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit/tree/main/examples/DancingGoat/Samples/EmailComponents" target="_blank">example mappers for the Dancing Goat project</a> for reference.</p>
+</div>
+
+<h3 id="implement-the-model-mappers">Implement the model mappers</h3>
+<p>In order to use the <em>Image</em> and <em>Product</em> widgets, we need to implement the <code>IComponentModelMapper&lt;TModel&gt;</code> interface for the <code>ImageWidgetModel</code> and <code>ProductWidgetModel</code> types. These implementations tell the Starter Kit how to populate the widget models from our content types.</p>
+<p>In case we need to update and overwrite the Email Builder Starter Kit files in the future, let’s minimize any changes to that project. Otherwise, we might lose them when overwriting or replacing the folder.</p>
+<p>In the <em>TrainingGuides.Web</em> project, create a <em>~/Features/Shared/EmailBuilder/ModelMappers</em> folder to hold our implementations.</p>
+<h4 id="image-model-mapper-simple-content-type">Image model mapper (simple content type)</h4>
+<p>The <em>Training guides</em> repo has two reusable content types that primarily represent images: <strong>Asset</strong> and <strong>Gallery image</strong>.</p>
+<p>However, the <em>Gallery image</em> type simply wraps the <em>Asset</em> type with additional properties. The image file associated with a <em>Gallery image</em> always belongs to the <em>Asset</em> it links, so we don’t need to worry about handling gallery images here.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can also map multiple content types to a single Starter Kit model, but it is not necessary for this example.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ImageEmailWidgetModelMapper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
+using TrainingGuides.Web.Features.Shared.Services;
+
+namespace TrainingGuides.Web.Features.Shared.EmailBuilder.ModelMappers;
+
+public class ImageEmailWidgetModelMapper : IComponentModelMapper&lt;ImageWidgetModel&gt;
+{
+    private readonly IContentItemRetrieverService&lt;Asset&gt; assetRetrieverService;
+
+    public ImageEmailWidgetModelMapper(
+        IContentItemRetrieverService&lt;Asset&gt; assetRetrieverService)
+    {
+        this.assetRetrieverService = assetRetrieverService;
+    }
+
+    public async Task&lt;ImageWidgetModel&gt; Map(Guid itemGuid, string languageName)
+    {
+        var asset = await assetRetrieverService.RetrieveContentItemByGuid(
+                contentItemGuid: itemGuid,
+                contentTypeName: Asset.CONTENT_TYPE_NAME,
+                languageName: languageName);
+
+        if (asset is null)
+        {
+            return new ImageWidgetModel();
+        }
+
+        string imageUrl = asset.AssetFile?.Url ?? string.Empty;
+
+        return new ImageWidgetModel()
+        {
+            // Populate the image URL and alt text from the retrieved content item's fields
+            ImageUrl = imageUrl,
+            AltText = asset?.AssetAltText ?? string.Empty
+        };
+    }
+}
+</code></pre>
+</div>
+
+<h4 id="product-model-mapper-composable-content-type">Product model mapper (composable content type)</h4>
+<p>The <strong>ProductPage</strong> content type in the <em>Training Guides</em> repo is <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content#leverage-linked-content-items">composable</a>. It wraps a reusable <em>Product</em> content type, which itself is made up of other content types like <em>Product feature</em>, <em>Benefit</em>, and <em>Asset</em>. If we compare the <em>Product</em> content type with the properties of the <strong>ProductWidgetViewModel</strong> from the Starter Kit, we can see that <strong>Product</strong> and <strong>Asset</strong> are the only parts of <em>ProductPage</em> that we need.</p>
+<p></p>
+<p>When you query the product page, remember to set the <code>depth</code> appropriately, in order to handle this content model.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductEmailWidgetModelMapper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
+using TrainingGuides.Web.Features.Shared.Services;
+
+namespace TrainingGuides.Web.Features.Shared.EmailBuilder.ModelMappers;
+
+public class ProductEmailWidgetModelMapper : IComponentModelMapper&lt;ProductWidgetModel&gt;
+{
+
+    private readonly IContentItemRetrieverService&lt;ProductPage&gt; productPageRetrieverService;
+
+    public ProductEmailWidgetModelMapper(
+        IContentItemRetrieverService&lt;ProductPage&gt; productPageRetrieverService)
+    {
+        this.productPageRetrieverService = productPageRetrieverService;
+    }
+
+    // Here we set a very specific name for the Guid parameter to clarify that the web page's ContentItemGuid should be used instead of WebPageItemGuid
+    public async Task&lt;ProductWidgetModel&gt; Map(Guid webPageItemContentItemGuid, string languageName)
+    {
+        var page = await productPageRetrieverService.RetrieveWebPageByContentItemGuid(
+            contentItemGuid: webPageItemContentItemGuid,
+            contentTypeName: ProductPage.CONTENT_TYPE_NAME,
+            depth: 2,
+            languageName: languageName);
+
+        var product = page?.ProductPageProduct.FirstOrDefault();
+
+        // If the product or page is null, return an empty model. Note the product will always be null if the page is null.
+        if (product is null)
+        {
+            return new ProductWidgetModel();
+        }
+
+        string webPageItemUrl = page.GetUrl().AbsoluteUrl;
+
+        var image = product.ProductMedia.FirstOrDefault();
+        string imageUrl = image?.AssetFile?.Url ?? string.Empty;
+
+        return new ProductWidgetModel
+        {
+            Name = product.ProductName,
+            Description = product.ProductDescription,
+            Url = webPageItemUrl,
+            ImageUrl = imageUrl,
+            ImageAltText = image?.AssetAltText ?? image?.AssetDescription ?? string.Empty,
+        };
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="register-the-mappers">Register the mappers</h3>
+<p>Now that the mappers are ready, let’s register them with the dependency injection container.</p>
+<p>In our example, we can simply add them to the <code>AddTrainingGuidesServices</code> method of the <code>ServiceCollectionExtensions</code> class.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
+using TrainingGuides.Web.Features.Shared.EmailBuilder.ModelMappers;
+...
+namespace TrainingGuides.Web;
+
+public static class ServiceCollectionExtensions
+{
+    public static void AddTrainingGuidesServices(this IServiceCollection services)
+    {
+        ...
+        services.AddScoped&lt;IComponentModelMapper&lt;ImageWidgetModel&gt;, ImageEmailWidgetModelMapper&gt;();
+        services.AddScoped&lt;IComponentModelMapper&lt;ProductWidgetModel&gt;, ProductEmailWidgetModelMapper&gt;();
+        ...
+    }
+    ...
+}
+
+</code></pre>
+</div>
+
+<p>The <strong>Program.cs</strong> file calls this method on startup, so the application will register both mappers.</p>
+<h2 id="set-up-the-starter-kit-and-email-builder">Set up the Starter Kit and Email Builder</h2>
+<h3 id="register-the-mjml-starter-kit-template">Register the MJML Starter Kit template</h3>
+<p>By default, the Starter Kit does not register its included page template. This gives you the opportunity to specify which of your content types should have access to it, or easily leave it out.</p>
+<p>Create a new file in the <em>~/Features/Shared/EmailBuilder</em> folder of the <em>TrainingGuides.Web</em> project called <strong>StarterKitComponentRegister.cs</strong></p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>StarterKitComponentRegister.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.EmailBuilder.Web.Mvc;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Templates;
+using TrainingGuides;
+
+[assembly: RegisterEmailTemplate(
+    identifier: EmailBuilderStarterKitTemplate.IDENTIFIER,
+    name: "MJML Starter Kit template",
+    componentType: typeof(EmailBuilderStarterKitTemplate),
+    // Enter the code names of all email content types where you wish to use Email Builder
+    ContentTypeNames = [BasicEmail.CONTENT_TYPE_NAME])]
+</code></pre>
+</div>
+
+<h3 id="enable-email-builder">Enable Email Builder</h3>
+<p>If you run your project now, you’ll notice that you can’t use the <strong>MJML Starter Kit template</strong> for emails even though you just registered it. This is because you haven’t yet enabled Email Builder.</p>
+<p>During startup, we need to enable Email Builder and configure its options. You need to specify which content types should use Email Builder at startup. You can also override the default section used in <em>Editable areas</em> on email templates.</p>
+<p>Let’s enable Email marketing and Email Builder for the <strong>Basic email</strong> content type and set the default section to the <strong>Full-width section</strong> from the Starter Kit.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using Kentico.EmailBuilder.Web.Mvc;
+using Kentico.Xperience.Mjml;
+...
+
+builder.Services.AddKentico(async features =&gt;
+{
+    ...
+    features.UseEmailMarketing();
+    features.UseEmailBuilder();
+});
+...
+builder.Services.Configure&lt;EmailBuilderOptions&gt;(options =&gt;
+{
+    options.AllowedEmailContentTypeNames = [BasicEmail.CONTENT_TYPE_NAME];
+    // Replaces the default Email Builder section
+    options.RegisterDefaultSection = false;
+    options.DefaultSectionIdentifier = FullWidthEmailSection.IDENTIFIER;
+});
+
+builder.Services.AddMjmlForEmails();
+...
+</code></pre>
+</div>
+
+<h3 id="configure-the-starter-kit">Configure the Starter Kit</h3>
+<p>Similar to the Email Builder configuration, you also need to configure the Starter Kit when the application starts.</p>
+<p>The available options allow you to define the path to a stylesheet that Email Builder will use, and the allowed content types to restrict the selections of the <em>Image</em> and <em>Product</em> widgets.</p>
+<p>For our example, let’s use styles from the example included in the Starter Kit, and restrict the widget selectors to the content types we <a href="#implement-the-model-mappers">already mapped</a> to the widget models.</p>
+<h4 id="copy-the-stylesheet">Copy the stylesheet</h4>
+<p>Since email CSS is beyond the scope of this example, let’s just copy the Dancing Goat stylesheet for Email Builder from the Starter Kit repository.</p>
+<p>In the Starter Kit repo, find the <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit/blob/main/examples/DancingGoat/wwwroot/EmailBuilder.css" target="_blank"><strong>EmailBuilder.css</strong></a> file under the <em>examples/DancingGoat/wwwroot</em> folder and copy it to the <em>wwwroot</em> folder of your <em>TrainingGuides.Web</em> project.</p>
+<p>Now, you can reference this file in the Starter Kit configuration.</p>
+<h4 id="configure-the-starter-kit-1">Configure the Starter Kit</h4>
+<p>Returning to the <em>Program.cs file</em>, use the <code>AddKenticoMjmlStarterKit</code> method to configure the Starter Kit’s options. You need to tell it where to find your Email Builder CSS and which content types the Image and Product selectors can use.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using Kentico.Xperience.Mjml.StarterKit.Rcl;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Sections;
+...
+builder.Services.AddKenticoMjmlStarterKit(options =&gt;
+{
+    options.StyleSheetPath = "EmailBuilder.css";
+    // The Asset content type, which we mapped to the Image widget earlier
+    options.AllowedImageContentTypes = [Asset.CONTENT_TYPE_NAME];
+    // The Product page content type, which we mapped to the Product widget earlier.
+    options.AllowedProductContentTypes = [ProductPage.CONTENT_TYPE_NAME];
+});
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you prefer to configure these values in your <strong>appsettings.json</strong> file, you can call <code>builder.Services.AddKenticoMjmlStarterKit(builder.Configuration);</code> instead.</p>
+<p>Then you can set the options under the <code>MjmlStarterKitOptions</code> object in <em>appsettings.json</em>.</p>
+</div>
+
+<h2 id="see-the-results">See the results</h2>
+<p>Now the Starter Kit is integrated into your project.</p>
+<p>If you’ve been following along with the Training guides example, you can see the results by creating a new email in the <em>Training guides emails</em> channel.</p>
+
+<h2 id="explore-further">Explore further</h2>
+<p>To see more examples of Email Builder components in action, we recommend checking out those used on the <a href="https://github.com/Kentico/community-portal/tree/v30.5.1.6/src/Kentico.Community.Portal.Web/Components/EmailBuilder" target="_blank">Community Portal</a>.</p>
+<p>Here, you can see the code that makes up <a href="https://community.kentico.com/" target="_blank">community.kentico.com</a>, our site for the Xperience by Kentico developer community that features many helpful resources.</p>
+
+</body>
+</html>

@@ -1,0 +1,1458 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create a cookie preferences widget</title>
+</head>
+<body>
+<p>Let’s dive into the process of creating a cookie configuration page similar to the <a href="https://www.kentico.com/cookies-policy" target="_blank">cookie policy page</a> on <a href="http://Kentico.com" target="_blank">Kentico.com</a>.</p>
+<p></p>
+<p>We will demonstrate how to create more granular cookie tiers than the built-in cookie levels using a widget, helper classes, and a custom controller to tie in with specially-designated consents.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+<p>The examples in this guide require that you:</p>
+<ul>
+<li>Have followed along with the samples from the <a href="/guides/development/data-protection">earlier guides in the series</a>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>The example presented in this <a href="/guides/development/data-protection">Data protection guide series</a> is a <strong>valid implementation of data protection for <a href="/documentation/business-users/digital-marketing/contact-management">Contacts</a></strong> in Xperience by Kentico. (Note that it does not cover the collection and erasure of <a href="/documentation/business-users/members">Members</a> and their associated data.)</p>
+<p>You can copy-paste the code samples into your own solution.</p>
+<p>However, if you choose to do so, <strong>make sure to consult your legal team</strong> to determine whether the implementation, texts, and consent levels <strong>meet the requirements of your region and market</strong>.</p>
+</div>
+
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="define-the-widget-properties-and-view-model">Define the widget properties and view model</h2>
+<ol type="1">
+<li>Create the following folder structure in <em>TrainingGuides.Web</em> project: <em>Features/DataProtection/Widgets/CookiePreferences</em>.</li>
+<li>Create a <code>CookiePreferencesWidgetProperties</code> class that inherits from <code>IWidgetProperties</code>, as outlined in the <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder/widget-properties">widget documentation</a>.</li>
+<li>Add properties to hold the header and description for the essential cookie level and the text for the submit button, and assign appropriate form components to each.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookiePreferencesWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+
+namespace TrainingGuides.Web.Features.DataProtection.Widgets.CookiePreferences;
+
+public class CookiePreferencesWidgetProperties : IWidgetProperties
+{
+    /// &lt;summary&gt;
+    /// Essential cookie header.
+    /// &lt;/summary&gt;
+    [TextInputComponent(
+        Label = "Essential cookie header",
+        Order = 10)]
+    public string EssentialHeader { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Essential cookie description.
+    /// &lt;/summary&gt;
+    [TextInputComponent(
+        Label = "Essential cookie description",
+        Order = 20)]
+    public string EssentialDescription { get; set; } = string.Empty;
+
+    /// &lt;summary&gt;
+    /// Button text.
+    /// &lt;/summary&gt;
+    [TextInputComponent(
+        Label = "Button text",
+        Order = 30)]
+    public string ButtonText { get; set; } = string.Empty;
+}
+
+</code></pre>
+</div>
+
+<p>The <em>Essential</em> cookie level is not associated with a consent here, as the example site is designed such that essential cookies cannot be disabled. The other cookie levels, <em>Preference</em>, <em>Analytical</em>, and <em>Marketing</em>, also have headers and descriptions, but their data will not come from the widget properties. Instead, this data will be retrieved based on the consents mapped to each cookie level via the UI page set up <a href="/guides/development/data-protection/map-consents-to-cookie-levels">earlier in this series</a>:</p>
+<p></p>
+<p>Next, create a view model for the widget in the <em>CookiePreferences folder</em>:</p>
+<ol type="1">
+<li>Add properties corresponding to those from the widget properties.
+<ol type="a">
+<li><code>EssentialHeader</code></li>
+<li><code>EssentialDescription</code></li>
+<li><code>ButtonText</code></li>
+</ol>
+</li>
+<li>Include properties corresponding to the header and description of the <em>Preference</em>, <em>Analytical</em>, and <em>Marketing</em> cookie level consents.</li>
+<li>Define a property that holds the visitor’s existing selected cookie level so that the slider can be set to the correct position when the widget loads.</li>
+<li>Add a property to hold a snapshot of the cookie-level consent mapping. This will help to ensure that agreements are not created for the wrong consents if the mapping in the back-end changes after the widget is rendered for a site visitor but before their selection is submitted.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookiePreferencesWidgetViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Html;
+
+namespace TrainingGuides.Web.Features.DataProtection.Widgets.CookiePreferences;
+
+public class CookiePreferencesWidgetViewModel
+{
+    public string EssentialHeader { get; set; } = string.Empty;
+    public string EssentialDescription { get; set; } = string.Empty;
+    public string PreferenceHeader { get; set; } = string.Empty;
+    public HtmlString PreferenceDescriptionHtml { get; set; } = HtmlString.Empty;
+    public string AnalyticalHeader { get; set; } = string.Empty;
+    public HtmlString AnalyticalDescriptionHtml { get; set; } = HtmlString.Empty;
+    public string MarketingHeader { get; set; } = string.Empty;
+    public HtmlString MarketingDescriptionHtml { get; set; } = HtmlString.Empty;
+    public string ButtonText { get; set; } = string.Empty;
+    public int CookieLevelSelected { get; set; }
+    public string ConsentMapping { get; set; } = string.Empty;
+    public string BaseUrl { get; set; } = string.Empty;
+}
+
+</code></pre>
+</div>
+
+<h2 id="add-an-encryption-service">Add an encryption service</h2>
+<p>To prevent a malicious visitor from tampering with their consent level, the mapping can be converted to a string, and then encrypted via a service that encrypts and decrypts strings.</p>
+<ol type="1">
+<li><p>Under the <em>TrainingGuides.Web</em> project, create a <em>Features/DataProtection/Services</em> folder.</p></li>
+<li>
+<p>Implement an interface for a string encryption service with two string methods, one for encrypting and one for decrypting. The interface will allow for flexibility in testing and alternative implementations.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IStringEncryptionService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ namespace TrainingGuides.Web.Features.DataProtection.Services;
+
+ public interface IStringEncryptionService
+ {
+     string EncryptString(string plainText);
+
+     string DecryptString(string cipherText);
+ }
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Implement this interface using .NET’s <a href="https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.aes?view=net-6.0" target="_blank"><code>Aes</code> class</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>AesEncryptionService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ using System.Security.Cryptography;
+
+ namespace TrainingGuides.Web.Features.DataProtection.Services;
+
+ public class AesEncryptionService : IStringEncryptionService
+ {
+
+     private readonly string key;
+     private readonly string iv;
+
+     public AesEncryptionService(IConfiguration configuration)
+     {
+
+         key = configuration["AesEncryptionKey"] ?? string.Empty;
+         iv = configuration["AesEncryptionIv"] ?? string.Empty;
+     }
+
+     /// &lt;summary&gt;
+     /// Encrypts the provided string using Aes
+     /// &lt;/summary&gt;
+     /// &lt;param name="plainText"&gt;The string to be encrypted&lt;/param&gt;
+     /// &lt;returns&gt;An encrypted string&lt;/returns&gt;
+     /// &lt;remarks&gt;Relies on AesEncryptionKey and AesEncryptionIV in appsettings.json&lt;/remarks&gt;
+     /// &lt;exception cref="ArgumentException"&gt;Thrown when AesEncryptionKey or AesEncryptionIV are not set in appsettings.json&lt;/exception&gt;
+     public string EncryptString(string plainText)
+     {
+         if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(iv))
+             throw new ArgumentException("AesEncryptionKey and AesEncryptionIV must be set in appsettings.json");
+
+         if (string.IsNullOrEmpty(plainText))
+             return plainText;
+
+         byte[] encrypted;
+
+         // Create an Aes object
+         // with the specified key and IV.
+         using (var aesAlg = Aes.Create())
+         {
+             aesAlg.Key = Convert.FromBase64String(key);
+             aesAlg.IV = Convert.FromBase64String(iv);
+
+             // Create an encryptor to perform the stream transform.
+             var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+             // Create the streams used for encryption.
+             using var msEncrypt = new MemoryStream();
+             using var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
+             using (var swEncrypt = new StreamWriter(csEncrypt))
+             {
+                 //Write all data to the stream.
+                 swEncrypt.Write(plainText);
+             }
+             encrypted = msEncrypt.ToArray();
+         }
+
+         // Return the encrypted bytes from the memory stream.
+         return Convert.ToBase64String(encrypted);
+     }
+
+
+     /// &lt;summary&gt;
+     /// Decrypts the provided string using Aes
+     /// &lt;/summary&gt;
+     /// &lt;param name="cipherText"&gt;The string to be decrypted&lt;/param&gt;
+     /// &lt;returns&gt;A decrypted string&lt;/returns&gt;
+     /// &lt;remarks&gt;Relies on AesEncryptionKey and AesEncryptionIV in appsettings.json&lt;/remarks&gt;
+     public string DecryptString(string cipherText)
+     {
+         if (string.IsNullOrEmpty(cipherText))
+             return cipherText;
+
+         // Declare the string used to hold
+         // the decrypted text.
+         string plaintext = string.Empty;
+
+         // Create an Aes object
+         // with the specified key and IV.
+         using (var aesAlg = Aes.Create())
+         {
+             aesAlg.Key = Convert.FromBase64String(key);
+             aesAlg.IV = Convert.FromBase64String(iv);
+
+             // Create a decryptor to perform the stream transform.
+             var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+             // Create the streams used for decryption.
+             using var msDecrypt = new MemoryStream(Convert.FromBase64String(cipherText));
+             using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+             using var srDecrypt = new StreamReader(csDecrypt);
+
+             // Read the decrypted bytes from the decrypting stream
+             // and place them in a string.
+             plaintext = srDecrypt.ReadToEnd();
+         }
+
+         return plaintext;
+     }
+ }
+
+ </code></pre>
+</div>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Key and IV</strong></p>
+<p>The <code>Aes</code> class uses a <code>Key</code> and <code>IV</code> during the encryption process. <em>Keys</em> are used by the encryption algorithm to map the encrypted ciphertext to its plaintext, and <em>IVs</em> or <em>Initialization Vectors</em> are used to essentially scramble the data and make patterns more difficult to recognize in the ciphertext.</p>
+<p>These values can be generated dynamically, but the same values are necessary for both encryption and decryption, so for the purposes of this example, they must be stored somewhere accessible to both the widget, and the controller that handles the data submitted by the widget.</p>
+<p>Store them as keys in the <em>appsettings.json</em> file.</p>
+<div>
+<div>
+<div>
+<div>
+<span>JSON</span>
+</div>
+<strong>appsettings.json</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+{
+  ...
+  "AesEncryptionKey": "a2VudGljbyBrZW50aWNvIGtlbnRpY28ga2VudGljbyA=",
+  "AesEncryptionIv": "a2VudGljbyBrZW50aWNvIA=="
+}
+
+</code></pre>
+</div>
+</div>
+<div>
+<div>
+
+</div>
+<div>
+<p>You should use your own base64 strings for your <em>Key</em> and <em>IV</em> values. MAke sure they represent the same number of bytes as the examples.</p>
+</div>
+</div>
+</div>
+
+<p>The <code>AesEncryptionService</code> needs to be registered with the <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">dependency injection</a> container in order to be dynamically injected or resolved.</p>
+<p>Create a singleton using this implementation for the service interface in the <code>AddTrainingGuidesServices</code> method in <em>TrainingGuides.Web/ServiceCollectionExtensions.cs</em>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+services.AddSingleton&lt;IStringEncryptionService, AesEncryptionService&gt;();
+...
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This extension method is already called in <em>Program.cs</em> on startup. It’s possible to register services directly in <em>Program.cs</em>, but it is best to create extension methods that group similar services for the sake of organization.</p>
+</div>
+
+<h2 id="create-supplementary-utilities">Create supplementary utilities</h2>
+<p>Some functionality will need to be used in multiple places. For instance, in this series, you will create a widget for users to configure their cookie level, as well as a banner to accept all cookies. There will be overlapping tasks that both of these components need to do, like retrieving the current cookie consent mapping, changing the TrainingGuides cookie level, and synchronizing this with the corresponding Xperience cookie level.</p>
+<p>You need some shared code that can be used across all the cookie-related features.</p>
+<ol type="1">
+<li><p>In <em>TrainingGuides.Web/Features/DataProtection/Services</em> create an <code>ICookieConsentService</code>. It will hold methods useful across multiple cookie-related features.</p></li>
+<li><p>Create a <code>CookieConsentService</code> class that implements the <code>ICookieConsentService</code> interface.</p></li>
+<li>
+<p>In the interface, define a method signature for retrieving the cookie-level consent mapping asynchronously. Then, implement the method in the <code>CookieConsentService</code> class:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieConsentService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ using TrainingGuides.DataProtectionCustomizations;  
+
+ namespace TrainingGuides.Web.Features.DataProtection.Services;
+
+ /// &lt;summary&gt;
+ /// Provides functionality for retrieving consents for contact.
+ /// &lt;/summary&gt;
+ public class CookieConsentService : ICookieConsentService
+ {
+     private readonly ICookieLevelConsentMappingInfoProvider cookieLevelConsentMappingInfoProvider;
+
+     public CookieConsentService(ICookieLevelConsentMappingInfoProvider cookieLevelConsentMappingInfoProvider)
+     {
+         this.cookieLevelConsentMappingInfoProvider = cookieLevelConsentMappingInfoProvider;
+     }
+
+     /// &lt;summary&gt;
+     /// Gets the current cookie level consent mapping if it exists.
+     /// &lt;/summary&gt;
+     /// &lt;returns&gt;A &lt;see cref="CookieLevelConsentMappingInfo"/&gt; object representing the project's current mappings, &lt;see cref="null"/&gt; if no mapping exists.&lt;/returns&gt;
+     public async Task&lt;CookieLevelConsentMappingInfo?&gt; GetCurrentMapping()
+     {
+         var currentMapping = await cookieLevelConsentMappingInfoProvider.Get().GetEnumerableTypedResultAsync();
+
+         return currentMapping.FirstOrDefault();
+     }
+ }
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>To be continued …</strong></p>
+<p>You will expand the <code>CookieConsentService</code> class and interface with additional functionality throughout this series.</p>
+</div>
+</li>
+<li>
+<p>Just like with the <code>AesEncryptionService</code> above, remember to register your <code>CookieConsentService</code> with the dependency injection container in <em>TrainingGuides.Web/ServiceCollectionExtensions.cs</em>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ services.AddSingleton&lt;ICookieConsentService, CookieConsentService&gt;();
+ ...
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Create a <em>Shared</em> folder under <em>TrainingGuides.Web/Features/DataProtection</em> and add an enumeration to represent the cookie consent levels the widget will use.</p>
+
+<div>
+
+</div>
+<div>
+<p>Although the enumeration is currently used only by the cookie preferences widget, we recommend adding it to a <em>Shared</em> folder, as other components will rely on it later in this series.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieConsentLevel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ namespace TrainingGuides.Web.Features.DataProtection.Shared;
+
+ /// &lt;summary&gt;
+ /// Cookie consent level types.
+ /// &lt;/summary&gt;
+ public enum CookieConsentLevel
+ {
+     /// &lt;summary&gt;
+     /// Cookie consent level is not set.
+     /// &lt;/summary&gt;
+     NotSet = 0,
+
+     /// &lt;summary&gt;
+     /// Only essential cookies which are necessary for running the system.
+     /// &lt;/summary&gt;
+     Essential = 1,
+
+     /// &lt;summary&gt;
+     /// Cookies for user preferences.
+     /// &lt;/summary&gt;
+     Preference = 2,
+
+     /// &lt;summary&gt;
+     /// Cookies for site usage analysis.
+     /// &lt;/summary&gt;
+     Analytical = 3,
+
+     /// &lt;summary&gt;
+     /// All cookies enabling to collect information about visitor.
+     /// &lt;/summary&gt;
+     Marketing = 4
+ }
+
+ </code></pre>
+</div>
+</li>
+<li>
+<p>In the same <em>Shared</em> folder, define a class called <code>CookieNames</code>, which will hold constants with the names of cookies we want to register and reference throughout the project:</p>
+<ul>
+<li><p><code>COOKIE_ACCEPTANCE</code> indicates whether the visitor has agreed to any cookie level</p></li>
+<li>
+<p><code>COOKIE_CONSENT_LEVEL</code> represents the level of consent the visitor has agreed to</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieNames.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+  namespace TrainingGuides.Web.Features.DataProtection.Shared;
+
+  /// &lt;summary&gt;
+  /// Contains names of all custom cookies extending the solution. Each need to be registered in &lt;see cref="CookieRegistrationModule"/&gt;.
+  /// &lt;/summary&gt;
+  public static class CookieNames
+  {
+      // System cookies
+      public const string COOKIE_CONSENT_LEVEL = "trainingguides.cookieconsentlevel"; 
+      public const string COOKIE_ACCEPTANCE = "trainingguides.cookielevelselection";
+  }
+
+  </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>As the comment indicates, these cookies correspond to the System cookie level in Xperience. This is not to be confused with the more granular cookie levels in the widget, which are specific to this project. Synchronizing these two cookie levels will be covered in a later section.</p>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+<p>Now, you can register these cookie names when the app starts so that they can easily be added, updated, and removed from the visitor’s browser:</p>
+<ol type="1">
+<li><p>Navigate to the <em>Program.cs</em> file in the <em>TrainingGuides.Web</em> project.</p></li>
+<li>
+<p>In the area where you configure the application builder, add cookies using the <code>System</code> level to the <code>CookieLevelOptions.CookieConfigurations</code>  dictionary. </p>
+
+<div>
+
+</div>
+<div>
+<p>Whenever you use the default <a href="/documentation/developers-and-admins/data-protection/cookies#set-and-work-with-cookies"><code>ICookieAccessor</code></a> implementation to set a cookie in a visitor’s browser, Xperience compares the cookie level defined here to that visitor’s current cookie level in order to decide whether or not the cookie is allowed.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ builder.Services.Configure&lt;CookieLevelOptions&gt;(options =&gt;
+ {
+     options.CookieConfigurations.Add(CookieNames.COOKIE_CONSENT_LEVEL, CookieLevel.System);
+     options.CookieConfigurations.Add(CookieNames.COOKIE_ACCEPTANCE, CookieLevel.System);
+ });
+ ...
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you want to use Xperience to manage any custom cookies with the cookie helper, e.g., from 3rd party systems, register them similarly, choosing an appropriate built-in cookie level.</p>
+</div>
+</li>
+</ol>
+<h2 id="add-the-view-component">Add the view component</h2>
+<p>With the reusable code in place, you can return to the widget. As mentioned in the <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder#widgets-based-on-a-view-component">widget documentation</a>, widgets that need complex business logic should be based on view components.</p>
+<ol type="1">
+<li>Add a file to the <em>CookiePreferences</em> widget folder called <code>CookiePreferencesWidgetViewComponent.cs</code>.</li>
+<li>Register the class as a widget, referencing <code>CookiePreferencesWidgetProperties</code>.</li>
+<li>Define a method called <code>InvokeAsync</code>, which retrieves all consents that are currently mapped to cookie levels from the database and uses them to populate the corresponding view model fields.</li>
+<li>Turn the mapping into a dictionary and convert it to a JSON string to be encrypted in the <code>ConsentMapping</code> view model property.</li>
+</ol>
+<p></p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookiePreferencesWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using CMS.DataProtection;
+using CMS.DataEngine;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Web.Mvc;
+using Newtonsoft.Json;
+using TrainingGuides.DataProtectionCustomizations;
+using TrainingGuides.Web.Features.DataProtection.Services;
+using TrainingGuides.Web.Features.DataProtection.Shared;
+using TrainingGuides.Web.Features.DataProtection.Widgets.CookiePreferences;
+using TrainingGuides.Web.Features.Shared.Services;
+
+[assembly: RegisterWidget(
+    identifier: CookiePreferencesWidgetViewComponent.IDENTIFIER,
+    viewComponentType: typeof(CookiePreferencesWidgetViewComponent),
+    name: "Cookie preferences",
+    propertiesType: typeof(CookiePreferencesWidgetProperties),
+    Description = "Displays a cookie preferences.",
+    IconClass = "icon-cookie")]
+
+namespace TrainingGuides.Web.Features.DataProtection.Widgets.CookiePreferences;
+
+public class CookiePreferencesWidgetViewComponent : ViewComponent
+{
+    private const string CONSENT_MISSING_HEADER = "CONSENT NOT FOUND";
+    private readonly HtmlString consentMissingDescriptionHtml = new("Please ensure that a valid consent is mapped to this cookie level in the Data protection application.");
+
+    /// &lt;summary&gt;
+    /// Widget identifier.
+    /// &lt;/summary&gt;
+    public const string IDENTIFIER = "TrainingGuides.CookiePreferencesWidget";
+
+    private readonly IInfoProvider&lt;ConsentInfo&gt; consentInfoProvider;
+    private readonly IStringEncryptionService stringEncryptionService;
+    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+    private readonly ICookieConsentService cookieConsentService;
+    private readonly ICookieAccessor cookieAccessor;
+    private readonly IHttpRequestService httpRequestService;
+
+    /// &lt;summary&gt;
+    /// Creates an instance of &lt;see cref="CookiePreferencesWidgetViewComponent"/&gt; class.
+    /// &lt;/summary&gt;
+    public CookiePreferencesWidgetViewComponent(
+        IInfoProvider&lt;ConsentInfo&gt; consentInfoProvider,
+        IStringEncryptionService stringEncryptionService,
+        IPreferredLanguageRetriever preferredLanguageRetriever,
+        ICookieConsentService cookieConsentService,
+        ICookieAccessor cookieAccessor,
+        IHttpRequestService httpRequestService)
+    {
+        this.consentInfoProvider = consentInfoProvider;
+        this.stringEncryptionService = stringEncryptionService;
+        this.preferredLanguageRetriever = preferredLanguageRetriever;
+        this.cookieConsentService = cookieConsentService;
+        this.cookieAccessor = cookieAccessor;
+        this.httpRequestService = httpRequestService;
+    }
+
+    /// &lt;summary&gt;
+    /// Invokes the widget view component
+    /// &lt;/summary&gt;
+    /// &lt;param name="properties"&gt;The properties of the widget&lt;/param&gt;
+    /// &lt;returns&gt;The view for the widget&lt;/returns&gt;
+    public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(CookiePreferencesWidgetProperties properties)
+    {
+        var currentMapping = await cookieConsentService.GetCurrentMapping();
+
+        // Get consents
+        var preferenceCookiesConsent = await consentInfoProvider.GetAsync(currentMapping?.PreferenceConsentCodeName.FirstOrDefault());
+        var analyticalCookiesConsent = await consentInfoProvider.GetAsync(currentMapping?.AnalyticalConsentCodeName.FirstOrDefault());
+        var marketingCookiesConsent = await consentInfoProvider.GetAsync(currentMapping?.MarketingConsentCodeName.FirstOrDefault());
+
+        string mapping = GetMappingString(currentMapping);
+
+        return View("~/Features/DataProtection/Widgets/CookiePreferences/CookiePreferencesWidget.cshtml", new CookiePreferencesWidgetViewModel
+        {
+            EssentialHeader = properties.EssentialHeader,
+            EssentialDescription = properties.EssentialDescription,
+
+            PreferenceHeader = preferenceCookiesConsent.ConsentDisplayName ?? CONSENT_MISSING_HEADER,
+            PreferenceDescriptionHtml = new HtmlString((await preferenceCookiesConsent.GetConsentTextAsync(preferredLanguageRetriever.Get())).FullText) ?? consentMissingDescriptionHtml,
+
+            AnalyticalHeader = analyticalCookiesConsent.ConsentDisplayName ?? CONSENT_MISSING_HEADER,
+            AnalyticalDescriptionHtml = new HtmlString((await analyticalCookiesConsent.GetConsentTextAsync(preferredLanguageRetriever.Get())).FullText) ?? consentMissingDescriptionHtml,
+
+            MarketingHeader = marketingCookiesConsent.ConsentDisplayName ?? CONSENT_MISSING_HEADER,
+            MarketingDescriptionHtml = new HtmlString((await marketingCookiesConsent.GetConsentTextAsync(preferredLanguageRetriever.Get())).FullText) ?? consentMissingDescriptionHtml,
+
+            CookieLevelSelected = CMS.Helpers.ValidationHelper.GetInteger(cookieAccessor.Get(CookieNames.COOKIE_CONSENT_LEVEL), 1),
+
+            ConsentMapping = stringEncryptionService.EncryptString(mapping),
+
+            ButtonText = properties.ButtonText,
+
+            BaseUrl = httpRequestService.GetBaseUrl()
+        });
+    }
+
+    /// &lt;summary&gt;
+    /// Gets a serialized string representation of the cookie level consent mapping
+    /// &lt;/summary&gt;
+    /// &lt;param name="currentMapping"&gt;A CookieLevelConsentMappingInfo object&lt;/param&gt;
+    /// &lt;returns&gt;A JSON serialized sting representation of the mapping&lt;/returns&gt;
+    private string GetMappingString(CookieLevelConsentMappingInfo? currentMapping)
+    {
+        var mapping = currentMapping != null
+            ? new Dictionary&lt;int, string&gt;
+            {
+                { (int)CookieConsentLevel.Preference, currentMapping.PreferenceConsentCodeName.FirstOrDefault() ?? string.Empty },
+                { (int)CookieConsentLevel.Analytical, currentMapping.AnalyticalConsentCodeName.FirstOrDefault() ?? string.Empty },
+                { (int)CookieConsentLevel.Marketing, currentMapping.MarketingConsentCodeName.FirstOrDefault() ?? string.Empty }
+            }
+            : [];
+
+        return JsonConvert.SerializeObject(mapping).ToString();
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Make the widget identifier available</strong></p>
+<p>In the future, you may need to limit which widgets are available in different Page Builder sections and zones. To make this easier, add the identifier of the new Cookie preferences widget to the <code>ComponentIdentifiers</code> class.</p>
+<ol type="1">
+<li>Navigate to <em>TrainingGuides.Web/ComponentIdentifiers.cs</em>.</li>
+<li>Add a new static class called <code>Widgets</code> inside the <code>ComponentIdentifiers</code> class if it does not already exist.</li>
+<li>Add a string constant referencing the identifier of the widget, defined in the <code>CookiePreferencesWidgetViewComponent</code>.</li>
+</ol>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ComponentIdentifiers.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+public static class ComponentIdentifiers
+{
+    ...
+    public static class Widgets
+    {
+        ...
+        public const string COOKIE_PREFERENCES = CookiePreferencesWidgetViewComponent.IDENTIFIER;
+        ...
+    }
+    ...
+}
+
+</code></pre>
+</div>
+</div>
+</div>
+
+<h2 id="define-the-view">Define the view</h2>
+<ol type="1">
+<li>
+<p>The widget will use AJAX, so install the <em>ASPNetCore.Unobtrusive.Ajax</em> NuGet package and add this line to <code>Program.cs</code> where the service collection is being assembled.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ ...
+ builder.Services.AddUnobtrusiveAjax();
+ ...
+
+ </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>This allows the widget’s view to use the <code>Html.AjaxBeginForm</code> extension.</p>
+</div>
+</li>
+<li><p>Create an AJAX form that posts to <em>~/cookies/submit</em>. (We’ll add a controller action to handle this POST request later.)</p></li>
+<li><p>Use a range input for the cookie slider, selecting a value between 1 and 4, and include the encrypted mapping in a hidden field.</p></li>
+<li>
+<p>Define an area to write a result message, and use an unordered list to display the titles and texts of the consents.</p>
+
+<div>
+
+</div>
+<div>
+<p>The CSS that allows the slider to align with the bullet points is beyond the scope of this example, but feel free to view it <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">in the repository</a>.</p>
+</div>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>CookiePreferencesWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using CMS.Helpers
+@using TrainingGuides.Web.Features.Shared.Services
+@using TrainingGuides.Web.Features.DataProtection.Shared
+@using TrainingGuides.Web.Features.DataProtection.Widgets.CookiePreferences
+
+@model CookiePreferencesWidgetViewModel;
+
+@{
+    Layout = null;
+    var messageId = "cookiePreferencesMessage";
+}
+
+@using (Html.AjaxBeginForm("CookiePreferences", "Cookies", new AjaxOptions
+ {
+     HttpMethod = "POST",
+     InsertionMode = InsertionMode.Replace,
+     UpdateTargetId = messageId
+ }, new { action = $"{Model.BaseUrl}/cookies/submit" }))
+{
+    &lt;div class="container"&gt;
+        &lt;div&gt;
+            &lt;input id="ConsentMapping" name="ConsentMapping" type="hidden"  value="@Model.ConsentMapping" /&gt;
+            &lt;div class="cookie-preferences__levels"&gt;
+                &lt;div class="cookie-preferences__selector" id="js-cookie-preferences__selector"&gt;
+                    &lt;div class="cookie-preferences__range-fill" id="range-fill"&gt;&lt;/div&gt;
+                    &lt;input id="CookieLevelSelected" name="CookieLevelSelected" type="range" min="1" max="4" step="1" class="cookie-preferences__range-slider" value="@Model.CookieLevelSelected" /&gt;
+                &lt;/div&gt;
+
+                &lt;ul class="cookie-preferences__options"&gt;
+                    &lt;li class="cookie-preferences__option" data-value="1"&gt;
+                        &lt;span class="cookie-preferences__option-header"&gt;@Model.EssentialHeader&lt;/span&gt;
+                        &lt;span class="cookie-preferences__option-description"&gt;@Model.EssentialDescription&lt;/span&gt;
+                    &lt;/li&gt;
+                    &lt;li class="cookie-preferences__option" data-value="2"&gt;
+                        &lt;span class="cookie-preferences__option-header"&gt;@Model.PreferenceHeader&lt;/span&gt;
+                        &lt;span class="cookie-preferences__option-description"&gt;@Model.PreferenceDescriptionHtml&lt;/span&gt;
+                    &lt;/li&gt;
+                    &lt;li class="cookie-preferences__option" data-value="3"&gt;
+                        &lt;span class="cookie-preferences__option-header"&gt;@Model.AnalyticalHeader&lt;/span&gt;
+                        &lt;span class="cookie-preferences__option-description"&gt;@Model.AnalyticalDescriptionHtml&lt;/span&gt;
+                    &lt;/li&gt;
+                    &lt;li class="cookie-preferences__option" data-value="4"&gt;
+                        &lt;span class="cookie-preferences__option-header"&gt;@Model.MarketingHeader&lt;/span&gt;
+                        &lt;span class="cookie-preferences__option-description"&gt;@Model.MarketingDescriptionHtml&lt;/span&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;button class="btn tg-btn-secondary text-uppercase mt-4 cookie-preferences__button" type="submit" name="button"&gt;
+                @Model.ButtonText
+            &lt;/button&gt;
+            &lt;div id="@messageId" class="cookie-preferences__message"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+}
+
+</code></pre>
+</div>
+
+<h2 id="handle-the-request">Handle the request</h2>
+<p>To handle the POST request generated by the widget, you’ll need a controller action.</p>
+<p>However, this action requires some additional functionality to be added to the <code>CookieConsentService</code> from <a href="#create-supplementary-utilities">earlier</a>.</p>
+<h3 id="expand-the-cookieconsentservice">Expand the CookieConsentService</h3>
+<p>You need a new method to facilitate the controller action that handles cookie preference data from the widget.</p>
+<ol type="1">
+<li>
+<p>Inject the following services into the <code>CookieConsentService</code> class.</p>
+<ol type="a">
+<li><code>ICurrentCookieLevelProvider</code></li>
+<li><code>IConsentAgreementService</code></li>
+<li><code>IInfoProvider&lt;ConsentInfo&gt;</code></li>
+<li><code>ICookieAccessor</code></li>
+</ol>
+</li>
+<li><p>Add a new <code>SetCurrentCookieConsentLevel</code> method.</p></li>
+<li><p>Asynchronously return a boolean that indicates if the method successfully updated the cookie level and consents.</p></li>
+<li>
+<p>Adjust the value of the <code>COOKIE_CONSENT_LEVEL</code> cookie (<em>trainingguides.cookieconsentlevel</em>) if it has changed, and adjust the corresponding <em>CMSCookieLevel</em> cookie if necessary.Set the <em>SameSite</em> mode to Lax for the sake of this example</p>
+
+<div>
+
+</div>
+<div>
+<p>In real world scenarios, you should decide on the proper<a href="https://owasp.org/www-community/SameSite" target="_blank">SameSite mode</a> for each of your cookies depending on how and where it needs to be accessed. </p>
+</div>
+</li>
+<li><p>Agree to the appropriate consents if the cookie level is raised and revoke the appropriate consents if the cookie level is lowered.</p></li>
+<li><p>If the consents were updated successfully and all cookies are up to date, set the <code>COOKIE_ACCEPTANCE</code> cookie (<em>trainingguides.cookielevelselection)</em> to <em>true,</em> indicating that the visitor has selected a cookie level.</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieConsentService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+...
+/// &lt;summary&gt;
+/// Sets current cookie consent level, internally sets system CookieLevel and agrees or revokes profiling consent.
+/// &lt;/summary&gt;
+/// &lt;param name="level"&gt;Cookie consent level to set&lt;/param&gt;
+/// &lt;param name="mapping"&gt;Mapping of consent to cookie level when the visitor sets a cookie level from the widget&lt;/param&gt;
+/// &lt;returns&gt;true if the consents and cookie levels were updated according to the cookie level, false if there was an issue&lt;/returns&gt;
+public async Task&lt;bool&gt; SetCurrentCookieConsentLevel(CookieConsentLevel level, IDictionary&lt;int, string&gt; mapping)
+{
+    if (mapping == null || mapping.Count() == 0)
+        return false;
+
+    // Get original contact before changes to the cookie level
+    var originalContact = ContactManagementContext.GetCurrentContact(false);
+
+    bool cookiesUpToDate = UpdateCookieLevels(level);
+
+    // Get current contact after changes to the cookie level
+    var currentContact = ContactManagementContext.GetCurrentContact();
+
+    bool preferedConsentsAgreed = await UpdatePreferredConsents(level, originalContact, currentContact, mapping);
+    bool successful = preferedConsentsAgreed &amp;&amp; cookiesUpToDate;
+
+    if (successful)
+        SetCookieAcceptanceCookie();
+
+    return successful;
+}
+
+/// &lt;summary&gt;
+/// Updates the visitor's cookie level to the provided value
+/// &lt;/summary&gt;
+/// &lt;param name&lt;returns&gt;true if the cookie level is equa="level"&gt;the cookie consent level to set for the visitor&lt;/param&gt;
+/// &lt;returns&gt;true if cookie levels were updated or alredy up-to-date, false if there is an exception&lt;/returns&gt;
+public bool UpdateCookieLevels(CookieConsentLevel level)
+{
+    // Get current cookie level and adjust it only if it has been changed
+    var originalLevel = GetCurrentCookieConsentLevel();
+
+    if (originalLevel == level)
+        return true;
+    try
+    {
+        // Set system cookie level according consent level
+        SynchronizeCookieLevel(level);
+
+        //Set cookie consent level into client's cookies
+        cookieAccessor.Set(CookieNames.COOKIE_CONSENT_LEVEL, ((int)level).ToString(), new CookieOptions
+        {
+            Path = null,
+            Expires = DateTime.Now.AddYears(1),
+            HttpOnly = false,
+            SameSite = SameSiteMode.Lax
+        });
+        return true;
+    }
+    catch
+    {
+        return false;
+    }
+
+}
+
+/// &lt;summary&gt;
+/// Agrees and revokes consents according to the preferred cookie level
+/// &lt;/summary&gt;
+/// &lt;param name="level"&gt;The cookie level&lt;/param&gt;
+/// &lt;param name="originalContact"&gt;The ContactInfo object form before the cookie level was changed&lt;/param&gt;
+/// &lt;param name="currentContact"&gt;The ContactInfo object from after the cookie level was changed&lt;/param&gt;
+/// &lt;param name="mapping"&gt;The cookie level consent mapping&lt;/param&gt;
+/// &lt;returns&gt;true if the consents from the mapping can be found, false if not&lt;/returns&gt;
+private async Task&lt;bool&gt; UpdatePreferredConsents(CookieConsentLevel level, ContactInfo originalContact, ContactInfo currentContact, IDictionary&lt;int, string&gt; mapping)
+{
+    // Get consents
+    var preferenceCookiesConsent = await consentInfoProvider.GetAsync(mapping[(int)CookieConsentLevel.Preference]);
+    var analyticalCookiesConsent = await consentInfoProvider.GetAsync(mapping[(int)CookieConsentLevel.Analytical]);
+    var marketingCookiesConsent = await consentInfoProvider.GetAsync(mapping[(int)CookieConsentLevel.Marketing]);
+
+    if (preferenceCookiesConsent == null || analyticalCookiesConsent == null || marketingCookiesConsent == null)
+        return false;
+
+    // Agree cookie consents
+    if (level &gt;= CookieConsentLevel.Preference &amp;&amp; currentContact != null)
+    {
+        if (!consentAgreementService.IsAgreed(currentContact, preferenceCookiesConsent))
+            consentAgreementService.Agree(currentContact, preferenceCookiesConsent);
+    }
+    if (level &gt;= CookieConsentLevel.Analytical &amp;&amp; currentContact != null)
+    {
+        if (!consentAgreementService.IsAgreed(currentContact, analyticalCookiesConsent))
+            consentAgreementService.Agree(currentContact, analyticalCookiesConsent);
+    }
+    if (level &gt;= CookieConsentLevel.Marketing &amp;&amp; currentContact != null)
+    {
+        if (!consentAgreementService.IsAgreed(currentContact, marketingCookiesConsent))
+            consentAgreementService.Agree(currentContact, marketingCookiesConsent);
+    }
+
+    // Revoke consents
+    if (level &lt; CookieConsentLevel.Preference &amp;&amp; originalContact != null)
+    {
+        if (consentAgreementService.IsAgreed(originalContact, preferenceCookiesConsent))
+            consentAgreementService.Revoke(originalContact, preferenceCookiesConsent);
+    }
+
+    if (level &lt; CookieConsentLevel.Analytical &amp;&amp; originalContact != null)
+    {
+        if (consentAgreementService.IsAgreed(originalContact, analyticalCookiesConsent))
+            consentAgreementService.Revoke(originalContact, analyticalCookiesConsent);
+    }
+
+    if (level &lt; CookieConsentLevel.Marketing &amp;&amp; originalContact != null)
+    {
+        if (consentAgreementService.IsAgreed(originalContact, marketingCookiesConsent))
+            consentAgreementService.Revoke(originalContact, marketingCookiesConsent);
+    }
+
+    return true;
+}
+
+/// &lt;summary&gt;
+/// Gets currently set cookie consent level.
+/// &lt;/summary&gt;
+/// &lt;returns&gt;Cookie consent level&lt;/returns&gt;
+public CookieConsentLevel GetCurrentCookieConsentLevel()
+{
+    Enum.TryParse&lt;CookieConsentLevel&gt;(cookieAccessor.Get(CookieNames.COOKIE_CONSENT_LEVEL), out var consent);
+
+    return consent;
+}
+
+/// &lt;summary&gt;
+/// Synchronizes cookie level with consent level.
+/// &lt;/summary&gt;
+/// &lt;param name="level"&gt;Consent level&lt;/param&gt;
+private void SynchronizeCookieLevel(CookieConsentLevel level)
+{
+    switch (level)
+    {
+        case CookieConsentLevel.NotSet:
+            SetCookieLevelIfChanged(cookieLevelProvider.GetDefaultCookieLevel());
+            break;
+        case CookieConsentLevel.Essential:
+        case CookieConsentLevel.Preference:
+        case CookieConsentLevel.Analytical:
+            SetCookieLevelIfChanged(Kentico.Web.Mvc.CookieLevel.Visitor.Level);
+            break;
+        case CookieConsentLevel.Marketing:
+            SetCookieLevelIfChanged(Kentico.Web.Mvc.CookieLevel.All.Level);
+            break;
+        default:
+            throw new NotSupportedException($"CookieConsentLevel {level} is not supported.");
+    }
+}
+
+/// &lt;summary&gt;
+/// Sets CMSCookieLevel if it is different from the new one.
+/// &lt;/summary&gt;
+/// &lt;param name="newLevel"&gt;The new cookie level to which the contact should be set&lt;/param&gt;
+private void SetCookieLevelIfChanged(int newLevel)
+{
+    int currentCookieLevel = cookieLevelProvider.GetCurrentCookieLevel();
+
+    if (newLevel != currentCookieLevel)
+        cookieLevelProvider.SetCurrentCookieLevel(newLevel);
+}
+
+private void SetCookieAcceptanceCookie() =&gt;
+    cookieAccessor.Set(CookieNames.COOKIE_ACCEPTANCE, "true", new CookieOptions
+    {
+        Path = null,
+        Expires = DateTime.Now.AddYears(1),
+        HttpOnly = false,
+        SameSite = SameSiteMode.Lax
+    });
+...
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Remember to add all new public method signatures to the <code>ICookieConsentService</code> interface as well.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>CMSCookieLevel</strong></p>
+<p>If <a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities#enable-the-activity-tracking-feature"><em>Activity tracking</em> is enabled</a>, Xperience will track <em>Page visits</em> and <em>Landing page</em> activities for any site visitors with the <em>Visitor</em> cookie level or higher by default.</p>
+<p>In our example, there are lesser consents that do not include activity tracking. However, <em>Visitor</em> cookie level is required to include the <em>CurrentContact</em> cookie and track which consents a visitor has accepted.</p>
+<p>To ensure that these activities are tracked only when the cookie level is set to <em>All</em>, follow the steps described in the <a href="/guides/development/activities-and-marketing/enable-activity-tracking">Enable activity tracking</a> guide, where the tracking scripts are conditionally rendered to the page based on cookie level.</p>
+<p>Always check with your legal team to ensure that the texts of your consents align with the functionality you map to these cookie levels.</p>
+</div>
+
+<h3 id="add-the-controller">Add the controller</h3>
+<p>With these new service methods, you can set up the controller to handle the POST request created by the form in the cookie preferences widget.</p>
+<ol type="1">
+<li>Add a <em>Features/DataProtection/Controllers</em> folder containing a class called <code>CookiesController</code> to the <em>TrainingGuides.Web</em> project.</li>
+<li>Add an asynchronous action to the controller, registered to the <em>/cookies/submit</em> path specified by the widget.
+<ol type="a">
+<li>Decrypt the mapping and pass it to the <code>CookieConsentService</code>, along with the selected cookie level provided by the widget.</li>
+<li>Return the path to a partial view, showing a message that indicates success or failure, depending on the result. (The view will be created in a later step.)</li>
+</ol>
+</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookiesController.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using TrainingGuides.Web.Features.DataProtection.Services;
+using TrainingGuides.Web.Features.DataProtection.Shared;
+using TrainingGuides.Web.Features.DataProtection.Widgets.CookiePreferences;
+
+namespace TrainingGuides.Web.Features.DataProtection.Controllers;
+
+public class CookiesController : Controller
+{
+    private const string COOKIE_UPDATE_MESSAGE = "~/Features/DataProtection/Shared/CookieUpdateMessage.cshtml";
+    private const string COOKIE_UPDATE_MESSAGE_SUCCESS = "Cookie consents have been successfully updated.";
+    private const string COOKIE_UPDATE_MESSAGE_FAILURE = "Unable to update cookie consents. Please try again.";
+
+    private readonly IStringEncryptionService stringEncryptionService;
+    private readonly ICookieConsentService cookieConsentService;
+
+    public CookiesController(
+        IStringEncryptionService stringEncryptionService,
+        ICookieConsentService cookieConsentService)
+    {
+        this.stringEncryptionService = stringEncryptionService;
+        this.cookieConsentService = cookieConsentService;
+    }
+
+    [HttpPost("/cookies/submit")]
+    public async Task&lt;IActionResult&gt; CookiePreferences(CookiePreferencesViewModel requestModel)
+    {
+        IDictionary&lt;int, string&gt; mapping;
+        try
+        {
+            mapping = GetDictionaryMapping(requestModel.ConsentMapping);
+        }
+        catch
+        {
+            return ErrorView();
+        }
+
+        CookieConsentLevel selectedConsentValue;
+        if (requestModel.CookieLevelSelected is &gt; 0 and &lt; 5)
+        {
+            selectedConsentValue = (CookieConsentLevel)requestModel.CookieLevelSelected;
+        }
+        else
+        {
+            return ErrorView();
+        }
+
+        try
+        {
+            if (!await cookieConsentService.SetCurrentCookieConsentLevel(selectedConsentValue, mapping))
+            {
+                throw new Exception();
+            }
+        }
+        catch
+        {
+            return ErrorView();
+        }
+
+        return SuccessView(COOKIE_UPDATE_MESSAGE_SUCCESS);
+    }
+
+    /// &lt;summary&gt;
+    /// Gets a dictionary of consent codenames and the cookie levels to which they are mapped from an encrypted string
+    /// &lt;/summary&gt;
+    /// &lt;param name="mappingEncrypted"&gt;The encrypted string representation of the mapping&lt;/param&gt;
+    /// &lt;returns&gt;A dictionary of integer cookie levels and consent codename values&lt;/returns&gt;
+    /// &lt;exception cref="Exception"&gt;Throws if there is no encrypted string, or if the dictionary can't be decrypted and deserialized, or if the mapping does not contain the required cookie level keys&lt;/exception&gt;
+    private IDictionary&lt;int, string&gt; GetDictionaryMapping(string mappingEncrypted)
+    {
+        if (string.IsNullOrEmpty(mappingEncrypted))
+        {
+            throw new Exception("No encrypted string.");
+        }
+
+        Dictionary&lt;int, string&gt; consentMapping;
+
+        try
+        {
+            string mappingDecrypted = stringEncryptionService.DecryptString(mappingEncrypted);
+            consentMapping = JsonConvert.DeserializeObject&lt;Dictionary&lt;int, string&gt;&gt;(mappingDecrypted) ?? [];
+        }
+        catch
+        {
+            throw new Exception("Dictionary can't be decrypted or deserialized.");
+        }
+
+        if (!(consentMapping.ContainsKey((int)CookieConsentLevel.Preference)
+            &amp;&amp; consentMapping.ContainsKey((int)CookieConsentLevel.Analytical)
+            &amp;&amp; consentMapping.ContainsKey((int)CookieConsentLevel.Marketing)))
+        {
+            throw new Exception("Mapping does not contain the required cookie level keys.");
+        }
+
+        return consentMapping;
+    }
+
+    /// &lt;summary&gt;
+    /// Gets a list of consent codenames from an encrypted string
+    /// &lt;/summary&gt;
+    /// &lt;param name="mappingEncrypted"&gt;The encrypted string representation of the consents list&lt;/param&gt;
+    /// &lt;returns&gt;A list of consent codenames&lt;/returns&gt;
+    /// &lt;exception cref="Exception"&gt;Throws if there is no encrypted string, or if no consents are found from decryption&lt;/exception&gt;
+    private IEnumerable&lt;string&gt; GetConsentsList(string mappingEncrypted)
+    {
+        if (string.IsNullOrEmpty(mappingEncrypted))
+        {
+            throw new Exception();
+        }
+
+        string mapping = stringEncryptionService.DecryptString(mappingEncrypted);
+
+        IEnumerable&lt;string&gt; consents = mapping.Split(Environment.NewLine).ToList();
+
+        if (consents.Count() == 0)
+        {
+            throw new Exception();
+        }
+
+        return consents;
+    }
+
+    private IActionResult SuccessView(string message = "") =&gt;
+        PartialView(COOKIE_UPDATE_MESSAGE, new CookieUpdateMessageViewModel(message));
+
+    private IActionResult ErrorView() =&gt;
+        PartialView(COOKIE_UPDATE_MESSAGE, new CookieUpdateMessageViewModel(COOKIE_UPDATE_MESSAGE_FAILURE));
+}
+
+</code></pre>
+</div>
+
+<h3 id="add-the-cookie-update-message-view">Add the cookie update message view</h3>
+<p>Finally, in the <em>TrainingGuides.Web/Features/DataProtection/Shared</em> folder, create the partial view referenced in the controller above and its view model.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>CookieUpdateMessage.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+@using TrainingGuides.Web.Features.DataProtection.Shared
+@using Microsoft.AspNetCore.Html
+
+@model CookieUpdateMessageViewModel
+
+@{
+    HtmlString messageHtml = new HtmlString($"&lt;div class=\"cookies__message\"&gt;{Model.Message}&lt;/div&gt;");
+}
+
+@messageHtml
+
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CookieUpdateMessageViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+namespace TrainingGuides.Web.Features.DataProtection.Shared;
+
+public class CookieUpdateMessageViewModel
+{
+    public string Message { get; set; }
+
+    public CookieUpdateMessageViewModel(string message)
+    {
+        Message = message;
+    }
+}
+
+</code></pre>
+</div>
+
+<h2 id="use-the-widget">Use the widget</h2>
+<p>Now, the widget is available for use.</p>
+<ol type="1">
+<li>Log in to the admin interface of Xperience by Kentico and open the <strong>Training guides pages</strong> application.</li>
+<li>Navigate to the <em>Cookie policy</em> page, on the <strong>Page Builder</strong> tab, and choose <strong>Edit page → Create a new version</strong>.</li>
+<li>Add the <em>Cookie preferences</em> widget to the widget zone, setting a title and description for essential cookies, and a label for the submit button.</li>
+<li>
+<strong>Save</strong> and <strong>Publish</strong> the page.</li>
+</ol>
+<p>Now, users who visit the page can configure their cookie level, as shown in the video below:</p>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/data-protection/build-a-tracking-consent-banner">next part of this series</a> will cover the process of creating a cookie banner, where a site visitor can quickly accept all cookie consents.</p>
+
+</body>
+</html>

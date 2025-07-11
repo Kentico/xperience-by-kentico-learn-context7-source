@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Update a QA deployment using Xperience Portal API</title>
+</head>
+<body>
+<p>Let’s talk about deploying updates to your QA environment. Whether it’s a content change, class, module, or any newly developed functionality, the mechanism of updating your app deployed in Kentico SaaS is similar to the initial deployment:</p>
+<p>You generate a new deployment package and upload it either via the Xperience Portal, as we did in <a href="/guides/configuration/saas/saas-walkthrough/saas-initial-deployment">one of the previous steps</a>, or using the Xperience Portal API.</p>
+<p>In this step we’ll explore the latter. Uploading updates over the Xperience Portal API is a great option if you’d like to automate this process and include it in your CI/CD pipelines.</p>
+<h2 id="build-the-deployment-script">Build the deployment script</h2>
+<p>Instead of manually executing each step, let’s create a PowerShell script that:</p>
+<ol type="1">
+<li>Serializes and stores objects supported by CD.</li>
+<li>Creates a SaaS deployment package.</li>
+<li>Deploys the package to your QA environment using the <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#upload-a-deployment-package-using-xperience-portal-api">Xperience Portal API</a>.</li>
+</ol>
+<p>You can always run all of those actions separately, but the script is reusable, and you can make it a part of your CI/CD pipeline.</p>
+<p>Create a new <em>deploy.ps1</em> script file in your project’s directory; in our case, inside the <em>DancingGoat.Web</em> folder.</p>
+<p>First, add the code to run <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment#store-objects-to-a-cd-repository">CD store command</a> to serialize all CD supported objects (all data except for form submissions and media libraries, which we are not using in this example).</p>
+<p>Then, run the <em>Export-DeploymentPackage.ps1</em> script that’s present in your project, thanks to the <code>--cloud</code> parameter we used during <a href="/guides/configuration/saas/saas-walkthrough/saas-install-configure-project#install-saas-ready-project">installation</a>:</p>
+<ul>
+<li><p>Set the <code>AssemblyName</code> to your project’s assembly name.</p></li>
+<li><p>Store the path of the deployment package in a <code>PackagePath</code> variable, so we can reuse it.</p></li>
+<li><p>Use the <code>PackagePath</code> variable for the <code>OutputPackagePath</code> parameter.</p></li>
+<li>
+<p>Set the <code>StorageAssetsDeploymentMode</code> to <code>CreateUpdate</code> to allow overwriting existing assets.</p>
+
+<div>
+
+</div>
+<div>
+Read more about the <code>StorageAssetsDeploymentMode</code> parameter in <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#create-a-deployment-package">our documentation (scroll to step 3.)</a>.
+</div>
+</li>
+</ul>
+<p>Next, use <code>Invoke-RestMethod</code> to call the Xperience Portal’s <code>upload</code> REST endpoint:</p>
+<ul>
+<li>Set the <em>Authorization</em> header to use the <em>Bearer</em> token. The value of the token needs to be your <strong>Personal Access Token (PAT)</strong> that you created and saved in an <a href="/guides/configuration/saas/saas-walkthrough/saas-setup#create-your-personal-access-token">earlier step of this walk-through</a>. We’ll pass in the PAT as a script parameter.</li>
+<li>Append the project GUID parameter to the REST endpoint. You can obtain the GUID from the Xperience Portal Dashboard and pass it in as a parameter as well.</li>
+<li>Pass in the newly created deployment package by setting the <code>InFile</code> parameter to our <code>PackagePath</code> variable.</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong>deploy.ps1</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;#
+.Synopsis
+    Exports and deploys a deployment package to a QA environment
+#&gt;
+
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$PersonalAccessToken,
+    [string]$ProjectGuid
+)
+
+# Serialize CD data.
+# Remember to escape the $ character with ` in PowerShell.
+# If you use the optional `--no-build` parameter, make sure you always build your solution, including all desired updates before running this script.
+
+Write-Host 'Storing CD files'
+dotnet run --no-build -- --kxp-cd-store --repository-path ".\`$CDRepository"
+
+if ($LASTEXITCODE -ne 0) {
+    Set-Location -Path $originalLocation
+    Write-Error "CD store failed."
+    Read-Host -Prompt "Press Enter to exit"
+    exit 1
+}
+else{
+    Write-Host 'CD files stored'
+}
+
+# Export deployment package.
+
+$PackagePath = "./DeploymentPackage.zip"
+
+Write-Host 'Exporting deployment package'
+.\Export-DeploymentPackage.ps1 -AssemblyName "DancingGoat.Web" -OutputPackagePath $PackagePath -StorageAssetsDeploymentMode "CreateUpdate"
+
+
+if ($LASTEXITCODE -ne 0) {
+    Set-Location -Path $originalLocation
+    Write-Error "Exporting deployment package failed."
+    Read-Host -Prompt "Press Enter to exit"
+    exit 1
+}
+else{
+    Write-Host 'Deployment package exported at ' $PackagePath
+}
+
+# [OPTIONAL] Disable the progress bar.
+# Due to a PowerShell issue, we recommended disabling the progress bar to boost the performance significantly.
+# See https://github.com/PowerShell/PowerShell/issues/2138 for more information.
+$ProgressPreference = 'SilentlyContinue'
+
+# Upload the deployment package
+Write-Host 'Uploading deployment package to cloud'
+# authenticate with your PAT
+$Headers = @{ Authorization = "Bearer $PersonalAccessToken" }
+# Append Project GUID to the Uri.
+# The Uri structure is: {host}/api/deployment/upload/{projectGuid}/{environment}
+# Without specifying the environment, the deployment defaults to QA.
+$Uri = "https://xperience-portal.com/api/deployment/upload/$ProjectGuid"
+
+Invoke-RestMethod -Uri $Uri -Method Post -InFile $PackagePath -ContentType "application/zip" -Headers $Headers
+
+# Enable the progress bar
+$ProgressPreference = 'Continue'
+</code></pre>
+</div>
+
+<h2 id="prepare-and-run-the-deployment-update">Prepare and run the deployment update</h2>
+<h3 id="make-changes-to-your-local-project">Make changes to your local project</h3>
+<p>To simulate the need for a deployment update, run your Dancing Goat project locally and make a few very simple changes:</p>
+<ol type="1">
+<li>
+<p>In the Dancing Goat Pages channel, change the Contacts page heading from “Roastery” to “Roastery contact. This is a code change in a view, representing project development:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>DancingGoat.Web/Views/DancingGoatContacts/Index.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ @model DancingGoat.Models.ContactsIndexViewModel
+
+ &lt;div class="contacts-page"&gt;
+     &lt;div class="col-md-12"&gt;
+         &lt;div class="col-md-6"&gt;
+             &lt;h2 class="contact-title"&gt;@HtmlLocalizer["Roastery contact"]&lt;/h2&gt;
+             &lt;ul class="contact-info"&gt;
+             ...
+ </code></pre>
+</div>
+
+<p></p>
+</li>
+<li>
+<p>Replace a logo image that’s referenced by one of the emails - a media file change.</p>
+</li>
+</ol>
+<p>Stop the local application run before moving on.</p>
+<h3 id="re-evaluate-the-cd-configuration">Re-evaluate the CD configuration</h3>
+<p>Before creating a new deployment package, you should reevaluate whether your CD configuration in <em>repository.config</em> is up-to-date. Are there any new data classes or modules that must be added to the config file to synchronize? Are there any objects you wish to exclude?</p>
+
+<div>
+
+</div>
+<div>
+<p>Feel free to experiment with excluding different objects and observe what effects it has on the deployed solution.</p>
+</div>
+
+<p>If you are following along, you can leave the CD configuration as is.</p>
+<h3 id="prepare-migration-scripts">Prepare migration scripts</h3>
+<p>This step is optional. Our example does not require any database migrations.</p>
+<p>If your project contains any database changes not covered by CD, such as <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts#example---database-change-migration-script">creating new indexes</a>, follow the guidance <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts#migration-scripts-in-a-cicd-workflow">in our documentation</a> to create the <em>@migrations</em> folder that holds any SQL migration scripts and the <em>Before.txt</em> and <em>After.txt</em> files referencing the SQL scripts in the order of execution.</p>
+
+<div>
+
+</div>
+<div>
+<p>You may have noticed that <a href="#build-the-deployment-script">our deployment script</a> does not mention or execute any migration scripts. This is because <strong>when deploying to Kentico SaaS</strong>, migrations are <strong>detected in the deployment package and applied automatically</strong> during the deployment process. All you have to do is prepare the migration files.</p>
+</div>
+
+<h3 id="back-up-your-data-before-deployment-update">Back up your data before deployment update</h3>
+<p>Especially if your package includes database migration scripts, we recommend creating a backup in the Xperience Portal before running your deployment script. Manual backups are available for all environments. Read more about their <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#create-a-manual-backup">retention and the steps to create them</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>On top of this, Kentico creates <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#automatic-production-backups">automatic backups of the PROD environment</a>.</p>
+</div>
+
+<h3 id="run-the-deployment-script">Run the deployment script</h3>
+<p>Now is the time to run our <em>deploy.ps1</em> script. Make sure it’s located in the project folder; if you’re following along, it is <em>DancingGoat.Web</em>.</p>
+<p>Prepare your <a href="/guides/configuration/saas/saas-walkthrough/saas-setup#create-your-personal-access-token">Personal Access Token value from earlier</a>.</p>
+<p>Copy your project GUID from the Xperience Portal dashboard:</p>
+<p></p>
+<p>Open the project folder in PowerShell and call the script:</p>
+
+<div>
+<div>
+<div>
+<span>PS</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+./deploy.ps1 -PersonalAccessToken "&lt;YOUR_PAT&gt;" -ProjectGuid "&lt;YOUR_PROJECT_GUID&gt;"
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you have disabled the progress bar in PowerShell, you will not see the upload progress when the script gets to that part.</p>
+</div>
+
+<p>When the script finishes, after a few minutes, you should be able to observe the deployment in progress in the Xperience Portal <strong>Deployments</strong> screen:</p>
+<p></p>
+<h2 id="check-your-progress">Check your progress</h2>
+<p>When your deployment has finished, you will see the deployment info in your Xperience Portal dashboard updated, including: the <em>deployment package ZIP file</em>, <em>deployment finished date and time</em> and <em>the version of the deployed XbyK instance</em>.</p>
+<p></p>
+<p>Now, navigate to your live site and check that the changes we made locally have been propagated to the QA environment: A changed heading on the Contacts page and an inverted logo in an email.</p>
+<p> </p>
+
+<div>
+
+</div>
+<div>
+<p>If your solution uses <a href="https://www.nuget.org/packages/Kentico.Xperience.Lucene" target="_blank">Lucene search integration</a> and you run into an issue with the search index after deployment, you may find <a href="https://www.milanlund.com/knowledge-base/handling-search-index-rebuilds-in-xperience-by-kentico-s-saas-environment" target="_blank">this blog by Milan Lund</a> helpful.</p>
+</div>
+
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/configuration/saas/saas-walkthrough/saas-deploy-to-prod">Deploy to production</a></p>
+
+</body>
+</html>

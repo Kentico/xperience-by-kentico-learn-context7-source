@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Set up your environment</title>
+</head>
+<body>
+<p>Let’s dive into the upgrade of the Dancing Goat sample site. If you follow along, at the end of this walk-through you will be able to display the <strong>Contacts</strong> page from <strong>Kentico Xperience 13 (KX13)</strong> in a new target <strong>Xperience by Kentico (XbyK)</strong> instance.</p>
+<p>The first step of upgrading is to prepare your environment. You need to have your source solution running, download the migration tool, and set up the target instance.</p>
+<h2 id="prepare-the-source-instance">Prepare the source instance</h2>
+<ul>
+<li>Install the KX13 <strong>Dancing Goat sample site</strong>, <a href="https://download.kentico.com/Xperience_13_Refresh13.exe" target="_blank">Refresh 13</a>. You can also find the installer download in the <a href="https://client.kentico.com/download" target="_blank">Client portal</a>.
+
+<div>
+
+</div>
+<div>
+<p>If this is your first time installing the KX13 Dancing Goat sample site, follow <a href="/13tutorial/developer-tutorial/asp-net-core-development-tutorial/setting-up-an-xperience-core-project">these steps</a> through the installation wizard, but make sure to pick <strong>Dancing Goat sample site</strong> under <strong>Installation type → Site</strong>.</p>
+<br>
+
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>To run the KX13 Dancing Goat locally, you will need to <a href="/13/configuring-xperience/managing-sites/managing-site-license-keys">add a localhost license</a>.</p>
+If you currently don’t have access to a valid one, you can download it from our <a href="https://client.kentico.com/migration-walkthrough-key" target="_blank">our Client portal</a>.
+</div>
+</li>
+<li>Run the source instance.</li>
+<li>Double-check that you can view the live site and the administration. Make sure that you can view the <strong>Contacts</strong> page, especially.</li>
+</ul>
+<h2 id="get-the-migration-tool">Get the migration tool</h2>
+<ul>
+<li><p>Make sure to have <a href="https://dotnet.microsoft.com/en-us/download" target="_blank">ASP.NET Core 8.0</a> installed on the machine where the migration will run.</p></li>
+<li><p>Pull the <em>master</em> branch of the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/tree/master" target="_blank">Xperience by Kentico: Kentico Migration Tool</a> to your environment.</p></li>
+<li>
+<p>Review the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/tree/master?tab=readme-ov-file#library-version-matrix" target="_blank">Library Version Matrix</a> to determine the <strong>compatible version of XbyK</strong>.</p>
+
+<div>
+
+</div>
+<div>
+E.g., Kentico Migration Tool version 3.0.0 is compatible with Xperience by Kentico version 30.2.0. See the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/releases/" target="_blank">changelog</a> for more compatibility info.
+</div>
+</li>
+</ul>
+<h2 id="install-the-target-instance">Install the target instance</h2>
+<ul>
+<li>Install a <strong>migration tool-compatible version</strong> of Xperience by Kentico, using the <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico"><em>kentico-xperience-mvc</em> template</a>.</li>
+<li>Run your new target instance.</li>
+<li>Make sure you can view the live site and log into the administration.</li>
+</ul>
+<h2 id="watch-a-video-overview">Watch a video overview</h2>
+<p>Check out this video overview of the initial setup to verify your environment is correctly configured:</p>
+
+<h3 id="walkthrough-progress">Walkthrough progress</h3>
+<p>Follow to the next article and learn about <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough/migrate-data-and-binary-files">migrating data and binary files</a>.</p>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create email automation</title>
+</head>
+<body>
+<p>Email automation helps you respond to your customers’ actions right when they matter most.Instead of manually sending follow-ups, welcome messages, or reminders, you can create <strong>effective, automatic</strong> workflows <strong>triggered by user behavior</strong>.</p>
+<p>Reaching the right customer at the right time can make all the difference. But sending every follow-up, welcome message, or reminder manually? Keeping track of who to send what by hand? That’s not scalable, and marketers can easily miss the moment.</p>
+<p>That’s where email automation comes in. Xperience’s <strong>Automation</strong> application helps you create simple, effective workflows that run automatically in the background. These workflows are triggered by your customers’ behavior like signing up for a newsletter, registering in your business or reaching a specific milestone on their journey. To maintain momentum in the customer journey, these messages must reach people precisely when they’re most relevant.</p>
+<p>In this hands-on material, you’ll learn how to build a simple but powerful email automation using <strong>Kbank instance</strong>.</p>
+
+<div>
+
+</div>
+<div>
+<p>You’ll need a demo Kbank website to follow along with the exercises. If you don’t have your demo site zet, request the <strong>Xperience by Kentico - Business Tutorial Kbank</strong> demo site through <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">a form at Kentico.com.</a></p>
+</div>
+
+<h2 id="create-an-automation-with-a-reminder-email">Create an automation with a reminder email</h2>
+<p>Imagine you’re managing email marketing at Kbank. Right now, when visitors submit the Contact Us form, they only receive a quick thank-you message and nothing more.</p>
+<p>But you see an opportunity.</p>
+<p>To grow your subscriber list, you decide to follow up. If the visitor hasn’t subscribed to your newsletter yet, why not send them a friendly message letting them know it exists—and how to sign up?</p>
+<p>Let’s build that flow in Xperience and see how the platform makes it easy to automate. And you don’t even need to write the email yourself. The “Newsletter signup reminder” is already prepared in your Kbank environment, you just connect it to your workflow and you’re ready to go.</p>
+<h3 id="step-1-start-a-new-email-automation-process">Step 1: Start a new email automation process</h3>
+<ol type="1">
+<li>Go to the <strong>Automation</strong> application in <strong>Digital marketing</strong>.</li>
+<li>Start a <strong>New process</strong>.</li>
+<li>Fill in the <strong>Process name</strong>: <em>Newsletter signup follow-up</em>.</li>
+<li>Leave <strong>Process recurrence</strong> set to <em>If not already running</em> (default).</li>
+<li>
+<strong>Save</strong> the automation process.</li>
+</ol>
+<h3 id="step-2-add-trigger">Step 2: Add trigger</h3>
+<p>Let’s trigger the automation when a contact submits the <strong>Contact Us</strong> form.</p>
+<ol type="1">
+<li>In the visual designer, <strong>Add trigger</strong>.</li>
+<li>Select <strong>Form submission</strong> activity:</li>
+<li>In the <em>Form settings</em>:
+<ol type="1">
+<li>
+<strong>Trigger name</strong>: <em>Contact Us form submitted</em>
+</li>
+<li>
+<strong>Select a form</strong>: <em>ContactUsForm</em> and <strong>Apply</strong> changes.</li>
+</ol>
+</li>
+</ol>
+<h3 id="step-3-add-a-wait-step">Step 3: Add a Wait step</h3>
+<ol type="1">
+<li>
+<strong>Add step</strong>: <em>Wait</em>
+</li>
+<li>Update <strong>Wait settings</strong>:
+<ol type="1">
+<li>
+<strong>Step name</strong>: <em>Wait</em>
+</li>
+<li>
+<strong>Specific interval</strong>: After <em>1 minute</em>.</li>
+</ol>
+</li>
+<li>
+<strong>Apply</strong> the wait step.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>In real-life projects, you might want to provide the customers some extra time to react. We’ll add <em>1 minute</em> to give you an opportunity to see how the system actually works using the Kbank demo site.</p>
+</div>
+
+<h3 id="step-4-add-a-condition">Step 4: Add a condition</h3>
+<p>Now, we’ll check whether the contact has subscribed.</p>
+<ol type="1">
+<li>
+<strong>Add step</strong>: <em>Condition</em>
+</li>
+<li>Update <strong>Condition settings</strong>:
+<ol type="1">
+<li>Change the <strong>Step name</strong>: <em>Is subscribed to newsletter?</em>
+</li>
+<li>
+<strong>Add condition</strong> and continue to <strong>Add condition group</strong>: <em>Contact is in recipient list</em>
+</li>
+</ol>
+</li>
+<li>The final condition should look like this: <em>Contact is receiving in the Newsletter recipient list</em>
+</li>
+<li>
+<strong>Apply</strong> your changes.</li>
+</ol>
+<h3 id="step-5-send-the-reminder-email">Step 5: Send the reminder email</h3>
+<p>Let’s set up what happens if the user is NOT currently on the newsletter recipient list.</p>
+<ol type="1">
+<li>
+<strong>Add step</strong> in the <em>NO</em> fork of the condition step (meaning the contact has not subscribed to the newsletter yet).</li>
+<li>Update <strong>Send email settings</strong>:
+<ol type="1">
+<li>
+<strong>Step name</strong>: <em>Send newsletter reminder</em>
+</li>
+<li>
+<strong>Choose an email</strong> and continue to <strong>Select existing</strong>: <em>Newsletter signup reminder</em>
+</li>
+</ol>
+</li>
+<li>
+<strong>Select</strong> and <strong>Apply</strong> your changes.</li>
+</ol>
+<h3 id="step-6-finish-the-process">Step 6: Finish the process</h3>
+<ol type="1">
+<li>** <strong>Add step</strong> in both the <em>YES</em> fork of the condition step, and after the “Newsletter reminder” step of the <em>NO</em> fork.</li>
+<li>
+<strong>Select step type</strong>: <em>Finish</em>
+</li>
+<li>To make the process clear, add two different finish statuses:
+<ol type="1">
+<li>In <em>YES</em> fork, call the <em>Finish</em> step <strong>Is already subscribed</strong>.</li>
+<li>In <em>NO</em> fork, call the <em>Finish</em> step <strong>Finish with email sent</strong>
+</li>
+</ol>
+</li>
+<li>
+<strong>Apply</strong>.</li>
+<li>Your automation process should look similar to the following:</li>
+</ol>
+<p></p>
+<h3 id="step-7-enable-the-automation">Step 7: Enable the automation</h3>
+<ol type="1">
+<li>Review settings in the <strong>General</strong> tab if needed.</li>
+<li>
+<strong>Enable</strong> to start the automation.</li>
+<li>Check <strong>Statistics</strong> for the individual steps.</li>
+<li>In the case of a live website, you’ll see the collected <strong>Contacts</strong> in a dedicated view on the right.</li>
+</ol>
+<p>Your automation is now live!</p>
+<h2 id="test-your-automation-process">Test your automation process</h2>
+<p>Visit your website using an anonymous window and agree with the tracking. Visit the <em>Contact us</em> page on the <strong>Personal Banking</strong> website, and submit the <em>Contact us</em> form using a memorable email address. (Make sure you haven’t used this email address to subscribe to the newsletter in another activity).</p>
+<p>Switch to the administration interface. Go to the <a href="/documentation/business-users/email-queue">Email Queue</a> application and find the email sent to your memorable email address. Then, go to the <strong>Automation</strong> application to your <em>Newsletter signup follow-up</em> process and look at the data.</p>
+<h2 id="what-you-learned-and-whats-next">What you learned and what’s next</h2>
+<p>Congrats, you’ve just built your first email automation! This beginner-friendly flow used the following key components:</p>
+<ul>
+<li><p>A <strong>trigger</strong> (form submission)</p></li>
+<li><p>A <strong>delay</strong> (wait step)</p></li>
+<li><p>A <strong>condition</strong> (checking subscription status)</p></li>
+<li><p>A <strong>marketing email</strong> in the form of a newsletter reminder (sent only when needed)</p></li>
+</ul>
+<p>You can build on what you learned later with more features, such as split paths, tagging, and other advanced scenarios.</p>
+
+</body>
+</html>

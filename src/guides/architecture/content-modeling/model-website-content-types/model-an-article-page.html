@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Model an Article page</title>
+</head>
+<body>
+<p>In the dynamic landscape of digital content, even organizing and presenting content articles on your website can help capture and retain your audience’s attention.</p>
+<p>In this guide, you’ll learn:</p>
+<ul>
+<li>How to model an Article page that displays articles from reusable content.</li>
+<li>Which fields to include to prepare article content type for SEO.</li>
+<li>About modeling design components that allow your editors to display the article and related content.</li>
+</ul>
+<p>Once finished, you’ll know how to model the Article website page similar to the page below. You’ll see how to keep the model flexible and scalable to meet your team’s business needs and improve your editors and customers’ experience.</p>
+<p></p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>You should have basic knowledge of <a href="/guides/architecture/content-modeling/content-modeling-guide">content modeling principles</a>.</p>
+<h2 id="start-with-information-learned-during-your-content-audit-of-all-your-website-channels">Start with information learned during your content audit of all your website channels</h2>
+<p>Let’s play out the following scenario:</p>
+
+<div>
+
+</div>
+<div>
+Your marketing team manages websites in several languages. They publish weekly updates and press releases or share your customer studies and interviews with stakeholders on different websites. They sometimes reuse some of these general-purpose articles, like interviews with clients or relevant press releases, across multiple websites. Besides, they create campaign pages to increase conversions, grow the leads’ database, or support your current customers. They also want to display different listings of articles based on the person reading them or showing the latest articles from specific categories.
+</div>
+
+<p>Reusing the same content on different websites means that your team will need to have a way to handle search engines to prevent any SEO issues like duplicate content penalties or indicate that search engines should not index specific pages.</p>
+
+<div>
+
+</div>
+<div>
+<p>The Kbank site this guide mentions several times is an Xperience by Kentico demo application. You can find more about the application in the Business tutorial and even <a href="https://www.kentico.com/get-started/hosted-trial" target="_blank">request your instance Kbank hosted on our servers</a>.</p>
+<p>Some examples discussed in this guide do not appear in the Kbank demo site, for example, the priority field for sitemap.xml files.</p>
+</div>
+
+<h2 id="consider-business-scenarios-for-article-pages">Consider business scenarios for article pages</h2>
+<p>Looking at your team’s requirements, you’ve defined the following criteria for handling article pages. Editors on your team need to:</p>
+<ul>
+<li>Use different page templates to show the same article on different websites.</li>
+<li>Add the same article under another title and descriptions on other websites.</li>
+<li>Inform search engines that some of the articles were published on different websites.</li>
+<li>Create an article listing page where editors can personalize which articles are displayed.</li>
+<li>Display collections of articles covering similar topics or targeting the same audience.</li>
+<li>Help search engines better understand the website content with language-specific sitemaps.</li>
+<li>Add social media-specific information when editors are creating the article.</li>
+<li>Promote articles on similar topics or a product the article covers alongside the published article.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Learn more about what business requirements you might want to consider when you define your project’s content model in <a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Begin with business needs</a> available in the Content modeling guide.</p>
+</div>
+
+<p>These requirements dictate which data you need to store and what components your editors will need to build the pages.</p>
+<p></p>
+<p>As some of the topics related to, for example, SEO or page design can get technical, you might want to consult your subject matter experts or specialists in respective fields.</p>
+<h2 id="consult-required-data-with-stakeholders-and-seos">Consult required data with stakeholders and SEOs</h2>
+<p>Let’s say you have done your due diligence and have your facts straight. Here are the findings you’ve learned.</p>
+<p>Info from <strong>Senior editors</strong></p>
+<ul>
+<li>The editor team should create articles using the <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-article">reusable article items</a> from the Content hub.</li>
+<li>Any <em>reusable article</em> content item contains a default set of related articles. However, the editors should be able to adjust which articles are displayed alongside the published article or personalize the articles for different audience segments.</li>
+<li>Editors will need to personalize relevant Featured articles to the page and link to promoted products using widgets.</li>
+</ul>
+<p>Info from <strong>SEO Experts</strong></p>
+<ul>
+<li>You will need to store the traditional field, such as:
+<ul>
+<li>Page title (SEO title) for the search result page.</li>
+<li>Page description.</li>
+<li>Author information.</li>
+</ul>
+</li>
+<li>SEOs requested the following fields to handle traditional SEO issues:
+<ul>
+<li>Remove page (URL) from sitemap.</li>
+<li>Means to inject a “no-index” directive to prevent search engines from indexing the content.</li>
+<li>A way to prevent showing content in rich text results (<em>nosnippet</em> meta tag).</li>
+<li>A field to define the page’s canonical URL.
+
+<div>
+To inform search engines that editors republished the same article, editors need to canonicalize the URL. To learn more about canonicalization, find out more in Ahrefs’ article <a href="https://ahrefs.com/blog/canonical-tags/" target="_blank">Canonical Tags: A Simple Guide for Beginners</a> and in <a href="https://developers.google.com/search/docs/crawling-indexing/canonicalization" target="_blank">What is URL Canonicalization</a> in Google documentation.
+</div>
+</li>
+<li>To help with SEO, the articles will need to include structured data. The article needs to contain an article <a href="https://developers.google.com/search/docs/appearance/structured-data/article#json-ld" target="_blank">schema markup</a>, including:
+<ul>
+<li><p>The article’s published and modified date.</p></li>
+<li><p>The article’s URL.</p></li>
+<li>
+<p>The thumbnail image URL.</p>
+
+<div>
+
+</div>
+<div>
+This demo article doesn’t worry about two other optional sitemap.xml attributes for URL priority and change frequency, as the major search engines don’t care much about them. Use the <a href="http://sitemaps.org" target="_blank">sitemaps.org</a> - Protocol to learn more about the sitemaps and their format. Also, consult with local SEOs in the markets you’ll be servicing to determine which sitemap data the local search engines prefer to include.
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Social media data
+<ul>
+<li><p>OG: Title</p></li>
+<li><p>OG: Description</p></li>
+<li>
+<p>OG: Image</p>
+
+<div>
+
+</div>
+<div>
+Your editor must provide open-graph meta tags to improve your article data display across different social media channels. In Kentico, we have seen that customers often group OG tags with SEO fields covered above, even though they play a different role. Developers will ensure that some attribute metadata, such as article’s URL (<code>og:url</code>) or type (<code>og:type</code>) will populate automatically from system data.
+</div>
+</li>
+</ul>
+</li>
+</ul>
+<p>Info from <strong>Developers/Solution Architects</strong>:</p>
+<ul>
+<li>
+<p>Xperience exposes helpful website channel-specific metadata, and developers can pull this information dynamically into website page markup, sitemap.xml, or the document’s rich text data.</p>
+
+<div>
+
+</div>
+<div>
+For simplicity, let’s call these attributes metadata. To learn more about content metadata, see <a href="https://www.spiceworks.com/tech/devops/articles/what-is-metadata/" target="_blank">6 Types of Metadata and Their Uses</a>.
+</div>
+</li>
+<li>
+<p>Publish date</p>
+<ul>
+<li>Editors might want to adjust some of the information, for example, data when an article was published or modified. To override automatically stored values, editors will need a dedicated field.</li>
+</ul>
+</li>
+</ul>
+<p>Info from <strong>graphic designers</strong></p>
+<ul>
+<li>You know all the different types of layouts and combinations that designers have prepared for the Article page.</li>
+</ul>
+<h2 id="identify-data-types-that-compose-the-article-page">Identify data types that compose the Article page</h2>
+<p>After completing the previous exercise, you and your team should know what data they need for the Article page content type and what components editors need to create an article in a website channel. Now, it’s time to see if your data model will also fit into the presentation model.</p>
+<p></p>
+<p>You might wonder why the first diagram held values for SEO and OpenGraph fields in separate content components while this new graph moves both into the <em>Article page</em> content type.</p>
+<p>The reasoning for making all fields part of one type is simple:</p>
+<p><strong>SEO</strong> and <strong>OpenGraph</strong> data are unique to a specific article; storing them in a separate content type (and linking them to the page) doesn’t make sense. Breaking them down into particular content types might lead the editors to the wrong path, and they will start reusing the existing content stored in SEO fields across multiple articles.</p>
+<p>At the same time, you don’t want to force your developers to recreate the same set of fields for any future webpage content type. Xperience has a feature called <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> which allows your system architects to create a collection of fields, reuse them across different content types and combine them with dedicated fields, unique to that specific content type.</p>
+<p>The following image shows Article page content type. You can see it consists of two dedicated fields and reused two schemas, SEO and Open Graph.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+You can also create a simplified relationship diagram to describe connections between individual types. Seeing content types in context can help resurface any repeating patterns that might be extracted into separate content types.
+</div>
+
+<h2 id="identify-page-components-to-create-the-website-page">Identify page components to create the website page</h2>
+<p>Visitors will access the article on the website page through a specific URL. It doesn’t mean the website page must only contain data from a particular article. Website editors will likely want to display relevant content alongside the article to guide the visitors along their customer journeys and point them to other relevant content or promote a product or service by linking to a campaign page.</p>
+<p>When modeling how Xperience will store content, <strong>we recommend separating the data</strong> you might need to reuse in a different channel (like email, social, app, etc.) or integrate in another format (that will depend on specific requirements instigated by a 3rd party solution) <strong>from the presentation design</strong>.</p>
+<p>Look at the business requirements. On the Kbank website, you can see that the presentation layer of the <em>Article page</em> will display data from both the main article and additional data from other content types.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+This guide will not discuss individual components in detail to keep this guide focused on creating the Article page content type. The following guides will cover principles and tips for designing presentation components.
+</div>
+
+<h3 id="define-page-templates-and-their-properties">Define page templates and their properties</h3>
+<p>Editors use Xperience page templates to quickly create pages from predefined layouts without the developer’s help. Based on the website design, each website content type can have unlimited page templates. Templates can contain properties that allow editors to change the page’s layout, color, or style.</p>
+
+<div>
+
+</div>
+<div>
+Find out more about the <a href="/documentation/developers-and-admins/development/builders/page-builder/page-templates-for-page-builder">page templates</a> in Xperience documentation.
+</div>
+
+<p>Modeling properties for presentation components depends on the design and the variability defined through the project content audit and design phase.</p>
+<p>For example, your Article page template can contain the following properties:</p>
+<ul>
+<li>Page default configuration.</li>
+<li>Position for the article text and additional content.</li>
+<li>The layout of the article and components are divided into different proportions.</li>
+<li>Page template styles.</li>
+</ul>
+<p>The following image shows Article page template properties available on the Kbank demo site.</p>
+<p></p>
+<h3 id="define-design-components">Define design components</h3>
+<p>To display additional content, editors of Kbank’s website will use the following components to add their content. </p>
+<h4 id="articles-column-section">Articles column section</h4>
+<p>Based on the graphics designs, the article section will not have any additional styling properties. It allows editors to add only a <a href="/documentation/developers-and-admins/development/builders/page-builder">limited set of widgets</a> for example:</p>
+<h4 id="featured-news-widget">Featured news widget</h4>
+<p>Editors use a simple page selector field to reference the intended page.</p>
+<p></p>
+<h4 id="related-articles-widget">Related articles widget</h4>
+<p>The widget provides editor options to display the default related articles or hand-pick individual articles.</p>
+<p></p>
+<h4 id="call-to-action-widget">Call to action widget</h4>
+<p>The call to action widget is the most complex widget. Editors can link individual pages on the website, external sites, or target documents stored in the Content hub.</p>
+<p></p>
+<h4 id="decide-on-personalization-rules">Decide on personalization rules</h4>
+<p>Editors can also personalize the content that each widget displays to different audiences.</p>
+<p></p>
+<h2 id="verify-your-article-page-diagram-with-stakeholders">Verify your Article page diagram with stakeholders</h2>
+<p>Talk to your team about your model before your developers build the Article page content type in Xperience. Make sure everyone knows what the output will look like. In this stage, you should collect input from the leading developers, business analysts, solution architects, senior content editors, or content strategists who are part of the project.</p>
+<h2 id="create-the-article-page-content-type-in-xperience">Create the Article page content type in Xperience</h2>
+<p>To help editors understand their workflow with the type, create your Article page content type (and any missing content types) in Xperience’s Content types application. If you have done your work correctly and your Article page model has all the details required to create the content items from the Article page content type, defining it in Xperience will be easy for anyone on your dev team.</p>
+<h3 id="add-guidance-for-website-editors">Add guidance for website editors</h3>
+<p>Streamline the data input process for editors and guide each content type field. With Xperience, you can implement tooltips or include textual explanations below each field, clarifying the content and format expectations for editors. Tell editors what content to enter into the fields and the format it should be in.</p>
+<p></p>
+<p>Your devs might create proof-of-concept variants of Articles page templates if you have time. Testing the content creation flow in administration will help editors get hands-on experience and might uncover some bumps in the path. But that’s not required.</p>
+<h2 id="have-editors-create-one-or-two-website-pages-with-the-article-page-content-type">Have editors create one or two website pages with the Article page content type</h2>
+<p>Editors create website pages in a dedicated website channel. Ask your editors to make at least two articles to test how adding articles will feel on their website.</p>
+<p>The following video shows what creating the new Article page might look like.</p>
+
+<h2 id="polish-the-content-type-and-get-a-write-off-from-business-owners">Polish the content type and get a write-off from business owners</h2>
+<p>Ensure your content type contains the required fields for the necessary information and that there are instructions to help editors. Check for any inconsistencies or errors in the data types and field order (content type properties). When you are done, hand it over and get your stakeholders’ agreement.</p>
+<p>If you’ve followed the example in this guide, your editors can add a new article to your website. You can also give your developers precise instructions on tailoring the Article page content type to support editors in reaching their goals.</p>
+
+</body>
+</html>

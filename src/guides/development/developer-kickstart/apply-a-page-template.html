@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Apply a page template</title>
+</head>
+<body>
+<p>Now that the template is set up, you can apply it to new landing pages. Let’s return to the Xperience administration interface and create a home page to try it out!</p>
+
+<div>
+
+</div>
+<div>
+<p>At this point, you have not yet designated a home page, so you will get an error when you visit the root of the site. However, you can still log in to the administration interface through the <strong>/admin</strong> path.</p>
+</div>
+
+<p>From the dashboard, navigate to the <strong>Kickstart pages</strong> channel and create a new page with the following values:</p>
+<ul>
+<li>
+<strong>Page name:</strong> Home</li>
+<li>
+<strong>Content type:</strong> Landing page.</li>
+</ul>
+<p></p>
+<p>Then provide the <em>Home</em> page with a <em>Slogan</em> content item to display. Click <strong>Create new</strong> under <strong>Slogan</strong> and define a new slogan with the following properties:</p>
+<ul>
+<li>
+<strong>Content item name:</strong> Welcome slogan</li>
+<li>
+<strong>Location:</strong> Uncategorized (no folder)</li>
+<li>
+<strong>Content type:</strong> Slogan</li>
+</ul>
+<p></p>
+<p>Click <strong>Slogan</strong>, and fill out the following properties:</p>
+<ul>
+<li>
+<strong>Message:</strong> Welcome to the Kickstart project!</li>
+</ul>
+<p>Finally, remember to <strong><em>Publish</em> both the reusable slogan item and the Home page</strong> that references it.</p>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Reusable content items</strong></p>
+<p>The <em>Home</em> content item you just created and published can be reused in other pages and different channels.</p>
+<p>For example, if you now create another <em>Landing page</em>, you can reference the <em>Welcome slogan</em> content item by using the <strong>Select existing</strong> option. If you later decide to change the <em>Slogan</em> of the <em>Welcome slogan</em> item, the change will show on both pages because they are both pointing at the same item in the <a href="/documentation/business-users/content-hub">Content hub</a>.</p>
+</div>
+
+<h2 id="designate-the-home-page-of-the-site">Designate the home page of the site</h2>
+<p>Now that the website can display your page, let’s designate it as the home page. This way, if you hit the root domain of the site with no path, the page will display.</p>
+<p>Open the <strong>Channel management</strong> application and navigate to <strong>Kickstart pages → Channel settings</strong>.</p>
+<p>Enter <em>/Home</em> into the <strong>Home page</strong> setting, and save.</p>
+
+<div>
+
+</div>
+<div>
+<p>This property takes the <strong>Tree path</strong> of a page. Find this value for any page by visiting it in the <em>Content tree</em> of its channel, choosing <strong>Properties</strong>, and expanding the <strong>Information</strong> section to view the <strong>Tree path</strong> property.</p>
+</div>
+
+<h2 id="check-your-progress">Check your progress</h2>
+<p>Your page and content are successfully published.</p>
+<p>When you navigate to your new <strong>Home</strong> page in the <strong>Kickstart pages</strong> channel and switch to the <strong>Preview</strong> or <strong>Page Builder</strong> tabs, you should be able to see the new item’s message displayed on the page.</p>
+<p></p>
+<p>However, you may notice that when you go to edit the page on the <strong>Page Builder</strong> tab and try to <strong>Publish</strong> your changes there, the button does nothing. The Page Builder area you included in the view is also nowhere to be seen. This is because these features rely on <em>Page Builder scripts</em>, which are currently missing.</p>
+<p>Keep following along with this series to add a layout view that enables them!</p>
+<h2 id="continue-learning">Continue learning</h2>
+<p>When you’re ready, move on to the next page: <a href="/guides/development/developer-kickstart/create-a-layout-view">Create a layout view</a></p>
+
+</body>
+</html>

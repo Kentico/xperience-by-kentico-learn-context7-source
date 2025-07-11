@@ -1,0 +1,715 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Filter content with taxonomies and reusable field schemas</title>
+</head>
+<body>
+<p><a href="/documentation/developers-and-admins/configuration/taxonomies">Taxonomies</a> in Xperience by Kentico provide a powerful tool for your customers to categorize and organize content.</p>
+<p>Each taxonomy is a <em>group of related tags</em> (e.g., PC features: external GPU, disc drive, tower size…). Content editors assign these tags to content items with a field allowing the given taxonomy. Then they can, for example, configure a widget to display a list of content items with a specific set of tags.</p>
+<p>Let’s empower your content editors to do just that - filter content items by taxonomy tags in a widget listing.</p>
+<p>In the process, we’ll cover how you can easily query items of different content types as long as they share a reusable field schema. Let’s dive in!</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+<li>Basic experience with <a href="/documentation/developers-and-admins/development/builders/page-builder/widgets-for-page-builder">Page Builder widgets</a> and <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="consider-the-scenario">Consider the scenario</h2>
+<p>Earlier in this series, we explored reusable field schemas through the lens of content model evolution. You have adjusted your project to work with <a href="/guides/development/advanced-content/work-with-reusable-field-schemas#consider-the-scenario">two new Article content types</a> that share an <em>Article schema</em>, alongside with a deprecated one.</p>
+<p>Perhaps you recall that when you added the <em>Article list</em> widget to your <em>Home</em> page to check your progress and selected a parent page from the content tree, the widget rendered articles of all content types, both old and new.</p>
+<p>Now imagine that your customer’s content editors want more control. They’re asking for the ability to filter articles in the widget by specific tags, so they can display only the articles that match the categories they’re interested in.</p>
+
+<h2 id="examine-the-current-state">Examine the current state</h2>
+<p>Take a look at the <em>Article schema</em> in Xperience administration. Notice the <em>ArticleSchemaCategory</em> field with the <strong>Taxonomy</strong> data type. This field allows editors to assign one or more tags from the <em>Article category</em> taxonomy to any content item implementing this schema.</p>
+<p></p>
+<p>The <em>Article category</em> taxonomy already exists in our project and includes two tags: <strong>Animals</strong> and <strong>Plants</strong>. You can find it in the <strong>Taxonomies</strong> application under the <strong>Configuration</strong> category.</p>
+<p></p>
+<p>When you examine any of the <em>Article (general)</em> or <em>Article (interview)</em> items in the <strong>Content hub</strong>, you’ll see they all have tags or an option to add tags in the <strong>Category</strong> field.</p>
+<h2 id="implement-the-filtering">Implement the filtering</h2>
+<p>Now, we can implement filtering based on the <em>Article category</em> taxonomy.</p>
+<h3 id="add-new-widget-property">Add new widget property</h3>
+<p>First, let’s add a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#tag-selector">tag selector</a> to the widget UI to so that editors can select the desired tags.</p>
+<p>Find the definition of the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Articles/Widgets/ArticleList/ArticleListWidgetProperties.cs" target="_blank">Article list widget properties</a> in the Training guides repository.</p>
+<p>Add a new <code>IEnumerable&lt;TagReference&gt;</code> property called <code>Tags</code> between the existing <code>ContentTreeSection</code> and <code>TopN</code>. Decorate the property with <code>TagSelectorComponent</code> attribute.</p>
+<p>Specify allowed taxonomy passing our taxonomy code name, <code>ArticleCategory</code>, as the first parameter.</p>
+
+<div>
+
+</div>
+<div>
+<p>To refresh your memory on defining widget properties revisit our <a href="/guides/development/page-builder/build-simple-cta-widget#define-widget-properties">Build a simple call-to-action widget</a> guide.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleListWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using CMS.ContentEngine;
+
+namespace TrainingGuides.Web.Features.Articles.Widgets.ArticleList;
+
+public class ArticleListWidgetProperties : IWidgetProperties
+{
+    [WebPageSelectorComponent(
+        Label = "Select the content tree section",
+        MaximumPages = 1,
+        Sortable = true,
+        Order = 10)]
+    public IEnumerable&lt;WebPageRelatedItem&gt; ContentTreeSection { get; set; } = Enumerable.Empty&lt;WebPageRelatedItem&gt;();
+
+    // new property definition
+    [TagSelectorComponent(
+        "ArticleCategory",
+        Label = "Filter to categories",
+        ExplanationText = "Select 0, 1 or more Article Type tags. Shows all if none are selected",
+        Order = 15)]
+    public IEnumerable&lt;TagReference&gt; Tags { get; set; } = Enumerable.Empty&lt;TagReference&gt;();
+    
+    ...
+}
+...
+
+</code></pre>
+</div>
+
+<p>Run the project and navigate to Page Builder mode of any page that contains Article list widget. In the widget configuration you should see the new tag selector control allowing you to pick <strong>Animals</strong> or <strong>Plants</strong> tags.</p>
+
+<h3 id="adjust-widget-view-component">Adjust widget view component</h3>
+<p>Now, let’s add some logic to the widget view component. It needs to account for the tags the editor has chosen when retrieving content.</p>
+<p>Take a look at the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Articles/Widgets/ArticleList/ArticleListWidgetViewComponent.cs" target="_blank">ArticleListWidgetViewComponent.cs</a> file.</p>
+<p>The <code>InvokeAsync</code> method calls <code>RetrieveArticlePages</code> to fetch the relevant article pages from the content hub, passing in the editor’s content tree selection.</p>
+<p>Then, it orders and further filters the articles before constructing a view model and returning the widget view.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleListWidgetViewComponent.cs - old implementation</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ArticleListWidgetProperties properties)
+{
+    var model = new ArticleListWidgetViewModel();
+
+    if (!properties.ContentTreeSection.IsNullOrEmpty())
+    {
+        var articlePages = await RetrieveArticlePages(properties.ContentTreeSection.First());
+
+        model.Articles = (properties.OrderBy.Equals("OldestFirst", StringComparison.OrdinalIgnoreCase)
+            ? (await GetArticlePageViewModels(articlePages)).OrderBy(article =&gt; article.CreatedOn)
+            : (await GetArticlePageViewModels(articlePages)).OrderByDescending(article =&gt; article.CreatedOn))
+            .Take(properties.TopN)
+            .ToList();
+
+        model.CtaText = properties.CtaText;
+    }
+
+    return View("~/Features/Articles/Widgets/ArticleList/ArticleListWidget.cshtml", model);
+}
+...
+</code></pre>
+</div>
+
+<p>We’ll adjust the private method <code>RetrieveArticlePages</code> to consider the new <code>Tags</code> property in the following way:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleListWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+// add IEnumerable of tag references as a new parameter
+private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(WebPageRelatedItem parentPageSelection, IEnumerable&lt;TagReference&gt; tags)
+{
+    var selectedPageGuid = parentPageSelection.WebPageGuid;
+
+    var selectedPage = await genericPageRetrieverService.RetrieveWebPageByGuid(selectedPageGuid);
+    string selectedPageContentTypeName = await GetWebPageContentTypeName(selectedPageGuid);
+    string selectedPagePath = selectedPage?.SystemFields.WebPageItemTreePath ?? string.Empty;
+
+    if (string.IsNullOrEmpty(selectedPagePath))
+    {
+        return Enumerable.Empty&lt;ArticlePage&gt;();
+    }
+
+    // if no tags are specified, retrieve the Article pages in the same way as before
+    if (tags.IsNullOrEmpty())
+    {
+        return await articlePageRetrieverService.RetrieveWebPageChildrenByPath(
+            selectedPageContentTypeName,
+            selectedPagePath,
+            3);
+    }
+    // otherwise process the tags and retrieve the appropriate pages accordingly
+    else
+    {
+        // code to retrieve article pages based on tags will go here
+    }
+}
+...
+</code></pre>
+</div>
+
+Add the using directive for the compiler to recognize the <code>TagReference</code> class.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleListWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using CMS.ContentEngine;
+...
+</code></pre>
+</div>
+
+
+<p>Now there is one issue we need to solve:</p>
+<p>Our widget expects <strong>Article page</strong> content items to construct its view model. However, the property holding our taxonomy tags is on the reusable content item linked by the page.</p>
+<p>Because of the current limitations of the content query API, we will do this in two steps:</p>
+<ol type="1">
+<li>Retrieve the IDs of all reusable content items that implement <strong>Article schema</strong> and contain the specified tags.</li>
+<li>Retrieve <strong>Article page</strong> content items on the specified path that link these reusable items.</li>
+</ol>
+
+<h3 id="implement-the-service-methods">Implement the service methods</h3>
+<p>Let’s go implement these service methods in our <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">ContentItemRetrieverService.cs file</a> .</p>
+<h4 id="retrieve-reusable-content-items-by-schema-and-tags">Retrieve reusable content items by schema and tags</h4>
+<p>Our <code>ContentItemRetrieverService</code> class has an existing <code>RetrieveContentItems</code> method that calls the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">content query API</a>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class ContentItemRetrieverService : IContentItemRetrieverService
+{
+    ...
+    private async Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; RetrieveContentItems(Action&lt;ContentQueryParameters&gt; contentQueryParameters,
+        Action&lt;ContentTypesQueryParameters&gt; contentTypesQueryParameters)
+    {
+        var builder = new ContentItemQueryBuilder();
+
+        builder.ForContentTypes(contentTypesQueryParameters)
+            .Parameters(contentQueryParameters);
+
+        var queryExecutorOptions = new ContentQueryExecutionOptions
+        {
+            ForPreview = webSiteChannelContext.IsPreview,
+        };
+
+        return await contentQueryExecutor.GetMappedResult&lt;IContentItemFieldsSource&gt;(builder, queryExecutorOptions);
+    }
+    ...
+}
+</code></pre>
+</div>
+
+<p>We will utilize it to retrieve the reusable content items that contain:</p>
+<ul>
+<li>GUIDs of specific tags, using the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#wherecontainstags">WhereContainsTags</a> extension method.</li>
+<li>our <em>Article schema</em>, using the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#ofreusableschema">OfReusableSchema</a> extension method.</li>
+</ul>
+<p>The data we need to perform this query will become method parameters:</p>
+<ul>
+<li>the code name of the reusable field schema</li>
+<li>the name of the database column where we expect to find the tags</li>
+<li>the GUIDs of the required tags</li>
+</ul>
+<p>Declare the method in the <code>IContentItemRetrieverService</code> interface and implement it in the <code>ContentItemRetrieverService</code> class.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public interface IContentItemRetrieverService
+{
+    ...
+    public Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; RetrieveContentItemsBySchemaAndTags(
+        string schemaName,
+        string taxonomyColumnName,
+        IEnumerable&lt;Guid&gt; tagGuids);
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class ContentItemRetrieverService : IContentItemRetrieverService
+{
+    ...
+    public async Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; RetrieveContentItemsBySchemaAndTags(string schemaName, string taxonomyColumnName, IEnumerable&lt;Guid&gt; tagGuids)
+    {
+        Action&lt;ContentQueryParameters&gt; contentQueryParameters = parameters
+            =&gt; parameters.Where(where =&gt; where.WhereContainsTags(taxonomyColumnName, tagGuids));
+
+        Action&lt;ContentTypesQueryParameters&gt; contentTypesQueryParameters = parameters
+            =&gt; parameters.OfReusableSchema(schemaName);
+
+        return await RetrieveContentItems(contentQueryParameters, contentTypesQueryParameters);
+    }
+    ...
+}
+</code></pre>
+</div>
+
+<h4 id="retrieve-article-pages-by-path-and-reference">Retrieve Article pages by path and reference</h4>
+<p>Next, we need a method that will fetch all child Article pages on a specific path <strong>which also link any of specified reusable content items</strong>.</p>
+Our generic <code>ContentItemRetrieverService&lt;T&gt;</code> already has the <code>RetrieveWebPageChildrenByPath</code> method (which our widget currently uses).
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs - old implementation</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
+        string parentPageContentTypeName,
+        string parentPagePath,
+        int depth = 1)
+    {
+        var builder = new ContentItemQueryBuilder()
+                            .ForContentType(
+                                parentPageContentTypeName,
+                                config =&gt; config
+                                    .ForWebsite(webSiteChannelContext.WebsiteChannelName, [PathMatch.Children(parentPagePath)])
+                                    .WithLinkedItems(depth))
+                            .InLanguage(preferredLanguageRetriever.Get());
+
+        var queryExecutorOptions = new ContentQueryExecutionOptions
+        {
+            ForPreview = webSiteChannelContext.IsPreview
+        };
+
+        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
+
+        return pages;
+    }
+    ...
+}
+...
+</code></pre>
+</div>
+
+<p>We can reuse the functionality – all we need is an additional method call in content query parameters to pass in the references.</p>
+<p>Add a new <strong>private</strong> overload of the <code>RetrieveWebPageChildrenByPath</code>, and a new nullable <code>customContentTypeQueryParameters</code> parameter to pass in an anonymous method.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
+        string parentPageContentTypeName,
+        string parentPagePath,
+        Action&lt;ContentTypeQueryParameters&gt;? customContentTypeQueryParameters,
+        int depth = 1) { }
+    ...
+}
+...
+</code></pre>
+</div>
+
+<p>Extract all the code from the <strong>public</strong> <code>RetrieveWebPageChildrenByPath</code> method.</p>
+<p>Add a condition to construct the <code>contentQueryParameters</code> based on whether the caller did or did not pass in any <code>customContentTypeQueryParameters</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
+        string parentPageContentTypeName,
+        string parentPagePath,
+        Action&lt;ContentTypeQueryParameters&gt;? customContentTypeQueryParameters,
+        int depth = 1)
+    {
+        Action&lt;ContentTypeQueryParameters&gt; contentQueryParameters = customContentTypeQueryParameters != null
+            // if there are any custom parameters, add them to the contentQueryParameters
+            ? config =&gt; customContentTypeQueryParameters(config
+                .ForWebsite(webSiteChannelContext.WebsiteChannelName, [PathMatch.Children(parentPagePath)])
+                .WithLinkedItems(depth)
+            )
+            // otherwise, keep the contentQueryParameters as they were in the original method
+            : config =&gt; config
+                .ForWebsite(webSiteChannelContext.WebsiteChannelName, [PathMatch.Children(parentPagePath)])
+                .WithLinkedItems(depth);
+
+        var builder = new ContentItemQueryBuilder()
+                            .ForContentType(
+                                parentPageContentTypeName,
+                                contentQueryParameters
+                                )
+                            .InLanguage(preferredLanguageRetriever.Get());
+
+        var queryExecutorOptions = new ContentQueryExecutionOptions
+        {
+            ForPreview = webSiteChannelContext.IsPreview
+        };
+
+        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
+
+        return pages;
+    }
+    ...
+}
+</code></pre>
+</div>
+
+<p>Now change the public <code>RetrieveWebPageChildrenByPath</code> method code to simply call this new private method:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
+        string parentPageContentTypeName,
+        string parentPagePath,
+        int depth = 1) =&gt; // calling the new private method
+            await RetrieveWebPageChildrenByPath(
+            parentPageContentTypeName: parentPageContentTypeName,
+            parentPagePath: parentPagePath,
+            customContentTypeQueryParameters: null,
+            depth: depth);
+    ...
+}
+...
+</code></pre>
+</div>
+
+<p>Last but not least, implement a new public method that retrieves pages from a given path which link to the specified content items. As far as parameters go, in addition to page content type name, path and depth, it needs the <strong>IEnumerable of content item IDs</strong> and the <strong>code name of the reference field</strong>.</p>
+<p>Call our new <strong>private</strong> <code>RetrieveWebPageChildrenByPath</code> method and pass in custom content type query parameters - an anonymous function calling the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#linking">Linking</a> extension method.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPathAndReference(
+        string parentPageContentTypeName,
+        string parentPagePath,
+        string referenceFieldName,
+        IEnumerable&lt;int&gt; referenceIds,
+        int depth = 1
+    ) =&gt; await RetrieveWebPageChildrenByPath(
+            parentPageContentTypeName: parentPageContentTypeName,
+            parentPagePath: parentPagePath,
+            customContentTypeQueryParameters: config =&gt; config.Linking(referenceFieldName, referenceIds),
+            depth: depth);
+    ...
+}
+...
+</code></pre>
+</div>
+
+<p>Remember to also declare the new method in the generic <code>IContentItemRetrieverService</code> interface.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public interface IContentItemRetrieverService&lt;T&gt;
+{
+    ...
+    public Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPathAndReference(
+        string parentPageContentTypeName,
+        string parentPagePath,
+        string referenceFieldName,
+        IEnumerable&lt;int&gt; referenceIds,
+        int depth = 1
+    );
+    ...
+}
+...
+</code></pre>
+</div>
+
+
+<div>
+<p>See the full <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">ContentItemRetrieverService file</a> in the finished branch of our Training guides repo.</p>
+</div>
+
+<h3 id="put-it-all-together">Put it all together</h3>
+<p>Our backend work is done. Let’s utilize the new methods in the <em>ArticleListWidgetViewComponent</em>.</p>
+<p>Find the empty <code>else</code> statement inside the <code>RetrieveArticlePages</code> method. Add logic for the case when the editor <strong>did</strong> specify the tags to filter by:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleListWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(WebPageRelatedItem parentPageSelection, IEnumerable&lt;TagReference&gt; tags)
+{
+    ...
+    else
+    {
+        // first extract the list of tag GUIDs
+        var tagGuids = tags.Select(tag =&gt; tag.Identifier).ToList();
+
+        // retrieve the IDs of Article schema reusable content items
+        // to specify the schema, use the REUSABLE_FIELD_SCHEMA_NAME constant from the generated IArticleSchema interface
+        // pass in the name of the ArticleSchemaCategory field
+        var taggedArticleIds = (
+            await genericPageRetrieverService.RetrieveContentItemsBySchemaAndTags(
+                IArticleSchema.REUSABLE_FIELD_SCHEMA_NAME,
+                nameof(IArticleSchema.ArticleSchemaCategory),
+                tagGuids)
+            ).Select(article =&gt; article.SystemFields.ContentItemID);
+
+        // retrieve and return Article page content items on specified path that reference the reusable content items
+        // pass in the name of the ArticlePageArticleContent field, which we use to link reusable article item to Article page
+        return await articlePageRetrieverService.RetrieveWebPageChildrenByPathAndReference(
+            selectedPageContentTypeName,
+            selectedPagePath,
+            nameof(ArticlePage.ArticlePageArticleContent),
+            taggedArticleIds,
+            3);
+    }
+}
+...
+</code></pre>
+</div>
+
+Finally, call the updated <code>RetrieveArticlePages</code> method from <code>InvokeAsync</code> to retrieve the article pages.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ArticleListWidgetViewComponent.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ArticleListWidgetProperties properties)
+{
+    var model = new ArticleListWidgetViewModel();
+
+    if (!properties.ContentTreeSection.IsNullOrEmpty())
+    {
+        // call the updated method passing in the Tags property
+        var articlePages = await RetrieveArticlePages(properties.ContentTreeSection.First(), properties.Tags);
+
+        model.Articles = (properties.OrderBy.Equals("OldestFirst", StringComparison.OrdinalIgnoreCase)
+            ? (await GetArticlePageViewModels(articlePages)).OrderBy(article =&gt; article.CreatedOn)
+            : (await GetArticlePageViewModels(articlePages)).OrderByDescending(article =&gt; article.CreatedOn))
+            .Take(properties.TopN)
+            .ToList();
+
+        model.CtaText = properties.CtaText;
+    }
+
+    return View("~/Features/Articles/Widgets/ArticleList/ArticleListWidget.cshtml", model);
+}
+...
+</code></pre>
+</div>
+
+<h2 id="see-the-results">See the results</h2>
+<p>Rebuild and run your project. Navigate to a page (e.g., <em>Home</em>) where you added the Article list widget. Configure the widget to show articles with different tags, and see the filtered results when you <strong>Apply</strong> the changes.</p>
+
+<p>Find the complete and working implementation of this example in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch of the Training guides repository</a> . If you are experiencing any issues or errors, double-check that your references, methods, parameters and <code>using</code> directives match the ones in the repo.</p>
+<h2 id="additional-materials">Additional materials</h2>
+<p>So far in this series, we have explored reusable field schemas and taxonomies in the context of content model evolution using the <strong>expand and contract approach</strong>.</p>
+<p>We have talked mostly about the <em>‘expand’</em> part – adjusting your application to work with both the new and old content types. The next step would be to <em>‘contract’</em> your solution – removing all the deprecated code and items. Stay tuned for an upcoming material on how to migrate your old data to complete the process.</p>
+<p>If you are interested in the expand and contract approach, we recommend this <a href="https://community.kentico.com/blog/safely-evolving-a-content-model-with-expand-and-contract" target="_blank">Community portal blog on the topic</a>.</p>
+<p>To learn more about <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a> from the content modeling perspective, check out our <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-article">Model a reusable article</a> guide. If you’d like to get a better perspective on how business users and editors work with taxonomies in Xperience, we recommend you take a look at our <a href="/guides/digital-marketing/work-with-taxonomies">Work with taxonomies</a> business guides.</p>
+
+</body>
+</html>

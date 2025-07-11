@@ -1,0 +1,1366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Add channel-specific configuration to a module</title>
+</head>
+<body>
+<p>In the samples from the <a href="/guides/development/customizations-and-integrations/create-basic-module">earlier in this series</a>, we created a basic module UI with standard listing, create, edit, and delete functionality.</p>
+<p>Now, we will explore the process of:</p>
+<ul>
+<li>Adding per-channel configuration to a custom module</li>
+<li>Managing multiple levels of hierarchy</li>
+<li>Using UI pages to ensure one-to-one relationships between objects</li>
+</ul>
+<p>The samples here will add a website-channel-specific settings section to the module defined <a href="/guides/development/customizations-and-integrations/create-basic-module">earlier</a>.</p>
+<p>The new UI pages will allow designated users to select a <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a> from a list and edit its settings. These include SEO-related settings and channel-specific code snippets.</p>
+
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+<li>Experience with <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages">admin UI pages</a>.</li>
+</ul>
+<p>The examples in this guide require that you either:</p>
+<ul>
+<li>Have followed along with the samples from <a href="/guides/development/customizations-and-integrations/create-basic-module">the earlier guide</a> that implement a custom module holding global settings.</li>
+</ul>
+<p>or</p>
+<ul>
+<li>Have an existing <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-application-pages">UI application page</a> under which you want to create a channel-specific UI.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="design-the-classes">Design the classes</h2>
+<p>Before we define our UI pages themselves, we need to design the classes they will display.</p>
+<p>If you plan to use <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> for a given class, make sure to include either a <em>Code name</em> or <em>Guid</em> field. Similarly, include a <em>Display name</em> field if you want objects of the class to automatically display nicely in a listing.</p>
+<p>If you’re following along with our example, create three new classes in the <strong>Project settings</strong> module:</p>
+<ul>
+<li>
+<a href="#web-channel-settings">Web channel settings</a>, to represent the collection of all settings for a given web channel.</li>
+<li>
+<a href="#seo-settings">SEO settings</a>, to hold the robots.txt specification that a given website channel provides to crawlers.</li>
+<li>
+<a href="#web-channel-snippet">Web channel snippet</a>, to represent code snippets that you want to render to the channel’s website.</li>
+</ul>
+<h3 id="web-channel-settings">Web channel settings</h3>
+<p>The <em>web channel settings</em> class will have a one-to-one relationship with the <em>web channel</em> class in Xperience by Kentico.</p>
+<p>It will represent parent objects that group channel-specific settings together.</p>
+<p>It needs a <em>display name</em> column, so that objects display nicely on a listing page, and a <em>guid column</em> for the sake of <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Since objects of this class will serve as containers for other objects, and they can get their data directly from corresponding channels, they do not need an edit form for user input.</p>
+</div>
+
+<ol type="1">
+<li>
+<strong>General</strong> tab
+<ul>
+<li>
+<strong>Class name</strong>: Web channel settings</li>
+<li>
+<strong>Namespace</strong>: TrainingGuides</li>
+<li>
+<strong>Name</strong>: WebChannelSettings</li>
+</ul>
+</li>
+<li>
+<strong>Database columns</strong> tab
+<ol type="a">
+<li>Channel settings display name
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSettingsChannelDisplayName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 200</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+<li>Channel settings channel ID
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSettingsChannelID</li>
+<li>
+<strong>Data type</strong>: Integer number</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+<li>
+<strong>Default value</strong>: 0</li>
+<li>
+<strong>Reference to</strong>: Channel</li>
+<li>
+<strong>Reference type</strong>: Required</li>
+</ul>
+</li>
+<li>Channel settings guid
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSettingsGUID</li>
+<li>
+<strong>Data type</strong>: Unique identifier (GUID)</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="seo-settings">SEO settings</h3>
+<p>This class will represent a given web channel’s settings related to SEO.</p>
+<p>Each of its additional database fields will represent the value of a setting. As a result, it has a one-to-one relationship with <a href="#web-channel-settings">web channel settings</a>, and by extension, <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channels</a>.</p>
+<p>For the sake of this example, it will contain a field for setting the content of the channel’s <a href="https://developers.google.com/search/docs/crawling-indexing/robots/intro" target="_blank">robots.txt file</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>For the sake of simplicity, this example is simple, but we recommend creating additional SEO setting fields in your project. For instance, you could add settings that configure automatic sitemap generation.</p>
+</div>
+
+<p>The SEO settings class also needs a <em>foreign key</em> to the <em>Web channel settings</em> class to represent that relationship, and a <em>guid</em> for the sake of <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Since SEO settings’ values are provided by users, the class also needs a <em>UI form</em> to take their input.</p>
+</div>
+
+<ol type="1">
+<li>
+<strong>General</strong> tab
+<ul>
+<li>
+<strong>Class name</strong>: SEO Settings</li>
+<li>
+<strong>Namespace</strong>: TrainingGuides</li>
+<li>
+<strong>Name</strong>: SeoSettings</li>
+</ul>
+</li>
+<li>
+<strong>Database columns</strong> tab
+<ol type="a">
+<li>Seo settings Robots.txt
+<ul>
+<li>
+<strong>Field name</strong>: SeoSettingsRobots</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 2000</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+<li>Seo settings web channel settings ID
+<ul>
+<li>
+<strong>Field name</strong>: SeoSettingsWebChannelSettingID</li>
+<li>
+<strong>Data type</strong>: Integer number</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+<li>
+<strong>Default value</strong>: 0
+
+<div>
+
+</div>
+<div>
+We will come back later to set the <strong>Reference to</strong> value, after the code files for the relevant classes have been generated.
+</div>
+</li>
+</ul>
+</li>
+<li>Seo settings guid
+<ul>
+<li>
+<strong>Field name</strong>: SeoSettingsGUID</li>
+<li>
+<strong>Data type</strong>: Unique identifier (GUID)</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>UI forms
+<ol type="a">
+<li>SEO settings edit
+<ol type="1">
+<li>General
+<ul>
+<li>
+<strong>UI form name</strong>: SEO settings edit</li>
+<li>
+<strong>Identifiers → Code name</strong>: SeoSettingsEdit
+
+<div>
+
+</div>
+<div>
+Leaving <strong>Pre-fill code name automatically</strong> checked will generate the same code name in this case.
+</div>
+</li>
+</ul>
+</li>
+<li>Fields
+<ol type="a">
+<li>Robots.txt
+<ul>
+<li>
+<strong>Database column</strong>: SeoSettingsRobots</li>
+<li>
+<strong>Field caption</strong>: Robots.txt</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Form component</strong>: Text area</li>
+<li>
+<strong>Minimum number of rows</strong>: 3</li>
+<li>
+<strong>Maximum number of rows</strong>: 100</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="web-channel-snippet">Web channel snippet</h3>
+<p>The Web channel snippet class will represent a code snippet associated with a given website channel.</p>
+<p>Each channel can have many snippets, and the snippets can vary in type.</p>
+<p>Alongside a text field to hold the code, the class needs an indicator field to indicate the type of code snippet (metadata, CSS, or Javascript).</p>
+<p>It should also have a <em>display name</em> for UI purposes, a <em>foreign key</em> to the web channel settings class, and a <em>code name</em> for easier code retrieval and <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a>.</p>
+<ol type="1">
+<li>General
+<ul>
+<li>
+<strong>Class name</strong>: Web channel snippet</li>
+<li>
+<strong>Namespace</strong>: TrainingGuides</li>
+<li>
+<strong>Name</strong>: WebChannelSnippet</li>
+</ul>
+</li>
+<li>Database columns
+<ol type="a">
+<li>Snippet type
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSnippetType</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 200</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+<li>Snippet code
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSnippetCode</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 2000</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+<li>Snippet channel settings ID
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSnippetWebChannelSettingsID</li>
+<li>
+<strong>Data type</strong>: Integer number</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+<li>
+<strong>Default value</strong>: 0
+
+<div>
+
+</div>
+<div>
+We will come back later to set the <strong>Reference to</strong> value, after the code files for the relevant classes have been generated.
+</div>
+</li>
+</ul>
+</li>
+<li>Snippet display name
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSnippetDisplayName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 200</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+<li>Snippet code name
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSnippetCodeName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 200</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>UI forms
+<ol type="a">
+<li>Web channel snippet edit
+<ol type="1">
+<li>General
+<ul>
+<li>
+<strong>UI form name</strong>: Web channel snippet edit</li>
+<li>
+<strong>Identifiers → Code name</strong>: WebChannelSnippetEdit</li>
+</ul>
+</li>
+<li>Fields
+<ol type="a">
+<li>Snippet display name
+<ul>
+<li>
+<strong>Database column</strong>: WebChannelSnippetDisplayName</li>
+<li>
+<strong>Field caption</strong>: Label</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Form component</strong>: Text input</li>
+</ul>
+</li>
+<li>Snippet code name
+<ul>
+<li>
+<strong>Database column</strong>: WebChannelSnippetCodeName</li>
+<li>
+<strong>Field caption</strong>: Label</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Form component</strong>: Text input</li>
+</ul>
+</li>
+<li>Snippet type
+<ul>
+<li>
+<strong>Database column</strong>: WebChannelSnippetType</li>
+<li>
+<strong>Field caption</strong>: Type</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Text below the input</strong>: Determines where on the page the snippet should be rendered.</li>
+<li>
+<strong>Form component</strong>: Dropdown selector</li>
+<li>
+<strong>Data source</strong>:
+
+<div>
+<div>
+<div>
+<span>Text</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+  metadata;Metadata
+  css;CSS
+  javascript;Javascript
+  </code></pre>
+</div>
+</li>
+<li>
+<strong>Data source value separator</strong>: ;</li>
+</ul>
+</li>
+<li>Snippet code
+<ul>
+<li>
+<strong>Database column</strong>: WebChannelSnippetCode</li>
+<li>
+<strong>Field caption</strong>: Code</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Text below the input</strong>: Holds the code that you want to render. Make sure to include opening and closing tags if necessary.</li>
+<li>
+<strong>Form component</strong>: Text area</li>
+<li>
+<strong>Minimum number of rows</strong>: 3</li>
+<li>
+<strong>Maximum number of rows</strong>: 50</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="prepare-generated-classes">Prepare generated classes</h2>
+<h3 id="generate-code-files">Generate code files</h3>
+<p>Now, as we did <a href="/guides/development/customizations-and-integrations/create-basic-module#generate-code-files">in the earlier example</a>, generate code files for the new classes.</p>
+<p>See the <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#generate-code-files">code generation documentation</a> for details about the available parameters.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you have existing classes that were generated with different parameters, use either the <code>--include</code> or <code>--exclude</code> parameter to ensure that only the classes you’re currently working with are generated. Otherwise they may be overwritten.</p>
+<div>
+<div>
+
+</div>
+<div>
+<p>For scenarios with multiple groups of classes generated with different parameters, we recommend using a scripting language like Powershell or Bash to create a reusable script that re-generates all code files according to your requirements.</p>
+</div>
+</div>
+</div>
+
+If you’re following along with the example, you should be able to use something like this to keep from overwriting the cookie level consent mapping with a version that uses no generated provider:
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet run --no-build -- --kxp-codegen --type "Classes" --location "../TrainingGuides.Entities/{type}/{name}/ " --exclude "trainingguides.cookielevelconsentmapping" --with-provider-class "false"
+</code></pre>
+</div>
+
+<h3 id="override-typeinfo-definitions">Override TYPEINFO definitions</h3>
+<p>As in the <a href="/guides/development/customizations-and-integrations/create-basic-module">the earlier example</a> and the <a href="/guides/development/data-protection/map-consents-to-cookie-levels#generate-the-code">cookie consent mapping guide</a>, consider any changes you may need to make to the <a href="/documentation/developers-and-admins/customization/object-types/object-type-configuration">object type configuration</a> of the classes.</p>
+<p>You can use this property to control relationships and dependencies between classes, along with <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> and <a href="/documentation/developers-and-admins/development/caching">Caching</a> behavior.</p>
+<p>See the <a href="/documentation/developers-and-admins/customization/object-types/object-type-configuration#type-info-properties">object type configuration document</a> for more details about what you can configure.</p>
+
+<div>
+
+</div>
+<div>
+<p>Rather than editing a generated file directly, create a partial class to configure the class’s <code>TYPEINFO</code>.</p>
+</div>
+
+<p>If you’re following along with our example, go to the <em>~/Classes/Overrides</em> folder of the <em>TrainingGuides.Entities</em> project, or create it if it does not yet exist. Use partial classes to enable Continuous Integration for <code>WebChannelSettingsInfo</code>, <code>SeoSettingsInfo</code>, and <code>WebChannelSnippetInfo</code>.</p>
+<p>Then, set <code>WebChannelSettingsInfo</code> as a child of <code>ChannelInfo</code>, the class that represents channels in Xperience by Kentico. This ensures that if the <em>Website channel</em> associated with a <em>Web channel settings</em> object is deleted, the settings are deleted too.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSettingsInfoOverride.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.ContentEngine;
+
+namespace TrainingGuides.ProjectSettings;
+
+public partial class WebChannelSettingsInfo
+{
+    static WebChannelSettingsInfo()
+    {
+        TYPEINFO.ContinuousIntegrationSettings.Enabled = true;
+        TYPEINFO.ParentObjectType = ChannelInfo.OBJECT_TYPE;
+        TYPEINFO.ParentIDColumn = nameof(WebChannelSettingsChannelID);
+    }
+}
+</code></pre>
+</div>
+
+<p>Follow the same process to designate <em>web channel settings</em> as the parent of <em>SEO settings</em> and <em>web channel snippets</em>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SeoSettingsInfoOverride.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.ProjectSettings;
+
+public partial class SeoSettingsInfo
+{
+    static SeoSettingsInfo()
+    {
+        TYPEINFO.ContinuousIntegrationSettings.Enabled = true;
+        TYPEINFO.ParentObjectType = WebChannelSettingsInfo.OBJECT_TYPE;
+        TYPEINFO.ParentIDColumn = nameof(SeoSettingsWebChannelSettingID);
+    }
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSnippetInfoOverride.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.ProjectSettings;
+
+public partial class WebChannelSnippetInfo
+{
+    static WebChannelSnippetInfo()
+    {
+        TYPEINFO.ContinuousIntegrationSettings.Enabled = true;
+        TYPEINFO.ParentObjectType = WebChannelSettingsInfo.OBJECT_TYPE;
+        TYPEINFO.ParentIDColumn = nameof(WebChannelSnippetWebChannelSettingsID);
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="save-the-references">Save the references</h3>
+<p>Once the generated classes exist, the admin UI allows you to specify references pointing to them.</p>
+<ol type="1">
+<li>Rebuild the application and access the <strong>Database columns</strong> tab of any custom class with a foreign key to another custom class.</li>
+<li>Set the <strong>Reference to</strong> and <strong>Reference type</strong> properties of the column, and click <strong>Save</strong>.</li>
+<li>Re-run the code generation command you used in the <a href="#generate-code-files">Generate code files</a> step. This will re-generate the classes, now including this foreign key reference in their TYPEINFO definition.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>These references act like foreign keys in some ways, but they do not represent real foreign key constraints in the database.</p>
+<p>You can add foreign key constraints manually, but you will need to account for them during operations like <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts">restoring data from CI/CD</a> and <a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects">updating the system</a>.</p>
+</div>
+
+<p>For our example, you’ll want to set the reference properties of the following columns:</p>
+<ol type="1">
+<li>
+<strong>SEO settings</strong> class
+<ol type="a">
+<li>Seo settings web channel settings ID
+<ul>
+<li>
+<strong>Field name</strong>: SeoSettingsWebChannelSettingID</li>
+<li>
+<strong>Data type</strong>: Integer number</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+<li>
+<strong>Default value</strong>: 0</li>
+<li>
+<strong>Reference to</strong>: ObjectType.trainingguides_webchannelsettings</li>
+<li>
+<strong>Reference type</strong>: Required</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<strong>Web channel snippet</strong> class
+<ol type="a">
+<li>Snippet channel settings ID
+<ul>
+<li>
+<strong>Field name</strong>: WebChannelSnippetWebChannelSettingsID</li>
+<li>
+<strong>Data type</strong>: Integer number</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+<li>
+<strong>Default value</strong>: 0</li>
+<li>
+<strong>Reference to</strong>: ObjectType.trainingguides_webchannelsettings</li>
+<li>
+<strong>Reference type</strong>: Required</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<p>The re-generated code will have a new <code>ObjectDependency</code> defined in the TYPEINFO declaration.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSnippetInfo.generated.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public static readonly ObjectTypeInfo TYPEINFO = new ObjectTypeInfo(typeof(IInfoProvider&lt;WebChannelSnippetInfo&gt;), OBJECT_TYPE, "TrainingGuides.WebChannelSnippet", "WebChannelSnippetID", null, null, "WebChannelSnippetCodeName", "WebChannelSnippetDisplayName", null, null, null)
+{
+    TouchCacheDependencies = true,
+    DependsOn = new List&lt;ObjectDependency&gt;()
+    {
+        new ObjectDependency("WebChannelSnippetWebChannelSettingsID", "trainingguides.webchannelsettings", ObjectDependencyEnum.Required),
+    },
+};
+...
+</code></pre>
+</div>
+
+<h2 id="create-an-automatic-listing-page">Create an automatic listing page</h2>
+<p></p>
+<p>In the previous example from this series, we saw a <a href="/guides/development/customizations-and-integrations/create-basic-module#define-the-listing-page">listing page that displayed <em>global settings key</em> objects</a>. Because these global settings were created and managed by users, the listing page just needed to display the objects, with links and buttons.</p>
+<p>However, in situations where you want to enforce one-to-one relationships, you can use the landing page to execute code that ensures the existence of the required objects. <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages">UI pages in Xperience by Kentico</a> support dependency injection, so you should be able to use whichever services and options you need to properly set up data before the page loads.</p>
+<p>For our example, let’s use the listing page to make sure that for each web channel, a <em>web channel settings</em> object exists, and that each one has an <em>SEO settings</em> child.</p>
+<p>Start by creating a listing page similar to the <a href="/guides/development/customizations-and-integrations/create-basic-module#define-the-listing-page">example from earlier in this seires</a>, but with no delete button; Xperience will handle deletions automatically thanks to our class overrides that established the relationship between Web channel settings and their corresponding channels.</p>
+
+<div>
+
+</div>
+<div>
+<p>You only need one column in the <code>ColumnConfigurations</code>, showing the display name of the channel. Editors will arrive at this page to see a list of channel names. Then they can edit the settings of whichever channel they click on.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSettingsListingPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+using TrainingGuides.Admin.ProjectSettings;
+using CMS.DataEngine;
+using CMS.ContentEngine;
+using Microsoft.Extensions.Localization;
+
+[assembly: UIPage(
+    parentType: typeof(ProjectSettingsApplication),
+    slug: "channel-settings",
+    uiPageType: typeof(WebChannelSettingsListingPage),
+    name: "Channel settings",
+    templateName: TemplateNames.LISTING,
+    order: 0)]
+
+namespace TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+public class WebChannelSettingsListingPage : ListingPage
+{
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+
+    protected override string ObjectType =&gt; WebChannelSettingsInfo.OBJECT_TYPE;
+
+    public WebChannelSettingsListingPage(
+        IStringLocalizer&lt;SharedResources&gt; stringLocalizer) : base()
+    {
+         this.stringLocalizer = stringLocalizer;
+    }
+
+    public override async Task ConfigurePage()
+    {
+        PageConfiguration.ColumnConfigurations
+                     .AddColumn(nameof(
+                        WebChannelSettingsInfo.WebChannelSettingsChannelDisplayName), stringLocalizer["Channel"]);
+
+        PageConfiguration.AddEditRowAction&lt;WebChannelSettingsEditSection&gt;();
+
+        await base.ConfigurePage();
+    }
+}
+</code></pre>
+</div>
+
+<p>Next, add code that checks whether there is a <code>WebChannelSettingsInfo</code> object corresponding to each channel, and creates a new one if not.</p>
+<p>It should check each <code>WebChannelSettingsInfo</code> object, ensuring that its display name matches the corresponding channel in case the channel is modified, and that it has a related <code>SeoSettingsInfo</code> object.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSettingsListingPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+namespace TrainingGuides.Admin.ProjectSettings;
+public class WebChannelSettingsListingPage : ListingPage
+{
+    private readonly IInfoProvider&lt;ChannelInfo&gt; channelInfoProvider;
+    private readonly IInfoProvider&lt;WebChannelSettingsInfo&gt; webChannelSettingsInfoProvider;
+    private readonly IInfoProvider&lt;SeoSettingsInfo&gt; seoSettingsInfoProvider;
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+
+    protected override string ObjectType =&gt; WebChannelSettingsInfo.OBJECT_TYPE;
+
+    public WebChannelSettingsListingPage(
+        IInfoProvider&lt;ChannelInfo&gt; channelInfoProvider,
+        IInfoProvider&lt;WebChannelSettingsInfo&gt; webChannelSettingsInfoProvider,
+        IInfoProvider&lt;SeoSettingsInfo&gt; seoSettingsInfoProvider,
+        IStringLocalizer&lt;SharedResources&gt; stringLocalizer) : base()
+    {
+        this.channelInfoProvider = channelInfoProvider;
+        this.webChannelSettingsInfoProvider = webChannelSettingsInfoProvider;
+        this.seoSettingsInfoProvider = seoSettingsInfoProvider;
+         this.stringLocalizer = stringLocalizer;
+
+        EnsureSettingsListData();
+    }
+
+    ...
+
+    //Creates necessary settings objects if they do not exist, and ensures proper channel names.
+    private void EnsureSettingsListData()
+    {
+        var channels = channelInfoProvider.Get();
+        var webChannelSettings = webChannelSettingsInfoProvider.Get().ToList();
+        var seoSettings = seoSettingsInfoProvider.Get().ToList();
+
+        foreach (var channel in channels)
+        {
+            var currentChannelSettings = webChannelSettings.Where(setting =&gt; setting.WebChannelSettingsChannelID.Equals(channel.ChannelID)).ToList();
+
+            EnsureChannelSetting(currentChannelSettings, channel);
+
+            var currentChannelSetting = currentChannelSettings.FirstOrDefault();
+
+            EnsureChannelSettingDisplayName(channel, currentChannelSetting);
+
+            EnsureSeoSettings(currentChannelSetting, seoSettings);
+        }
+    }
+
+    //Creates a new WebChannelSettingsInfo for the provided channel if none exists.
+    private void EnsureChannelSetting(List&lt;WebChannelSettingsInfo&gt; currentChannelSettings, ChannelInfo channel)
+    {
+        if (currentChannelSettings.Count() == 0)
+        {
+            var newSetting = new WebChannelSettingsInfo
+            {
+                WebChannelSettingsChannelID = channel.ChannelID,
+                WebChannelSettingsChannelDisplayName = channel.ChannelDisplayName,
+            };
+            webChannelSettingsInfoProvider.Set(newSetting);
+            currentChannelSettings.Add(newSetting);
+        }
+    }
+
+    //Updates display name of provided WebChannelSettingsInfo to match its channel if they are different.
+    private void EnsureChannelSettingDisplayName(ChannelInfo channel, WebChannelSettingsInfo? currentChannelSetting)
+    {
+        if (currentChannelSetting != null &amp;&amp; !channel.ChannelDisplayName.Equals(currentChannelSetting.WebChannelSettingsChannelDisplayName))
+        {
+            currentChannelSetting.WebChannelSettingsChannelDisplayName = channel.ChannelDisplayName;
+            webChannelSettingsInfoProvider.Set(currentChannelSetting);
+        }
+    }
+
+    //Creates a new SeoSettingsInfo object for the provided WebChannelSettingsInfoif none exists.
+    private void EnsureSeoSettings(WebChannelSettingsInfo? currentChannelSetting, IEnumerable&lt;SeoSettingsInfo&gt; seoSettings)
+    {
+        int? webChannelSettingsId = currentChannelSetting?.WebChannelSettingsID;
+
+        var currentSeoSettings = seoSettings
+            .Where(setting =&gt; setting.SeoSettingsWebChannelSettingID == webChannelSettingsId).ToList();
+
+        if (currentSeoSettings.Count() == 0 &amp;&amp; webChannelSettingsId != null)
+        {
+            var newSeoSetting = new SeoSettingsInfo
+            {
+                SeoSettingsWebChannelSettingID = (int)webChannelSettingsId,
+                SeoSettingsRobots = string.Empty,
+            };
+
+            seoSettingsInfoProvider.Set(newSeoSetting);
+        }
+    }
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You can find the complete file <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Admin/Pages/ProjectSettings/WebChannelSettings/WebChannelSettingsListingPage.cs" target="_blank">in the finished branch of the <em>Training guides repository</em></a> for reference.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You may notice how the above code does not check for and delete settings objects with no parent. Thanks to the parent-child relationship <a href="#override-typeinfo-definitions">we set earlier</a>, settings are deleted automatically along with their channel.</p>
+</div>
+
+<h2 id="edit-child-objects-as-part-of-a-parent">Edit child objects as part of a parent</h2>
+<p>When objects have parent-child relationships, you may want to edit one or more child objects when a user selects a parent from the listing page, rather than directly editing the parent itself. In our example, the <em>Web channel settings</em> don’t have any meaningful properties for users to edit, so instead, so when they choose a channel, we want to display the <em>SEO settings</em> edit form instead.</p>
+<p>This will involve a few adjustments compared to previous examples, which involved <em>listing</em> and <em>edit</em> pages that worked with the same object type.</p>
+<p>Luckily, the type of an <code>InfoEditPage&lt;T&gt;</code> does not need to match the type of the <code>EditSectionPage&lt;T&gt;</code> registered as its <code>parentType</code>.</p>
+<p>Compared to the previous examples, we need an extra bound parameter to retrieve the ID of the parent object. Then we can use its value in our child pages. For editing child objects with one-to-one relationships (like our example’s parent <em>Web channels settings</em> and child <em>SEO settings</em>), override the abstract <code>ObjectID</code> property inherited from <code>InfoEditPage&lt;T&gt;</code>, and use the parent’s ID to retrieve the appropriate child.</p>
+
+<div>
+
+</div>
+<div>
+<p>The <a href="#create-a-sub-section-for-multiple-child-objects">next section</a> wil cover one-to-many relationships, where there may be mutiple child objects per parent.</p>
+<p>For example, several <em>Web channel snippets</em> may relate to one <em>Web channel settings</em> object.</p>
+</div>
+
+<p>For editing pages, Xperience automatically propagates the display name of a saved object to the breadcrumbs and navigation, so you’ll need to override the <code>GetSubmitSuccessResponse</code> method to keep the name of the parent object on display.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>See the difference</strong></p>
+<p>The behavior of the navigation with and without the <code>GetSubmitSuccessResponse</code> override is best demonstrated visually.</p>
+<p><em>Before:</em></p>
+
+<p><em>After:</em></p>
+
+</div>
+
+<p>If you’re following along with our example, start by making an edit section for <code>WebChannelSettingsInfo</code>. It should be a child of the listing page from earlier.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSettingsEditSection.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+
+[assembly: UIPage(
+    parentType: typeof(WebChannelSettingsListingPage),
+    slug: PageParameterConstants.PARAMETERIZED_SLUG,
+    uiPageType: typeof(WebChannelSettingsEditSection),
+    name: "Edit",
+    templateName: TemplateNames.SECTION_LAYOUT,
+    order: 0)]
+
+namespace TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+
+public class WebChannelSettingsEditSection : EditSectionPage&lt;WebChannelSettingsInfo&gt;
+{
+}
+
+</code></pre>
+</div>
+
+<p>Then add an edit page for the <code>SeoSettingsInfo</code> child of the edited <code>WebChannelSettingsInfo</code> object.</p>
+
+<div>
+
+</div>
+<div>
+<p>Bind the parent’s <code>WebChannelSettingsId</code> as a parameter, and use it to retrieve the corresponding <code>SeoSettingsInfo</code> in the accessor of <code>ObjectId</code>.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SeoSettingsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+using Kentico.Xperience.Admin.Base.Forms;
+using CMS.DataEngine;
+using Microsoft.Extensions.Localization;
+
+[assembly: UIPage(
+    parentType: typeof(WebChannelSettingsEditSection),
+    slug: "edit",
+    uiPageType: typeof(SeoSettingsEditPage),
+    name: "SEO settings",
+    templateName: TemplateNames.EDIT,
+    order: 0)]
+
+namespace TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+
+public class SeoSettingsEditPage : InfoEditPage&lt;SeoSettingsInfo&gt;
+{
+    private readonly IInfoProvider&lt;SeoSettingsInfo&gt; seoSettingsInfoProvider;
+    private readonly IInfoProvider&lt;WebChannelSettingsInfo&gt; webChannelSettingsInfoProvider;
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+
+    [PageParameter(typeof(IntPageModelBinder))]
+    public int WebChannelSettingsId { get; set; }
+
+    [PageParameter(typeof(IntPageModelBinder))]
+    public override int ObjectId
+    {
+        // Retrieves the SEO settings ID based on the WebChannelSettingsId.
+        get =&gt; seoSettingsInfoProvider.Get()
+                .WhereEquals(nameof(SeoSettingsInfo.SeoSettingsWebChannelSettingID), WebChannelSettingsId)
+                .FirstOrDefault()?
+                .SeoSettingsID ?? 0;
+        // The UI will try to set the ObjectID to value of the parent WebChannelSettingsId, so we have to ignore that.
+        set { }
+    }
+
+    public SeoSettingsEditPage(IFormComponentMapper formComponentMapper,
+        IFormDataBinder formDataBinder,
+        IInfoProvider&lt;SeoSettingsInfo&gt; seoSettingsInfoProvider,
+        IInfoProvider&lt;WebChannelSettingsInfo&gt; webChannelSettingsInfoProvider,
+        IStringLocalizer&lt;SharedResources&gt; stringLocalizer)
+             : base(formComponentMapper, formDataBinder)
+    {
+        this.seoSettingsInfoProvider = seoSettingsInfoProvider;
+        this.webChannelSettingsInfoProvider = webChannelSettingsInfoProvider;
+         this.stringLocalizer = stringLocalizer;
+    }
+
+    public override Task ConfigurePage()
+    {
+        PageConfiguration.UIFormName = "seosettingsedit";
+        return base.ConfigurePage();
+    }
+}
+</code></pre>
+</div>
+
+<p>On the edit page, override <code>GetSubmitSuccessResponse</code> method. Set the <code>ObjectDisplayName</code> property of the <code>EditPageSuccessFormSubmissionResult</code> to the display name of the parent <code>WebChannelSettingsInfo</code>. This ensures that the breadcrumbs and navigation dispaly the correct hierarchy.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>SeoSettingsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public class SeoSettingsEditPage : InfoEditPage&lt;SeoSettingsInfo&gt;
+{
+
+    ...
+
+    private string WebChannelSettingsDisplayName =&gt;
+        webChannelSettingsInfoProvider
+            .Get()
+            .WhereEquals(nameof(WebChannelSettingsInfo.WebChannelSettingsID), WebChannelSettingsId)
+            .FirstOrDefault()?
+            .WebChannelSettingsChannelDisplayName ?? stringLocalizer["Web channel settings"];
+
+    ...
+
+    protected override async Task&lt;ICommandResponse&gt; GetSubmitSuccessResponse(SeoSettingsInfo savedInfoObject, ICollection&lt;IFormItem&gt; items)
+    {
+        var result = new EditPageSuccessFormSubmissionResult()
+        {
+            Items = await items.OnlyVisible().GetClientProperties(),
+            ObjectDisplayName = WebChannelSettingsDisplayName,
+            ObjectId = WebChannelSettingsId,
+            RefetchAll = RefetchAll
+        };
+
+        return ResponseFrom(result).AddSuccessMessage(LocalizationService?.GetString("base.forms.saved"));
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You can see the completed file in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Admin/Pages/ProjectSettings/WebChannelSettings/SeoSettingsEditPage.cs" target="_blank">finished branch of the <em>Training guides repository</em></a> for reference</p>
+</div>
+
+<p>If you build the project and navigate to <strong>Project settings → Channel settings → Training guides pages</strong>, you should see a UI like this, where you can enter a <em>robots.txt</em> value for your website channel:</p>
+<p></p>
+<h2 id="create-a-sub-section-for-multiple-child-objects">Create a sub-section for multiple child objects</h2>
+<p>If you want to include a listing of child objects that users can manage within the edit section of a parent object, for example, giving each <em>Web channel settings</em> object a listing of <em>Web channel snippet</em> objects, the process is nearly identical to the standard module page approach from the <a href="/guides/development/customizations-and-integrations/create-basic-module#build-the-module-ui">basic module from earlier in this series</a>.</p>
+<p>You can define a <em>Listing page</em> as a child of the parent’s <em>Edit section</em>. This listing can have its own <em>Edit section</em> and <em>Create page</em> as children.</p>
+<p></p>
+<p>Then, you just need to bind the parent object’s ID, like you did <a href="#edit-child-objects-as-part-of-a-parent">earlier</a>, on any pages that need access to it. For example, you need the parent object’s ID to set the foreign key value on the create page and generate the URL for the edit page, and to filter which child objects are displayed on the listing page.</p>
+<p>For our example, complete the following steps:</p>
+<ol type="1">
+<li>Create a listing page for <em>Web channel snippet</em> objects under the <em>Web channel settings</em> edit section.
+
+<div>
+
+</div>
+<div>
+Follow the same approach as <a href="/guides/development/customizations-and-integrations/create-basic-module">earlier</a>.
+</div>
+</li>
+<li>Bind <code>WebChannelSettingsId</code> and use it to add a <code>QueryModifier</code> to <code>PageConfiguration.QueryModifiers</code> in the <code>ConfigurePage</code> method.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSnippetListingPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.DataEngine;
+using CMS.Membership;
+using Kentico.Xperience.Admin.Base;
+using Microsoft.Extensions.Localization;
+using TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+using TrainingGuides.ProjectSettings;
+
+[assembly: UIPage(
+    parentType: typeof(WebChannelSettingsEditSection),
+    slug: "snippets",
+    uiPageType: typeof(WebChannelSnippetListingPage),
+    name: "Channel snippets",
+    templateName: TemplateNames.LISTING,
+    order: 10)]
+
+namespace TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+public class WebChannelSnippetListingPage : ListingPage
+{
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+    protected override string ObjectType =&gt; WebChannelSnippetInfo.OBJECT_TYPE;
+
+    [PageParameter(typeof(IntPageModelBinder))]
+    public int WebChannelSettingsId { get; set; }
+
+    public WebChannelSnippetListingPage(IStringLocalizer&lt;SharedResources&gt; stringLocalizer) : base()
+    {
+        this.stringLocalizer = stringLocalizer;
+    }
+
+    public override Task ConfigurePage()
+    {
+        PageConfiguration.ColumnConfigurations
+            .AddColumn(nameof(WebChannelSnippetInfo.WebChannelSnippetDisplayName), stringLocalizer["Snippet"])
+            .AddColumn(nameof(WebChannelSnippetInfo.WebChannelSnippetType), stringLocalizer["Type"]);
+
+        PageConfiguration.HeaderActions.AddLink&lt;WebChannelSnippetCreatePage&gt;(
+            stringLocalizer["New snippet"],
+            parameters: new PageParameterValues
+                {
+                    { typeof(WebChannelSettingsEditSection), WebChannelSettingsId }
+                });
+
+        PageConfiguration.AddEditRowAction&lt;WebChannelSnippetEditSection&gt;(
+            parameters: new PageParameterValues
+                {
+                    { typeof(WebChannelSettingsEditSection), WebChannelSettingsId }
+                });
+
+        PageConfiguration.TableActions
+            .AddDeleteAction(nameof(Delete));
+
+        PageConfiguration.QueryModifiers
+            .AddModifier((query, _) =&gt;
+            {
+                return query.Where(new WhereCondition().WhereEquals(nameof(WebChannelSnippetInfo.WebChannelSnippetWebChannelSettingsID), WebChannelSettingsId));
+            });
+
+        return base.ConfigurePage();
+    }
+
+    [PageCommand(Permission = SystemPermissions.DELETE)]
+    public override Task&lt;ICommandResponse&lt;RowActionResult&gt;&gt; Delete(int id) =&gt; base.Delete(id);
+}
+</code></pre>
+</div>
+
+<p>Next, add an edit section for code snippets and an edit page underneath it.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSnippetEditSection.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+
+[assembly: UIPage(
+    parentType: typeof(WebChannelSnippetListingPage),
+    slug: PageParameterConstants.PARAMETERIZED_SLUG,
+    uiPageType: typeof(WebChannelSnippetEditSection),
+    name: "Edit snippets",
+    templateName: TemplateNames.SECTION_LAYOUT,
+    order: 0)]
+
+namespace TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+
+public class WebChannelSnippetEditSection : EditSectionPage&lt;WebChannelSnippetInfo&gt;
+{
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSnippetEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+using Kentico.Xperience.Admin.Base.Forms;
+
+[assembly: UIPage(
+    parentType: typeof(WebChannelSnippetEditSection),
+    slug: "edit",
+    uiPageType: typeof(WebChannelSnippetEditPage),
+    name: "Edit snippet",
+    templateName: TemplateNames.EDIT,
+    order: 0)]
+
+namespace TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+
+public class WebChannelSnippetEditPage : InfoEditPage&lt;WebChannelSnippetInfo&gt;
+{
+    [PageParameter(typeof(IntPageModelBinder), typeof(WebChannelSnippetEditSection))]
+    public override int ObjectId { get; set; }
+
+    public WebChannelSnippetEditPage(IFormComponentMapper formComponentMapper, IFormDataBinder formDataBinder)
+             : base(formComponentMapper, formDataBinder)
+    {
+    }
+
+    public override Task ConfigurePage()
+    {
+        PageConfiguration.UIFormName = "webchannelsnippetedit";
+        return base.ConfigurePage();
+    }
+}
+</code></pre>
+</div>
+
+<p>Finally, add a <em>create page</em>. Make sure to bind the <code>WebChannelSettingsID</code>, and add it as a URL parameter for when the edit page is displayed after creation.</p>
+<p>Override the <code>FinalizeInfoObject</code> method to make sure that <code>WebChannelSnippetWebChannelSettingsID</code> is set to <code>WebChannelSettingsId</code></p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WebChannelSnippetCreatePage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+using Kentico.Xperience.Admin.Base.Forms;
+
+[assembly: UIPage(
+    parentType: typeof(WebChannelSnippetListingPage),
+    slug: "create",
+    uiPageType: typeof(WebChannelSnippetCreatePage),
+    name: "Create snippet",
+    templateName: TemplateNames.EDIT,
+    order: 20)]
+
+namespace TrainingGuides.Admin.ProjectSettings.WebChannelSettings;
+
+public class WebChannelSnippetCreatePage : CreatePage&lt;WebChannelSnippetInfo, WebChannelSnippetEditSection&gt;
+{
+    // Bind the parent object's ID
+    [PageParameter(typeof(IntPageModelBinder), typeof(WebChannelSettingsEditSection))]
+    public int WebChannelSettingsId { get; set; }
+
+    public WebChannelSnippetCreatePage(IFormComponentMapper formComponentMapper,
+        IFormDataBinder formDataBinder,
+        IPageLinkGenerator pageLinkGenerator)
+        : base(formComponentMapper, formDataBinder, pageLinkGenerator)
+        {
+        }
+
+    public override Task ConfigurePage()
+    {
+        // Add the parent object's ID to the URL
+        AdditionalLinkParameters.Add(new PageParameterValues
+            {
+                { typeof(WebChannelSettingsEditSection), WebChannelSettingsId}
+            });
+        PageConfiguration.UIFormName = "webchannelsnippetedit";
+        return base.ConfigurePage();
+    }
+
+    // Ensure that the child object's foreign key is set
+    protected override Task FinalizeInfoObject(WebChannelSnippetInfo infoObject, IFormFieldValueProvider fieldValueProvider, CancellationToken cancellationToken)
+    {
+        infoObject.WebChannelSnippetWebChannelSettingsID = WebChannelSettingsId;
+
+        return base.FinalizeInfoObject(infoObject, fieldValueProvider, cancellationToken);
+    }
+}
+</code></pre>
+</div>
+
+<p>Now you should have a new section in your <strong>Project settings</strong> application with SEO settings and code snippets for each channel.</p>
+<h2 id="see-the-result">See the result</h2>
+<p>With these tools you should be able to create a hierarchical custom module structure with multiple layers, including one-to-one and one-to-many relationships. You can also create channel-specific subsections in the admin UI.</p>
+<p>If you followed the example, try going to the <strong>Channel management</strong> application a few times to create and delete channels. Each time you navigate to <strong>Project settings → Channel settings</strong>, you’ll be able to see the available channel settings update accordingly, each with is own distinct <em>SEO settings</em> and its own empty set of snippets.</p>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/customizations-and-integrations/access-custom-channel-specific-configurations">next guide in this series</a> will expand upon this example, demonstrating how to put the channel-specific settings to use on your live site.</p>
+
+</body>
+</html>

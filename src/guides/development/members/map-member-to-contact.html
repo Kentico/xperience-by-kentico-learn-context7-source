@@ -1,0 +1,695 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Synchronize member data with the corresponding contact</title>
+</head>
+<body>
+<p>A <a href="/documentation/business-users/digital-marketing/contact-management">Contact</a> object in Xperience by Kentico represents a website visitor. As you saw <a href="/guides/development/members/implement-member-registration">earlier in this series</a>, you can enable <strong>registration</strong> and implement sign in logic for your solution that creates <a href="/documentation/business-users/members">members</a>.</p>
+<p>For many reasons it is useful to keep the the <strong>member synchronized with the corresponding contact</strong>. On successful member registration, the system logs the event for the contact and maps the member’s email to the contact if the contact’s email is empty. This synchronization aligns email data but doesn’t take care of any custom fields, such as name and other information relevant for your domain. Nor does it establish a direct link between the two objects.</p>
+<p>This guide expands on an <a href="/documentation/developers-and-admins/digital-marketing-setup/contact-configuration/map-custom-member-fields-to-contacts">example from our documentation</a>, showing how to map custom member and contact fields, and use them to create link between the two objects.</p>
+
+<div>
+
+</div>
+<div>
+<p>The examples here rely in part on examples from other training materials:</p>
+<ul>
+<li>The <a href="/guides/development/customizations-and-integrations/add-custom-contact-field">Add a custom field to the Contact profile</a> guide. Our example uses a custom contact field created here.</li>
+<li>The <a href="/guides/development/data-protection">Data protection</a> series. Our example utilizes cookie logic and the consent banner from this series.</li>
+</ul>
+<p>If you have not completed these requirements, you can consider the parts of this example relating to <em>custom contact fields</em>, <em>consent</em>, and <em>cookie management</em> optional.</p>
+</div>
+
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+<li>Basic understanding of <a href="/documentation/business-users/digital-marketing/contact-management">Contacts</a> and <a href="/documentation/business-users/members">Members</a> in Xperience by Kentico, both form the administration and coding perspective.</li>
+<li>Completion of the <a href="/guides/development/members/implement-member-registration">previous guide</a>.</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
+<p>The code samples in this guide are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="build-a-member-to-contact-relationship">Build a member-to-contact relationship</h2>
+<p>The <a href="/documentation/developers-and-admins/digital-marketing-setup/contact-configuration/map-custom-member-fields-to-contacts#example">documentation contact-member mapping example</a> is fairly straightforward. You implement the <code>IMemberToContactMapper</code> as a custom class and in the <code>Map</code> method you set all the custom values from the member object to the contact object. Then you call the default <code>Map</code> implementation, which ensures the mapping of the email and saving the <code>ContactInfo</code> object.</p>
+<p>In that example the contact data gets updated, but the contact has no information about which member it corresponds to.</p>
+<p>Let’s create a little more complex solution. We’ll look at how to map <strong>custom member fields</strong> to <strong>custom contact fields</strong> and how to utilize <a href="/guides/development/customizations-and-integrations/add-custom-contact-field">custom contact field</a> to create relationship with the corresponding member.</p>
+
+<div>
+
+</div>
+<div>
+<p>Extending contact with custom field is out the scope of this example. Here we will use the custom fields created in <a href="/guides/development/customizations-and-integrations/add-custom-contact-field">a customization guide</a>. Feel free to skip this part if you have not completed that guide.</p>
+</div>
+
+<h2 id="create-the-mapping">Create the mapping</h2>
+<h3 id="prepare-the-service">Prepare the service</h3>
+<p>Let’s start by creating a service in which we will place methods with all the mapping logic. This way, we will be able to call the logic outside of the limited default scenarios where Xperience triggers the <code>IMemberToContactMapper</code>.</p>
+<p>In <em>TrainingGuides.Web/Features/Membership/Services</em> create a <code>MemberContactService</code> and it’s interface.</p>
+<p>Implement a <code>TransferMemberFieldsToContact</code> method that accepts member (<code>MemberInfo</code>) and contact (<code>ContactInfo</code>) objects as parameters.</p>
+<p>Cast the MemberInfo object into our custom <code>GuidesMember</code> type.</p>
+<p>Then, create another overload of the <code>TransferMemberFieldsToContact</code>, that takes our custom member and the contact object as parameters and performs the following logic:</p>
+<p>Make a copy of the contact and map the values of member properties to the new contact. Then, set the value of the member ID to the custom field on contact, identifying it by its code name - <code>TrainingGuidesContactMemberId</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>To work with custom field code names, we recommend using constants, especially if you need to reference the field repetitively.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IMemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Membership.Services;
+
+public interface IMemberContactService
+{
+namespace TrainingGuides.Web.Features.Membership.Services;
+
+public interface IMemberContactService
+{
+    /// &lt;summary&gt;
+    /// Transfers values from MemberInfo to ContactInfo
+    /// &lt;/summary&gt;
+    /// &lt;param name="member"&gt;The member whose data should be transferred&lt;/param&gt;
+    /// &lt;param name="contact"&gt;The contact to transfer the data to&lt;/param&gt;
+    /// &lt;returns&gt;The updated ContactInfo object, but DOES NOT save the contact data&lt;/returns&gt;
+    ContactInfo TransferMemberFieldsToContact(MemberInfo member, ContactInfo contact);
+
+    /// &lt;summary&gt;
+    /// Transfers values from GuidesMember to ContactInfo
+    /// &lt;/summary&gt;
+    /// &lt;param name="guidesMember"&gt;The member whose data should be transferred&lt;/param&gt;
+    /// &lt;param name="contact"&gt;The contact to transfer the data to&lt;/param&gt;
+    /// &lt;returns&gt;The updated ContactInfo object, but DOES NOT save the contact data&lt;/returns&gt;
+    ContactInfo TransferMemberFieldsToContact(GuidesMember guidesMember, ContactInfo contact);
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.ContactManagement;
+using CMS.DataEngine;
+using CMS.Membership;
+using Kentico.Web.Mvc;
+using TrainingGuides.Web.Features.DataProtection.Shared;
+
+namespace TrainingGuides.Web.Features.Membership.Services;
+
+public class MemberContactService : IMemberContactService
+{
+    // Use dependency injection to populate these
+    private readonly IInfoProvider&lt;ContactInfo&gt; contactInfoProvider;
+    private readonly ICookieAccessor cookieAccessor;
+    private readonly ICurrentContactProvider currentContactProvider;
+    private readonly IContactMergeService contactMergeService;
+
+    private const string FAVORITE_COFFEE_FIELD_NAME = "TrainingGuidesContactFavoriteCoffee";
+    private const string MEMBER_ID_FIELD_NAME = "TrainingGuidesContactMemberId";
+
+    ...
+
+    /// &lt;inheritdoc /&gt;
+    public ContactInfo TransferMemberFieldsToContact(MemberInfo member, ContactInfo contact)
+    {
+        var guidesMember = member.AsGuidesMember();
+
+        return TransferMemberFieldsToContact(guidesMember, contact);
+    }
+
+    /// &lt;inheritdoc /&gt;
+    public ContactInfo TransferMemberFieldsToContact(GuidesMember guidesMember, ContactInfo contact)
+    {
+        var newContact = contact.Clone();
+
+        if (!string.IsNullOrWhiteSpace(guidesMember.GivenName))
+        {
+            newContact.ContactFirstName = guidesMember.GivenName;
+        }
+        if (!string.IsNullOrWhiteSpace(guidesMember.FamilyName))
+        {
+            newContact.ContactLastName = guidesMember.FamilyName;
+        }
+        if (!string.IsNullOrWhiteSpace(guidesMember.FavoriteCoffee))
+        {
+            _ = newContact.SetValue(FAVORITE_COFFEE_FIELD_NAME, guidesMember.FavoriteCoffee);
+        }
+
+        // Sets the Member ID of the current contact
+        _ = newContact.SetValue(MEMBER_ID_FIELD_NAME, guidesMember.Id);
+
+        // For data security, do not overwrite contact email address if it is already set
+        if (string.IsNullOrWhiteSpace(contact.ContactEmail) &amp;&amp; !string.IsNullOrWhiteSpace(guidesMember.Email))
+        {
+            newContact.ContactEmail = guidesMember.Email;
+        }
+
+        return newContact;
+    }
+}
+
+</code></pre>
+</div>
+
+<p>The methods we prepared will return a new <code>ContactInfo</code> object, that you can now use to update the original one.</p>
+
+<div>
+
+</div>
+<div>
+<p>You probably noticed the code sample above is injecting several dependencies that are currently unused. We will utilize them all later on in the example.</p>
+</div>
+
+<p>Next, let’s create a method that will update the existing contact. Using the <code>ContactInfo.HasChanged</code> property and the Xperience <code>IInfoProvider</code>, you can determine whether there have been any updates to the contact and assign the new contact object as the current contact.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IMemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Saves the contact data if it has changed
+/// &lt;/summary&gt;
+/// &lt;param name="contact"&gt;The contact to save&lt;/param&gt;
+void UpdateContactIfChanged(ContactInfo contact);
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public void UpdateContactIfChanged(ContactInfo contact)
+{
+    if (contact.HasChanged)
+    {
+        contactInfoProvider.Set(contact);
+    }
+}
+...
+</code></pre>
+</div>
+
+<p>Before moving on, remember to register your new service:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cd</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+services.AddSingleton&lt;IMemberContactService, MemberContactService&gt;();
+...
+</code></pre>
+</div>
+
+<h3 id="implement-the-mapper-class">Implement the mapper class</h3>
+<p>Create a <code>TrainingGuidesMemberToContactMapper.cs</code> class file in the <em>TrainingGuides.Web/Features/Membership/Services</em> folder.</p>
+<p>Implement the mapper class, similarly, to the documentation example we talked about earlier. Call the <code>TransferMemberFieldsToContact</code> and <code>UpdateContactIfChanged</code> to initiate the member-contact data synchronization when the <code>Map</code> method gets fired.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrainingGuidesMemberToContactMapper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS;
+using CMS.ContactManagement;
+using CMS.Membership;
+
+using Kentico.OnlineMarketing.Web.Mvc;
+
+using TrainingGuides.Web.Features.Membership.Services;
+
+[assembly: RegisterImplementation(typeof(IMemberToContactMapper), typeof(TrainingGuidesMemberToContactMapper))]
+
+namespace TrainingGuides.Web.Features.Membership.Services;
+public class TrainingGuidesMemberToContactMapper : IMemberToContactMapper
+{
+    private readonly IMemberContactService memberContactService;
+
+    public TrainingGuidesMemberToContactMapper(IMemberContactService memberContactService)
+    {
+        this.memberContactService = memberContactService;
+    }
+
+    /// &lt;summary&gt;
+    /// Maps a member to a contact and updates the contact if it has changed
+    /// &lt;/summary&gt;
+    /// &lt;param name="member"&gt;The member whose data should be transferred&lt;/param&gt;
+    /// &lt;param name="contact"&gt;The contact to transfer the data to&lt;/param&gt;
+    public void Map(MemberInfo member, ContactInfo contact)
+    {
+        if (member is null || contact is null)
+            return;
+
+        contact = memberContactService.TransferMemberFieldsToContact(member, contact);
+
+        memberContactService.UpdateContactIfChanged(contact);
+    }
+}
+</code></pre>
+</div>
+
+<h2 id="check-your-progress">Check your progress</h2>
+<p>At this point you should be able to test whether your member-contact data synchronization works.</p>
+<p>Run your website in an incognito browser window as a visitor and accept cookies. Open the Xperience administration dashboard in a new window and visit the <strong>Contact management</strong> application. You will see your newly created anonymous contact.</p>
+<p>Now, in your website, use the registration page we created <a href="/guides/development/members/implement-member-registration">earlier in this series</a> to register a new member.</p>
+<p>When you go back to your administration dashboard and reload the <strong>Contact management</strong>, you will see that your new contact has its fields set according to what you filled out for the member. Including the custom fields. Success!</p>
+
+<p></p>
+<h2 id="synchronize-contact-with-member-on-sign-in">Synchronize contact with member on sign-in</h2>
+<p>The basic data synchronization is in place, but there are still a few things we need to handle. The first one is handling the event of member signing in.</p>
+<h3 id="merge-duplicate-contacts">Merge duplicate contacts</h3>
+<p>Because with each cookie consent the system creates a new contact, you can end up with several for one visitor. It is a good practice to clean up the redundant contacts periodically.</p>
+<p>For this, we will take advantage of the <code>IContactMergeService</code> which is a part of Xperience by Kentico out-of-the-box, and which we already injected into our <code>MemberContactService</code>.</p>
+<p>Create a <code>MergeContactByEmail</code> method inside the <code>MemberContactService</code> that calls the out-of-the-box method to merge contacts.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IMemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Merges the provided contact based on the provided email address
+/// &lt;/summary&gt;
+/// &lt;param name="contact"&gt;The contact to merge&lt;/param&gt;
+public void MergeContactByEmail(ContactInfo contact);
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public void MergeContactByEmail(ContactInfo contact) =&gt; contactMergeService.MergeContactByEmail(contact);
+...
+</code></pre>
+</div>
+
+<p>Now, create a new method in the <code>MembershipService</code> that will:</p>
+<ol type="1">
+<li>Synchronize the contact-member.</li>
+<li>Call the <code>MergeContactByEmail</code> to trigger the cleanup.</li>
+<li>Set the contact synchronized with the member as the current contact.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+private void SynchronizeContact(GuidesMember member, bool createNewContactIfNoneFound = false)
+{
+    //In a real-world scenario, make sure you check applicable data protection laws and handle consent accordingly.
+    var contact = ContactManagementContext.GetCurrentContact()
+        ?? (createNewContactIfNoneFound ? new ContactInfo() : null);
+
+    if (contact is null)
+        return;
+
+    var newContact = memberContactService.TransferMemberFieldsToContact(member, contact);
+
+    memberContactService.UpdateContactIfChanged(newContact);
+
+    memberContactService.MergeContactByEmail(newContact);
+
+    memberContactService.SetCurrentContactForMember(member);
+}
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IMemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Sets the CurrentContact to the most recent one with a matching email that is associated with the given member 
+/// &lt;/summary&gt;
+/// &lt;param name="member"&gt;The member to find an associated contact for&lt;/param&gt;
+void SetCurrentContactForMember(GuidesMember member);
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Gets the most recent contact associated with the provided member whose email matches
+/// &lt;/summary&gt;
+/// &lt;param name="member"&gt;The GuidesMember to find an associated contact&lt;/param&gt;
+/// &lt;returns&gt;The most recent contact associated with the provided member whose email matches&lt;/returns&gt;
+/// &lt;remarks&gt;Ideally, this method should be called after the content has been merged, so there will only be one contact with the email address, but we'll choose the most recent just in case.&lt;/remarks&gt;
+private ContactInfo? GetMemberContactWithMatchingEmail(GuidesMember member)
+{
+    var contact = contactInfoProvider.Get()
+        .WhereEquals(MEMBER_ID_FIELD_NAME, member.Id)
+        .WhereEquals(nameof(ContactInfo.ContactEmail), member.Email)
+        .OrderByDescending(nameof(ContactInfo.ContactCreated))
+        .TopN(1)
+        .FirstOrDefault();
+
+    return contact;
+}
+
+/// &lt;inheritdoc /&gt;
+public void SetCurrentContactForMember(GuidesMember member)
+{
+    var contact = GetMemberContactWithMatchingEmail(member);
+    if (contact is not null)
+    {
+        EnsureContactCookieLevel();
+        currentContactProvider.SetCurrentContact(contact);
+    }
+}
+...
+/// &lt;summary&gt;
+/// Ensures that the CurrentContact cookie can be created by setting the CMS cookie level to 200
+/// &lt;/summary&gt;
+/// &lt;remarks&gt;
+/// NOTE: In this project, the &lt;see cref="DataProtection.ViewComponents.TrackingConsent.TrackingConsentViewComponent"/&gt; will return the cookie level to 0 if the contact has not agreed to any consents. 
+/// Level 200 is necessary to check for consent agreements, before adjusting cookie levels accordingly.
+/// &lt;/remarks&gt;
+private void EnsureContactCookieLevel()
+{
+    string cmsCookieLevel = cookieAccessor.Get(CookieNames.CMS_COOKIE_LEVEL);
+    if (string.IsNullOrWhiteSpace(cmsCookieLevel) || !int.TryParse(cmsCookieLevel, out int cookieLevel) || cookieLevel &lt; 200)
+    {
+        cookieAccessor.Set(CookieNames.CMS_COOKIE_LEVEL, "200");
+    }
+}
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you use code like this in a real-world project, make sure you are properly handling consent according to your region’s laws.</p>
+</div>
+
+<h3 id="trigger-the-contact-synchronization-on-sign-in">Trigger the contact synchronization on sign-in</h3>
+<p>Call the <code>SynchronizeContact</code> method on member sign-in. In our Training guides example repository this means:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+ public async Task&lt;SignInResult&gt; SignIn(string userNameOrEmail, string password, bool staySignedIn)
+{
+    try
+    {
+        var member = await FindMemberByUserNameOrEmail(userNameOrEmail);
+        if (member is null)
+        {
+            return SignInResult.Failed;
+        }
+
+        var signInResult = await signInManager.PasswordSignInAsync(member.UserName!, password, staySignedIn, false);
+
+        // NEW CODE: call contact member synchronization if sign in succeeded
+        if (signInResult.Succeeded)
+        {
+            SynchronizeContact(member, true);
+        }
+        // END NEW CODE
+
+        return signInResult;
+    }
+    catch (Exception ex)
+    {
+        eventLogService.LogException(nameof(MembershipService), nameof(SignIn), ex);
+        return SignInResult.Failed;
+    }
+}
+...
+</code></pre>
+</div>
+
+<h2 id="handle-member-sign-out">Handle member sign-out</h2>
+<p>The last piece of the puzzle for this example is handling the event of a member signing out.</p>
+<p>You need to remove cookies when this happens, to prevent the same contact getting associated with a different member if someone else signs in in the same browser session.</p>
+<p>On member sign out you need to clear the <strong>CurrentContact</strong>, <strong>CMSCookieLevel</strong>, and any consent-related cookies in your solution. In the Training guides solution, these are <code>trainingguides.cookieconsentlevel</code> and <code>trainingguides.cookielevelselection</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>See the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/DataProtection/Shared/CookieNames.cs" target="_blank">cookie names in our Training guides repository.</a>.</p>
+</div>
+
+<p>Let’s create a <code>RemoveContactCookies</code> method in our <code>MemberContactService</code> that clears the relevant cookies using the Xperience <code>ICookieAccessor</code>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IMemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+/// &lt;summary&gt;
+/// Removes contact related cookies 
+/// &lt;/summary&gt;
+void RemoveContactCookies();
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MemberContactService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public void RemoveContactCookies()
+{
+    cookieAccessor.Remove(CookieNames.CURRENT_CONTACT);
+    cookieAccessor.Remove(CookieNames.CMS_COOKIE_LEVEL);
+    cookieAccessor.Remove(CookieNames.COOKIE_ACCEPTANCE);
+    cookieAccessor.Remove(CookieNames.COOKIE_CONSENT_LEVEL);
+}
+...
+</code></pre>
+</div>
+
+<p>Then, call this method on member sign out. In our case, this means calling <code>RemoveContactCookies</code> inside the <code>SignOut</code> method in the <code>MembershipService</code> class.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>MembershipService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+public async Task SignOut()
+{
+    await signInManager.SignOutAsync();
+    // clear cookies after sign out
+    memberContactService.RemoveContactCookies();
+}
+...
+</code></pre>
+</div>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/members/create-a-profile-page">next guide on the membership topic</a> will demonstrate how you can implement a secured profile page, where members can manage their personal information.</p>
+
+</body>
+</html>

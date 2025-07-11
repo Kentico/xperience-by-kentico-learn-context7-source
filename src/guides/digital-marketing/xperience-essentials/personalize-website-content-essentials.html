@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Personalize website content</title>
+</head>
+<body>
+<p>Marketing communication should never be a “one-size-fits-all” interaction. With the correct content served at the right time, you can <strong>turn your visitors into loyal followers of your brands</strong>.</p>
+<p>Personalization allows you to <strong>custom-tailor the content</strong> for your website visitors. Xperience can dynamically recommend content visitors might find interesting based on their previous behavior.<br>
+You can <strong>personalize website content using page builder widgets</strong> because you know what your audience segment is looking for. Once your developers prepare the widgets for personalization, you can start building contact groups and ensure that your <strong>website content automatically changes</strong> based on who interacts with it.</p>
+<p>Here are a few ideas on how to use the widget personalization:</p>
+<ul>
+<li>Change the content of the homepage based on a previous visitor’s activity.</li>
+<li>Recommend related content based on customer preference.</li>
+<li>Show/Hide content on the website based on the current time of the day or season.</li>
+<li>And many more.</li>
+</ul>
+<p>Find out more about the <a href="/documentation/business-users/digital-marketing/widget-personalization">widget personalization</a> in the documentation.</p>
+<h2 id="exercise---personalizing-website-content">Exercise - Personalizing website content</h2>
+<p>In this exercise, you’ll learn how to use content personalization to point potential partners to content they might find interesting. You’ll create and then use a contact group and personalize the website’s content.</p>
+<p> <strong>Task</strong>:</p>
+<p>Your marketing manager wants you to personalize the hero banner on your website’s home page to attract more visitors who have read the <em>kBank’s new Tiny Loans are cheapest in the Galaxy</em> article but haven’t applied for a loan.</p>
+<h3 id="create-a-contact-group">Create a contact group</h3>
+<ol type="1">
+<li>Go to the <strong>Contact groups</strong> application.</li>
+<li>Create a <strong>New contact group</strong> and fill in:
+<ol type="1">
+<li>
+<strong>Name</strong>: <em>Personal loan Hero banner</em>.</li>
+<li>
+<strong>Description</strong>: <em>Show a Personal loan hero banner on the Home page to visitors who read the “kBank’s new Tiny Loans are cheapest in the Galaxy” article but haven’t visited the Personal loan page and haven’t submitted any loan application form</em>.</li>
+<li>
+<strong>Add condition</strong>:
+<ol type="1">
+<li>
+<strong>Add condition group</strong>.</li>
+<li>Select the <em>Contact has visited a page in last X days</em> condition.</li>
+<li>
+<strong>Add page</strong> and select <em>News</em> → <em>kBank’s new Tiny Loans are cheapest in the Galaxy</em>.</li>
+</ol>
+</li>
+<li>
+<strong>Add another condition</strong>:
+<ol type="1">
+<li>Again, select the <em>Contact has visited a page in the last X days</em> condition.</li>
+<li>Change it to <strong>has not</strong>.</li>
+<li>
+<strong>Add page</strong> and select <em>Loans</em> → <em>Personal loan</em>.</li>
+</ol>
+</li>
+<li>
+<strong>Add another condition</strong>:
+<ol type="1">
+<li>Select the <em>Contact has submitted a form in the last X days</em> condition.</li>
+<li>Change it to <strong>has not</strong>.</li>
+<li>Pick the <em>Request account (2-column)</em> form.</li>
+</ol>
+</li>
+<li>And lastly, <strong>Add another condition</strong>:
+<ol type="1">
+<li>Select the <em>Contact agreed with consent</em> condition.</li>
+<li>Choose <em>Marketing cookies</em>.</li>
+</ol>
+</li>
+<li>
+<strong>Apply</strong> the new conditions set.</li>
+</ol>
+</li>
+<li>
+<strong>Save</strong> the contact group.</li>
+</ol>
+<h3 id="create-a-personalized-variant-of-a-widget">Create a personalized variant of a widget</h3>
+<ol type="1">
+<li>In the <strong>Personal Banking</strong> application, navigate to the <em>Home page</em>.</li>
+<li>Select <strong>Edit page</strong> to move the page into the <em>Draft</em> step.</li>
+<li>Select the <strong>Personalize</strong> button in the header of the <em>Hero banner</em> widget.
+<ol type="1">
+<li>Select the <em>Is in contact group</em> condition type.</li>
+<li>Enter a <strong>Variant name</strong>: <em>kBank’s new Tiny Loans are the cheapest in the Galaxy, not Personal loan</em>.</li>
+<li>Select the <em>Personal loan Hero banner</em> group from the list of contact groups.</li>
+<li>
+<strong>Apply</strong> to create the personalized variant.</li>
+</ol>
+</li>
+</ol>
+<h3 id="adjust-the-content-of-the-personalized-widget">Adjust the content of the personalized widget</h3>
+<ol type="1">
+<li>Use the <strong>Configure widget</strong> button to personalize the widget’s content.</li>
+<li>To <strong>Select hero content item</strong>, choose <strong>Select existing content item</strong>.
+<ol type="1">
+<li>Select the <em>loan</em> item, and remove the <em>Kbank default banner</em>.</li>
+<li>Choose <strong>Select</strong> to confirm your choice.</li>
+</ol>
+</li>
+<li>Add a <strong>CTA</strong>: <em>Learn more</em>.</li>
+<li>
+<strong>Apply</strong> your adjustments to the new banner.</li>
+<li>
+<strong>Save</strong> and <strong>Publish</strong> the new version of the <em>Home</em> page.</li>
+</ol>
+<h3 id="test-content-personalization">Test content personalization</h3>
+<p>Test how your new personalization works for a website visitor using the incognito window in your browser:</p>
+<ol type="1">
+<li>Visit the <em>Home</em> page of your website.</li>
+<li>Agree with tracking on the website.</li>
+<li>Visit some pages on the website and try browsing for at least half a minute. (This is a limitation of the training site. On your own website, activities will be logged immediately.) Visit the <em>kBank’s new Tiny Loans are the cheapest in the Galaxy</em> article, as well as the <em>Accounts</em> page and some of the pages with Kbank cards. Do NOT visit the <em>Personal loan</em> page, and do NOT submit any form on the <em>loans</em> pages.</li>
+<li>Return to the <em>Home</em> page. Your personalized <em>Home</em> page should look like the following:</li>
+</ol>
+<p></p>
+<h2 id="next-step">Next step</h2>
+<p>Continue learning about <a href="/guides/digital-marketing/xperience-essentials/email-marketing-essentials">email marketing</a>.</p>
+
+</body>
+</html>

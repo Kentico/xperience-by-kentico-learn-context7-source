@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Model taxonomies</title>
+</head>
+<body>
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from beginning to end.</p>
+<ul>
+<li>
+<a href="/guides/architecture/content-modeling/content-modeling-guide">Content modeling guide</a>
+<ul>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">What is a content type</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">Structured and unstructured content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-business-requirements">Start with business needs</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">Content modeling process</a></li>
+<li><strong>Model taxonomies</strong></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">Store content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-website-content">Design website content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-email-content">Design email content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">Design headless content</a></li>
+<li><a href="/guides/architecture/content-modeling/content-modeling-guide/general-content-modeling-recommendations">General content modeling recommendations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2 id="what-is-taxonomy">What is taxonomy</h2>
+<p>Taxonomy refers to a system of classification, categorization, and organization your team uses to categorize and group content based on shared characteristics or attributes.</p>
+<p>Taxonomies provide a structured way to organize and label content within content management systems. A taxonomy typically comprises a hierarchical arrangement of categories, subcategories, and associated terms or tags. During content modeling, your team can define taxonomies based on various criteria, such as subject matter, topics, audience segments, product categories, or any other relevant classification scheme that suits the business needs for their digital content. These categories and tags help classify and describe content, making it easier to search, navigate, and filter information.</p>
+<h2 id="types-of-taxonomies-in-general">Types of taxonomies in general</h2>
+<p>You can model taxonomies in Xperience using one of the following ways</p>
+<ul>
+<li>
+<strong>Controlled Vocabulary</strong> – A <em>controlled vocabulary</em> is the simplest taxonomy type. Editor teams define specific words or terms that represent topics shared across different content pieces and agree to use only these terms to describe categories of topics within their digital content.</li>
+<li>
+<strong>Hierarchical taxonomy</strong> – This taxonomy type enables you to establish hierarchies between tags and show their relationships. Hierarchical taxonomies help your team structure complex content, allowing you to create logical parent-child relationships between topics. This enhances content organization and user navigation, especially in large content sets.</li>
+</ul>
+<p>In Xperience, you can build <em>controlled vocabularies</em> and <em>hierarchical taxonomies</em>, which offers your team greater flexibility when organizing your digital content.</p>
+<h3 id="other-taxonomy-types">Other taxonomy types</h3>
+<p>Xperience doesn’t support advanced taxonomies such as <a href="https://en.wikipedia.org/wiki/Semantic_network" target="_blank">semantic networks</a> or <a href="https://en.wikipedia.org/wiki/Ontology_(information_science)" target="_blank">ontologies</a>. These more sophisticated taxonomies often require specialized systems that can model relationships and provide an easy-to-navigate way through the classification schemes.</p>
+
+<div>
+
+</div>
+<div>
+<p>For more information on taxonomies and how to define them, take a look at <a href="https://www.hedden-information.com/accidental-taxonomist/" target="_blank">The Accidental Taxonomist</a> by Heather Hedden. This book categorizes taxonomies into the types discussed above.</p>
+</div>
+
+<h2 id="classification-options-in-xperience">Classification options in Xperience</h2>
+<p>At its core, taxonomy serves the purpose of content classification. Xperience by Kentico provides several features that aid in categorizing and organizing your content, each with a distinct purpose and functionality.</p>
+<h3 id="taxonomies-application">Taxonomies application</h3>
+<p>Xperience’s <strong>Taxonomies</strong> application is <a href="/documentation/developers-and-admins/configuration/taxonomies">a standalone feature</a> that operates independently of other objects, such as languages or pages. This separation is particularly relevant for users familiar with previous product versions, as it represents a shift to a more modular approach. <em>Taxonomies</em> in Xperience create what is described as “weak relationships” — associations that aren’t inherently tied to other objects. It’s essential to consider this when designing your content model or project structure.</p>
+<h3 id="reusable-field-schemas">Reusable field schemas</h3>
+<p>Reusable field schemas allow you to classify content at the data level. These schemas can include fields specifically for taxonomy tags, enabling cross-content-type categorization. By implementing reusable field schemas, you can create collections of fields that make it easier to group related data across various content types, streamlining the content management process.</p>
+<h3 id="smart-folders-in-the-content-hub">Smart folders in the Content hub</h3>
+<p>Xperience <em>smart folders</em> allow content editors to save complex content views. With the assistance of developers, editors can use <a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders"></a> to dynamically deliver content into various channels based on the saved views.</p>
+<p>For example, an editor can configure a “Five latest articles” smart folder to group the five latest published articles automatically. Developers prepare an article listing widget for editors and ensure they can use it on any website channel. An editor then places a listing widget on their website page and configures it to display content from the “Five latest articles” smart folder. When anyone on the team publishes a new article, Xperience automatically adds this article to the “Five latest articles” smart folder and refreshes the content presentation. In this example, the latest published article automatically replaces the oldest article in the listing widget.</p>
+<h3 id="content-folders-in-the-content-hub">Content folders in the Content hub</h3>
+<p><a href="/documentation/business-users/content-hub/content-hub-folders#content-folders">Folders</a> in the <strong>Content hub</strong> facilitate the filtering and grouping of content within a flat hierarchy. This feature helps your team label their digital content and assign each item to a single folder. Folders in <em>Content hub</em> are designed for content organization but do not support nested hierarchies, nor are they intended for access control within the <em>Content hub.</em></p>
+<h3 id="integrating-taxonomies-with-other-classification-features">Integrating taxonomies with other classification features</h3>
+<p>Since taxonomies are designed to organize content, editors can use them with Xperience’s classification features. Here are a few practical ways to use taxonomies:</p>
+<ul>
+<li>
+<strong>Reusable field schemas</strong>: Assign taxonomy tags within <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> to help identify and group data with tags that indicate the same topics.</li>
+<li>
+<strong>Smart folders:</strong> - Your team can filter content within <a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">smart folders</a> using taxonomy tags as one of the filtering criteria. <em>Smart folders</em> allow your editors dynamically deliver or filter content they want to, for example, <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-content-items-from-smart-folders">display on website channels</a>.</li>
+<li>
+<strong>Content folders:</strong> You can manually store content marked with the same <a href="/documentation/developers-and-admins/configuration/taxonomies#enable-editors-to-tag-content">taxonomy tags</a> into dedicated <a href="/documentation/business-users/content-hub/content-hub-folders#content-folders">content folders</a> to streamline content organization. However, remember that content items cannot exist in more than one <em>Content hub</em> folder.</li>
+</ul>
+<p>By understanding and using taxonomies within Xperience, you can achieve a more organized, efficient, and adaptable content structure, making it easier for editors and users to find and interact with relevant content.</p>
+<h2 id="taxonomies-in-xperience-by-kentico">Taxonomies in Xperience by Kentico</h2>
+<p>Built-in <a href="/documentation/developers-and-admins/configuration/taxonomies">Taxonomies</a> application will help create and manage content categories using <a href="/documentation/developers-and-admins/configuration/taxonomies#enable-editors-to-tag-content">tag hierarchy</a>.</p>
+<p>A <strong>taxonomy</strong> or <strong>taxonomy group</strong> is a collection of associated tags organized around a common theme or attribute. These groups allow you to categorize content by creating logical connections among related tags. Xperience will enable you to make as many taxonomy groups as needed.</p>
+<p>Within a taxonomy group, <strong>tags</strong> are arranged in a <strong>taxonomy tree</strong>, which uses a parent-child hierarchy to show relationships between tags. This hierarchy allows you to break down broader categories into more specific subcategories and helps you structure your taxonomy. The hierarchical structure also helps with navigating through extensive collections of tags.</p>
+<p>At the most detailed level, individual <strong>tags</strong> act as keywords that describe particular content attributes. A content item can have one or more tags, allowing you to categorize it and highlight its connections to other content. Xperience supports assigning tags to content both manually and through the API.</p>
+
+<div>
+
+</div>
+<div>
+<p>Xperience allows you to control editor access to the <strong>Taxonomies</strong> application. You can manage permissions to ensure editors can create, update, or delete tags—or restrict these actions as needed.</p>
+</div>
+
+<h2 id="two-approaches-to-taxonomies-in-xperience">Two approaches to taxonomies in Xperience</h2>
+<p>Taxonomies can serve different purposes in Xperience, depending on how you categorize and retrieve your content. We have identified two primary use cases: <strong>semantic</strong> taxonomies and <strong>functional</strong> taxonomies.</p>
+<h3 id="semantic-taxonomies">Semantic taxonomies</h3>
+<p><em>Semantic taxonomies</em> are broad, general classifications that organize content by type or theme rather than function. They include categorizing e-shop products like electronics and furniture, or content types such as news, press releases, blog posts, and guides. By grouping related content under high-level themes like “technology,” “health,” or “finance,” these taxonomies help users quickly find relevant information and provide editors with a clearer view of the content landscape. Editors can use the built-in hierarchy of the tree and further break down their topic categories. For example, the <em>finance</em> category can include articles about bank’s <em>Loan</em> products that cover topics such as student loan, personal loan, or home equity loan.</p>
+<p>The following image shows the <em>Loans</em> taxonomy from the <a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type#best-practices-in-kbank-demo-site">Kbank demo site</a>.</p>
+<p></p>
+<p>This approach is beneficial for extensive content collections, as it allows editors to present related articles together on a single page or section, making it easier for users to explore similar topics. Additionally, semantic taxonomies enable content recommendations by linking items with shared tags, which enhances user experience and increases content visibility. This can particularly helpful for categorizing media <em>Assets</em> in the <em>Content hub</em>.</p>
+<p>To sum up, <em>semantic taxonomies</em> provide valuable metadata that editors can use to support content discovery, organization, and maintain a consistent content structure.</p>
+<h3 id="functional-taxonomies">Functional taxonomies</h3>
+<p>On the other hand, <em>functional taxonomies</em> are designed to help with filtering and data retrieval or to drive specific UI behaviors. For example, you can use <em>functional taxonomies</em> to filter a list of services based on their relevance to a persona or to populate dropdowns with content options in <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder widgets</a>. Since these taxonomies are tied closely to functionality, keeping their scope specific to particular content types is essential. For instance, if you’re working on a financial website, you might create a taxonomy for financial product features or regional availability information, each tied to a specific use case.</p>
+<p>Each functional taxonomy should have a clear, 1:1 relationship with a specific use case. This will allow content managers to keep the editing experience intuitive and reduce the risk of accidental changes that could disrupt functionality elsewhere in the system. By structuring functional taxonomies into small, clearly defined taxonomy groups, you’re adding a layer of protection that ensures editors only interact with taxonomies relevant to their tasks.</p>
+<p></p>
+<h3 id="when-to-use-taxonomies-in-xperience">When to use taxonomies in Xperience</h3>
+<p>Relationships defined through taxonomies (and their tag collections) in Xperience are considered “soft.” What does it mean?</p>
+<p>There’s no built-in safeguard to prevent editors from altering or updating tag collections if they have access to the <em>Taxonomies</em> application. This flexibility is helpful for many content scenarios, but it’s important to remember that Xperience doesn’t tightly control any changes in tag collections.</p>
+<p>That’s why solution architects should design the implementation to use taxonomy for content categorization and organization rather than for situations which require strict control over tag and data integrity. If you need to protect your content relationships from unintentional changes or resurfacing information in unwanted scenarios, for example, for information security reasons, we recommend using custom <a href="/documentation/developers-and-admins/development/content-types">content type fields</a> on individual content or website page types and combining them with securing <a href="/documentation/developers-and-admins/configuration/content-hub-configuration">access to content items</a>.</p>
+<p>Taxonomies can drive various content delivery scenarios. For example, you can use taxonomies with <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> to list all items or pages tagged with a specific category, allowing for dynamic content display. However, avoid relying on taxonomies when you need to ensure restricted access to sensitive data.Instead, use custom fields within content types to enforce more secure access control.</p>
+<p>The taxonomy selector is built into applications that deal directly with content, including website channels, the <em>Content hub</em>, email, and headless channels. However, it’s unavailable in areas like <strong>Contact Management</strong> or <strong>Contact groups</strong> applications or in <a href="/documentation/developers-and-admins/customization/object-types">custom classes</a>, though this might change <a href="https://roadmap.kentico.com/c/238-contacts-auto-tagging-powered-by-aira" target="_blank">in the future</a>. Taxonomies are not versioned, and there are currently no plans to add versioning capabilities.</p>
+<h3 id="custom-content-type-to-replace-built-in-taxonomy">Custom content type to replace built-in taxonomy</h3>
+<p>In Xperience, tags have predefined fields and currently offer limited customization options. If you need to add custom fields to your taxonomy tags, consider building a custom solution using dedicated content types.</p>
+<p>For projects that require more complex content categorization, you can work with developers to build custom functionality. This approach allows you to:</p>
+<ul>
+<li>Define exactly how editors categorize content within the administration interface.</li>
+<li>Control how references are stored within a custom application.</li>
+<li>Specify the taxonomy system’s complexity, including elements like the number of parent-child levels or a tagging structure.</li>
+</ul>
+<p>The following image shows a healthcare Provider content type that uses a custom content type to define relationships.</p>
+<p></p>
+<p>Developers can display references between the content types on the healthcare provider profile page in the Khealth demo site.</p>
+<p></p>
+<p>The exact relationships between the data can drive faceted filtering on a search page in the Khealth demo site.</p>
+<p></p>
+<h2 id="structure-taxonomies">Structure taxonomies</h2>
+<p>Xperience allows editors to structure taxonomies in two main ways: by building a deep tag hierarchy within a single taxonomy or by creating multiple taxonomies.</p>
+<h3 id="single-taxonomy-with-deep-multi-level-hierarchies">Single taxonomy with deep multi-level hierarchies</h3>
+<p>During the content modeling session, stakeholders agree to create one large taxonomy group to store all their tags and hierarchies. A single taxonomy offers all tags in one place, which simplifies tag management. For example, adding new tag hierarchy doesn’t require code changes since all tags are in one taxonomy.</p>
+<p>Using a large single tag collection can have its drawbacks. If the editors decide to use parent tags to build semantically distinguished tag collections, they’ll need to follow strict content editing rules to avoid potential issues. As the taxonomy collection grows, different editors might see groups of unrelated tags new content which might slow them down a bit when adding new content. At the same time, developers might need to set up a complex querying logic to safeguard against unwanted changes.</p>
+<p>When your content needs grow, you can break this single large taxonomy collection into smaller hierarchies if needed.</p>
+<h3 id="multiple-taxonomies">Multiple taxonomies</h3>
+<p>During the content modeling team, stakeholders define multiple taxonomy groups that developers use in the content types.</p>
+<p>Using multiple taxonomies (or taxonomy groups) allows for more specific tag contexts, but it comes with tradeoffs. More taxonomies mean more fields and, therefore, more complex queries. Extending or adding new taxonomy groups requires code changes, such as updating content type fields, rebuilding content types, and modifying data retrieval logic. You’ll also need to adjust components like Page Builder widgets to accommodate new fields and properties.</p>
+<h3 id="plan-for-changes-and-permissions">Plan for changes and permissions</h3>
+<p>During project planning, consider that adding new taxonomy groups will lead to code adjustments. Developers must define taxonomy groups during content type setup, manage querying, and display data accordingly. If editors have CRUD access to the <em>Taxonomy</em> application, they can create or modify tags, which may disrupt existing structures. Xperience doesn’t come with granular access-level permissions that you can use to restrict editor’s access to specific taxonomies and their tag collections.</p>
+<h2 id="work-with-taxonomies">Work with taxonomies</h2>
+<p>Taxonomies let you categorize and link content, making building relationships between items and managing content organization easier.</p>
+<h3 id="building-content-relationships">Building content relationships</h3>
+<p>Taxonomy tags create relationships between tags and content objects, allowing you to filter and retrieve content based on specific labels. When editors assign a tag to an item, you can use that tag to filter content that shares similar attributes.</p>
+<p>For instance, a medical clinic might tag its type, like a <em>General Hospital</em>, <em>Community Hospital</em>, or <em>Retirement Community</em>, under a <em>Location Type</em> taxonomy. This makes it easy to retrieve a list of clinics that belong to a specific type, display a label to indicate the type of clinic, or filter out healthcare providers available at the location. By defining a content query, developers can access this data from either side of the relationship, ensuring flexibility in how you present related content.</p>
+<p>The following image shows the <em>Location Type</em> taxonomy.</p>
+<p></p>
+<p></p>
+<p>The image above shows a faceted search against a specific location type.</p>
+<h3 id="taxonomies-and-multilingual-content">Taxonomies and multilingual content</h3>
+<p>In Xperience, tags and taxonomies are fully localizable. This means the tags aren’t tied to a specific language version of a content document (unlike the old categories in previous Kentico versions). Once administrators add a language in the Xperience <a href="/documentation/developers-and-admins/configuration/languages">Languages</a> application, editors can localize taxonomy tags in any of those languages. When a tag is translated, content in that language will automatically display the localized tag. If a tag isn’t translated but is still used within a target language environment, Xperience will display the tag in its default language.</p>
+<p>While Xperience supports general language fallbacks, taxonomies don’t inherently include fallback capabilities. So, if you need a tag to appear in multiple languages, translating it for each is the best way to ensure consistency.</p>
+<h3 id="use-taxonomies-for-semantic-categorization">Use taxonomies for semantic categorization</h3>
+<p>Taxonomies can be a powerful tool for semantic categorization, especially for complex business services. In a banking institution, for example, you might create a taxonomy to classify different types of financial products. This taxonomy could categorize services by target audience—such as individual consumers or business clients—and then drill down further based on specific product features. You might have categories for personal checking accounts, savings accounts, and credit cards, each tailored to a different user type. This level of categorization allows users to quickly find products that meet their needs while providing a clear structure for managing these services within the system.</p>
+<h3 id="use-taxonomies-for-personalization">Use taxonomies for personalization</h3>
+<p>You can set up a taxonomy in which each tag represents a different audience type, such as a business user, developer, or administrator. Then, create contact groups that correspond to each persona.</p>
+<p>Label your materials based on the intended audience to personalize content for different users. You can link these persona tags to users via contact groups or custom member data fields, which are filled out based on information customers submit during registration.</p>
+<p>Here are two ways to filter content based on the visitor’s persona:</p>
+<h4 id="personalization-based-on-contact-groups-via-widget">Personalization Based on Contact groups via widget</h4>
+<p>Editors will tag content items with the relevant persona to personalize content based on personas. Developers will prepare widgets with properties that include options for selecting default content items, persona tags, and content items specifically for personalization. Then, they will use logic like <em>ContactIsInContactGroup</em> to ensure that content displays according to the visitor’s group membership, allowing for targeted, persona-based content delivery.</p>
+<h4 id="personalization-based-on-member-data-behind-login">Personalization based on member data (Behind login)</h4>
+<p>As part of the registration process, prompt users to provide information like their job title or field of expertise. This data will help determine the specific type of content they see on the site.</p>
+<p>In the Page Builder widgets, you can enable editors to add content tailored to each persona based on this information. This setup allows for a more personalized user experience, as each user’s role or field directly influences the materials and resources presented to them, ensuring that they see the content most relevant to their needs.</p>
+<p>When setting up page templates for this approach to content personalization, note that template properties apply globally. However, other Page Builder components will only reflect these changes once editors configure the page, so you may need to implement a check to ensure the correct content is displayed based on visitor type.</p>
+<h3 id="use-taxonomies-to-build-search-interfaces">Use taxonomies to build search interfaces</h3>
+<p>Typically, customers build their faceted search experience using the search indexes and list key terms.</p>
+<p>In Xperience, you can use the <em>Taxonomies</em> application to create a faceted search experience that lets users filter content based on specific categories or attributes. By tagging content items with taxonomy terms—such as product type, region, or topic—you provide structured filters that allow users to narrow down search results. For example, users can apply multiple filters at once to find content that meets all their criteria. This approach makes it easy to locate relevant information quickly, especially in large content collections.</p>
+<p>For more detailed examples of what it’s like to use taxonomies as a content editor, explore the two following guides <a href="/guides/digital-marketing/work-with-taxonomies/taxonomies">Taxonomies</a> and <a href="/guides/digital-marketing/work-with-taxonomies/work-with-taxonomies-in-kbank">work with taxonomies</a>.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">next page</a> explains how to store your data in Xperience. Understanding available options will help you identify the best approach to defining (or modeling) the content types you identified for your project during the content audit and modeling sessions.</p>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Introduction to emails in Xperience</title>
+</head>
+<body>
+<p>Email marketing is one of the most powerful tools available, and it’s more important today than ever. Xperience by Kentico provides flexible, built-in tools for sending emails that reach your audience when it matters most.</p>
+<p>This guide is your starting point for understanding how email marketing works in Xperience. If you’re new to the email channels in Xperience or just want clarity on how the system fits together, you’re in the right place.</p>
+<p>As the first guide on this topic, it’s designed to give you a conceptual overview of <strong>Xperience email marketing features</strong> available today. You won’t be setting up emails just yet–but by the time you finish, you’ll understand:</p>
+<ul>
+<li>Why email marketing is still a vital tool in today’s privacy-first digital landscape.</li>
+<li>What types of emails you can send with Xperience, and what purposes different emails serves.</li>
+<li>What needs to be in place before you can start sending emails (like channels, templates, and content types).</li>
+<li>How you and your technical team work together to build and deliver emails.</li>
+</ul>
+<p>Whether you’re planning a newsletter, a welcome message, or a follow-up email after a form submission, this guide gives you the foundation you need to plan and collaborate effectively. You’ll also see how these building blocks prepare you for future updates, such as campaign features and optimization tools that will make your email strategy even more powerful.</p>
+<p>Let’s dive in.</p>
+<h2 id="why-email-still-matters-in-the-age-of-privacy">Why email still matters in the age of privacy</h2>
+<p>Modern marketers face a growing challenge: reaching users in a world of strict privacy laws like GDPR, reduced browser tracking, and cookie restrictions. That’s where email shines.</p>
+<p><strong>Email is a direct, permission-based channel.</strong> When a customer fills out a form or subscribes to your newsletter, they give you the green light to stay in touch. This creates a more reliable, respectful relationship different from experience created by some digital ads or third-party tracking, which can feel intrusive or invisible to users.</p>
+<p>While SEO helps bring new people to your website, <strong>email helps you build long-term relationships</strong> with those who’ve already shown interest. You don’t have to worry about changing search algorithms or losing visibility. If someone’s opted in, your message lands straight in their inbox where they’re more likely to act on it.</p>
+<p></p>
+<h2 id="marketing-emails">Marketing emails</h2>
+<p>Marketing emails are messages that <strong>marketers send directly from the Xperience administration interface</strong> to communicate with customers or website visitors. Marketers use them to build relationships, share updates, promote services, or guide users through a journey, such as a newsletter, welcome message, or special offers.</p>
+<h3 id="regular-emails-newsletters-announcements">1. Regular emails (newsletters &amp; announcements)</h3>
+<p>These are your go-to emails for reaching customers and subscribers with updates, promotions, news, or educational content. Use Xperience regular emails for:</p>
+<ul>
+<li>Monthly newsletters</li>
+<li>One-time announcements (like a new service or feature)</li>
+<li>Seasonal offers or invitations</li>
+</ul>
+<p>You send these emails manually through the Xperience administration UI, either as one-offs or on a recurring schedule. They’re ideal for maintaining visibility and nurturing long-term relationships with people who’ve already shown interest in your brand.</p>
+<p><em>An example using the Kbank demo</em>: You could send small business owners or consumers a monthly newsletter with financial tips, customer stories, and information about new business banking services.</p>
+<p></p>
+<h4 id="what-you-need-to-send-a-regular-email">What you need to send a regular email</h4>
+<p>Before you can send a regular email, you need to have a recipient list. This is a critical piece of setup that tells the system who should receive your message.</p>
+<p>There are two main ways to build this list:</p>
+<ul>
+<li>
+<strong>Organic subscriptions</strong>: The most common method is through a form on your website. When someone fills it out (for example, to receive your newsletter), their contact is automatically added to your recipient list.</li>
+<li>
+<strong>Custom integrations</strong>: Developers can help set up more advanced methods to create recipient lists, for example, importing contacts from an external system like a CRM. This is useful when you already have a base of qualified contacts and want to email them without manual copy-paste work.</li>
+</ul>
+<p>Without a <em>recipient list</em>, you won’t be able to send a regular email. The send button stays disabled until a valid list is assigned.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p><strong>What’s the difference between a recipient list and a contact group?</strong></p>
+<p>In Xperience, it’s important to distinguish between:</p>
+<ul>
+<li>
+<strong>Recipient lists</strong>: Used specifically for email marketing. These define who receives your newsletters and announcements.</li>
+<li>
+<strong>Contact groups</strong>: Used mainly for website personalization and segmentation. While they can contain many of the same contacts, they live in a different context.</li>
+</ul>
+<p>When you’re planning an email, think in terms of recipient lists. They ensure the email engine knows which contacts to pull in without affecting how segmentation works on the site.</p>
+</div>
+
+<h3 id="form-autoresponders">2. Form autoresponders</h3>
+<p>Form autoresponders are automatic emails triggered when someone submits a form on your website. They’re often short and to the point, used to thank the person, confirm their submission, or deliver something they requested, like a PDF or event invite.</p>
+<p>These emails create a sense of reliability and professionalism. Visitors know their request was received, and you can immediately follow up with useful next steps.</p>
+<p></p>
+<p><em>Example using the Kbank demo:</em> When visitors request an account or a loan consultation, they immediately receive an email confirming the request. In real-life scenarios, this email can contain links to a checklist of documents they’ll need to prepare for the call or additional details about the banker that will be calling.</p>
+<h3 id="decide-whether-to-send-an-autoresponder-or-automation">Decide whether to send an autoresponder or automation</h3>
+<p>You can set up a form to send an autoresponder directly, without involving any automation. But if you want to create a more flexible workflow, like delaying the message, adding a second follow-up, or triggering other emails. You can also use the Marketing Automation app to handle autoresponders.</p>
+<p>For example:</p>
+<ol type="1">
+<li>A form submission could trigger an automation that sends the initial confirmation email right away.</li>
+<li>Then, a follow-up email gets sent two days later with extra resources.</li>
+</ol>
+<p>This makes it easy to turn a simple form submission into the start of a mini customer journey.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Don’t forget to publish the email</strong></p>
+<p>Before you can add an email as a form autoresponder directly or within an automation, the email must be published. You won’t see emails in Draft status while configuring the autoresponder behavior.</p>
+</div>
+
+<h3 id="automation-emails">3. Automation emails</h3>
+<p>Automation emails are messages sent <strong>automatically as part of a predefined workflow</strong>. These emails are triggered by specific actions like customers joining a newsletter, submitting a form, or registering on the website, and help you deliver timely, relevant content without manual effort.</p>
+<p>This is where you can start shaping personalized customer journeys. Instead of sending one email and hoping for the best, you can guide users based on what they do over time.</p>
+<p>For example, hen a user registers on the website, you can create a simple welcome series:</p>
+<ul>
+<li>Day 0: Welcome message with a brief overview of what they’ll receive.</li>
+<li>Day 2: A helpful guide on choosing the right business account.</li>
+<li>Day 7: A success story from an existing customer to build trust.</li>
+</ul>
+<p>You can also send an email to newly registered members who haven’t yet subscribed to your newsletter.</p>
+<p></p>
+<h4 id="use-automation-thoughtfully">Use automation thoughtfully</h4>
+<p>While automation can handle a variety of email scenarios, we don’t recommend using automation flows for sending long-running or large-scale newsletters.</p>
+<p>Automation is best for:</p>
+<ul>
+<li>Sending one or two follow-up messages.</li>
+<li>Handling the initial onboarding of subscribers.</li>
+<li>Responding to form submissions or trigger events.</li>
+</ul>
+<p>For example, it’s a good idea to use automation to:</p>
+<ol type="1">
+<li>Send a welcome email immediately after a user subscribes</li>
+<li>Follow up once to set expectations (“Here’s how often you’ll hear from us…”)</li>
+</ol>
+<p>But after that, it’s more efficient and flexible to manage ongoing communications like monthly newsletters or product updates using regular emails that you send through an email channel.</p>
+<p>This separation helps you keep your workflows lean and your messaging more targeted.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Remember to publish the automation email first</strong></p>
+<p>Just like with other types of emails, an <strong>automation email</strong> must be published before it can be added to an automation workflow. If the email is still in draft, it won’t appear in the automation builder, and the flow won’t run as expected.</p>
+</div>
+
+<h3 id="confirmation-emails">4. Confirmation Emails</h3>
+<p>Used for subscription actions, these emails confirm that someone has successfully signed up or unsubscribed. They reinforce trust and provide clarity about the user’s choices.</p>
+<p>Example: When someone joins your newsletter, they get a clear confirmation email to know they have subscribed and what to expect.</p>
+<p></p>
+<h2 id="notifications-for-your-team-not-your-customers">Notifications: For your team, not your customers</h2>
+<p>It’s easy to confuse notifications with marketing emails, but they’re totally different.</p>
+<p>Notifications are internal system emails that alert your team when something happens like a new form submission or a system error. They’re not sent to customers, and they’re not part of your email marketing.</p>
+<p><em>Example</em>: When a customer requests a business loan quote, a notification email alerts the sales team so they can follow up quickly. The email can contain all the data that the customer provided through the online form.</p>
+<p></p>
+<h2 id="how-emails-work-behind-the-scenes">How emails work behind the scenes</h2>
+<p>Developers and system admins need to implement a few foundational pieces to make email marketing work in Xperience. You won’t need to configure these yourself; Ath the same time, once if you understand how they work, you can make smarter requests and collaborate better with your technical team.</p>
+<h3 id="email-channels-starting-point-for-every-marketing-email">1. Email channels: starting point for every marketing email</h3>
+<p>Before you can send any marketing email from the Xperience administration UI, you need an email channel. This is a required part of the process that defines:</p>
+<ul>
+<li>The sender information (from name and address).</li>
+<li>Delivery method (SendGrid or another custom SMPT server, etc.).</li>
+<li>Channel settings, such as sending limits or contact lists.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>If you don’t see a way to send emails, ask your developer or administrator whether they’ve set up an email channel. You might find out that they’ve already set everything up, but forgot to provide your with correct permissions to access the channel.</p>
+</div>
+
+<p></p>
+<h3 id="email-content-types-structure-that-holds-every-message">2. Email content types: structure that holds every message</h3>
+<p>Every email you send in Xperience is based on a content type. Developers prepare these email types and define fields your emails will have.</p>
+<p>In the following screenshot, you can see different email content types available in the Kbank demo site.</p>
+<p></p>
+<p>By default, all email content types include email-specific fields, such as:</p>
+<ul>
+<li>
+<strong>Subject</strong>: the email’s headline in the inbox.</li>
+<li>
+<strong>Preview text</strong>: the summary that appears next to or below the subject in most email clients.</li>
+</ul>
+<p>Your team can also extend these content types with custom fields, for example, a headline, a CTA label, or a featured image. This makes it easy to reuse content and ensures consistency across emails.</p>
+<h3 id="email-templates-define-how-your-your-emails-look-and-work">3. Email templates define how your your emails look and work</h3>
+<p>Xperience supports two main types of templates that define how emails are displayed:</p>
+<h4 id="macro-based-email-templates">Macro-based email templates</h4>
+<p>These templates are editable directly in the admin UI and use macros to insert values from the email content type. If your content type has a “Headline” field, the template can display it dynamically.</p>
+<p>They’re especially helpful when using structured content and keeping formatting consistent.</p>
+<p></p>
+<h4 id="email-builder-drag-and-drop-templates">Email Builder (drag-and-drop) templates</h4>
+<p>These are built using the <strong>Email Builder</strong>, a visual editor designed for marketers. Developers prepare a template with editable zones, and you can drag content blocks into the layout without needing any HTML knowledge.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Best of both worlds</strong>: Many Xperience solutions combine structured fields (subject and header) with Email Builder sections for flexible layout and content. You get control where you need it, and consistency where it matters.</p>
+</div>
+
+<h2 id="licensing-considerations">Licensing considerations</h2>
+<p>All Xperience projects support small-scale email sending through an <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email microchannel</a>. If you plan to run larger campaigns or higher volumes, you’ll need the Advanced license, which unlocks more standard-size channels.</p>
+<h2 id="whats-next-for-email-in-xperience">What’s next for email in Xperience?</h2>
+<p>While campaign-style emails and optimization and experimentation tools aren’t available yet, they’re on the roadmap for future updates. Once released, these new features will build on the same foundation you’re learning now. Which means that starting today, you’re ready for what comes next.</p>
+<h2 id="ready-to-try-emails-in-xperience">Ready to try emails in Xperience?</h2>
+<p>The Kbank Business Banking demo site comes pre-loaded with sample data you can explore safely. To see how the email app works, try sending a form autoresponder or setting up a newsletter.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you don’t have your demo site, request the <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Xperience by Kentico - Business Tutorial Kbank demo site</a> through a form at <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Kentico website</a>. The demo site is not connected to an SMPT server, but you can use the <a href="/documentation/business-users/email-queue">Email queue</a> application to see what your emails will look like.</p>
+</div>
+
+<p>If you’re just starting out in your Xperience application, focus on:</p>
+<ul>
+<li>Checking with your admin if an <strong>email channel</strong> is set up.</li>
+<li>Exploring the available <strong>email content types</strong>.</li>
+<li>Trying out an <strong>Email Builder</strong> or <strong>macro-based template</strong> to get a feel for building content.</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<p>Email marketing is thriving. With Xperience by Kentico, you get a flexible, privacy-respecting platform that helps you connect with real people, not just traffic numbers. Learn the tools, use the types of emails available today, and collaborate with your team to make the most of every message. You’ll boost engagement and be ready for the next level of email marketing as soon as it arrives.</p>
+
+</body>
+</html>

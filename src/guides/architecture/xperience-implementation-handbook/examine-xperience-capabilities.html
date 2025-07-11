@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Examine the DXP capabilities of Xperience</title>
+</head>
+<body>
+<p>During the development process, it can be easy to forget that websites, applications, and the platforms they run on are <em>marketing tools</em>, intended to help businesses achieve goals like increased sales, brand recognition, or engagement. Teams can be so focused on the development tasks necessary to get a solution running that they lose sight of <em>the problems it should solve</em> and the <em>objectives it should achieve</em>.</p>
+<p>It may be tempting to dismiss the term <strong>Digital experience platform (DXP)</strong> as a buzzword for a CMS with some marketing features tacked on. Still, one’s online interactions with an organization don’t exist in a vacuum; all those experiences come together to form a customer’s perception of the organization, which <em>influences whether their actions align with the organization’s objectives</em>.</p>
+<p>With this in mind, it makes sense to integrate the many aspects of a customer’s interactions with a business as seamlessly as possible through a central platform, a <strong>DXP</strong>.</p>
+<p><strong>Understanding the tools</strong> offered by such a platform is essential for creating digital experiences that persuade customers toward your strategic objectives. To that end, let’s examine <strong>Xperience by Kentico’s features</strong>, how they interact, and the terminology surrounding them.</p>
+<h2 id="marketing">Marketing</h2>
+<h3 id="contact-management">Contact management</h3>
+<p>To engage visitors, you need to save information about them. Saving a profile helps you to craft a personalized digital experience according to each visitor’s specific needs.</p>
+<p><a href="/documentation/business-users/digital-marketing/contact-management">Contact management</a> saves a contact profile with details about individuals, which you can use to track <a href="#activities">activities</a> and segment them into <a href="#contact-groups">groups</a>.</p>
+<p></p>
+<h3 id="contact-groups">Contact groups</h3>
+<p><a href="/documentation/business-users/digital-marketing/contact-groups">Contact groups</a> are segments for organizing contacts based on characteristics and <a href="#activities">activities</a>.</p>
+<p>You can target contact groups with more strategic marketing materials to tailor their digital experience, for example, by <a href="#content-personalization">personalizing</a> page content based on contact group.</p>
+<h3 id="customer-journeys">Customer journeys</h3>
+<p><a href="/documentation/business-users/digital-marketing/customer-journeys">Customer journeys</a> offer a unified view of a contact’s experience with an organization’s content. They allow marketers to <a href="/guides/customer-journeys">define steps</a> through which contacts progress on their way to a conversion, and the conditions a contact must meet to move between steps.</p>
+<p>The data gathered from customers helps your client or organization to visualize and identify weak points in their marketing processes. By pinpointing where customers are lost, marketers can address shortcomings in the digital experience and implement fixes that increase conversions.</p>
+<p></p>
+<h3 id="activities">Activities</h3>
+<p><a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities">Activities</a> represent actions that users take throughout their digital experience, such as visiting pages on a website channel or submitting forms.</p>
+<p>Apart from the default actions, you can use <a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities/custom-activities">custom activities</a> to represent actions or circumstances specific to your organization or client.</p>
+<p>Activities can trigger <a href="#automation">Automation processes</a> and segment contacts into <a href="#contact-groups">groups</a>.</p>
+<h3 id="content-personalization">Content personalization</h3>
+<p><a href="/documentation/developers-and-admins/digital-marketing-setup/content-personalization">Content personalization</a> displays different content to different visitors depending on <a href="/documentation/developers-and-admins/digital-marketing-setup/content-personalization/develop-personalization-condition-types">personalization condition types</a>.</p>
+<p>Personalization is integrated into <a href="#page-builder">Page Builder widgets</a>, enabling your marketers to configure different variants of each widget based on conditions.</p>
+<p>Your developers can also integrate personalization conditions directly into code, for example, fetching different content or calling different business logic based on personalization conditions.</p>
+
+<h3 id="automation">Automation</h3>
+<p>With <a href="/documentation/business-users/digital-marketing/automation">Automation</a>, business users can create processes that dynamically interact with contacts, creating a much more holistic digital experience.</p>
+<p>These processes can send emails, log custom <a href="#activities">activities</a>, adjust contact field values, and control the flow of actions with conditional splits and wait steps.</p>
+<p></p>
+<h3 id="email-channels">Email channels</h3>
+<p><a href="/documentation/business-users/digital-marketing/emails">Email channels</a> are avenues for email communication. Each one corresponds to a brand or content strategy within an organization, enabling you to target only the recipients who find the content relevant.</p>
+<p>Among several <a href="/documentation/business-users/digital-marketing/emails#email-purposes">email purposes</a>, you can <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">send regular emails</a> to subscribers, allowing for recurring communication in their digital experience.</p>
+<h3 id="data-protection">Data protection</h3>
+<p>Certain regions across the world have created regulations protecting their citizens’ right to privacy and personal data, for example, the European Union’s <a href="" target="_blank">GDPR</a>.</p>
+<p>Xperience’s <a href="/documentation/developers-and-admins/data-protection">Data protection</a> features help you ensure that any personal data storage and tracking involved in your customers’ digital experiences comply with such regulations. Xperience includes consent management and flexible connectors where you can plug in your data collection, portability, and erasure logic.</p>
+<h3 id="members">Members</h3>
+<p><a href="/documentation/business-users/members">Membership</a> allows visitors to create accounts and log in to your web channels.</p>
+<p>This way, they can access things like exclusive content and configurable preferences while providing additional tracking data to enhance their digital experience.</p>
+<p>Well-executed membership incentivizing members to sign in improves their opinion and investment in your organization or client.</p>
+<h2 id="content-modelling-and-creation">Content modelling and creation</h2>
+<h3 id="content-tree-based-ctb-routing">Content tree-based (CTB) routing</h3>
+<p>Xperience recommends using the <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">CTB router</a> to control the default URLs of pages in your web site channel. This way, an organization can easily react and adjust the structure of their site to facilitate a smooth visitor experience without developer intervention. Custom routes will still work for exceptional cases, but the router will automatically provide a baseline of coherent URLs.</p>
+<p>Marketers can also define <a href="/documentation/business-users/website-content/manage-page-urls#edit-vanity-urls-of-pages">vanity URLs</a> for pages, allowing a custom URL that is not based on tree structure without the need of custom routes or developer help.</p>
+<h3 id="content-hub">Content hub</h3>
+<p>The <a href="/documentation/business-users/content-hub">Content hub</a> is a place to store content that you need to reference from other channels, such as websites and mobile apps, along with media assets.</p>
+<p>Content hub items help modernize your content model and avoid clutter while maintaining a consistent digital experience across multiple channels. You can manage their approval with <a href="#workflows">workflows</a> to manage their approval and dynamically organize them with <a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">smart folders</a>.</p>
+<p></p>
+<h3 id="workflows">Workflows</h3>
+<p>With the key role that content plays in the digital experience, it’s crucial to involve multiple people in its publishing.</p>
+<p>Using <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a>, you can establish approval pipelines, making sure content does not go live without confirmation from the appropriate parties.</p>
+<h3 id="languages">Languages</h3>
+<p>Most organizations want their digital presence to reach people from multiple linguistic backgrounds.</p>
+<p>Xperience by Kentico offers <a href="/documentation/developers-and-admins/configuration/languages">multilingual support</a> for content, with language variants of content items and assets to reach a multicultural audience.</p>
+<h3 id="reusable-field-schemas">Reusable field schemas</h3>
+<p><a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">Reusable field schemas</a> are groups of fields that you can assign to multiple content types, making them easier to update and easier to work with in code.</p>
+<p>They allow for consistency among the structured data in your project, leading to a more cohesive and consistent digital experience for visitors while reducing overhead for your content editors.</p>
+<h3 id="taxonomies">Taxonomies</h3>
+<p><a href="/documentation/developers-and-admins/configuration/taxonomies">Taxonomies</a> enable you to categorize content according to a hierarchy of tags.</p>
+<p>You can then use these tags to filter content, both in front-end applications and for your marketers in the Content hub.</p>
+<p></p>
+<h3 id="page-builder">Page Builder</h3>
+<p><a href="/documentation/developers-and-admins/development/builders/page-builder">Page builder</a> empowers content editors to shape digital experiences on a website channel by designing pages.</p>
+<p>Once developers create the components, marketers can use a drag-and-drop interface and configurable properties to control the content and visual structure of a page without any coding.</p>
+<h3 id="form-builder">Form Builder</h3>
+<p>Forms are one of the primary ways for visitors to provide information to an organization, so they’re an important part of the digital experience.</p>
+<p><a href="/documentation/developers-and-admins/development/builders/form-builder">Form Builder</a> allows marketers to compose online forms in a website channel with a graphical editor. They can utilize <em>Form sections</em> and <em>Form components</em> to control the layout and appearance of the form without help from a developer.</p>
+<p></p>
+<h3 id="email-builder">Email Builder</h3>
+<p><a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a> empowers marketers to visually design emails through a drag-and-drop interface with developer-provided components.</p>
+<p>This enables them to create a more engaging experience for recipients, with flexible and visually appealing email messages.</p>
+<h3 id="headless-content">Headless content</h3>
+<p>With <a href="/documentation/business-users/headless-content">headless channels</a>, you can easily extend digital experiences to channels beyond the web, exposing your content to a variety of technologies through a <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-headless-content">GraphQL API</a>.</p>
+<p>This facilitates scenarios like mobile apps, digital signage, and IoT applications.</p>
+<h2 id="configuration-and-development">Configuration and development</h2>
+<h3 id="roles-and-permissions">Roles and Permissions</h3>
+<p><a href="/documentation/developers-and-admins/security-guidelines#roles-and-permissions">Roles and permissions</a> dictate what different groups of users are able to in Xperience by Kentico, safeguarding each aspect of the digital experience from accidental or malicious interference. These features allow you to establish a security policy that grants each user access only to what they need.</p>
+<p>Permissions are not exclusive to built-in modules; you can also add them to <a href="#custom-modules">custom modules</a> to restrict the capabilities of roles.</p>
+<h3 id="custom-modules">Custom modules</h3>
+<p>You may find that your organization or client envisions a digital experience that includes something not covered by Xperience’s out-of-box features.</p>
+<p>Xperience offers the ability to <a href="/documentation/developers-and-admins/customization/object-types#section">create custom object types</a> that smoothly integrate with other features, with relationships to system classes, optional inclusion in features like <a href="#continuous-integration-ci-and-continuous-deployment-cd">Continuous Integration (CI) and Continuous Deployment (CD)</a>, and seamless inclusion in the Xperience UI.</p>
+<p>Custom modules are an excellent tool for adding new niche functionality or integrating data from external systems.</p>
+
+<h3 id="global-event-handlers">Global Event handlers</h3>
+<p><a href="/documentation/developers-and-admins/customization/handle-global-events">Global event handlers</a> are powerful tools for expanding upon existing functionality in Xperience.</p>
+<p>They allow you to execute custom code in reaction to all manner of occurrences in Xperience, such as changes to content items’ workflow state, and <a href="/documentation/developers-and-admins/customization/handle-global-events/handle-object-events">CRUD operations on any object type</a> registered in the system, including custom object types.</p>
+<p>Global event handlers are a pivotal tool in digital experiences that require integrations or customization for niche requirements.</p>
+<h3 id="scheduled-tasks">Scheduled tasks</h3>
+<p><a href="/documentation/developers-and-admins/customization/scheduled-tasks">Scheduled tasks</a> in Xperience are recurring operations that run at defined intervals.</p>
+<p>They are an excellent option for parts of your digital experience that require regular maintenance, such as integrations with external systems and custom logging scenarios.</p>
+<h3 id="continuous-integration-ci-and-continuous-deployment-cd">Continuous Integration (CI) and Continuous Deployment (CD)</h3>
+<p>CI and CD are tools that serialize data from the Xperience database for automated data transfer between environments, for example, via source control or deployment pipelines.</p>
+<p>These improve development processes and enable your team to deliver new content across environments.</p>
+<h3 id="caching">Caching</h3>
+<p>Performance optimization improves the ease of a customer’s digital experience, but it’s important to clear a cache item when any of the data it includes is updated. Xperience’s <a href="/documentation/developers-and-admins/development/caching/data-caching">Data caching</a> and <a href="/documentation/developers-and-admins/development/caching/output-caching">Output caching</a> both allow you to set <a href="/documentation/developers-and-admins/development/caching/cache-dependencies">cache dependencies</a> on Xperience objects when they are created, updated, or removed, as well as custom cache keys which you can trigger with custom code at any time.</p>
+<p>You can also account for any features that use dynamic data, such as personalization, when you set the names of custom cache entries. This ensures that the cache won’t return the wrong version of data when many factors exist.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>The next guide in this handbook covers the <a href="/guides/architecture/xperience-implementation-handbook/plan-your-content-model">Planning phase</a> of your project. It discusses how to determine your content model and choose the Xperience features that best meet your requirements.</p>
+
+</body>
+</html>

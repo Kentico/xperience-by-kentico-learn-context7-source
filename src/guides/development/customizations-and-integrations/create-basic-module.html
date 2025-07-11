@@ -1,0 +1,805 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create a basic module to hold custom settings</title>
+</head>
+<body>
+<p>A custom module is a common requirement in digital experience projects. It allows developers to empower certain users to configure the site in new ways that are not available out-of-the-box.</p>
+<p>This is the start of a series that shows how to create a basic custom settings module. To start with, the module will hold custom settings keys and values. Administrators and editors with sufficient permissions in the UI will be able to create and adjust the values of these settings, which you can access from your code.</p>
+
+
+<div>
+
+</div>
+<div>
+<p>The custom settings we’ll create initially will be <strong>global</strong> and not associated with any specific channel. We will create custom <strong>channel-specific settings</strong> later in the series.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Some of the materials here are not exclusive, and may look familiar if you’ve already completed other modules.</p>
+</div>
+
+<h2 id="before-you-start">Before you start</h2>
+<p>This series requires the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">29.6.1</a> or higher.
+
+<div>
+
+</div>
+<div>
+Some features covered in the Training guides may not work in older versions.
+</div>
+</li>
+</ul>
+
+<div>
+<p><strong>Code samples</strong></p>
+<p>You can find a project with completed, working versions of code samples from this series and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with our guides and learning modules.</p>
+<p>The code samples in this series are for <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview" target="_blank">.NET 8</a> only.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+</div>
+
+<h2 id="define-module-and-data-class">Define module and data class</h2>
+
+<div>
+<p>The individual settings in our custom settings module (e.g., the Email notification sender from the video above) correspond to objects of a <a href="/documentation/developers-and-admins/customization/object-types">custom class</a>.</p>
+<p>Each class must belong to a <strong>Module</strong> – a container that groups related data classes. We recommend organizing your custom classes into separate modules for different features.</p>
+</div>
+
+<h3 id="create-custom-module">Create custom module</h3>
+<ol type="1">
+<li>Navigate to your Xperience administration.</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/object-types#create-a-module">Create a new module</a>, entering these values:
+<ul>
+<li>
+<strong>Module name</strong>: Project settings</li>
+<li>
+<strong>Identifiers → Code name</strong>: TrainingGuides.ProjectSettings</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Note, that in order to fill out the <strong>Code name</strong> manually, you need to uncheck the <strong>Pre-fill the code name automatically</strong> checkbox (checked by default).</p>
+<p>We recommend including the namespace of your client or organization in the code name (<em>TrainingGuides</em> in this example). It will help you easily differentiate the custom modules and their purpose.</p>
+</div>
+</li>
+</ol>
+<h3 id="create-data-class">Create data class</h3>
+<ol type="1">
+<li>
+<p><a href="/documentation/developers-and-admins/customization/object-types#define-and-model-the-data-class">Create new class</a> within your new module. Use the following parameters:</p>
+<ul>
+<li>
+<strong>Class name</strong>: Global settings key</li>
+<li>
+<strong>Namespace</strong>: TrainingGuides</li>
+<li>
+<strong>Name</strong>: GlobalSettingsKey</li>
+</ul>
+
+<div>
+<p>Now if you check the <strong>CMS_Class</strong> table of the database, you’ll see a row representing your new class. </p>
+</div>
+</li>
+<li>
+<p><a href="/documentation/developers-and-admins/customization/object-types#define-and-model-the-data-class">Specify <strong>Database columns</strong></a> for the class. Add columns with the following properties:</p>
+<ol type="1">
+<li>The value of the setting, which you will access in code and used to influence functionality
+<ul>
+<li>
+<strong>Field name</strong>: GlobalSettingsKeyValue</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 1000</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+<li>The code name of the setting, which you will use to find the setting and its value
+<ul>
+<li>
+<strong>Field name</strong>: GlobalSettingsKeyName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 200</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+<li>The display name of the setting, which provides a human-readable name for the listing page
+<ul>
+<li>
+<strong>Field name</strong>: GlobalSettingsKeyDisplayName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 200</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+<li>A note field, which tells editors how to use the setting and provides additional context
+<ul>
+<li>
+<strong>Field name</strong>: GlobalSettingsKeyNote</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Size</strong>: 2000</li>
+<li>
+<strong>Required</strong>: True (Enabled)</li>
+</ul>
+</li>
+</ol>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p><span id="ColumnRolesDesignations"></span> <strong>Column roles designations</strong></p>
+<p>Create fields whose names end in <em>DisplayName</em>, <em>Name</em>, and <em>LastModified</em> with appropriate data types to automatically map them to the <strong>Display name column</strong>, <strong>Code name column</strong>, and <strong>“Last modified” column</strong> roles, respectively.</p>
+<p><em>Binary</em> and <em>Guid</em> fields will automatically map to the <strong>GUID column</strong> and <strong>Binary column</strong> of the class.</p>
+<p>These settings are important for <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">code generation</a>, which we will discuss <a href="#generate-code-files">later on</a>.</p>
+<p>Switch to the <strong>Code</strong> tab to see that your new fields have been automatically mapped:</p>
+<p></p>
+<p>Note that you can always manually change the designations on the <strong>Code</strong>.</p>
+</div>
+</li>
+</ol>
+<h3 id="add-a-ui-form-for-the-class">Add a UI form for the class</h3>
+<p>To enable editors or administrators to create items of your class in the admin UI, you need a <strong>UI form</strong>.</p>
+<ol type="1">
+<li>
+<a href="/documentation/developers-and-admins/customization/object-types#define-editing-forms">Create a new edit form</a> for your class:
+<ol type="a">
+<li>
+<strong>UI form name</strong>: Global settings key edit</li>
+<li>
+<strong>Identifiers → Code name</strong>: GlobalSettingsKeyEdit
+
+<div>
+
+</div>
+<div>
+<p>In this case, you can simply leave <strong>Pre-fill code name automatically</strong> checked instead of typing the code name manually. The system-generated code name will be identical.</p>
+</div>
+</li>
+</ol>
+</li>
+<li>Switch to the <strong>Fields</strong> tab in the left menu.</li>
+<li>Add a new UI field for each of your class database fields:
+<ol type="a">
+<li>Click <strong>New field</strong>.</li>
+<li>Select a database column you want to map the field to. The available columns are sorted alphabetically.</li>
+<li>Fill out field settings as desired and hit <strong>Save</strong>.</li>
+</ol>
+For our example, let’s set the fields up as follows:
+<ul>
+<li>
+<em>GlobalSettingsKeyDisplayName</em>
+<ul>
+<li>
+<strong>Field caption</strong>: Display name</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Form component</strong>: Text input</li>
+</ul>
+</li>
+<li>
+<em>GlobalSettingsKeyName</em>
+<ul>
+<li>
+<strong>Field caption</strong>: Settings key code name</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Form component</strong>: Text input</li>
+</ul>
+</li>
+<li>
+<em>GlobalSettingsKeyValue</em>
+<ul>
+<li>
+<strong>Field caption</strong>: Value</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Form component</strong>: Text area</li>
+<li>
+<strong>Minimum number of rows</strong>: 3</li>
+<li>
+<strong>Maximum number of rows</strong>: 5</li>
+</ul>
+</li>
+<li>
+<em>GlobalSettingsKeyNote</em>
+<ul>
+<li>
+<strong>Field caption</strong>: Notes</li>
+<li>
+<strong>Tooltip text</strong>: Explain the purpose of this settings key.</li>
+<li>
+<strong>Enabled</strong>: True (Enabled)</li>
+<li>
+<strong>Form component</strong>: Text area</li>
+<li>
+<strong>Minimum number of rows</strong>: 3</li>
+<li>
+<strong>Maximum number of rows</strong>: 15</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p></p>
+<p>Your custom class and edit form are now ready.</p>
+<h2 id="generate-code-files">Generate code files</h2>
+<p>The next step toward accessing your class and its objects in your code in a strongly typed manner is to <a href="/documentation/developers-and-admins/customization/object-types#generate-code-files">generate code files for it</a>.</p>
+
+<div>
+<p><strong>Dedicated info providers</strong></p>
+<p>We recommend using the <code>--with-provider-class "false"</code> parameter to <strong>avoid</strong> generating a <a href="/documentation/developers-and-admins/customization/customize-system-providers">dedicated provider</a> for your class.</p>
+<p>You should use a <a href="/documentation/developers-and-admins/customization/customize-system-providers">generic provider</a>, based on <code>IInfoProvider&lt;TInfo&gt;</code> to access the objects of your class - see an example <a href="/guides/development/customizations-and-integrations/access-custom-global-configurations#map-configuration-to-the-options-model">later on in this series</a> .</p>
+<p>This is the best practice <strong>unless</strong> you specifically need to retrieve your objects in a context where <strong>dependency injection is not yet available</strong>. An example is the <code>CookieLevelConsentMapping</code> class in <a href="/guides/development/data-protection/map-consents-to-cookie-levels">one of our Data protection guides</a>.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Double-check</strong></p>
+<p>If you’ve previously generated classes that <strong>do</strong> require dedicated providers, use the <code>--include</code> or <code>--exclude</code> parameters to ensure that the new command does not overwrite them.</p>
+</div>
+
+<p>If you are working in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">Training guides repository</a>, you can use the following command. (Skip the <code>--exclude</code> parameter if your code doesn’t include the <code>CookieLevelConsentMapping</code> class.)</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+dotnet run --no-build -- --kxp-codegen --type "Classes" --location "../TrainingGuides.Entities/{type}/{name}/ " --exclude "trainingguides.cookielevelconsentmapping" --with-provider-class "false"
+</code></pre>
+</div>
+
+<p>As a result, the system will generate a partial <code>GlobalSettingsKeyInfo</code> class under the namespace matching the module name (<code>TrainingGuides.ProjectSettings</code>) inside the <em>TrainingGuides.Entities</em> project.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>Visit <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">our documentation page</a> for more information on the code generation parameters.</p>
+</div>
+
+<h3 id="enable-ci-for-the-new-class">Enable CI for the new class</h3>
+<p>If your project uses <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous integration</a>, you need to enable the feature for the newly generated <code>GlobalSettingsKeyInfo</code> class. You can achieve this by overriding the <a href="/documentation/developers-and-admins/customization/object-types/object-type-configuration">object type configuration</a> of the class.</p>
+
+<div>
+
+</div>
+<div>
+<p>Rather than editing the generated files directly, we recommend performing the configuration in <strong>a new partial class file</strong>. This way, you won’t accidentally overwrite your changes the next time you generate code files.</p>
+</div>
+
+<p>In the <em>TrainingGuides.Entities/Classes/Overrides</em> folder create a partial <code>GlobalSettingsKeyInfo</code> class and override its <code>TYPEINFO</code> definition:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GlobalSettingsKeyInfoOverride.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.ProjectSettings;
+
+public partial class GlobalSettingsKeyInfo
+{
+    static GlobalSettingsKeyInfo()
+    {
+        TYPEINFO.ContinuousIntegrationSettings.Enabled = true;
+    }
+}
+</code></pre>
+</div>
+
+<h2 id="build-the-module-ui">Build the module UI</h2>
+<p>You have created a custom module and class representing custom settings. However, at this point, administrators or editors still cannot manage the settings from the administration dashboard.</p>
+<p>Let’s develop some <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages">UI pages</a> for them.</p>
+<p>The pages will have the following structure in the UI tree:</p>
+<ul>
+<li>Under the <strong>Configuration category</strong>, we will have a <strong>Project settings</strong> application.</li>
+<li>Under the application, there will be a listing of <strong>Global settings</strong>.</li>
+<li>From the <strong>Global settings</strong> page, the user can:
+<ul>
+<li>edit a specific setting - through the <strong>Edit</strong> section holding an <strong>Edit global settings key</strong> page.</li>
+<li>create a new setting - through the <strong>Create global settings key</strong> page.</li>
+</ul>
+</li>
+</ul>
+<p></p>
+<h3 id="create-the-application-page">Create the application page</h3>
+
+<div>
+<p><strong>Store customization files separately</strong></p>
+<p>We recommend storing any files customizing the Xperience administration separate from the channel-specific files. In our <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">Training guides repository</a> and this series, we use the <em>TrainingGuides.Admin</em> project for this purpose.</p>
+<p>If you are using the main branch of our repository and your solution does not contain this project yet, you can follow the steps in the <a href="/guides/development/data-protection/map-consents-to-cookie-levels#set-up-the-project"><em>Set up the project</em> section</a> of the cookie consent guide to define it.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you are working with more of an enterprise-sized solution, our guide about <a href="/guides/development/get-started/use-abstraction-and-enterprise-level-architecture-in-xperience-projects">utilizing Clean architecture in Xperience projects</a> may be interesting to you.</p>
+</div>
+
+<ol type="1">
+<li><p>In your source code, navigate to your administration customization project (e.g., <em>TrainingGuides.Admin</em>).</p></li>
+<li>
+<p>Create the following folder structure: <em>Pages/ProjectSettings</em>.</p>
+
+<div>
+<p>We recommend <strong>matching the folder name</strong> with the <strong>name of your custom module</strong>.</p>
+</div>
+</li>
+<li><p>In the <em>ProjectSettings</em> folder, create a new class file, <em>ProjectSettingsApplication.cs</em>.</p></li>
+<li><p>Implement your custom <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-application-pages">UI application page</a>:</p></li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProjectSettingsApplication.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.Base.UIPages;
+using TrainingGuides.Admin.ProjectSettings;
+
+// Register the UI application pages - see a links and more details in the info box below.
+[assembly: UIApplication(
+    identifier: ProjectSettingsApplication.IDENTIFIER,
+    type: typeof(ProjectSettingsApplication),
+    slug: "project-settings",
+    name: "Project settings",
+    category: BaseApplicationCategories.CONFIGURATION,
+    icon: Icons.BoxCogwheel,
+    templateName: TemplateNames.SECTION_LAYOUT)]
+
+namespace TrainingGuides.Admin.ProjectSettings;
+
+// The class must inherit from the ApplicationPage base class.
+public class ProjectSettingsApplication : ApplicationPage
+{
+    public const string IDENTIFIER = "TrainingGuides.ProjectSettingsApplication";
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Registration and category</strong></p>
+<p>Read more about registration parameters <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-application-pages#register-ui-application-pages">in our documentation</a>.</p>
+<p>Each UI application page has to be registered under a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-application-pages#ui-application-categories">category</a>. In this example we use <strong>Configuration</strong> - one of the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-application-pages#predefined-categories">pre-defined categories in Xperience</a>.</p>
+<p>Optionally, you can also <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-application-pages#ui-application-categories">create and register your own custom categories</a>.</p>
+</div>
+
+<h4 id="permissions">Permissions</h4>
+<p>Each application in the Xperience administration needs to declare the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-page-permission-checks#define-the-set-of-application-permissions">set of permissions it actively evaluates</a>.</p>
+<p>Our custom module will support viewing, creating, deleting and updating instances of the GlobalSettingsKey class. Let’s add the default system permissions, VIEW, CREATE, DELETE and UPDATE, by decorating the <code>ProjectSettingsApplication</code> class with the <code>UIPermission</code> attributes.</p>
+<p>Later on you can <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-page-permission-checks#require-permissions-to-access-ui-pages">further restrict actions (page commands) or UI pages access</a> within the application, using any permission from this set.</p>
+
+<div>
+
+</div>
+<div>
+<p>The permissions correspond with those assigned to roles in the <a href="/documentation/developers-and-admins/configuration/users/role-management">Role management</a> application.</p>
+<p>You can also use any custom permissions that exist in your system or have an application page without any permission requirements. <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-page-permission-checks">Learn more about permissions</a>.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>[FRAGMENT] ProjectSettingsApplication.cs - permissions</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using CMS.Membership;
+...
+[UIPermission(SystemPermissions.VIEW)]
+[UIPermission(SystemPermissions.CREATE)]
+[UIPermission(SystemPermissions.DELETE)]
+[UIPermission(SystemPermissions.UPDATE)]
+public class ProjectSettingsApplication : ApplicationPage
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>See the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Admin/Pages/ProjectSettings/ProjectSettingsApplication.cs" target="_blank">full ProjectSettingsApplication.cs file</a> in our Training guides repository for your reference.</p>
+</div>
+
+<p>Now if you run your solution, you should be able to see your new <strong>Project settings</strong> application in the Xperience administration under <strong>Configuration</strong>.</p>
+<p></p>
+<h3 id="define-the-listing-page">Define the listing page</h3>
+<p>Your application is now accessible in the Xperience administration, but if you open it, you will see an empty page right now.</p>
+<p>Instead, we want to show a list of available project settings, with an option to perform basic CRUD operations (for the users with sufficient permissions).</p>
+<p>Let’s create a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template">listing page</a> and its underlying <em>edit</em> and <em>create</em> pages.</p>
+<ol type="1">
+<li>Create a <em>ProjectSettings/GlobalSettings</em> folder - let’s keep all our GlobalSettingsKey-related pages in one place.</li>
+<li>In the <em>GlobalSettings</em> folder, create a new class file, <em>GlobalSettingsListingPage.cs</em>.</li>
+<li>Implement a UI page using the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template">Listing UI page template</a>.
+<ul>
+<li><p>Register the page as a child of <code>ProjectSettingsApplication</code> created in <a href="#create-the-application-page">the previous section</a>.</p></li>
+<li>
+<p>Utilize the ASP .NET Core <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/make-content-localizable?view=aspnetcore-8.0#istringlocalizer" target="_blank">IStringLocalizer</a> and <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/make-content-localizable?view=aspnetcore-8.0#shared-resources" target="_blank">Shared resources</a> to localize the UI labels.</p>
+
+<div>
+
+</div>
+<div>
+<p>Read more about this recommended practice in <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages#translate-other-application-texts">our guide on multilingual in Xperience</a>.</p>
+Note that you need to set up the <em>Shared resources</em> file for each project separately. See an example in <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">our Training guides repository</a>.
+</div>
+</li>
+<li>
+<p>Decorate the <code>Delete</code> method override with the <code>PageCommand</code> attribute to restrict the action to users with permission to delete.</p>
+
+<div>
+
+</div>
+<div>
+Learn more about <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-page-permission-checks#evaluate-permissions-within-page-commands">page commands and permissions in our documentation</a>.
+</div>
+</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GlobalSettingsListingPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.GlobalSettings;
+using CMS.Membership;
+using Microsoft.Extensions.Localization;
+
+[assembly: UIPage(
+    parentType: typeof(ProjectSettingsApplication),
+    slug: "global-settings",
+    uiPageType: typeof(GlobalSettingsListingPage),
+    name: "Global settings",
+    templateName: TemplateNames.LISTING,
+    order: 0)]
+
+namespace TrainingGuides.Admin.ProjectSettings.GlobalSettings;
+// The class has to inherit from ListingPage.
+public class GlobalSettingsListingPage : ListingPage
+{
+    private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
+    protected override string ObjectType =&gt; GlobalSettingsKeyInfo.OBJECT_TYPE;
+
+    public GlobalSettingsListingPage(IStringLocalizer&lt;SharedResources&gt; stringLocalizer) : base()
+    {
+        this.stringLocalizer = stringLocalizer;
+    }
+
+    public override async Task ConfigurePage()
+    {
+        // Determine which columns of your GlobalSettingsKeyInfo objects to show the user in the list view.
+        PageConfiguration.ColumnConfigurations
+                    .AddColumn(nameof(GlobalSettingsKeyInfo.GlobalSettingsKeyDisplayName), stringLocalizer["Name"])
+                    .AddColumn(nameof(GlobalSettingsKeyInfo.GlobalSettingsKeyValue), stringLocalizer["Value"])
+                    .AddColumn(nameof(GlobalSettingsKeyInfo.GlobalSettingsKeyNote), stringLocalizer["Note"])
+                    .AddColumn(nameof(GlobalSettingsKeyInfo.GlobalSettingsKeyName), stringLocalizer["Codename"]);
+
+        // Add a "New settings" button at the top. This will navigate the user to a "create" page.
+        // We will define it in the next section.
+        PageConfiguration.HeaderActions.AddLink&lt;GlobalSettingsCreatePage&gt;(stringLocalizer["New setting"]);
+
+        // Add an "Edit" row action. This will navigate the user to a "edit" section for a specific instance of GlobalSettingsKeyInfo object.
+        // We will define it in the next section.
+        PageConfiguration.AddEditRowAction&lt;GlobalSettingsEditSection&gt;();
+
+        // Define a "Delete" action for the user with sufficient permissions to remove an existing setting.
+        PageConfiguration.TableActions
+            .AddDeleteAction(nameof(Delete));
+
+        await base.ConfigurePage();
+    }
+
+    // Ensure only a user with permissions to delete can perform the delete action.
+    [PageCommand(Permission = SystemPermissions.DELETE)]
+    public override Task&lt;ICommandResponse&lt;RowActionResult&gt;&gt; Delete(int id) =&gt; base.Delete(id);
+}
+</code></pre>
+</div>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>Read <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template">more about listing page template</a> and it’s options in our documentation.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you copy-pasted the code sample above, note that the <code>GlobalSettingsListingPage</code> class references <code>GlobalSettingsCreatePage</code> and <code>GlobalSettingsEditSection</code> - classes that don’t exist yet. We will create them <a href="#define-create-and-edit-pages">in the next section</a>.</p>
+<p>If you wish, comment out the two lines of code for now. When you visit the <strong>Project settings</strong> application in your administration, you should see an empty listing page, similar to this:</p>
+<p></p>
+</div>
+
+<h3 id="define-create-and-edit-pages">Define create and edit pages</h3>
+<p>Both create and edit pages for <code>GlobalSettingsKeyInfo</code> objects will utilize the <code>GlobalSettingsKeyEdit</code> UI form you created <a href="#add-a-ui-form-for-the-class">earlier</a>.</p>
+<h4 id="edit-page">Edit page</h4>
+<p>When the user goes to edit a specific instance of the <em>GlobalSettingsKey</em> class, their URL should contain the ID of the object that the user is currently editing, e.g., <em>~/admin/project-settings/global-settings/2/edit</em></p>
+<p>We first need to create an <em>edit section page</em> to ensure a desired tree structure and correct routing. Subsequently, we will make the edit page a child of the edit section page.</p>
+
+<div>
+
+</div>
+<div>
+<p>Find more details in the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template">first section of this documentation page</a>.</p>
+</div>
+
+<ol type="1">
+<li><p>In the <em>GlobalSettings</em> folder, create a new class file, <em>GlobalSettingsEditSection.cs</em>.</p></li>
+<li>
+<p>Implement the <code>GlobalSettingsEditSection</code> class, utilizing the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages#parameterized-url-slugs"><code>PARAMETERIZED_SLUG</code> parameter</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GlobalSettingsEditSection.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.GlobalSettings;
+
+// Register the UI page as child of GlobalSettingsListingPage.
+[assembly: UIPage(
+    parentType: typeof(GlobalSettingsListingPage),
+    slug: PageParameterConstants.PARAMETERIZED_SLUG,
+    uiPageType: typeof(GlobalSettingsEditSection),
+    name: "Edit",
+    templateName: TemplateNames.SECTION_LAYOUT,
+    order: 10)]
+
+namespace TrainingGuides.Admin.ProjectSettings.GlobalSettings;
+
+// Inherit from EditSectionPage and specify the type of object edited
+public class GlobalSettingsEditSection : EditSectionPage&lt;GlobalSettingsKeyInfo&gt;
+{ }
+</code></pre>
+</div>
+</li>
+<li><p>In the <em>GlobalSettings</em> folder, create a new class file, <em>GlobalSettingsEditPage.cs</em>.</p></li>
+<li>
+<p>Implement your edit page:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GlobalSettingsEditPage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.GlobalSettings;
+using Kentico.Xperience.Admin.Base.Forms;
+
+// Register page as a child of GlobalSettingsEditSection
+[assembly: UIPage(
+    parentType: typeof(GlobalSettingsEditSection),
+    slug: "edit",
+    uiPageType: typeof(GlobalSettingsEditPage),
+    name: "Edit global settings key",
+    templateName: TemplateNames.EDIT,
+    order: 0)]
+
+namespace TrainingGuides.Admin.ProjectSettings.GlobalSettings;
+
+public class GlobalSettingsEditPage : InfoEditPage&lt;GlobalSettingsKeyInfo&gt;
+{
+    [PageParameter(typeof(IntPageModelBinder))]
+    public override int ObjectId { get; set; }
+
+    public GlobalSettingsEditPage(IFormComponentMapper formComponentMapper,
+        IFormDataBinder formDataBinder)
+        : base(formComponentMapper, formDataBinder)
+    {
+    }
+
+    public override Task ConfigurePage()
+    {
+        // Assign your 'GlobalSettingsKeyEdit' UI form code name to the page. The assignment is case-insensitive.
+        PageConfiguration.UIFormName = "globalsettingskeyedit";
+        return base.ConfigurePage();
+    }
+}
+</code></pre>
+</div>
+</li>
+</ol>
+<h4 id="create-page">Create page</h4>
+<ol type="1">
+<li><p>In the <em>GlobalSettings</em> folder, create a new class file, <em>GlobalSettingsCreatePage.cs</em>.</p></li>
+<li>
+<p>Implement the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template#use-edit-pages-to-create-new-objects">page using the <code>CreatePage</code> base class</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GlobalSettingsCreatePage.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.Xperience.Admin.Base;
+using TrainingGuides.ProjectSettings;
+using TrainingGuides.Admin.ProjectSettings.GlobalSettings;
+using Kentico.Xperience.Admin.Base.Forms;
+
+// Register page as a child of GlobalSettingsListingPage created above.
+[assembly: UIPage(
+    parentType: typeof(GlobalSettingsListingPage),
+    slug: "create",
+    uiPageType: typeof(GlobalSettingsCreatePage),
+    name: "Create global settings key",
+    templateName: TemplateNames.EDIT,
+    order: 20)]
+
+namespace TrainingGuides.Admin.ProjectSettings.GlobalSettings;
+
+// Specify the entity which this page will create (GlobalSettingsKeyInfo)
+// and the page to redirect to after the entity has been cerated (GlobalSettingsEdit page)
+public class GlobalSettingsCreatePage : CreatePage&lt;GlobalSettingsKeyInfo, GlobalSettingsEditPage&gt;
+{
+    public GlobalSettingsCreatePage(IFormComponentMapper formComponentMapper,
+        IFormDataBinder formDataBinder,
+        IPageLinkGenerator pageLinkGenerator)
+        : base(formComponentMapper, formDataBinder, pageLinkGenerator)
+    {
+    }
+
+    public override Task ConfigurePage()
+    {
+        // Assign your 'GlobalSettingsKeyEdit' UI form code name to the page. The assignment is case-insensitive.
+        PageConfiguration.UIFormName = "globalsettingskeyedit";
+        return base.ConfigurePage();
+    }
+}
+</code></pre>
+</div>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>Learn more about the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template">edit UI page template and it’s options here</a>.</p>
+<p>To see another edit page example implementation take a look at our <a href="/guides/development/customizations-and-integrations/add-custom-contact-field"><em>Add a custom field to the Contact profile</em> guide</a>.</p>
+</div>
+
+<p>Build your solution and navigate to <strong>System → UI tree</strong> in the Xperience administration. If you have followed along with our example, you should be able to see your new pages in a UI tree structure:</p>
+<p></p>
+<p>When you navigate to your new <strong>Project settings</strong> application, you should now be able to create, view, edit, and delete custom settings, like in this video:</p>
+
+
+<div>
+
+</div>
+<div>
+<p>If you still only see an empty listing page with no New setting button, make sure you uncommented the lines in the <code>GlobalSettingsListingPage</code>, referencing <code>GlobalSettingsCreatePage</code> and <code>GlobalSettingsEditSection</code>.</p>
+</div>
+
+<h2 id="next-steps">Next steps</h2>
+<p>You have learned how to create a custom key-value settings module in Xperience. The <a href="/guides/development/customizations-and-integrations/access-custom-global-configurations">next guide in this series</a> will demonstrate how you can access your custom settings instances through the <a href="/documentation/developers-and-admins/api/objectquery-api">ObjectQuery API</a> and work with them in your code.</p>
+
+</body>
+</html>
