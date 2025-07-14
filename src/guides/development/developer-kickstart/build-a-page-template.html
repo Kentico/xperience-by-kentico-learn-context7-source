@@ -72,9 +72,11 @@ public class LandingPageViewModel
 
 using System.Threading.Tasks;
 using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Kickstart.Web.Features.LandingPages;
+
 public class LandingPageController : Controller
 {
     public async Task&lt;IActionResult&gt; Index()
@@ -87,19 +89,9 @@ public class LandingPageController : Controller
 </div>
 
 <h3 id="query-the-landing-page">Query the landing page</h3>
-<p>To retrieve the data of a given landing page, you’ll need these key pieces:</p>
-<ol type="1">
-<li>
-<code>IWebPageDataContextRetriever</code> to figure out which <em>Landing page</em> led to the controller.</li>
-<li>
-<code>ContentItemQueryBuilder</code> to define the parameters of the query.</li>
-<li>
-<code>IWebSiteChannelContext</code> to decide which website channel’s pages to pull from and determine whether unpublished content should be retrieved for preview mode.</li>
-<li>
-<code>IPreferredLanguageRetriever</code> to determine which language version of the content you need.</li>
-<li>
-<code>IContentQueryExecutor</code> to retrieve the data and map it to a <code>LandingPage</code> object in code.</li>
-</ol>
+<p>To retrieve the data of a given landing page, we’ll use the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a>.</p>
+<p>Inject the content retriever service into your class.</p>
+<p>Utilize its <code>RetrieveCurrentPage</code> method to fetch the data of your current <em>Landing page</em>. This method will automatically find the page associated with the request route, retrieve the data in the current language, and map it to a <code>LandingPage</code> object in code.</p>
 <p>Once you retrieve the landing page data, you can use the <code>GetViewModel</code> method from earlier in this step to create a <code>LandingPageViewModel</code>.</p>
 
 <div>
@@ -117,74 +109,35 @@ public class LandingPageController : Controller
 </div>
 <div>
 <pre><code>
-
-using System.Linq;
 using System.Threading.Tasks;
-using CMS.ContentEngine;
-using CMS.Websites;
-using CMS.Websites.Routing;
+
 using Kentico.Content.Web.Mvc;
-using Kentico.Content.Web.Mvc.Routing;
 using Kentico.PageBuilder.Web.Mvc.PageTemplates;
-using Kickstart;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Kickstart.Web.Features.LandingPages;
 
 public class LandingPageController : Controller
 {
-    private readonly IContentQueryExecutor contentQueryExecutor;
-    private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
-    private readonly IWebsiteChannelContext webSiteChannelContext;
-    private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+    private readonly IContentRetriever contentRetriever;
 
     public LandingPageController(
-        IContentQueryExecutor contentQueryExecutor,
-        IWebPageDataContextRetriever webPageDataContextRetriever,
-        IWebsiteChannelContext webSiteChannelContext,
-        IPreferredLanguageRetriever preferredLanguageRetriever)
-    {
-        this.contentQueryExecutor = contentQueryExecutor;
-        this.webPageDataContextRetriever = webPageDataContextRetriever;
-        this.webSiteChannelContext = webSiteChannelContext;
-        this.preferredLanguageRetriever = preferredLanguageRetriever;
-    }
+        IContentRetriever contentRetriever) =&gt; this.contentRetriever = contentRetriever;
 
     public async Task&lt;IActionResult&gt; Index()
     {
-        var context = webPageDataContextRetriever.Retrieve();
-        var builder = new ContentItemQueryBuilder()
-                            .ForContentType(
-                                LandingPage.CONTENT_TYPE_NAME,
-                                config =&gt; config
-                                    .Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), context.WebPage.WebPageItemID))
-                                    .WithLinkedItems(1)
-                                    .ForWebsite(webSiteChannelContext.WebsiteChannelName)
-                                )
-                            .InLanguage(preferredLanguageRetriever.Get());
-
-        var queryExecutorOptions = new ContentQueryExecutionOptions
+        var parameters = new RetrieveCurrentPageParameters
         {
-            ForPreview = webSiteChannelContext.IsPreview
+            LinkedItemsMaxLevel = 1
         };
-
-        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;LandingPage&gt;(builder, queryExecutorOptions);
-
-        var model = LandingPageViewModel.GetViewModel(pages.FirstOrDefault());
+        var page = await contentRetriever.RetrieveCurrentPage&lt;LandingPage&gt;(parameters);
+        var model = LandingPageViewModel.GetViewModel(page);
         return new TemplateResult(model);
     }
 }
 
 </code></pre>
-</div>
-
-
-<div>
-
-</div>
-<div>
-<p><strong>Content query API</strong></p>
-<p>Learn more about <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">content query API</a> and best practices for retrieving content items in Xperience by Kentico on our <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">Retrieve content items</a> documentation page.  </p>
 </div>
 
 <h3 id="register-the-controller">Register the controller</h3>
@@ -215,10 +168,15 @@ public class LandingPageController : Controller
 </div>
 <div>
 <pre><code>
-...
+using Kentico.Content.Web.Mvc.Routing;
+using Kickstart;
+
 [assembly: RegisterWebPageRoute(
     contentTypeName: LandingPage.CONTENT_TYPE_NAME,
     controllerType: typeof(Kickstart.Web.Features.LandingPages.LandingPageController))]
+
+namespace Kickstart.Web.Features.LandingPages;
+...
 
 </code></pre>
 </div>

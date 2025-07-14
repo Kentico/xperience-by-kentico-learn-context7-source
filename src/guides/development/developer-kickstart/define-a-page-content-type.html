@@ -27,10 +27,10 @@
 <p><strong>Save</strong> and switch to the <strong>Fields</strong> tab of the new <em>Landing page</em> content type. Add a field called <em>LandingPageSlogan</em>. Define the following properties to enable this field to reference Slogan items from the Content hub:</p>
 <ul>
 <li><p><strong>Field name:</strong> LandingPageSlogan (we recommend using the <em>&lt;content type name&gt;&lt;field name&gt;</em> naming convention <a href="/guides/development/developer-kickstart/create-a-reusable-content-type#NamingConvention">as explained here</a>)</p></li>
-<li><p><strong>Data Type:</strong> Content items (<em>Pages and reusable content</em> in newer versions)</p></li>
+<li><p><strong>Data Type:</strong> Pages and reusable content</p></li>
 <li><p><strong>Display in editing form:</strong> True (Enabled)</p></li>
 <li><p><strong>Field caption:</strong> Slogan</p></li>
-<li><p><strong>Form component:</strong> Content item selector (<em>Combined content selector</em> in newer versions)</p></li>
+<li><p><strong>Form component:</strong> Combined content selector</p></li>
 <li>
 <p><strong>Form component configuration → Allowed content type:</strong> Slogan</p>
 
@@ -53,15 +53,34 @@ This links your reusable content type with the page and ensures only items of ty
 </div>
 
 <h3 id="link-the-type-to-the-channel">Link the type to the channel</h3>
-<p>Now you need to associate the page content type with the website channel from the <a href="/guides/development/developer-kickstart/add-a-website-channel">previous step</a>. Switch to the <strong>Allowed in channels</strong> tab of the content type, and click <strong>Select channels</strong>.</p>
+<p>Now you need to associate the page content type with the website channel from the <a href="/guides/development/developer-kickstart/add-a-website-channel">previous step</a>.</p>
+<p>Switch to the <strong>Allowed in channels</strong> tab of the content type, and click <strong>Select channels</strong>.</p>
 <p>Select <strong>Kickstart pages</strong>, and save the selection.</p>
 <p></p>
+<p>The <strong>Kickstart pages</strong> channel now shows up as an item in the list.</p>
+<p></p>
+<p>Next, you need to <a href="/documentation/developers-and-admins/development/content-types/limit-the-pages-users-can-create#allow-content-types-in-scopes">allow the content type in our channel’s scope</a>. Scopes in Xperience serve to <a href="/documentation/developers-and-admins/development/content-types/limit-the-pages-users-can-create">limit which pages users can create</a> in channels. By default, your <em>Kickstart pages</em> channel has one scope defined for root.</p>
+<p>Switch to the <strong>Allowed in scopes</strong> tab of the content type, and click <strong>Add scopes</strong>.</p>
+<p>Select <strong>Kickstart pages</strong> default scope, and <strong>Save</strong> the selection.</p>
+<p></p>
+<p>Now users are allowed to create pages of type <em>Landing page</em> in the root of your <strong>Kickstart pages</strong> channel.</p>
 
 <div>
 
 </div>
 <div>
-<p>The <strong>Kickstart pages</strong> channel now shows up as an item in the list. Additionally, if you navigate to <strong>Configuration → Channel management</strong> → <strong>Kickstart pages → Allowed content types</strong>, you will see the <em>Landing page</em> content type listed.</p>
+<p>If you navigate to <strong>Configuration → Channel management</strong> → <strong>Kickstart pages → Allowed content types</strong>, you will see the <em>Landing page</em> content type listed.</p>
+<p></p>
+<p>When you switch to the <strong>Scopes for content types</strong> tab and click on the <strong>“/”</strong> scope, you’ll see the <em>Landing page</em> type listed under <strong>Allowed content types in scope</strong> as well.</p>
+<p></p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Learn more about <a href="/documentation/developers-and-admins/development/content-types/limit-the-pages-users-can-create">limiting page creation in channels in our docs</a>.</p>
 </div>
 
 

@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Notifications basics</title>
+</head>
+<body>
+<p>Your websites and apps never sleep. It’s always working, collecting leads, processing requests, and capturing important visitor activity. But your team isn’t always watching the system.</p>
+<p>That’s where <strong>notifications</strong> come in.</p>
+<p>They help your colleagues respond faster to customer needs, stay in the loop, and avoid missing key actions without constantly checking the platform.</p>
+<p>This how-to guide teaches you what notifications are and how to easily build one from scratch.</p>
+
+<div>
+
+</div>
+<div>
+<p>You’ll need a demo Kbank website to follow along with the exercises. If you don’t have your demo site yet, request the <strong>Xperience by Kentico - Business Tutorial Kbank</strong> demo site through <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">a form at Kentico.com.</a></p>
+</div>
+
+<h2 id="what-are-notifications">What are notifications?</h2>
+<p>Notifications in <strong>Xperience by Kentico</strong> are automated internal emails sent to your team, not to your customers. They’re triggered by specific actions visitors take on your website, such as when a visitor submits <a href="/guides/digital-marketing/work-with-forms">a form.</a></p>
+<p>For example, you can alert the marketing team when someone fills out a <strong>contact form</strong> or notify an admin when a <strong>request</strong> is submitted through your <strong>newsletter subscription</strong> form.</p>
+<p>These messages keep your team <strong>aligned and ready to act</strong>.</p>
+<h2 id="why-internal-notifications-matter">Why internal notifications matter</h2>
+<p>Why do you need notifications?<br>
+When a visitor requests a quote and no one follows up, it’s not just a missed opportunity. A <strong>lack of response, clarity, or care</strong> can impact your brand’s credibility and the <strong>trust</strong> you’ve built with your audience. In a busy marketing environment, it’s easy for form submissions or system events to slip through the cracks, especially when your team is juggling multiple tasks across campaigns and channels.</p>
+<p>Notifications help you avoid that.</p>
+<p>Here’s how setting up your notifications correctly makes your daily work easier:</p>
+<ul>
+<li>Help your team respond faster to visitor activity.</li>
+<li>Reduce the need to monitor submissions manually.</li>
+<li>Ensure essential actions, like form submissions or system events, aren’t missed.</li>
+</ul>
+<h2 id="what-you-can-customize">What you can customize</h2>
+<p>Notifications aren’t one-size-fits-all. You can tailor them to <strong>match your team’s workflow and communication style</strong>. You can add proper brand styling and assets. You can make the notification stand out so the recipient processes it as the first thing.</p>
+<p>At the same time, don’t overdo it. The goal of any notification is to ensure that the <strong>right people</strong> get the <strong>correct information</strong> at the <strong>right time</strong> without unnecessary noise.</p>
+<p>As a marketer or content editor, you can:</p>
+<ul>
+<li>Edit the subject line and message content.</li>
+<li>Use dynamic placeholders (called <strong>macros</strong>) to insert form data and other context, like this one – <code>{{FormLink}}</code>*.</li>
+<li>Choose who receives the notification.</li>
+<li>Choose the sending domain.</li>
+<li>Preview messages before they’re sent.</li>
+</ul>
+<p>You don’t need to write any code to create your notification. Simply gather the pieces that matter to your project, and let notifications do the rest of the work.</p>
+<h2 id="what-you-need-to-set-up">What you need to set up</h2>
+<p>Before you create your first notification, check a few system basics to make sure everything will work as expected:</p>
+<ul>
+<li>Your <strong>admin domain</strong> should be correctly set in the system configuration.</li>
+<li>Your <strong>sender domain</strong> must be approved as a sending domain for system emails, especially in SaaS or private cloud environments.</li>
+<li>You need access to the <a href="/documentation/developers-and-admins/configuration/notifications"><strong>Notifications</strong></a> app in the admin interface.</li>
+</ul>
+<p>Ask your site admin or developer for help if you’re unsure about these settings.</p>
+<h2 id="explore-common-use-cases">Explore common use cases</h2>
+<p>Not sure where to start? Here are some everyday examples where notifications come in handy:</p>
+<ul>
+<li>Get notified when someone submits a specific form (e.g., <em>Contact us</em>, <em>Request a quote</em>, or <em>Newsletter signup</em>).</li>
+<li>Use branded <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder/email-builder-templates">email templates</a> for consistent formatting.</li>
+<li>Collaborate with developers to trigger emails from other types of system activity (like commerce or content approvals).</li>
+</ul>
+<h2 id="exercise-send-a-notification-after-form-submission">Exercise: Send a notification after form submission</h2>
+<p>Let’s walk through a practical example.</p>
+<p>Imagine you’re part of a marketing team handling incoming requests for electric car loans. Timely follow-up is key because every form submission could represent a qualified lead. Setting up an internal notification ensures that no customer interest goes unnoticed or unanswered.</p>
+<p>In this tutorial, you’ll create an internal notification that alerts your team when someone submits the <em>Electric Car Loan</em> form.</p>
+<p>This exercise uses a built-in form and template from the Kbank demo site, with no coding needed.</p>
+<h2 id="what-youll-learn">What you’ll learn</h2>
+<p>By the end of this walkthrough, you’ll know how to:</p>
+<ul>
+<li>Create a notification email.</li>
+<li>Assign it to a specific form.</li>
+<li>Add internal recipients.</li>
+<li>Test that the email sends correctly and contains the data you need.</li>
+</ul>
+<h2 id="before-you-start">Before you start</h2>
+<p>Make sure you’ve logged into the <strong>Kbank demo site</strong> as an editor or administrator.</p>
+<h2 id="step-by-step-set-up-a-form-notification">Step-by-step: Set up a form notification</h2>
+<h3 id="create-a-new-notification">1. Create a new notification</h3>
+<ul>
+<li>In the <strong>Configuration</strong> &gt; <strong>Notifications</strong> app, create a <strong>New notification</strong>.</li>
+<li>Configure the notification properties:
+<ul>
+<li>
+<strong>Notification name</strong>: <em>Electric Car Loan Form Submission</em>
+</li>
+<li>
+<strong>Event type</strong>: <em>Form submission</em>
+</li>
+<li>
+<strong>Forms</strong>: <em>Request Electric Car Loan</em>
+</li>
+</ul>
+</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Make sure to connect your notification to the correct form.</p>
+</div>
+
+<h3 id="define-recipients-and-select-a-template">2. Define recipients and select a template</h3>
+<ul>
+<li>Under the <strong>Delivery</strong> section, add the following:
+<ul>
+<li>
+<strong>Recipients</strong>: <em>administrator</em> (e.g. your test admin account) and <em>linda@kbank.localhost</em> (a teammate)</li>
+<li>
+<strong>Notification template</strong>: <em>General email template</em>
+</li>
+<li>
+<strong>Sender email address</strong>: <em>kbank@localhost.local</em>
+</li>
+</ul>
+</li>
+</ul>
+<p></p>
+<p>This part of the process ensures that key team members receive the email notification and that it goes out from the right sending domain (@localhost.local).</p>
+
+<div>
+
+</div>
+<div>
+<p>Note: <em>General email template</em> is the only template usable for email notifications in the Kbank demo. Your live site may have branded options.</p>
+</div>
+
+<h3 id="compose-your-message">3. Compose your message</h3>
+<p>Now it’s time to write the subject line and body of the email. You can use <strong>macros</strong> to include dynamic content, like the <strong>form name</strong> and the <strong>visitor’s input</strong>.</p>
+<ul>
+<li><p><strong>Subject</strong>:<br>
+<em>New Form Submission: <code>{{FormName}}</code></em></p></li>
+<li>
+<p><strong>Body</strong>:</p>
+<p><em>Hello team,</em></p>
+</li>
+</ul>
+<p><em>A visitor has just submitted the Electric Car Loan request.</em> <em><code>{{FormData}}</code></em></p>
+<p><em>You can view the form here: <code>{{FormLink}}</code></em></p>
+<p><em>Your notification system</em></p>
+<p>This message will display the actual submitted data and include a link (though in the <em>Kbank</em> demo, this link may not be functional – more on that below).</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>In the Kbank demo, the link filled in for the <code>{{FormLink}}</code> placeholder may not lead anywhere. That’s an expected behaviour because Kbank is a sandboxed demo environment. In a real-life application, this link would take you or your recipient directly to the submitted form in the admin interface.</p>
+</div>
+
+<h3 id="save-and-preview-your-notification">4. Save and preview your notification</h3>
+<ul>
+<li>
+<strong>Save</strong> the email notification draft.</li>
+<li>
+<strong>Preview</strong> your notification, and if you’re happy with the result, let’s get to testing.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Note that <em>Xperience by Kentico</em> adds a placeholder contact name for the demo visitor to help you visualize what the notification data will look like. The preview of your notification may therefore look something like this:</p>
+<p></p>
+</div>
+
+<hr>
+<h2 id="time-to-test">Time to test</h2>
+<p>Let’s verify that the notification works as expected.</p>
+<h3 id="submit-the-form">Submit the form</h3>
+<ul>
+<li>Open a private (Incognito) browser window.</li>
+<li>Go to the <strong>Electric Car Loan</strong> page.</li>
+<li>Fill out the form at the bottom of the page to test-apply for a loan for an electric car.</li>
+<li>Close the private browser window.</li>
+</ul>
+<h3 id="check-the-result">Check the result</h3>
+
+<div>
+
+</div>
+<div>
+<p>The <em>Kbank demo website</em> is not connected to any SMTP server, so your test email will be marked as <strong>Waiting</strong> or similar, but the hosted training environment <strong>will not send</strong> it to any real-life email address.</p>
+<p>You can, however, open such an email and check its contents.</p>
+</div>
+
+<ul>
+<li>Return to the Kbank admin interface.</li>
+<li>Go to <strong>Configuration</strong> and open the <strong>Email queue</strong> app.</li>
+<li>Open the most recent email sent to Linda or to the test user you’ve specified.</li>
+</ul>
+<p></p>
+<p>Review the following:</p>
+<ul>
+<li>Does the subject line show the correct form name?</li>
+<li>Does the body contain the form data?</li>
+<li>Were the correct recipients notified? (Ensure the message went to everyone you listed in the <em>Recipients</em> section.)</li>
+</ul>
+<p>If all checks out, then congratulations! You’ve just built your first successful internal notification in Xperience by Kentico.</p>
+<h2 id="wrap-up">Wrap-up</h2>
+<p>You’ve created a fully working internal notification tied to a form submission – no developer required.</p>
+<p>Notifications like this can help your team stay <strong>responsive, informed, and aligned</strong> with incoming interest from your website. The faster your team can react, the better you can stay on top of the customer’s needs and the more likely you are to increase the number of conversions. A looked-after customer is a <strong>happy customer</strong>, after all.</p>
+<p>Now that you’ve got the basics, you can:</p>
+<ul>
+<li>Set up notifications for other forms.</li>
+<li>Customize the content to fit your processes.</li>
+<li>Add or remove recipients depending on the use case.</li>
+</ul>
+<p>Feeling confident? Try creating a notification for a different form – like <em>Newsletter signup</em> or <em>Contact sales</em> – thus tailoring the message to your team’s needs.</p>
+
+</body>
+</html>

@@ -118,7 +118,7 @@ using Kentico.Components.Web.Mvc.FormComponents;
 [EditingComponentProperty(nameof(PageSelectorProperties.RootPath), "/Articles")]
 [EditingComponentProperty(nameof(PageSelectorProperties.MaxPagesLimit), 0)]
 // Returns a list of page selector items (node GUIDs)
-public IEnumerable&lt;PageSelectorItem&gt; Pages { get; set; } = Enumerable.Empty&lt;PageSelectorItem&gt;();
+public IEnumerable&lt;PageSelectorItem&gt; Pages { get; set; } = new List&lt;PageSelectorItem&gt;();
 
 </code></pre>
 </div>
@@ -151,7 +151,7 @@ using Kentico.Xperience.Admin.Websites.FormAnnotations;
 
 // Returns a list of selected page items (node GUIDs)
 [WebPageSelectorComponent(RootPath = "/Articles", MaximumPages = 5)]
-public IEnumerable&lt;WebPageRelatedItem&gt; Pages { get; set; } = Enumerable.Empty&lt;WebPageRelatedItem&gt;(); 
+public IEnumerable&lt;WebPageRelatedItem&gt; Pages { get; set; } = new List&lt;WebPageRelatedItem&gt;(); 
 
 </code></pre>
 </div>
@@ -253,7 +253,7 @@ using Kentico.Components.Web.Mvc.FormComponents;
 [EditingComponentProperty(nameof(ObjectSelectorProperties.ObjectType), "cms.user")]
 [EditingComponentProperty(nameof(ObjectSelectorProperties.WhereConditionProviderType), typeof(ObjectWhere))]
 [EditingComponentProperty(nameof(ObjectSelectorProperties.OrderBy), new string[] { "UserName DESC" })]
-public IEnumerable&lt;ObjectSelectorItem&gt; Users { get; set; } = Enumerable.Empty&lt;ObjectSelectorItem&gt;();
+public IEnumerable&lt;ObjectSelectorItem&gt; Users { get; set; } = new List&lt;ObjectSelectorItem&gt;();
 
 public class ObjectWhere : IObjectSelectorWhereConditionProvider
 {
@@ -286,7 +286,7 @@ public class ObjectWhere : IObjectSelectorWhereConditionProvider
 using Kentico.Xperience.Admin.Content.FormAnnotations;
 
 [ObjectSelectorComponent("cms.user", WhereConditionProviderType = typeof(ObjectWhere), OrderBy = new string[] { "UserName DESC" })]
-public IEnumerable&lt;ObjectRelatedItem&gt; Users { get; set; } = Enumerable.Empty&lt;ObjectRelatedItem&gt;();
+public IEnumerable&lt;ObjectRelatedItem&gt; Users { get; set; } = new List&lt;ObjectRelatedItem&gt;();
 
 public class ObjectWhere : IObjectSelectorWhereConditionProvider
 {
@@ -319,7 +319,7 @@ public class ObjectWhere : IObjectSelectorWhereConditionProvider
 
 [EditingComponent(GeneralSelector.IDENTIFIER)]
 [EditingComponentProperty(nameof(GeneralSelectorProperties.DataProviderType), typeof(UserGeneralSelectorDataProvider))]
-public IEnumerable&lt;GeneralSelectorItem&gt; UserOptions { get; set; } = Enumerable.Empty&lt;GeneralSelectorItem&gt;();
+public IEnumerable&lt;GeneralSelectorItem&gt; UserOptions { get; set; } = new List&lt;GeneralSelectorItem&gt;();
 
 
 </code></pre>
@@ -380,7 +380,7 @@ using Kentico.Components.Web.Mvc.FormComponents;
 [EditingComponentProperty(nameof(MediaFilesSelectorProperties.MaxFilesLimit), 5)]
 [EditingComponentProperty(nameof(MediaFilesSelectorProperties.AllowedExtensions), ".gif;.png;.jpg;.jpeg")]
 // Returns a list of media files selector items (objects that contain the GUIDs of selected media files)
-public IEnumerable&lt;MediaFilesSelectorItem&gt; Images { get; set; } = Enumerable.Empty&lt;MediaFilesSelectorItem&gt;();
+public IEnumerable&lt;MediaFilesSelectorItem&gt; Images { get; set; } = new List&lt;MediaFilesSelectorItem&gt;();
 
 </code></pre>
 </div>
@@ -429,7 +429,7 @@ public class WidgetModelClass : IWidgetProperties
 {
     // Returns a list of media files selector items (objects that contain the GUIDs of selected media files)
     [AssetSelectorComponent(MaximumAssets = 5, AllowedExtensions = "gif;png;jpg;jpeg")]
-    public IEnumerable&lt;AssetRelatedItem&gt; Images { get; set; } = Enumerable.Empty&lt;AssetRelatedItem&gt;();
+    public IEnumerable&lt;AssetRelatedItem&gt; Images { get; set; } = new List&lt;AssetRelatedItem&gt;();
 }
 
 </code></pre>
@@ -460,14 +460,8 @@ List&lt;Guid&gt; pageGuids = model?.Properties?.Pages?
                                            .Select(i =&gt; i.WebPageGuid)
                                            .ToList();
 
-// Prepares a query that retrieves article pages matching the selected GUIDs
-var pageQuery = new ContentItemQueryBuilder()
-                    .ForContentType("Acme.Article", config =&gt; config
-                        .ForWebsite("MyWebsiteChannel")
-                        .Where(where =&gt; where.WhereIn(nameof(IWebPageContentQueryDataContainer.WebPageItemGUID),  pageGuids)));
-
 // Retrieves the data of the selected article pages
-IEnumerable&lt;string&gt; articlePaths = (await executor.GetMappedWebPageResult&lt;Article&gt;(pageQuery))
+IEnumerable&lt;string&gt; articlePaths = (await contentRetriever.RetrievePagesByGuids&lt;Article&gt;(pageGuids))
                                                   .Select(t =&gt; t.SystemFields.WebPageItemTreePath);
 
 </code></pre>

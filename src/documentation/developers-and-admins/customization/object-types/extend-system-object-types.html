@@ -5,13 +5,22 @@
 <title>Extend system object types</title>
 </head>
 <body>
-<p>Xperience allows you to customize the data structure of certain system objects by modeling additional database columns to store custom data. This can typically be useful if you wish to gather data not collected by a particular out-of-the-box implementation or to add additional properties for the purposes of custom third-party integrations. </p>
+<p>Xperience allows you to customize the data structure of certain system objects by modeling additional database columns to store custom data. This can typically be useful if you wish to gather data not collected by a particular out-of-the-box implementation or to add additional properties for the purposes of custom third-party integrations.</p>
 <p>Follow these steps to extend a system object:</p>
 <ol type="1">
 <li>Open the <strong>Modules</strong> application and select a system module.</li>
 <li>Select the <strong>Classes</strong> tab and select one of the <a href="#customizable-data-classes">available classes</a>.</li>
 <li>Switch to the <strong>Database columns</strong> tab and add required custom fields using the <a href="/documentation/developers-and-admins/customization/field-editor">field editor</a>.</li>
 </ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Unique names for custom fields</strong></p>
+<p>We recommend including a unique prefix (e.g., your company name) in the <strong>Field name</strong> of any custom fields. The prefix ensures uniqueness for the field name, and prevents conflicts with system fields that may be added in the future.</p>
+</div>
+
 <p>You have adjusted the object’s database structure. The added columns respect the <a href="/documentation/developers-and-admins/customization/object-types/object-type-configuration">configuration</a> of the extended object type. For example, the columns are automatically included in serialized data if the object <a href="/documentation/developers-and-admins/ci-cd/reference-ci-cd-object-types">supports CI/CD</a>. However, the system does not automatically include the columns into editing forms in the administration. To enable administration users to work with the columns, you need to adjust the object’s <a href="#Extendsystemobjecttypes-UIForms">UI forms</a>. </p>
 <p>For more advanced customization scenarios, you can also build a completely <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">custom user interface</a> capable of fully reflecting your requirements. You can find inspiration on the <a href="/documentation/developers-and-admins/customization/object-types/example-offices-management-application">Example – Offices management application</a> page that guides you through the process of creating and registering an entirely new object in the system and building a corresponding management application in the admin UI. </p>
 <p>Moreover, to learn how to work with the added columns using the API, see <a href="#Extendsystemobjecttypes-API">Access added columns via the API</a>.</p>
@@ -42,6 +51,7 @@
 <li>Add the new columns to the form using the <a href="/documentation/developers-and-admins/customization/field-editor">field editor</a>.
 <ul>
 <li>If you are creating a new UI form for the object, pay attention to existing columns marked as <strong>Required</strong>. If not added to a form, these columns get set to their <em>Default value</em> as configured on the <em>Database columns</em> tab.</li>
+<li>If you are editing one of the default UI forms, keep in mind that any changes to the optional settings (<em>Default value</em>, <em>Field appearance</em> settings, etc.) of one of the default fields may be <strong>overwritten during any update</strong>. Carefully consider if such changes are truly necessary, and if so, maintain documentation of the changes so that you can easily recover if a custom change is lost during an update.</li>
 </ul>
 </li>
 </ol>

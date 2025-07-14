@@ -52,7 +52,7 @@
 <li>
 <strong>Field name:</strong> NavigationItemTarget</li>
 <li>
-<strong>Data type:</strong> Pages</li>
+<strong>Data type:</strong> Pages and reusable content</li>
 <li>
 <strong>Required:</strong> True (Enabled)</li>
 <li>
@@ -60,9 +60,13 @@
 <li>
 <strong>Field caption:</strong> Target</li>
 <li>
-<strong>Form component:</strong> Page selector</li>
+<strong>Form component:</strong> Combined content selector</li>
 <li>
-<strong>Maximum number of pages:</strong> 1</li>
+<strong>Form component configuration → Allowed content types:</strong> Landing page</li>
+<li>
+<strong>Minimum number of selected items</strong>: 1</li>
+<li>
+<strong>Maximum number of selected items</strong>: 1</li>
 </ul>
 </li>
 </ol>
@@ -133,15 +137,15 @@
 <li>
 <strong>Field name:</strong> NavigationMenuItems</li>
 <li>
-<strong>Data type:</strong> Content items (<em>Pages and reusable content</em> in newer versions)</li>
+<strong>Data type:</strong> Pages and reusable content</li>
 <li>
 <strong>Display in editing form:</strong> True (Enabled)</li>
 <li>
 <strong>Field caption:</strong> Items</li>
 <li>
-<strong>Form component:</strong> Content item selector (<em>Combined content selector</em> in newer versions)</li>
+<strong>Form component:</strong> Combined content selector</li>
 <li>
-<strong>Content type:</strong> Navigation item</li>
+<strong>Form component configuration → Allowed content types:</strong> Navigation item</li>
 </ul>
 </li>
 </ol>
@@ -193,7 +197,7 @@ dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location 
 <li>
 <strong>Content type:</strong> Navigation item</li>
 <li>
-<strong>title:</strong> Home persona: developer, architect</li>
+<strong>Title:</strong> Home link</li>
 <li>
 <strong>Target:</strong> Home</li>
 </ul>
@@ -207,7 +211,7 @@ dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location 
 <li>
 <strong>Content type:</strong> Navigation item</li>
 <li>
-<strong>title:</strong> Contact us persona: developer, architect</li>
+<strong>Title:</strong> Contact us link</li>
 <li>
 <strong>Target:</strong> Contact us</li>
 </ul>
@@ -219,6 +223,7 @@ dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location 
 </div>
 <div>
 <p>Make sure to publish each item, either individually or through <a href="/documentation/business-users/content-hub/content-items#cascade-publishing">cascade publishing</a>.</p>
+
 </div>
 
 <p>At this point, your items in the Content hub should look like this:</p>

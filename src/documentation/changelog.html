@@ -5,6 +5,26 @@
 <title>Changelog</title>
 </head>
 <body>
+<section id="hotfix-july-3-2025" data-release="" data-release-hotfix="">
+<h3>Hotfix (July 3, 2025)</h3>
+<p><strong>version 30.6.3</strong></p>
+
+<p>Fixed issues</p>
+<ul>
+<li><p><span data-entry="" data-entry-issue="">Azure storage – When using <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure storage</a>, cleanup of Azure temporary and cache folders was performed inefficiently. Applying the hotfix changes how the cleanup process works and improves its performance. For existing projects that use <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure storage</a>, we recommend manually deleting the content of the <em>App_Data/AzureCache</em> and <em>App_Data/AzureTemp</em> folders before you redeploy with the hotfix applied.</span></p></li>
+<li><p><span data-entry="" data-entry-issue="">Form Builder – If a selector <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">UI form component</a> (e.g., the <em>Tag selector</em>) was assigned to a <a href="/documentation/developers-and-admins/development/builders/form-builder/form-components/form-component-properties">property</a> of a Form Builder form component, an error occurred when attempting to <em>Apply</em> the properties of form fields using the given Form Builder component.</span></p></li>
+<li>
+<p><span data-entry data-entry-issue>Performance</span></p>
+<ul>
+<li>Using <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">content tree-based routing</a> generated unnecessary SQL queries. The database was only queried when a URL was accessed for the first time; all following requests for that same path were resolved using the cache.</li>
+<li>When <a href="https://en.wikipedia.org/wiki/Vulnerability_scanner" target="_blank">vulnerability scanning tools</a> attempted to set the language parameter of the <em>/getContentAsset</em> endpoint to an invalid value, an unnecessary query to the database was made, and an error was logged in the <a href="/documentation/developers-and-admins/configuration/event-log">event log</a>. However, there are no known vulnerabilities related to this endpoint. </li>
+</ul>
+</li>
+<li><p><span data-entry="" data-entry-issue="">SaaS – Deploying files with a path length (file name and directory structure) longer than 260 characters could, in certain cases, prevent <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#deploy-to-the-saas-environment">deployment to SaaS environments</a>.</span></p></li>
+</ul>
+
+</section>
+<hr>
 <section id="hotfix-june-26-2025" data-release="" data-release-hotfix="">
 <h3>Hotfix (June 26, 2025)</h3>
 <p><strong>version 30.6.2</strong></p>
@@ -14,8 +34,8 @@
 <ul>
 <li>
 <p><strong>Model mapping improvements</strong></p>
-<p>The system’s automatic <a href="/documentation/developers-and-admins/api/content-item-api#run-queries-and-map-the-result">model mapping API</a> now supports a more flexible approach with relaxed restrictions on model classes. You can now use any non-abstract classes, structs, or records with a parameterless constructor for content mapping, without a corresponding registration via <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#registercontenttypemapping-attribute">RegisterContentTypeMappingAttribute</a>. This allows you to create custom, simplified models with only the properties you need, and use registered and unregistered models together. The change applies broadly to all system APIs that use the mapping logic (<a href="/documentation/developers-and-admins/api/content-item-api">Content item query</a>, <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">IContentRetriever</a>).</p>
-<p>When the automatic mapping falls back to an unregistered model, it follows the mapping behavior described in <a href="/documentation/developers-and-admins/api/content-item-api#using-getmappedresult-methods">the mapping documentation</a>. The result of the automatic mapping attempt can be further modified using custom logic.</p>
+<p>The system’s automatic <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api#run-queries-and-map-the-result">model mapping API</a> now supports a more flexible approach with relaxed restrictions on model classes. You can now use any non-abstract classes, structs, or records with a parameterless constructor for content mapping, without a corresponding registration via <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#registercontenttypemapping-attribute">RegisterContentTypeMappingAttribute</a>. This allows you to create custom, simplified models with only the properties you need, and use registered and unregistered models together. The change applies broadly to all system APIs that use the mapping logic (<a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item query</a>, <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">IContentRetriever</a>).</p>
+<p>When the automatic mapping falls back to an unregistered model, it follows the mapping behavior described in <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api#using-getmappedresult-methods">the mapping documentation</a>. The result of the automatic mapping attempt can be further modified using custom logic.</p>
 <p>Additionally, starting with this update we now recommend using <code>IContentQueryModelTypeMapper</code> instead of <code>IContentQueryResultMapper</code> for all content mapping scenarios. Corresponding documentation sections previously working with <code>IContentQueryResultMapper</code> were updated.</p>
 </li>
 </ul>
@@ -174,7 +194,7 @@ Xperience version 30.1.0 updated the <em>Hot Chocolate</em> GraphQL server used 
 <p>Fixed issues</p>
 <ul>
 <li><p><span data-entry="" data-entry-issue="">API – Attempting to <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">generate models</a> for objects containing fields of the <em>Pages and reusable content</em> <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data type</a> that were hidden via the <em>Display in editing form</em> checkbox resulted in an exception.</span></p></li>
-<li><p><span data-entry="" data-entry-issue="">Content item API – If a <a href="/documentation/developers-and-admins/development/content-types">content type</a> had a field of the <em>Pages and reusable content</em> <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data type</a> that was hidden via the <em>Display in editing form</em> checkbox, an exception occurred when using the <a href="/documentation/developers-and-admins/api/content-item-api">content item query</a> API to retrieve items of the given type with the <code>WithLinkedItems()</code> parameterization. Using hidden fields with the Pages and reusable content data type is not supported, but the API was updated to avoid the exception when retrieving such items with existing data.</span></p></li>
+<li><p><span data-entry="" data-entry-issue="">Content item API – If a <a href="/documentation/developers-and-admins/development/content-types">content type</a> had a field of the <em>Pages and reusable content</em> <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data type</a> that was hidden via the <em>Display in editing form</em> checkbox, an exception occurred when using the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item query</a> API to retrieve items of the given type with the <code>WithLinkedItems()</code> parameterization. Using hidden fields with the Pages and reusable content data type is not supported, but the API was updated to avoid the exception when retrieving such items with existing data.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">Email Builder – For projects running with an application base path (e.g., <em>domain.com/path</em>), an error occurred in the <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder">Email Builder UI</a> when attempting to add components.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">UI form components – Using the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#page-selector">page selector</a> when creating a new content item from the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#combined-content-selector">combined content selector</a> in content hub caused the administration to freeze.</span></p></li>
 </ul>
@@ -255,7 +275,7 @@ The update introduces a new API for <a href="/documentation/developers-and-admin
 This update improves <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content/retrieve-page-urls">URL retrieval</a> functionality with several optimizations and new features:</p>
 <ul>
 <li>A new <code>GetUrl()</code> extension method for models implementing <code>IWebPageFieldsSource</code> that provides a URL retrieval option that never queries the database for additional data. The interface is by default implemented by all <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">generated page classes</a>.</li>
-<li>A specialized <code>UrlPathColumns()</code> method for <a href="/documentation/developers-and-admins/api/content-item-api">content item query</a> that includes columns required for URL path generation. Useful when query data is restricted via <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#columns">Columns()</a>.</li>
+<li>A specialized <code>UrlPathColumns()</code> method for <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item query</a> that includes columns required for URL path generation. Useful when query data is restricted via <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#columns">Columns()</a>.</li>
 <li>Control over <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content/retrieve-page-urls#using-the-geturl-extension-method">URL language behavior</a> via the new <code>SetUrlLanguageBehavior</code> method, allowing developers to decide if URLs for fallback language pages should use the requested language path structure or the <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">fallback language</a> structure.</li>
 </ul>
 
@@ -419,7 +439,7 @@ The <code>EmailContext.EmailFields</code> property, which allows retrieval of em
 <h3>New features</h3>
 
 <p><strong>New content retrieval APIs</strong><br>
-This update introduces a new, experimental <code>IContentRetriever</code> API designed to provide a unified approach for fetching content within Xperience web applications. This service abstracts common <a href="/documentation/developers-and-admins/api/content-item-api#content-item-query">content query</a> patterns to simplify the retrieval of pages, reusable content items, and items using <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>. See <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a> for a detailed overview of the API.</p>
+This update introduces a new, experimental <code>IContentRetriever</code> API designed to provide a unified approach for fetching content within Xperience web applications. This service abstracts common <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content query</a> patterns to simplify the retrieval of pages, reusable content items, and items using <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>. See <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a> for a detailed overview of the API.</p>
 <p>Key features:</p>
 <ul>
 <li>
@@ -427,9 +447,9 @@ This update introduces a new, experimental <code>IContentRetriever</code> API de
 <li>
 <em>Configurable behavior</em> – Optional parameter objects allow developers to easily override default behaviors for specific needs, such as forcing language variants, enabling preview mode, including linked items, or filtering by page path.</li>
 <li>
-<em>Query customization</em> – In more complex retrieval scenarios, you can directly access the underlying <a href="/documentation/developers-and-admins/api/content-item-api#build-queries">content query builder</a>, enabling custom filtering, sorting, projections, and paging.</li>
+<em>Query customization</em> – In more complex retrieval scenarios, you can directly access the underlying <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api#build-queries">content query builder</a>, enabling custom filtering, sorting, projections, and paging.</li>
 <li>
-<em>Flexible model mapping</em> – You can override the <a href="/documentation/developers-and-admins/api/content-item-api#run-queries-and-map-the-result">default model mapping process</a>, transforming the raw retrieved data (<code>IContentQueryDataContainer</code>) into custom view models or applying specific logic beyond the default property mapping.</li>
+<em>Flexible model mapping</em> – You can override the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api#run-queries-and-map-the-result">default model mapping process</a>, transforming the raw retrieved data (<code>IContentQueryDataContainer</code>) into custom view models or applying specific logic beyond the default property mapping.</li>
 </ul>
 
 
@@ -600,7 +620,7 @@ The following classes representing <a href="/documentation/developers-and-admins
 
 <p>Fixed issues</p>
 <ul>
-<li><p><span data-entry="" data-entry-issue="">API – An error occurred for <a href="/documentation/developers-and-admins/api/content-item-api#content-item-query">content item queries</a> using both the <code>InLanguage</code> and <code>InWorkpaces</code> filters when a language with more than one <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">fallback language</a> was specified as a parameter of the <code>InLanguage</code> filter.</span></p></li>
+<li><p><span data-entry="" data-entry-issue="">API – An error occurred for <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item queries</a> using both the <code>InLanguage</code> and <code>InWorkpaces</code> filters when a language with more than one <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">fallback language</a> was specified as a parameter of the <code>InLanguage</code> filter.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">Admin UI – The “secured” icon was not displayed correctly for <a href="/documentation/business-users/website-content/secure-pages">secured pages</a> in a website channel’s content tree.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">Pages – A dialog notifying about unsaved changes was incorrectly displayed when changing the workflow step of a page containing an image in a <a href="/documentation/business-users/rich-text-editor">rich text field</a>.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">SaaS – Successful <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#backups">backups</a> created in <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a> were not displayed in the <em>Backups</em> application in some cases.</span></p></li>
@@ -1211,7 +1231,7 @@ Continuous Deployment was updated to more quickly <a href="/documentation/develo
 <p>Fixed issues</p>
 <ul>
 <li><p><span data-entry="" data-entry-issue="">API – The XML documentation comment for the <code>CreateContentItemParameters()</code> constructor displayed the wrong text for the <code>name</code> and <code>displayName</code> parameters. The comment incorrectly stated that the <code>displayName</code> parameter can be <code>null</code>.</span></p></li>
-<li><p><span data-entry="" data-entry-issue="">Content item API – In certain cases, the data retrieved by the <a href="/documentation/developers-and-admins/api/content-item-api">content item query</a> model binding methods could contain null values in fields where a non-null value was expected. For example, this could occur when retrieving the root page of a website channel, which does not provide a value for the <code>WebPageItemParentID</code> property. After applying the hotfix, such fields return the default value for the given data type, for example 0 for numeric fields.</span></p></li>
+<li><p><span data-entry="" data-entry-issue="">Content item API – In certain cases, the data retrieved by the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item query</a> model binding methods could contain null values in fields where a non-null value was expected. For example, this could occur when retrieving the root page of a website channel, which does not provide a value for the <code>WebPageItemParentID</code> property. After applying the hotfix, such fields return the default value for the given data type, for example 0 for numeric fields.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">Former URLs – If a <a href="/documentation/business-users/website-content">page</a> was previously opened and cached by the system and then later moved in the content tree, visiting its <a href="/documentation/business-users/website-content/manage-page-urls#former-urls">former URL</a> with a specified language prefix (e.g., <em>~/es/products/example-product</em>) resulted in a redirect loop. The problem occurred if the page wasn’t translated in the language specified in the URL. After applying the hotfix, the <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">fallback variant</a> of the page is correctly displayed.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">Forms – When a consent was selected for a <em>Consent agreement</em> field in a <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms">form</a>, an error occurred and the form’s configuration became invalid. This caused the Form Builder to display empty content and prevented further editing of the form’s fields.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">Pages – An error occurred when creating <a href="/documentation/business-users/website-content">pages</a> in a website channel if the page’s <a href="/documentation/developers-and-admins/development/content-types">content type</a> contained a field with the <em>Pages</em> data type that had a visibility condition depending on another field.</span></p></li>
@@ -2021,7 +2041,7 @@ The <em>Microsoft.Extensions.Configuration.Binder</em> package (transitive depen
 <p>Fixed issues</p>
 <ul>
 <li><p><span data-entry="" data-entry-issue="">Automation – Buttons in confirmation dialogs within the <a href="/documentation/business-users/digital-marketing/automation">Automation Builder</a> interface incorrectly remained active even after a button was selected (for example, a dialog appears when saving changes in an enabled process). On slower connections, this allowed users to select the buttons multiple times, which could result in unexpected behavior or break the automation process.</span></p></li>
-<li><p><span data-entry="" data-entry-issue="">Content item API – <a href="/documentation/developers-and-admins/api/content-item-api">Content item query</a> calls for retrieving items from a smart folder returned incorrect data when the <code>InSmartFolder</code> method was used together with the <code>InLanguage</code> <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">query parameterization</a>.</span></p></li>
+<li><p><span data-entry="" data-entry-issue="">Content item API – <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item query</a> calls for retrieving items from a smart folder returned incorrect data when the <code>InSmartFolder</code> method was used together with the <code>InLanguage</code> <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">query parameterization</a>.</span></p></li>
 <li><p><span data-entry="" data-entry-issue="">Update procedure – An error occurred when <a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects">updating a project</a> to version 29.3.0 or newer if the project used <a href="/documentation/business-users/digital-marketing/widget-personalization">widgets with personalization variants</a> in the <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a>.</span></p></li>
 </ul>
 
@@ -2175,7 +2195,7 @@ public SmartFolderReference SmartFolderWithCoffee { get; set; }
 <li>An error could occur in the <a href="/documentation/business-users/content-hub/content-items#find-content-items">content item filter</a> dialog after switching the time frame of the <em>Last modified</em> or <em>Last published</em> option while having a date selected in the other option. </li>
 </ul>
 </li>
-<li><p>Content item API – <a href="/documentation/developers-and-admins/api/content-item-api">Content item query</a> calls for retrieving items from a smart folder resulted in an error if the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">query parameterization</a> included both <code>InSmartFolder</code> and <code>WithContentTypeFields</code>, but did not select specific content types using either <code>OfContentType</code> or <code>OfReusableSchema</code>.</p></li>
+<li><p>Content item API – <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item query</a> calls for retrieving items from a smart folder resulted in an error if the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">query parameterization</a> included both <code>InSmartFolder</code> and <code>WithContentTypeFields</code>, but did not select specific content types using either <code>OfContentType</code> or <code>OfReusableSchema</code>.</p></li>
 <li>
 <p>General – Connection-related errors originating from background system services</p>
 <ul>
@@ -3061,7 +3081,7 @@ The <a href="/documentation/developers-and-admins/customization/extend-the-admin
 
 
 <p><strong>Ordering in the content item and headless item selectors</strong><br>
-The selectors now support a drag-and-drop ordering mechanism for easily reordering linked items, preserving the selected order. Both the minimum and maximum number of selectable items can now also be set. This new feature enables a substantial change in the approach to content modeling, as you can now use <a href="/documentation/business-users/content-hub">reusable content items</a> instead of pages without URLs to model strictly-ordered hierarchies, including <a href="/guides/development/get-started/model-sample-website-navigation">website navigation</a>. This new approach helps declutter the website channel content tree and promotes better reusability of your content model.</p>
+The selectors now support a drag-and-drop ordering mechanism for easily reordering linked items, preserving the selected order. Both the minimum and maximum number of selectable items can now also be set. This new feature enables a substantial change in the approach to content modeling, as you can now use <a href="/documentation/business-users/content-hub">reusable content items</a> instead of pages without URLs to model strictly-ordered hierarchies, including <a href="/guides/development/developer-kickstart/model-navigation">website navigation</a>. This new approach helps declutter the website channel content tree and promotes better reusability of your content model.</p>
 
 
 <p><strong>Content item code name generation API</strong><br>
@@ -3130,7 +3150,7 @@ Users can now <a href="/documentation/business-users/website-content/create-page
 <li>Code generators – Interfaces <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#reusable-field-schema-interfaces">generated for reusable field schemas</a> now contain the code name of the schema under the <code>REUSABLE_FIELD_SCHEMA_NAME</code> constant.</li>
 <li>Content item API
 <ul>
-<li>Web page content items retrieved via <a href="/documentation/developers-and-admins/api/content-item-api">content item query</a> now contain the identifier of their corresponding <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a> in the <code>WebPageItemWebsiteChannelId</code> property.</li>
+<li>Web page content items retrieved via <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item query</a> now contain the identifier of their corresponding <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a> in the <code>WebPageItemWebsiteChannelId</code> property.</li>
 <li>Parts of the content item creation API (<code>CreateContentItemParameters</code>, <code>CreateWebPageParameters</code>, and <code>CreateFolderParameters</code>) were extended with additional overloads that no longer require the code name parameters explicitly and instead use <code>IContentItemCodeNameProvider</code> internally to generate one. See the reusable content item page and <a href="/api/">API examples</a> for usage examples.</li>
 </ul>
 </li>
@@ -3254,7 +3274,7 @@ public string FolderId { get; set; }
 <li><p>Admin UI – The text of some action confirmation messages in the administration was adjusted to be more accurate.</p></li>
 <li><p>CI/CD – The Continuous Integration repository didn’t correctly maintain the latest state of content item relationships (references to other content items via the <em>Content items</em> <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data type</a>) that were edited via the admin UI. Instead, for all operations done through the admin UI that modify content item relationships (adding and removing content items via the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#combined-content-selector">content item selector</a>), the repository maintained the state immediately preceding the latest operation. Relationships assigned programmatically via the API were unaffected. After applying this refresh update, projects using CI/CD should follow the steps outlined in the <a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects#update-development-projects-with-continuous-integration">update instructions</a> to get their repository to the correct state.</p></li>
 <li><p>Content hub – Attempting to edit a nonexistent content item via the content item edit page (e.g., by directly accessing the edit page URL with invalid parameters) returned an HTTP 500 error instead of the system error page.</p></li>
-<li><p>Content item API – The <code>LinkedFrom</code> and <code>Linking</code> <a href="/documentation/developers-and-admins/api/content-item-api">content item query parameterization</a> methods returned a <code>NullReferenceException</code> when the provided content type didn’t exist. The exception type was changed to <code>ArgumentException</code>, which is more suitable for the reported error.</p></li>
+<li><p>Content item API – The <code>LinkedFrom</code> and <code>Linking</code> <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item query parameterization</a> methods returned a <code>NullReferenceException</code> when the provided content type didn’t exist. The exception type was changed to <code>ArgumentException</code>, which is more suitable for the reported error.</p></li>
 <li><p>Content management – The <a href="/documentation/business-users/content-hub/content-items#cascade-publishing">cascade publishing</a> dialog didn’t prevent selection of linked content items that would then fail to publish due to workflow restrictions. The issue occurred for items under workflow if the current user didn’t belong to a role that was allowed to work with the last step in the workflow.</p></li>
 <li>
 <p>Languages</p>
@@ -4663,7 +4683,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <h4 id="development">Development</h4>
 <ul>
 <li>
-<a href="/documentation/developers-and-admins/api/content-item-api">Content item API</a> – provides a general overview of reusable content item management and content delivery APIs.</li>
+<a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item API</a> – provides a general overview of reusable content item management and content delivery APIs.</li>
 <li>
 <a href="/documentation/developers-and-admins/development/content-retrieval">Content retrieval</a> – introduces working with content delivery APIs in the context of web application development.</li>
 <li>
@@ -4855,7 +4875,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <p>The following list covers breaking changes in frequently used API scenarios, but is not a comprehensive list of all API changes.</p>
 <ul>
 <li><a href="/documentation/developers-and-admins/development/caching/data-caching">Data caching</a></li>
-<li><a href="/documentation/developers-and-admins/api/content-item-api">Content item API</a></li>
+<li><a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item API</a></li>
 <li>
 <code>DocumentEngine</code> replaced with <code>ContentEngine</code> and <code>Websites</code> projects.
 <ul>

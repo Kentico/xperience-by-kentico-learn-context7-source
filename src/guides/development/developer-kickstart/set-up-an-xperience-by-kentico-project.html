@@ -16,7 +16,7 @@
 <h2 id="install-the-xperience-project-templates-package">Install the Xperience project templates package</h2>
 
 <div>
-<p>We will work with the <strong>Xperience by Kentico version 29.3.0</strong> in this series.</p>
+<p>We will work with the <strong>Xperience by Kentico version 30.6.1</strong> in this series.</p>
 <p>If you have previously installed other versions of Xperience on your machine, we recommend <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico#check-your-existing-template-versions">clearing any unwanted templates</a> first.</p>
 </div>
 
@@ -37,7 +37,7 @@
 </div>
 <div>
 <pre><code>
-dotnet new install kentico.xperience.templates::29.3.0 --force
+dotnet new install kentico.xperience.templates::30.6.1 --force
 </code></pre>
 </div>
 
@@ -46,7 +46,7 @@ dotnet new install kentico.xperience.templates::29.3.0 --force
 
 </div>
 <div>
-<p>If you have other Xperience templates on your machine (for example after playing around with the latest version), the <code>--force</code> parameter will ensure the 29.3.0 version gets installed correctly.</p>
+<p>If you have other Xperience templates on your machine (for example after playing around with the latest version), the <code>--force</code> parameter will ensure the 30.6.1 version gets installed correctly.</p>
 </div>
 
 <p>You should see an output showing you have successfully installed three project templates on your computer:</p>
@@ -115,10 +115,6 @@ Do you want to run this action [Y(yes)|N(no)]?
 <li>Navigate to the <em>src</em> folder, and rename the file to <em>Kickstart.sln</em>, then click <strong>Save</strong>.</li>
 </ol>
 </div>
-
-
-<p><strong>Adjust the target framework</strong></p>
-<p>The installed template targets .NET 6 by default. Before proceeding with this series, <a href="https://learn.microsoft.com/en-us/visualstudio/ide/visual-studio-multi-targeting-overview?view=vs-2022#change-the-target-framework" target="_blank">change the target framework</a> to <strong>.NET 8</strong>.</p>
 
 <h2 id="assign-a-license">Assign a license</h2>
 <p>In the <em>src</em> directory, create a new folder called <em>License</em>.</p>

@@ -134,11 +134,11 @@ public IEnumerable&lt;ContentItemReference&gt; SelectedProducts { get; set; } = 
 <pre><code>
 public class ContentItemSelectorUsage : ViewComponent
 {
-    private readonly IContentQueryExecutor executor;
+    private readonly IContentRetriever contentRetriever;
 
-    public ContentItemSelectorUsage(IContentQueryExecutor executor)
+    public ContentItemSelectorUsage(IContentRetriever contentRetriever)
     {
-        this.executor = executor;
+        this.contentRetriever = contentRetriever;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
@@ -146,16 +146,12 @@ public class ContentItemSelectorUsage : ViewComponent
         // Gets the GUIDs from the annotated property
         var coffeeGuids = model?.Properties?.SelectedProducts.Select(i =&gt; i.Identifier).ToList();
 
-        // Builds the query - the content type must match the one configured for the selector
-        var query = new ContentItemQueryBuilder()
-                        .ForContentType(Coffee.CONTENT_TYPE_NAME,
-                              config =&gt; config
-                                .WithLinkedItems(1)
-                                .Where(where =&gt; where
-                                        .WhereIn(nameof(IContentQueryDataContainer.ContentItemGUID), coffeeGuids)));
-
         // Retrieves the data of the selected content type
-        IEnumerable&lt;Coffee&gt; result = await executor.GetMappedResult&lt;Coffee&gt;(query);
+        IEnumerable&lt;Coffee&gt; result = await contentRetriever.RetrieveContentByGuids&lt;Coffee&gt;(coffeeGuids,
+            new RetrieveContentParameters 
+            { 
+                LinkedItemsMaxLevel = 1 
+            });
 
          // Custom logic...
 
@@ -209,33 +205,30 @@ public IEnumerable&lt;ContentItemReference&gt; SelectedProducts { get; set; } = 
 <pre><code>
 public class ContentItemSelectorUsage : ViewComponent
 {
-    private readonly IContentQueryExecutor executor;
+    private readonly IContentRetriever contentRetriever;
 
-    public ContentItemSelectorUsage(IContentQueryExecutor executor)
+    public ContentItemSelectorUsage(IContentRetriever contentRetriever)
     {
-        this.executor = executor;
+        this.contentRetriever = contentRetriever;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
     {
         // Gets the GUIDs from the annotated property
-        var coffeeGuids = model?.Properties?.SelectedProducts.Select(i =&gt; i.Identifier).ToList();
-
-        // Builds the query - the content types must match those configured for the selector
-        var query = new ContentItemQueryBuilder()
-                .ForContentTypes(parameters =&gt;
-                    parameters.WithLinkedItems(1)
-                        .WithContentTypeFields()
-                        .OfContentType(Coffee.CONTENT_TYPE_NAME, Grinder.CONTENT_TYPE_NAME)
-                ).Parameters(
-                    parameters =&gt; parameters.Where(
-                        where =&gt; where.WhereIn(
-                            columnName: nameof(IContentQueryDataContainer.ContentItemGUID),
-                            values: coffeeGuids))
-                );
+        var productGuids = model?.Properties?.SelectedProducts.Select(i =&gt; i.Identifier).ToList();
 
         // Retrieves the data of selected content items
-        var result = await executor.GetMappedResult&lt;IContentItemFieldsSource&gt;(query);
+        // Use RetrieveContentOfContentTypes method with additional Where filtering for multiple content types
+        var contentTypes = new[] { Coffee.CONTENT_TYPE_NAME, Grinder.CONTENT_TYPE_NAME };
+        var result = await contentRetriever.RetrieveContentOfContentTypes&lt;IContentItemFieldsSource&gt;(
+            contentTypes,
+            new RetrieveContentOfContentTypesParameters 
+            { 
+                LinkedItemsMaxLevel = 1 
+            },
+            query =&gt; query.Where(w =&gt; w.WhereIn("ContentItemGUID", productGuids)),
+            new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(Where)}|{nameof(WhereIn)}|ContentItemGUID")
+        );
 
         // Iterates over selected items as typed objects
         foreach (var item in result)
@@ -305,11 +298,11 @@ public class ProductCardSchemaFilter : IReusableFieldSchemasFilter
 <pre><code>
 public class ContentItemSelectorUsage : ViewComponent
 {
-    private readonly IContentQueryExecutor executor;
+    private readonly IContentRetriever contentRetriever;
 
-    public ContentItemSelectorUsage(IContentQueryExecutor executor)
+    public ContentItemSelectorUsage(IContentRetriever contentRetriever)
     {
-        this.executor = executor;
+        this.contentRetriever = contentRetriever;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
@@ -317,15 +310,17 @@ public class ContentItemSelectorUsage : ViewComponent
         // Gets the GUIDs from the annotated property
         var selectedProductGuids = model?.Properties?.SelectedProducts.Select(i =&gt; i.Identifier).ToList();
 
-        // Builds the query - the content type must match the one configured for the selector
-        var query = new ContentItemQueryBuilder()
-                        .ForContentTypes(parameters =&gt;
-                            parameters.OfReusableSchema(IProductFields.REUSABLE_FIELD_SCHEMA_NAME)
-                                      .WithContentTypeFields();
-                        );
-
-        // Retrieves the data of the selected content type
-        IEnumerable&lt;IProductFields&gt; result = await executor.GetMappedResult&lt;IProductFields&gt;(query);
+        // Retrieves the selected data using reusable field schema filtering
+        var schemaNames = new[] { IProductFields.REUSABLE_FIELD_SCHEMA_NAME };
+        IEnumerable&lt;IProductFields&gt; result = await contentRetriever.RetrieveContentOfReusableSchemas&lt;IProductFields&gt;(
+            schemaNames,
+            new RetrieveContentOfReusableSchemasParameters
+            {
+                LinkedItemsMaxLevel = 1
+            },
+            query =&gt; query.Where(w =&gt; w.WhereIn("ContentItemGUID", selectedProductGuids)),
+            new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(Where)}|{nameof(WhereIn)}|ContentItemGUID")
+        );
 
          // Custom logic...
 
@@ -465,7 +460,7 @@ public class DisabledContentFoldersFilter : IContentFolderIdsFilter
     AllowedEmailPurposes = new[] { EmailPurposeOptions.FORMAUTORESPONDER, EmailPurposeOptions.AUTOMATION },
     Sortable = true,
     MaximumEmails = 3)]
-public IEnumerable&lt;EmailRelatedItem&gt; Emails { get; set; } = Enumerable.Empty&lt;EmailRelatedItem&gt;();
+public IEnumerable&lt;EmailRelatedItem&gt; Emails { get; set; } = new List&lt;EmailRelatedItem&gt;();
 
 </code></pre>
 </div>
@@ -535,7 +530,7 @@ IEnumerable&lt;MediaFileInfo&gt; assetToMediaFileInfo =
 // Assigns the asset selector as the property's editing component
 // Returns a list of media files selector items (objects that contain the GUIDs of selected media files)
 [AssetSelectorComponent(MaximumAssets = 5, AllowedExtensions = "gif;png;jpg;jpeg")]
-public IEnumerable&lt;AssetRelatedItem&gt; Images { get; set; } = Enumerable.Empty&lt;AssetRelatedItem&gt;();
+public IEnumerable&lt;AssetRelatedItem&gt; Images { get; set; } = new List&lt;AssetRelatedItem&gt;();
 
 </code></pre>
 </div>
@@ -636,7 +631,7 @@ public class AssetSelectorUsage : ViewComponent
 
 [ObjectSelectorComponent("cms.user", WhereConditionProviderType = typeof(ObjectWhere),
                                      OrderBy = new string[] { "UserName DESC" })]
-public IEnumerable&lt;ObjectRelatedItem&gt; Users { get; set; } = Enumerable.Empty&lt;ObjectRelatedItem&gt;();
+public IEnumerable&lt;ObjectRelatedItem&gt; Users { get; set; } = new List&lt;ObjectRelatedItem&gt;();
 
 public class ObjectWhere : IObjectSelectorWhereConditionProvider
 {
@@ -791,7 +786,7 @@ public class ObjectSelectorUsage : ViewComponent
     // Uses a system modifier that prevents selection of folders,
     // and pages whose content type is not included in routing
     ItemModifierType = typeof(WebPagesWithUrlWebPagePanelItemModifier))]
-public IEnumerable&lt;WebPageRelatedItem&gt; Pages { get; set; } = Enumerable.Empty&lt;WebPageRelatedItem&gt;();
+public IEnumerable&lt;WebPageRelatedItem&gt; Pages { get; set; } = new List&lt;WebPageRelatedItem&gt;();
 
 </code></pre>
 </div>
@@ -815,11 +810,11 @@ public IEnumerable&lt;WebPageRelatedItem&gt; Pages { get; set; } = Enumerable.Em
 
 public class PageSelectorUsage : ViewComponent
 {
-    private readonly IContentQueryExecutor executor;
+    private readonly IContentRetriever contentRetriever;
 
-    public PageSelectorUsage(IContentQueryExecutor executor)
+    public PageSelectorUsage(IContentRetriever contentRetriever)
     {
-        this.executor = executor;
+        this.contentRetriever = contentRetriever;
     }
 
     public async Task&lt;IViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
@@ -829,14 +824,10 @@ public class PageSelectorUsage : ViewComponent
                                                     .Select(i =&gt; i.WebPageGuid)
                                                     .ToList();
 
-        // Prepares a query that retrieves article pages matching the selected GUIDs
-        var pageQuery = new ContentItemQueryBuilder()
-                .ForContentTypes(parameters =&gt; 
-                    parameters.ForWebsite(pageGuids));
-
-        // Retrieves the data of the selected article pages
-        IEnumerable&lt;ArticlePage&gt; articlePages = 
-                await executor.GetMappedWebPageResult&lt;ArticlePage&gt;(pageQuery);
+        // Retrieves the data of the selected pages using a common page interface
+        // Use a specific type if you know the type of selected pages
+        IEnumerable&lt;IWebPageFieldsSource&gt; selectedPages = 
+                await contentRetriever.RetrievePagesByGuids&lt;IWebPageFieldsSource&gt;(pageGuids);
 
         // Custom logic...
 
@@ -1024,11 +1015,11 @@ public class CoffeeContentTypeFilter : IContentTypesNameFilter
 <pre><code>
 public class SmartFolderSelectorUsage : ViewComponent
 {
-    private readonly IContentQueryExecutor executor;
+    private readonly IContentRetriever contentRetriever;
 
-    public SmartFolderSelectorUsage(IContentQueryExecutor executor)
+    public SmartFolderSelectorUsage(IContentRetriever contentRetriever)
     {
-        this.executor = executor;
+        this.contentRetriever = contentRetriever;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
@@ -1036,15 +1027,11 @@ public class SmartFolderSelectorUsage : ViewComponent
         // Gets the GUID from the annotated property
         var selectedSmartFolderGuid = model?.Properties?.SmartFolderWithCoffee.Identifier ?? Guid.Empty;
 
-        // Builds a query to retrieve 'Coffee' content items from the smart folder
-        var query = new ContentItemQueryBuilder()
-                        .ForContentTypes(parameters =&gt;
-                            parameters.InSmartFolder(selectedSmartFolderGuid)
-                                      .WithContentTypeFields()
-                                      .OfContentType(Coffee.CONTENT_TYPE_NAME));
-
-        // Retrieves the data of Coffee content items that currently match the conditions of the selected smart folder
-        IEnumerable&lt;Coffee&gt; result = await executor.GetMappedResult&lt;Coffee&gt;(query);
+        // Retrieves 'Coffee' content items from the smart folder
+        IEnumerable&lt;Coffee&gt; result = await contentRetriever.RetrieveContent&lt;Coffee&gt;(
+            RetrieveContentParameters.Default,
+            query =&gt; query.InSmartFolder(selectedSmartFolderGuid),
+            new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(InSmartFolder)}|{selectedSmartFolderGuid}"));
 
         // Custom logic...
 
@@ -1104,11 +1091,11 @@ public class ProductSchemaFilter : IReusableFieldSchemasFilter
 <pre><code>
 public class SmartFolderSelectorUsage : ViewComponent
 {
-    private readonly IContentQueryExecutor executor;
+    private readonly IContentRetriever contentRetriever;
 
-    public SmartFolderSelectorUsage(IContentQueryExecutor executor)
+    public SmartFolderSelectorUsage(IContentRetriever contentRetriever)
     {
-        this.executor = executor;
+        this.contentRetriever = contentRetriever;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
@@ -1116,15 +1103,12 @@ public class SmartFolderSelectorUsage : ViewComponent
         // Gets the GUID from the annotated property
         var selectedSmartFolderGuid = model?.Properties?.SmartFolderWithProducts.Identifier ?? Guid.Empty;
 
-        // Builds a query to retrieve product content items from the smart folder
-        var query = new ContentItemQueryBuilder()
-                        .ForContentTypes(parameters =&gt;
-                            parameters.InSmartFolder(selectedSmartFolderGuid)
-                                      .OfReusableSchema(IProductFields.REUSABLE_FIELD_SCHEMA_NAME)
-                                      .WithContentTypeFields());
-
-        // Retrieves the data of Coffee content items that currently match the conditions of the selected smart folder
-        IEnumerable&lt;IProductFields&gt; result = await executor.GetMappedResult&lt;IProductFields&gt;(query);
+        // Retrieves product content items from the smart folder
+        IEnumerable&lt;IProductFields&gt; result = await contentRetriever.RetrieveContentOfReusableSchemas&lt;IProductFields&gt;(
+            new[] { IProductFields.REUSABLE_FIELD_SCHEMA_NAME },
+            RetrieveContentOfReusableSchemasParameters.Default,
+            query =&gt; query.InSmartFolder(selectedSmartFolderGuid),
+            new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(InSmartFolder)}|{selectedSmartFolderGuid}"));
 
         // Custom logic...
 
@@ -1284,14 +1268,12 @@ public class TagSelectorUsage : ViewComponent
 </div>
 <div>
 <pre><code>
-
 // Assigns the General selector as the property's editing component
 [GeneralSelectorComponent(
             dataProviderType : typeof(UserGeneralSelectorDataProvider),
             Label = "Users",
             Placeholder = "Choose a user")]
 public IEnumerable&lt;string&gt; UserOptions { get; set; }
-
 </code></pre>
 </div>
 
@@ -1311,7 +1293,6 @@ public IEnumerable&lt;string&gt; UserOptions { get; set; }
 </div>
 <div>
 <pre><code>
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1326,7 +1307,7 @@ using CMS.Membership;
 public class UserGeneralSelectorDataProvider : IGeneralSelectorDataProvider
 {
     private readonly IUserInfoProvider userInfoProvider;
-    private IEnumerable&lt;ObjectSelectorListItem&lt;string&gt;&gt; items;
+
     // Item representing an invalid selector option
     private static ObjectSelectorListItem&lt;string&gt; InvalidItem =&gt; new ObjectSelectorListItem&lt;string&gt;() { IsValid = false };
 
@@ -1341,7 +1322,7 @@ public class UserGeneralSelectorDataProvider : IGeneralSelectorDataProvider
         // Prepares a query for retrieving user objects
         var itemQuery = userInfoProvider.Get();
 
-        // If a search term is entered, only loads users users whose first name starts with the term
+        // If a search term is entered, only loads users whose first name starts with the term
         if (!string.IsNullOrEmpty(searchTerm))
         {
             itemQuery.WhereStartsWith("FirstName", searchTerm);
@@ -1350,33 +1331,37 @@ public class UserGeneralSelectorDataProvider : IGeneralSelectorDataProvider
         // Ensures paging of items
         itemQuery.Page(pageIndex, 20);
 
-        // Retrieves the users and converts them into ObjectSelectorListItem&lt;string&gt; options
-        items = itemQuery.GetEnumerableTypedResult()
-                            .Select(x =&gt; new ObjectSelectorListItem&lt;string&gt;()
-                            {
-                                Value = x.UserName,
-                                Text = $"{x.FirstName} {x.LastName} ({x.UserName})",
-                                IsValid = true
-                            });            
-
         return Task.FromResult(new PagedSelectListItems&lt;string&gt;()
         {
             NextPageAvailable = itemQuery.NextPageAvailable,
-            Items = items
+            // Retrieves the users and converts them into ObjectSelectorListItem&lt;string&gt; options
+            Items = itemQuery.GetEnumerableTypedResult()
+                             .Select(GetUserListItem)
         });
-    } 
+    }
 
     // Returns ObjectSelectorListItem&lt;string&gt; options for all item values that are currently selected
-    public Task&lt;IEnumerable&lt;ObjectSelectorListItem&lt;string&gt;&gt;&gt; GetSelectedItemsAsync(IEnumerable&lt;string&gt; selectedValues, CancellationToken cancellationToken) =&gt; 
+    public Task&lt;IEnumerable&lt;ObjectSelectorListItem&lt;string&gt;&gt;&gt; GetSelectedItemsAsync(IEnumerable&lt;string&gt; selectedValues, CancellationToken cancellationToken) =&gt;
         Task.FromResult(selectedValues?.Select(v =&gt; GetSelectedItemByValue(v)) ?? Enumerable.Empty&lt;ObjectSelectorListItem&lt;string&gt;&gt;()
     );
 
     private ObjectSelectorListItem&lt;string&gt; GetSelectedItemByValue(string value)
     {
-        return items.Where(item =&gt; (item.Value == value)).First() ?? InvalidItem;
+        // Gets the user with the selected user name (or an invalid item if the user is not found)
+        return GetUserListItem(userInfoProvider.Get(value)) ?? InvalidItem;
+    }
+
+    // Converts a user object (UserInfo) into an ObjectSelectorListItem&lt;string&gt; option
+    private ObjectSelectorListItem&lt;string&gt; GetUserListItem(UserInfo user)
+    {
+        return new ObjectSelectorListItem&lt;string&gt;()
+        {
+            Value = user.UserName,
+            Text = $"{user.FirstName} {user.LastName} ({user.UserName})",
+            IsValid = true
+        };
     }
 }
-
 </code></pre>
 </div>
 

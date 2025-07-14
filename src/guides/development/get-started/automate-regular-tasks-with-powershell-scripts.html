@@ -714,6 +714,7 @@ You can find an example of the type of migration that can be run here on <a href
 <li>If CI is enabled, disable it using the <code>Execute-SQL-Data-Query</code> function.</li>
 <li>Call the <code>run</code> command in the .NET CLI and use the <code>--kxp-update</code> option to trigger the update, log an error if any issues are encountered.</li>
 <li>If CI was initially enabled, re-enable it, so that the serialized objects will reflect any new database structure.</li>
+<li>Attempt to serialize all objects with the <em>CI store</em> operation, returning an error if it fails.</li>
 <li>Return to the original directory, in case the script is being run from a PowerShell window instead of with a click.</li>
 </ol>
 
@@ -841,6 +842,12 @@ if($isUsingCD -eq 'True'){
     if(-not $commandResult){
         Handle-Error 'Unable to re-enable continuous integration.'
     }
+
+    dotnet run --kxp-ci-store
+
+    if($LASTEXITCODE -ne 0) {
+        Handle-Error 'Unable to store continuous integration. Make sure to run the store operation after fixing any issues.'
+    }
 }
 
 Set-Location -Path $originalLocation
@@ -875,13 +882,14 @@ Read-Host -Prompt "Press Enter to exit"
 </div>
 <div>
 <p><strong>Data consistency</strong></p>
-<p>After the update is finished and CI is re-enabled successfully, to ensure that any updates to the schema of objects in the database are not in conflict with the data serialized in the CI repository, we highly recommend:</p>
+<p>If the <em>CI store</em> operation fails when you run this script, we highly recommend taking the following steps after addressing the issue that led to failure:</p>
 <ol type="1">
-<li>building your application</li>
-<li>running <a href="#ci-store">CIStore</a>
+<li>Building your application</li>
+<li>Running <a href="#ci-store">CI store</a>
 </li>
 </ol>
-<p>Make sure your solution builds without errors before running CIStore - otherwise, the serialization of CIStore may not be in the correct format. </p>
+<p>This ensures that updates to the schema of objects in the database are not in conflict with the data serialized in the CI repository.</p>
+<p>Make sure your solution builds without errors before running CI store - otherwise, the serialized data may not be in the correct format. </p>
 </div>
 
 <h1 id="whats-next">What’s next?</h1>

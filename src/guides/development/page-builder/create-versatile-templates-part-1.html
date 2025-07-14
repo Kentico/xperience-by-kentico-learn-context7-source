@@ -13,7 +13,7 @@
 <p>It relies on the dropdown provider from the <a href="/guides/development/page-builder/map-enum-to-dropdown">previous guide</a>.</p>
 <p>If you’re following along while working in a different environment, make sure:</p>
 <ul>
-<li>Your instance of Xperience by Kentico is version <a href="/documentation/changelog">29.6.1</a> or higher.
+<li>Your instance of Xperience by Kentico is version <a href="/documentation/changelog">30.6.2</a> or higher.
 
 <div>
 
@@ -237,7 +237,7 @@ Some features covered in the Training guides may not work in older versions.
      {
          DescriptionHtml = new(benefit.BenefitDescription),
          Icon = benefit.BenefitIcon?.FirstOrDefault() != null
-             ? AssetViewModel.GetViewModel(benefit.BenefitIcon.FirstOrDefault()!)
+             ? AssetViewModel.GetViewModel(benefit.BenefitIcon.FirstOrDefault())
              : new(),
      };
  </code></pre>
@@ -338,7 +338,7 @@ public class BenefitViewModel
     {
         DescriptionHtml = new(benefit.BenefitDescription),
         Icon = benefit.BenefitIcon?.FirstOrDefault() != null
-            ? AssetViewModel.GetViewModel(benefit.BenefitIcon.FirstOrDefault()!)
+            ? AssetViewModel.GetViewModel(benefit.BenefitIcon.FirstOrDefault())
             : new(),
     };
 }
