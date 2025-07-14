@@ -262,7 +262,7 @@ string language = widgetProperties.Page.LanguageName;
 </code></pre>
 </div>
 
-<p>The method renders a hidden form field that persists information about the current page. The page data can be retrieved via the <code>IWebPageDataContextRetriever</code> service and <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content">content item API</a> in the corresponding controller action.</p>
+<p>The method renders a hidden form field that persists information about the current page. The page data can be retrieved via the <code>IWebPageDataContextRetriever</code> service and <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">content retriever API</a> in the corresponding controller action.</p>
 <p>Obtain an instance of the <code>IWebPageDataContextRetriever</code> service (using dependency injection) and call its <code>Retrieve</code> method. The returned object’s <code>WebPage</code> property contains basic information about the current page, which you can use to <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content">retrieve the page object</a>.</p>
 
 <div>

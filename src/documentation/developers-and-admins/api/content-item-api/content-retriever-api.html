@@ -76,7 +76,7 @@ var testimonials = await contentRetriever.RetrieveContent&lt;TestimonialItem&gt;
 </code></pre>
 </div>
 
-<p>Functionally, the API serves as an abstraction layer over <a href="/documentation/developers-and-admins/api/content-item-api">content query</a>, where it handles common retrieval scenarios by providing default, recommended configuration for various aspects like <a href="/documentation/developers-and-admins/api/content-item-api#build-queries">query construction</a>, <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">language fallback</a> handling, and <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-linked-content-items">linked item retrieval</a>. However, it also provides developers the option to override these defaults by exposing parts of the retrieval lifecycle (e.g., query construction, model mapping) via function delegates.</p>
+<p>Functionally, the API serves as an abstraction layer over <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content query</a>, where it handles common retrieval scenarios by providing default, recommended configuration for various aspects like <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api#build-queries">query construction</a>, <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">language fallback</a> handling, and <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-linked-content-items">linked item retrieval</a>. However, it also provides developers the option to override these defaults by exposing parts of the retrieval lifecycle (e.g., query construction, model mapping) via function delegates.</p>
 <p>This page introduces concepts shared by all methods available on the service, together with relevant examples. For a complete method reference, see <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-retriever-api">Reference - ContentRetriever API</a>.</p>
 <h2 id="shared-aspects-of-the-api">Shared aspects of the API</h2>
 <h3 id="configurable-retrieval-behavior">Configurable retrieval behavior</h3>
@@ -129,7 +129,7 @@ var testimonials = await contentRetriever.RetrieveContent&lt;TestimonialItem&gt;
 <p>By using these parameters objects, you gain explicit control over the retrieval context and scope, ensuring the retriever fetches the right content based on your application’s requirements, rather than just relying on provided defaults.</p>
 <p>All <code>*Parameters</code> objects also include a <code>Default</code> property. This property provides a default instance of the specific parameter type when no custom configuration is needed. Useful when a configuration action is syntactically required but no additional configuration is necessary (for instance, when using certain advanced overloads of the available methods).</p>
 <h3 id="optional-query-configuration">Optional query configuration</h3>
-<p>Certain overloads of <code>IContentRetriever</code> methods accept an <code>additionalQueryConfiguration</code> parameter. This parameter allows you to directly configure the underlying <a href="/documentation/developers-and-admins/api/content-item-api#build-queries">content query builder</a> instance, providing advanced control over the database query construction beyond what is possible using the <a href="#configurable-retrieval-behavior">retrieval parameters</a> described above.</p>
+<p>Certain overloads of <code>IContentRetriever</code> methods accept an <code>additionalQueryConfiguration</code> parameter. This parameter allows you to directly configure the underlying <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api#build-queries">content query builder</a> instance, providing advanced control over the database query construction beyond what is possible using the <a href="#configurable-retrieval-behavior">retrieval parameters</a> described above.</p>
 <p>You can use this to apply various query modifications, such as:</p>
 <ul>
 <li>
@@ -176,7 +176,8 @@ var testimonials = await contentRetriever.RetrieveContent&lt;TestimonialItem&gt;
 <pre data-line="3"><code>
 var pages = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
     new RetrievePagesParameters { LanguageName = "es" },
-    query =&gt; query.SetUrlLanguageBehavior(UrlLanguageBehavior.UseFallbackLanguage)
+    query =&gt; query.SetUrlLanguageBehavior(UrlLanguageBehavior.UseFallbackLanguage),
+    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(SetUrlLanguageBehavior)}|UseFallbackLanguage")
 );
 
 foreach (var page in pages) {
@@ -211,7 +212,8 @@ var pagesWithUrlsOnly = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
     // Retrieves the title and all columns required for URL resolution
     query =&gt; query
               .Columns("ArticleTitle")
-              .UrlPathColumns();
+              .UrlPathColumns(),
+    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(Columns)}|{nameof(UrlPathColumns)}")
 );
 </code></pre>
 </div>
@@ -454,7 +456,7 @@ Func&lt;IContentQueryDataContainer, TInput, Task&lt;TResult&gt;&gt; configureMod
 
 </div>
 <div>
-<p>See the <a href="/documentation/developers-and-admins/api/content-item-api#run-queries-and-map-the-result">Run queries and map the result</a> documentation to learn about the content item query model mapping lifecycle. <code>IContentRetriever</code> methods simply expose certain parts of the lifecycle.</p>
+<p>See the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api#run-queries-and-map-the-result">Run queries and map the result</a> documentation to learn about the content item query model mapping lifecycle. <code>IContentRetriever</code> methods simply expose certain parts of the lifecycle.</p>
 </div>
 
 <h4 id="direct-model-mapping-without-registration">Direct model mapping without registration</h4>

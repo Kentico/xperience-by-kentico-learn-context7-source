@@ -11,15 +11,15 @@
 <li>Specify database column names explicitly when retrieving or manipulating data for particular fields.</li>
 <li>Manually perform value type conversions (e.g., from <code>object</code> or <code>string</code>) and validation on the data as it comes from the database.</li>
 </ul>
-<p>To simplify working with such objects, especially when retrieving data using <a href="/documentation/developers-and-admins/api/content-item-api">content queries</a>, the system allows you to generate object-specific code files, often referred to as model classes.</p>
+<p>To simplify working with such objects, especially when retrieving data using the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a> or the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item query API</a>, the system allows you to generate object-specific code files, often referred to as model classes.</p>
 <p>A generated code file contains C# properties that directly correspond to the custom fields defined for the source object (e.g., <strong>Title</strong>, <strong>ArticleSummary</strong>, <strong>ArticleText</strong> properties for an article <a href="/documentation/developers-and-admins/development/content-types">content type</a>). Each property is generated with an appropriate C# data type and getter/setter logic suitable for manipulating the data of the underlying field. This provides strongly-typed access, IntelliSense support, and eliminates the need for manual type casting or validation in many cases.</p>
-<p>Additionally, using these generated model classes greatly simplifies the <a href="/documentation/developers-and-admins/api/content-item-api#run-queries-and-map-the-result">model mapping process</a> when retrieving content. When the result type specified in a content query method matches the generated class for the content being retrieved, the system’s default mapping logic can often automatically populate the properties of the generated class instance directly from the query results. This reduces the need to write custom mapping logic or manually extract values from the raw database data (<code>IContentQueryDataContainer</code> objects).</p>
+<p>Additionally, using these generated model classes greatly simplifies content retrieval. When the result type specified in a retrieval method matches the generated class for the content being retrieved, the system’s default mapping logic can often automatically populate the properties of the generated class instance directly from the query results. This reduces the need to write custom mapping logic or manually extract values from the raw database data (<code>IContentQueryDataContainer</code> objects).</p>
 <p>Code generation is available for the following objects:</p>
 <ul>
 <li>
-<a href="/documentation/developers-and-admins/development/content-types">Reusable content types</a> – generates a class with the reusable content type’s fields as properties. See <a href="/documentation/developers-and-admins/api/content-item-api">Content item API</a> to learn about available API that can be used with generated content type classes.</li>
+<a href="/documentation/developers-and-admins/development/content-types">Reusable content types</a> – generates a class with the reusable content type’s fields as properties. See <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a> and <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item API</a> to learn about available API that can be used with generated content type classes.</li>
 <li>
-<a href="/documentation/developers-and-admins/development/content-types">Page content types</a> – generates a class with the page content type’s fields as properties. See <a href="/documentation/developers-and-admins/api/content-item-api">Content item API</a> to learn about available API that can be used with generated page classes.</li>
+<a href="/documentation/developers-and-admins/development/content-types">Page content types</a> – generates a class with the page content type’s fields as properties. See <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a> <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item API</a> to learn about available API that can be used with generated page classes.</li>
 <li>
 <a href="/documentation/developers-and-admins/development/content-types">Email content types</a> – generates a class with the email content type’s fields as properties. Xperience currently does not provide a general API for retrieving and working with emails. Classes generated for email content types are used when <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#email-fields">retrieving the values</a> of an email’s fields within <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components">Email Builder components</a>.</li>
 <li>
@@ -481,7 +481,7 @@ namespace My.Project
 <p>Then the <strong>Books</strong> field, a reference from the <em>Author</em> content type to the <em>Book</em> content type, is in the generated model class represented as a property of the <code>IEnumerable&lt;Book&gt;</code> type.</p>
 <p>If the target of the reference is <strong>not</strong> a specific content type but a <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schema</a> that can be used by multiple content types, the property representing the reference is a collection of <a href="#reusable-field-schema-interfaces">reusable field schema interface</a> objects.</p>
 <p>As an example, imagine a <code>PageMetadata</code> reusable field schema that declares fields shared by all page content types in the system. References to this schema are in generated model classes defined using the <code>IEnumerable&lt;IPageMetadata&gt;</code> type.</p>
-<p>When <a href="/documentation/developers-and-admins/api/content-item-api#run-queries-and-map-the-result">mapping the results of content item queries</a> to model classes that contain properties representing references to reusable field schemas, the system by default instantiates the referenced content items using the target reusable field schema interface type (<code>IPageMetadata</code>, for example).</p>
+<p>When retrieving content either via the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-retriever-api">ContentRetriever</a> or <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api#run-queries-and-map-the-result">content item query</a> API and mapping the results to model classes that contain properties representing references to reusable field schemas, the system by default instantiates the referenced content items using the target reusable field schema interface type (<code>IPageMetadata</code>, for example).</p>
 <p>You can override this default behavior and directly set which model class the system should use via the <code>MapContentTypeReferenceTo</code> and <code>MapReferenceTo</code> property-level attributes.</p>
 
 <div>
@@ -522,7 +522,7 @@ public class PageMetadata : IPageMetadata
 </code></pre>
 </div>
 
-<p>If neither of these attributes is used, the system defaults first to the type of the property representing the reusable schema reference (<code>IPageMetadata</code> in the example above) and finally to the type registered via the <a href="#registercontenttypemapping-attribute">RegisterContentTypeMapping attribute</a>. This fallback chain is identical for <code>GetMappedResult</code> methods and direct <code>IContentQueryModelTypeMapper</code> usage.</p>
+<p>If neither of these attributes is used, the system defaults first to the type of the property representing the reusable schema reference (<code>IPageMetadata</code> in the example above) and finally to the type registered via the <a href="#registercontenttypemapping-attribute">RegisterContentTypeMapping attribute</a>. This fallback chain is identical for both the ContentRetriever and content item query APIs.</p>
 <h2 id="registercontenttypemapping-attribute">RegisterContentTypeMapping attribute</h2>
 <p>All generated model classes come annotated with the <code>RegisterContentTypeMapping</code> class-level attribute. The attribute controls which model classes get prioritized when the system maps content item database data to models.</p>
 
@@ -573,21 +573,16 @@ public class PageMetadata : IPageMetadata
 <div>
 <pre><code>
 
-// Instances of services obtained via dependency injection
-private readonly IContentQueryExecutor contentQueryExecutor;
-private readonly IContentQueryModelTypeMapper contentQueryMapper;
+// Instance of the IContentRetriever service obtained via dependency injection
+private readonly IContentRetriever contentRetriever;
 
 public async Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; FetchMultipleContentTypes()
 {
-    // Gets multiple content types in a single query
-    var builder = new ContentItemQueryBuilder()
-                            .ForContentTypes(query =&gt; 
-                            {
-                                query.OfContentType(Coffee.CONTENT_TYPE_NAME, Event.CONTENT_TYPE_NAME)
-                            });
+    // Gets multiple content types in a single query using IContentRetriever
+    var contentTypes = new[] { Coffee.CONTENT_TYPE_NAME, Event.CONTENT_TYPE_NAME };
 
     // Uses 'IContentItemFieldsSource' as the shared type
-    return await contentQueryExecutor.GetMappedResult&lt;IContentItemFieldsSource&gt;(builder);
+    return await contentRetriever.RetrieveContentOfContentTypes&lt;IContentItemFieldsSource&gt;(contentTypes);
 }
 
 </code></pre>

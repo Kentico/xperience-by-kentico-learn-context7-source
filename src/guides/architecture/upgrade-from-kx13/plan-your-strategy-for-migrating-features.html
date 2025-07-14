@@ -147,13 +147,14 @@
 <p><strong>XbyK feature:</strong> Email marketing</p>
 <p>HIGH Email feeds in KX13 are similar to <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">Email channels</a> in XbyK.</p>
 <p>At this time, the Kentico migration tool will not automatically transfer this data. You can migrate form auto-responders to XbyK manually by copying your HTML code and content into Email templates and Emails. See available email marketing features in <a href="/documentation/business-users/digital-marketing/emails">our documentation</a>.</p>
-<p><a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a> is currently available as a preview feature. However, the email widgets from KX13 will need manual code adjustments, as the XbyK Email Builder uses a different format.</p>
-<p>A/B testing is on <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">our roadmap</a>.</p>
+<p><a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a> is fully supported in Xperience by Kentico. However, email components, like widgets and templates, from KX13 will need manual code adjustments, as the XbyK Email Builder uses a different format.</p>
+<p>A/B testing for emails is not available in XbyK out-of-the-box at the moment. We recommend that you follow <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">our roadmap</a> for updates.</p>
 
 <div>
 
 </div>
 <div>
+<p>XbyK Email Builder allows developers to create and manage templates and other components in the application code without the need to sign into the administration interface. This provides a better debugging experience and makes it easier to manage components with source control.</p>
 <p>For email content in XbyK, marketers can use AIRA to generate data from existing content in Content hub, URLs, or custom prompts.</p>
 </div>
 
@@ -178,12 +179,12 @@
 <p><strong>XbyK feature:</strong> Roadmap</p>
 <p>HIGH At the moment, this feature is not available in XbyK, but it is one of our goals to build a way for customers to use our API to feed data from Xperience into any channel - including social media. If this is not an immediate need, we recommend to wait and follow <a href="https://roadmap.kentico.com/c/225-custom-channel-types?&amp;utm_medium=social&amp;utm_source=starter_share" target="_blank">our roadmap</a>.</p>
 <h2 id="digital-commerce">Digital commerce</h2>
-<p><strong>XbyK feature:</strong> Integrations</p>
-<p>HIGH Xperience by Kentico does not include e-commerce out-of-the-box. However, your development team can take advantage of our existing <a href="https://github.com/Kentico/xperience-by-kentico-shopify" target="_blank">Shopify integration</a> or use the <a href="https://github.com/Kentico/xperience-by-kentico-k13ecommerce" target="_blank">KX13 e-commerce bridge integration</a> as an interim solution.</p>
+<p><strong>XbyK feature:</strong> Digital commerce, integrations</p>
+<p>HIGH <a href="/documentation/developers-and-admins/digital-commerce-setup">Digital commerce</a> is currently available as a preview feature in XbyK. Your development team can also take advantage of our existing <a href="https://github.com/Kentico/xperience-by-kentico-shopify" target="_blank">Shopify integration</a> or use the <a href="https://github.com/Kentico/xperience-by-kentico-k13ecommerce" target="_blank">KX13 e-commerce bridge integration</a> as an interim solution.</p>
 <h2 id="analytics">Analytics</h2>
 <h3 id="ab-testing-and-web-analytics">A/B testing and Web analytics</h3>
 <p><strong>XbyK feature:</strong> Integrations</p>
-<p>HIGH Your development team can implement these features through our <a href="https://github.com/Kentico/xperience-by-kentico-tag-manager" target="_blank">tag manager integration</a>. For A/B testing we recommend the integration with <a href="https://vwo.com/" target="_blank">VWO</a>. For web analytics you can use Google Analytics, Google Tag Manager or Microsoft Clarity.</p>
+<p>HIGH Your development team can implement these features through our <a href="https://github.com/Kentico/xperience-by-kentico-tag-manager" target="_blank">tag manager integration</a>. For A/B testing we recommend the integration with <a href="https://vwo.com/" target="_blank">VWO</a>. For web analytics you can use Google Analytics, Google Tag Manager or Microsoft Clarity. Additionally, we plan to leverage AI to help optimize and automate several tasks, including A/B testing. Follow <a href="https://roadmap.kentico.com/c/325-ai-experiments-and-optimization" target="_blank">our roadmap</a> for details.</p>
 <h3 id="reporting">Reporting</h3>
 <p><strong>XbyK feature:</strong> Custom module</p>
 <p>HIGH Your development team can implement reporting using XbyK Custom modules. The feature is not present out of the box.</p>
@@ -228,10 +229,11 @@
 <p>MEDIUM Xperience currently supports <a href="/documentation/developers-and-admins/configuration/users/user-management#multi-factor-authentication">Multi-factor authentication</a> in the administration interface. Alternatively, your team can build a custom implementation or integration.</p>
 <h3 id="integration-bus">Integration bus</h3>
 <p><strong>XbyK feature:</strong> Roadmap</p>
-<p>HIGH At the moment this feature is not available out-of-the-box in XbyK. We recommend to follow <a href="https://roadmap.kentico.com/c/225-custom-channel-types?&amp;utm_medium=social&amp;utm_source=starter_share" target="_blank">our roadmap</a> for updates.</p>
+<p>HIGH At the moment this feature is not available out-of-the-box in XbyK. We recommend that you follow <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">our roadmap</a> for updates.</p>
 <h3 id="admin-localization">Admin localization</h3>
 <p><strong>XbyK feature:</strong> Roadmap</p>
-<p>HIGH The localization of the admin UI is currently not available out-of-the-box in the XbyK. If this is a must-have feature for your project, give us your feedback via your usual communication channels and keep an eye on <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">our roadmap</a>. Alternatively, your team can build a custom implementation.</p>
+<p>HIGH The localization of the admin UI is not available out-of-the-box in XbyK. However, we plan to add support for you to translate the admin UI strings on your own in <a href="https://roadmap.kentico.com/c/265-basic-localization-support-for-admin-ui" target="_blank">our upcoming releases</a>. Alternatively, your team can build a custom implementation.</p>
+<h2 id="now-that-youve-got-the-big-picture">Now that you’ve got the big picture…</h2>
 <p>The goal of this article was to provide you with high-level information about KX13 to XbyK upgrade complexity from a feature perspective. We realize that the actual effort needed will vary from project to project. Let’s continue to get a clearer picture of what an upgrade could look like in practice.</p>
 <h2 id="whats-next">What’s next?</h2>
 <p>If you want a deeper technical understanding of how these features fit into the upgrade process from beginning to end—as outlined in the <a href="/guides/architecture/upgrade-from-kx13/upgrade-from-kx13-overview">Overview</a>—check out the next two guides: <a href="/guides/architecture/upgrade-from-kx13/prep-for-upgrade-and-transfer-data">Prep for the upgrade and transfer data</a> and <a href="/guides/architecture/upgrade-from-kx13/adjust-your-code-and-adapt">Adjust your code and adapt your project</a>.</p>

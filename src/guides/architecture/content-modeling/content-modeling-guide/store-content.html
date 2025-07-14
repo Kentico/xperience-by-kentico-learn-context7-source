@@ -234,7 +234,7 @@ Note that the last two options introduce several competing content management sy
 <p>Developers also specify which content type editors can select when they work with their content. The <em>Combined content selector</em> allows developers to specify, which content types editors select.</p>
 <p>When an editor selects content items they want to use, rather than copying the values from the original item to the new item, Xperience creates a reference between these records.</p>
 <p>Reusing content items improves content maintenance. When an editor updates the referenced item, the content changes are automatically promoted to every other item that uses this content, making content management a breeze. From the developer perspective, developers query in their custom code the linked items and return <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">a collection</a> of <a href="/documentation/developers-and-admins/api/content-item-api/content-item-database-structure">references to content items</a> which they can further process. For example, they can retrieve URLs of web pages to which editors want to guide their audience.</p>
-<p>One of the most typical examples of reusable content types are content item <a href="#store-assets-in-content-hub">Assets</a> that users store in the <em>Content hub</em>. See further examples mentioned in this guide in the Kbank demo site.</p>
+<p>One of the most typical examples of reusable content types are content item <a href="/guides/architecture/content-modeling/content-modeling-guide/store-files">assets</a> that users store in the <em>Content hub</em>. See further examples mentioned in this guide in the Kbank demo site.</p>
 <h3 id="avoid-creating-channel-specific-content-from-linked-content-fragments">Avoid creating channel-specific content from linked content fragments</h3>
 <p>Customers who until recently used to display their content (stored in a CMS) only on the website, love using visual builders to create website content. Xperience offers <strong>Page Builder</strong>, which allows editors to assemble web pages using components like hero banners, text and image blocks, reviews, testimonials, and FAQs. For simplicity, we’ll call these components “content fragments.” These fragments aren’t semantic; they hold specific pieces of data that represent only a part of the overall information needed to convey the complete meaning of the content.</p>
 <p>While this approach makes it easy for editors to craft entire web pages quickly in Xperience, it has limitations. The most significant advantage is speed and simplicity when you’re only concerned with presenting content on a single website channel. However, this method ties the content exclusively to the specific web page, meaning the fragments can’t be easily queried or reused across different channels in Xperience. By composing their content type using widgets, editors lock their content only within the context of that specific web page.</p>
@@ -243,97 +243,11 @@ Note that the last two options introduce several competing content management sy
 <p>Both options offer unique advantages when deciding between storing reusable content in Content hub or custom module classes. From a user perspective, we recommend considering the Content hub first before resorting to choosing custom module classes.</p>
 <p>The <strong>Content hub</strong> provides default Kentico functionality, including editing workflows, multilingual support, usage reports for improving content curation, or a built-in user interface. Additionally, the Content hub allows editors to easily manage and reuse content across various channels, making it highly flexible for developers and editors. Using Content hub often means developers don’t have to create custom UI components, saving time and effort.</p>
 <p>A key benefit of the Content hub is its ability to integrate with APIs, enabling content creation from third-party sources. Upcoming features are expected to enhance this functionality further, making it an even more powerful tool. Using the Content hub, developers can focus on supporting content management through out-of-the-box components rather than building custom solutions, leading to quicker deployment and easier maintenance.</p>
-<h2 id="store-files-in-xperience">Store files in Xperience</h2>
-<h3 id="work-with-managed-files">Work with managed files</h3>
-<p>Xperience allows you to store files of various file types in Xperience, such as photos, pictures, sound files, videos, package files, presentations, or document files. We call files stored through the Xperience interface <em>managed files.</em> Xperience comes with tools that allow editors to upload the files into the system or add their uploaded files to the rest of their marketing content. To help developers, Xperience contains prebuilt form components for uploading or selecting files,  procedures for storing the files, and optimized methods that developers can use to retrieve the files to the live site.</p>
-<p>Xperience doesn’t restrict you to storing only media. You can also store non-media files such as spreadsheets, documents, or PDF files. Using the <strong>Settings</strong> application and custom definitions in code, developers ensure that editors can work with different files as specified in the project requirements.</p>
-
-<div>
-
-</div>
-<div>
-<p>If you have a less experienced team of editors, ask your developers to configure Xperience application to allow uploading files of specified types or limited sizes.</p>
-</div>
-
-<p>Files stored in Xperience can also be served through a CDN. Xperience natively supports using <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a> and <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/amazon-s3">Amazon S3</a> file providers. However, developers can customize Xperience to <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/custom-file-system-providers">support other file providers</a>.</p>
-<p>Xperience comes with two approaches to storing <em>managed files</em>:</p>
-<ul>
-<li><a href="#store-assets-in-content-hub">Storing files in Content hub</a></li>
-<li><a href="#media-libraries">Storing files in Media libraries</a></li>
-</ul>
-<h3 id="store-assets-in-content-hub">Store assets in Content hub</h3>
-<p>As the <em>Content hub</em> application is the centralized location for managing and distributing marketing content, we recommend storing your media files here.</p>
-<p>Editors can store any file type. Out-of-the-box, Xperience supports the most common file types. Developers can additionally <a href="/documentation/developers-and-admins/configuration/content-hub-configuration">configure the Content hub application</a> to support different file types or file sizes. Storing files in the Content hub also allows editors to <a href="/documentation/business-users/content-hub/content-items#secure-content-items">restrict access to a specific asset</a> only for authenticated users.</p>
-<h4 id="asset-content-type">Asset content type</h4>
-<p>To store files in the <em>Content hub</em>, developers can create a custom content type and prepare fields based on the project requirements for a custom <em>Media</em> or <em>Asset</em> content type.</p>
-<p>From Xperience’s perspective, an <em>Asset</em> content type should contain the binary file and additional related information. Xperience comes out of the box with the <strong>Asset selector</strong> form control that you can use when defining the content type.</p>
-<p>For example, Kbank’s <em>Asset</em> type consists of the <em>File</em> field that uses the <em>Asset uploader</em> form control and references the binary itself, and additional fields, such as <em>AltText</em> or <em>Description</em>, which marketers can use to categorize or decorate their data.</p>
-<p></p>
-<p>When editors add an image to their content item, they use the <em>Combined content selector</em> form component that is scoped against the <em>Asset</em> content type. To display the assets correctly, developers need to <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-content-items">retrieve the linked assets</a>. At the same time, the built-in <a href="/documentation/business-users/rich-text-editor">Rich text editor</a> natively supports selecting assets from the <em>Content hub</em> into the text field and automatically retrieves them from the hub.</p>
-<p><strong>Recommendations – Content hub assets</strong></p>
-<p>Use <strong>Content hub</strong> to:</p>
-<ul>
-<li>Store any type of files.</li>
-<li>Store additional <a href="/documentation/developers-and-admins/development/content-types">custom asset properties</a> in a structured format.</li>
-<li>Require <a href="/documentation/business-users/content-hub/content-items#secure-content-items">authentication</a> to access an item (<em>content security policy</em>).</li>
-<li>Use <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a> to categorize your assets in Content hub.</li>
-<li>Reuse stored files on other <a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">channels</a> managed by Xperience.</li>
-<li>Automatically <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">optimize image sizes</a> to predefined format.</li>
-<li>Create <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">image variants</a> for different presentation options.</li>
-</ul>
-<p></p>
-<h3 id="media-libraries">Media libraries</h3>
-<p><strong>Media libraries</strong> application offers a second way of storing files in Xperience. Despite its name, editors can add files of any type, as in the <em>Content hub</em>, and reuse them in different content types across the website channels. Developers can use the out-of-the-box <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">Media file selector</a> form component when they define content types that usually contain some media element, such as articles, banners, or videos.</p>
-<p>Editors can create a hierarchy of folders within a media library to store their files. They can also adjust some basic properties of the file, such as its title or description.</p>
-<p></p>
-<p>When an editor selects the file they want to display on the live site, they create a reference to the file stored in the media library. Developers can access media library files without querying the database, reducing overhead. The media libraries must be deployed in <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a> when <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">deploying to the SaaS environment</a>.</p>
-<p>Based on the size of the editing team and the way the team works, we recommend creating a more granular system of media libraries rather than one massive media library with a complex subfolder structure.</p>
-<p><strong>Considerations for Media libraries</strong></p>
-<p>Before using media libraries to store files, consider storing files and other assets as <a href="/documentation/business-users/content-hub/content-item-assets">Content item assets</a>.</p>
-<p>There are not many situations in which you should consider using media libraries for storing files instead of <em>Content hub</em>. One of these rare situations might be planning to move your asset management into a third-party <a href="https://en.wikipedia.org/wiki/Digital_asset_management" target="_blank">Digital Asset Management</a> solution early into the project.</p>
-<p>Compared to storing assets in the <a href="/documentation/business-users/content-hub/content-item-assets">Content hub</a>, using <strong>media libraries</strong> introduces additional challenges:</p>
-<ul>
-<li>Developers need to extend the existing UI of media libraries if editors require additional fields.</li>
-<li>Out-of-the-box media libraries don’t allow editors to categorize their assets with <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a>.</li>
-<li>Media libraries don’t store language variants of assets editors can create when storing <a href="/documentation/business-users/content-hub/content-item-assets">assets in the Content hub</a>.</li>
-<li>Editors cannot determine the lifecycle of their assets in media libraries through publishing <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a>.</li>
-<li>Editors cannot use built-in <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">image optimization</a> and <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">image transformations</a> on media files stored in <em>Media libraries</em> application.</li>
-</ul>
-
-<div>
-
-</div>
-<div>
-<p>Unlike assets stored in the Content hub, media files cannot be hidden behind a login. <strong>Do not use media libraries for files that are not intended to be public</strong>. Media library files are always accessible at their direct URL by their GUID (e.g., <em>example.com/getmedia/3b60d630-0016-4432-9aa1-34e57521abe4/which-brewing-fits-you-1080px.jpg</em>).</p>
-</div>
-
-<h3 id="note-on-unmanaged-files">Note on unmanaged files </h3>
-<p>You can also use <strong>unmanaged files</strong> in your Xperience application. Unmanaged files refer to all files that content creators do not edit from the Xperience administration or via the platform’s API. Examples include:</p>
-<ul>
-<li><p>Static files used for website channel design, such as images, favicons, fonts, JavaScript, and CSS files, stored in the <em>wwwroot</em> folder.</p></li>
-<li>
-<p>Files stored in the website project outside of media libraries. Such as files required by custom functionality or integration unrelated to Xperience content management.</p>
-<ul>
-<li>Use subfolders under <code>~/assets/&lt;project_name&gt;</code> to store such files (outside the <em>media</em> folder containing media library subfolders). When <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">deploying to the SaaS environment</a>, these files must be deployed in <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">Azure Blob storage</a>.</li>
-</ul>
-</li>
-</ul>
-<h2 id="create-channel-specific-content">Create channel-specific content</h2>
-<p>From a marketing perspective, not all content will be distributed across multiple marketing channels. Content like personalized <em>call to action button labels</em> or <em>page headings</em> will likely be specific to only the website channel, and it doesn’t have to exist in the Content hub. Your team will create these items directly inside the channel and keep them there. For this reason, it’s not possible to create channel-specific content like a page with a URL directly in the Content hub.</p>
-
-<div>
-
-</div>
-<div>
-<p>When deciding between reusable and channel-specific content, follow a simple rule of thumb:</p>
-<p>Is it possible for editors to reuse this piece of content on a different channel in the future? Yes, make it reusable.</p>
-</div>
-
 <h3 id="make-designing-content-generic">Make designing content generic</h3>
 <p>Though you might want to store design-specific information, like exact color codes or sizes, inside the channel-specific content types, we do not recommend this. From a content longevity perspective, you want to have your design information as agnostic to the visual design as possible. When you decide to, for example, redesign your brand, it’s easier to remap the generic class name to new colors than change the specific <em>#F05A22</em> brand color code in hundreds of different places. The following screenshot shows styling options in the Kbank demo site.</p>
 <p></p>
 <h2 id="whats-next">What’s next?</h2>
-<p>You have learned about the options for storing data in Xperience. In the <a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a> section, you’ll learn about different approaches to designing and presenting this data in your application.</p>
+<p>You have learned about the options for storing non-file data in Xperience. In the <a href="/guides/architecture/content-modeling/content-modeling-guide/store-files">Store files</a> section, you’ll learn the recommended practices for storing different types of files in Xperience.</p>
 
 </body>
 </html>

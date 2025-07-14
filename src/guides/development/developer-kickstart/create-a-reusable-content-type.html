@@ -87,7 +87,7 @@
 
 <p></p>
 <h4 id="reference-the-project">Reference the project</h4>
-<p>Add a reference from the <em>Kicskstart.Web</em> project to the <em>Kickstart.Entities</em> project.</p>
+<p>Reference the <em>Kickstart.Entities</em> project in the <em>Kickstart.Web</em> project.</p>
 <p>You can do this by adding a line like <code>&lt;ProjectReference Include="..\Kickstart.Entities\Kickstart.Entities.csproj" /&gt;</code> to the <strong>Kickstart.Web.csproj</strong> file, or through the UI of some editors.</p>
 
 <div>
@@ -103,7 +103,7 @@
 </div>
 
 <h4 id="configure-the-project">Configure the project</h4>
-<p>Add the <em>Kentico.Xperience.Core</em> NuGet package to the <em>Kickstart.Entities</em> project. Make sure to match the version of Xperience you installed – <strong>29.3.0</strong> in this case.</p>
+<p>Add the <em>Kentico.Xperience.Core</em> NuGet package to the <em>Kickstart.Entities</em> project. Make sure to match the version of Xperience you installed – <strong>30.6.1</strong> in this case.</p>
 <p>Then edit <em>Kickstart.Entities.csproj</em> to add the <code>CMS.AssemblyDiscoverableAttribute</code>.</p>
 
 <div>
@@ -175,6 +175,7 @@ dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location 
 </div>
 
 <p>After you successfully run the command above, you will see it created an <em>Slogan.generated.cs</em> file for the <em>Kickstart.Slogan</em> content type, located in the <em>~/ReusableContentTypes/Slogan</em> folder of the <em>Kickstart.Entities</em> project.</p>
+<p></p>
 <p>Thanks to the generated class, you can now retrieve and work with any future <em>Slogan</em> content items as described in <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">the documentation</a>.</p>
 
 <div>

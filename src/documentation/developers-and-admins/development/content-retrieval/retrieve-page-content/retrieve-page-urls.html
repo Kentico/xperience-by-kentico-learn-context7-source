@@ -10,7 +10,7 @@
 <p>There are two main ways to retrieve page URLs:</p>
 <h3 id="using-the-geturl-extension-method">Using the GetUrl extension method</h3>
 <p>This method is available for <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">generated model classes</a> and in general for objects that implement <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#icontentitemfieldssource-interfaces">IWebPageFieldsSource</a>. It returns a <code>WebPageUrl</code> object containing the relative and absolute URL for a page.</p>
-<p>A key advantage of <code>GetUrl()</code> is that it <strong>never results in additional database queries</strong>. If the necessary data for URL resolution is missing from the retrieved page object, it terminates with an exception instead. In its internal implementation, the method relies solely on the data prefetched by a content query call. To ensure all necessary data for URL resolution, use the <code>UrlPathColumns()</code> method when customizing your query’s <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#columns">selected columns</a>.</p>
+<p>A key advantage of <code>GetUrl()</code> is that it <strong>never results in additional database queries</strong>. If the necessary data for URL resolution is missing from the retrieved page object, it terminates with an exception instead. In its internal implementation, the method relies solely on the data prefetched by a content query call. The necessary URL data is included by default through the <code>IncludeUrlPath</code> property of the parameters object when using the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-retriever-api#page-query-parameters">IContentRetriever</a> API.</p>
 
 <div>
 <div>
@@ -27,23 +27,28 @@
 </div>
 <div>
 <pre><code>
-// Assuming 'articlePage' is an instance of a generated content type class,
-// for example, retrieved via IContentQueryExecutor.GetMappedWebPageResult
-ArticlePage articlePage = 
-    (await executor.GetMappedWebPageResult&lt;ArticlePage&gt;(builder))
-    .FirstOrDefault();
+// Services obtained via dependency injection
+private readonly IContentRetriever contentRetriever;
 
-if (articlePage != null)
+public async Task PageUrlRetrieval()
 {
-    // Retrieves URL data for the page
-    WebPageUrl url = articlePage.GetUrl();
+    // Retrieve pages using IContentRetriever (recommended approach)
+    var articles = await contentRetriever.RetrievePages&lt;ArticlePage&gt;()
 
-    string relativePath = url.RelativePath;
-    string absoluteUrl = url.AbsoluteUrl;
+    var articlePage = articles.FirstOrDefault();
+    if (articlePage != null)
+    {
+        // Retrieves URL data for the page
+        WebPageUrl url = articlePage.GetUrl();
+
+        string relativePath = url.RelativePath;
+        string absoluteUrl = url.AbsoluteUrl;
+    }
 }
 </code></pre>
 </div>
 
+<p>If you are <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api#optimizing-retrieved-data-for-url-generation">optimizing data retrieval for URL generation</a> using the <code>IContentRetriever</code> or retrieving data using the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item query API</a> with custom configuration that might exclude URL columns, use the <code>UrlPathColumns()</code> method to ensure the selected columns include URL data.</p>
 <h3 id="using-the-iwebpageurlretriever-interface">Using the IWebPageUrlRetriever interface</h3>
 <p>This interface (available in the <code>CMS.Websites</code> namespace) offers more specialized URL retrieval options, particularly when you only have the page identifier or need to retrieve a URL for a page object that might not have all URL-related data pre-loaded. Unlike <code>GetUrl()</code>, <code>IWebPageUrlRetriever</code> may perform additional database queries if the necessary information isn’t available in the provided page object or if only a page identifier is supplied.</p>
 <p>URLs resolved using the service respect the <a href="#url-language-behavior">URL language behavior</a> set when retrieving the data – it constructs the resulting URLs in the desired language format.</p>
@@ -93,18 +98,18 @@ string url2_absolute = url2.AbsoluteUrl;
 <p>When retrieving URLs in <a href="/documentation/developers-and-admins/configuration/languages">multilingual scenarios</a>, you can control the language of the generated URL path using the <code>UrlLanguageBehavior</code> enum:</p>
 <ul>
 <li>
-<code>UseRequestedLanguage</code> – When a page is served in a <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">fallback language</a>, its URL path is generated based on the language originally requested by the <code>InLanguage</code> method. For instance, if Spanish is requested and an English page is returned as a fallback, the URL path will still be structured as if it were a Spanish page (e.g., using URL prefixes as configured in the <a href="/documentation/developers-and-admins/configuration/languages#set-up-a-new-language">Languages</a> application).</li>
+<code>UseRequestedLanguage</code> – When a page is served in a <a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">fallback language</a>, its URL path is generated based on the language originally requested by the retrieval method. For instance, if Spanish is requested and an English page is returned as a fallback, the URL path will still be structured as if it were a Spanish page (e.g., using URL prefixes as configured in the <a href="/documentation/developers-and-admins/configuration/languages#set-up-a-new-language">Languages</a> application).</li>
 <li>
-<code>UseFallbackLanguage</code> (Default) – When a page is served in a fallback language, its URL path is generated based on the language of the actual fallback content. In the example below, the URL path would be structured as an English page.</li>
+<code>UseFallbackLanguage</code> – When a page is served in a fallback language, its URL path is generated based on the language of the actual fallback content. In the example below, the URL path would be structured as an English page.</li>
 </ul>
-<p>You can configure this behavior when building queries using the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#seturllanguagebehavior">SetUrlLanguageBehavior</a> method.</p>
+<p>By default, the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api#controlling-url-language-with-fallbacks">ContentRetriever API</a> implements the <code>UseRequestedLanguage</code> behavior, while the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#seturllanguagebehavior">content item query API</a> implements <code>UseFallbackLanguage</code>. In both cases, you can configure the behavior to suit your needs by using the <code>SetUrlLanguageBehavior</code> method when building queries.</p>
 
 <div>
 <div>
 <div>
 <span>C#</span>
 </div>
-<strong>Configure URL language behavior for a query using GetUrl</strong>
+<strong>Configure IContentRetriever URL language behavior for a query using GetUrl</strong>
 </div>
 <div>
 <button>
@@ -114,34 +119,22 @@ string url2_absolute = url2.AbsoluteUrl;
 </div>
 <div>
 <pre><code>
-// Services obtained via dependency injection
-private readonly IContentQueryExecutor executor;
+//  Instance of the IContentRetriever service obtained via dependency injection
+private readonly IContentRetriever contentRetriever;
 
 public async Task PageRetrievalWithCustomUrlLanguage()
 {
-    var builder =
-        new ContentItemQueryBuilder()
-            .ForContentType(
-                "My.ArticlePage",
-                config =&gt; config
-                    .ForWebsite(
-                        "MyWebsiteChannel",
-                        PathMatch.Children("/Articles"))
-                    // Configure URL language behavior
-                    .SetUrlLanguageBehavior(
-                        UrlLanguageBehavior.UseRequestedLanguage)
-            )
-            // Requesting Spanish content
-            .InLanguage("spanish");
-
-    IEnumerable&lt;ArticlePage&gt; pages =
-        await executor.GetMappedWebPageResult&lt;ArticlePage&gt;(builder);
+    var pages = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
+        new RetrievePagesParameters { LanguageName = "es" },
+        query =&gt; query.SetUrlLanguageBehavior(UrlLanguageBehavior.UseFallbackLanguage),
+        new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(SetUrlLanguageBehavior)}|UseFallbackLanguage")
+    );
 
     foreach(var page in pages)
     {
         // If a page requested in Spanish uses English content
-        // due to language fallback, its URL will still use the 'spanish'
-        // language segments due to 'UrlLanguageBehavior.UseRequestedLanguage'.
+        // due to language fallback, its URL will use the 'english'
+        // language segments due to 'UrlLanguageBehavior.UseFallbackLanguage'.
         //
         // For example: '/&lt;spanishLanguageName&gt;/my-page-slug'
         WebPageUrl url = page.GetUrl();

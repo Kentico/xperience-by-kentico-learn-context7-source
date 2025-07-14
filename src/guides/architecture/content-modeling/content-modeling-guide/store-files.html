@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Store files</title>
+</head>
+<body>
+<p>Xperience by Kentico allows teams to store and manage different files, such as images, videos, documents, and more, as part of their structured content. Instead of treating files as generic uploads, you can model them as <a href="/guides/development/developer-kickstart/create-a-reusable-content-type#define-the-content-type">reusable content</a> items and manage their metadata, permissions, and relationships to other content in your system.</p>
+<p>We’ll explore how to design and implement content types to store assets in the <a href="/documentation/business-users/content-hub">Content hub</a> application. You’ll learn how to define content types for different file formats, what fields to include, and how to support editorial workflows and front-end delivery requirements.</p>
+<p>Xperience provides editors with a rich set of tools, including:</p>
+<ul>
+<li>Automatic <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">image transformations to predefined formats</a>.</li>
+<li>Responsive <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">image variants</a>.</li>
+<li>
+<a href="/documentation/business-users/content-hub/content-item-assets#change-image-focal-point">Focal point selection</a> for smart cropping and scaling.</li>
+<li>Optimized delivery through the <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-image-variants">Content Retriever API</a>.</li>
+</ul>
+<p>By modeling your files as structured content items, editors and developers can control how the files are stored, categorized, retrieved, and reused. This approach supports long-term scalability and content delivery across channels, enables content personalization features, and helps teams comply with SEO strategies.</p>
+<p>The guide also touches on when and how to work with <a href="#unmanaged-files-and-when-to-use-them">unmanaged files</a>. These files aren’t part of the project’s content model but are still needed for development, layout, or system integrations. You’ll learn how to correctly separate content-managed assets from technical files and handle each type.</p>
+<h2 id="store-images-and-other-assets-in-the-content-hub">Store images and other assets in the Content hub</h2>
+<p>Modeling file assets as content items gives you more than a place to store files. It provides the editor team with structured, reusable building blocks to deliver optimized and personalized content across all channels. Whether you’re working with images, documents, or video, storing assets in <em>Content hub</em> offers a flexible and future-friendly approach.</p>
+<h3 id="see-the-benefits-of-storing-assets-in-content-hub">See the benefits of storing assets in Content hub</h3>
+<p><a href="/documentation/business-users/media-libraries">Media libraries</a> have historically been used to store files in previous Kentico products, such as Kentico 12 or Kentico Xperience 13. However, the market has evolved and media libraries are <strong>not the recommended approach</strong> for storing files in Xperience by Kentico.</p>
+<p><a href="/documentation/business-users/content-hub/content-item-assets">Content item assets</a> offer a modern, structured approach to media management. They address many limitations that make it difficult for Media libraries to <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">extend</a> or integrate into content-first solutions. The result is a more flexible and secure way to manage files in content-driven projects.</p>
+
+<div>
+
+</div>
+<div>
+<p>Media libraries are considered an Xperience by Kentico legacy feature. We consider <a href="https://roadmap.kentico.com/c/279-migrating-media-library-items-to-content-hub-media-library-sunset" target="_blank">sunsetting the Media library feature</a>, marking the functionality as obsolete and phasing out Media libraries in the future.</p>
+</div>
+
+<p>Let’s cover improvements you gain from using the <em>Content hub</em>.</p>
+<h3 id="define-custom-content-types-to-store-images">Define custom content types to store images</h3>
+<p>Xperience by Kentico doesn’t come with a pre-built <a href="/documentation/developers-and-admins/development/content-types">content type</a> to store images. During <a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">content modeling sessions</a>, you define the structure of each asset content type based on the project’s needs. Instead of relying on a one-size-fits-all file system, you can:</p>
+<ul>
+<li>Create different content types for various file formats, such as images, videos, PDFs, or audio files.</li>
+<li>Store only the fields you need and don’t clutter the admin UI with unnecessary fields.</li>
+<li>Include custom fields to support business use cases, such as licensing notes, expiration dates, or external system IDs.</li>
+<li>Use the built-in <em>Content item asset</em> to upload the binary file and the <em>Combined content selector</em> component to reference assets in other content items, <a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a>, or <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> widgets.</li>
+</ul>
+<p>This flexibility supports editorial workflows and compliance requirements and opens the door to tailor-fit Xperience to custom integrations.</p>
+<p>Let’s explore how moving away from media libraries towards the <em>Content hub</em> can help in the mentioned use cases.</p>
+<h3 id="aim-for-an-editor-experience">Aim for an editor experience</h3>
+<p>Xperience provides an editing interface that streamlines how teams upload, organize, and reuse files, especially images. Key features include:</p>
+<ul>
+<li>Enforced <a href="/guides/digital-marketing/xperience-essentials/manage-content-hub-essentials">default editing workflow</a>.</li>
+<li>Drag-and-drop <a href="/documentation/business-users/content-hub/content-item-assets#mass-asset-upload">mass uploads</a> into <em>Content hub</em>.</li>
+<li>Built-in <a href="/documentation/business-users/aira">AIRA-driven</a> image transformations to automatically create predefined image formats.</li>
+<li>
+<a href="/documentation/business-users/content-hub/content-item-assets#change-image-focal-point">Focal point</a> for smarter cropping and scaling.</li>
+<li>UI for creating and previewing <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">responsive image variants</a>.</li>
+<li>
+<a href="/documentation/developers-and-admins/configuration/taxonomies#enable-editors-to-tag-content">Hierarchical taxonomies</a> to improve image categorization, dynamic content resurfacing, or auto-tagging in mass uploads using <a href="/documentation/business-users/aira#automatically-assign-tags-to-images">AIRA</a>.</li>
+<li>
+<a href="/guides/digital-marketing/xperience-essentials/manage-files-essentials#work-with-assets-in-content-hub">Combined content selector</a> with thumbnail preview that simplifies reuse across content items without re-uploading.</li>
+</ul>
+<p>These features help reduce friction and ensure consistency across the system.</p>
+<h3 id="support-responsive-and-optimized-asset-delivery">Support responsive and optimized asset delivery</h3>
+<p>Xperience provides the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a>, which supports advanced asset retrieval options. The API helps developers serve optimized assets to traditional websites or email channels.</p>
+<p>For images, Xperience can:</p>
+<ul>
+<li>Serve as a <a href="/documentation/business-users/content-hub">central repository</a> for images.</li>
+<li>Automatically <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">resize and adjust</a> image formats depending on your application configuration when uploading.</li>
+<li>
+<a href="/documentation/business-users/content-hub/content-items#secure-content-items">Restrict visitor’s access to files</a> when they need to authenticate to access the files, for example, in scenarios that include gated content or licensed media.</li>
+<li>Manage assets under <a href="/documentation/business-users/content-hub/content-items#content-items-lifecycle">content workflows</a> to ensure consistent messaging.</li>
+</ul>
+<p></p>
+<p>Together, these capabilities ensure your content is delivered efficiently and securely.</p>
+<h3 id="define-structured-metadata-without-developing-custom-ui-components">Define structured metadata without developing custom UI components</h3>
+<p>Each business needs different data about its files. In <a href="/documentation/business-users/media-libraries">Media libraries</a>, adding fields like <em>captions</em>, <em>copyright info</em>, or <em>internal usage notes</em> requires <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">custom UI development</a>. Customers often turned to third-party DAM (<a href="https://en.wikipedia.org/wiki/Digital_asset_management" target="_blank">Digital Asset Management</a>) solutions to avoid unnecessary UI customizations.</p>
+<p>Built-in features in Xperience allow you to avoid using third-party DAM solutions in many customer scenarios. Your <a href="/documentation/business-users/content-hub/content-item-assets">Content hub assets</a> can directly contain the fields you need in the data model and metadata requirements. Editors can manage their data in one interface and don’t need to rely on workarounds or developer interventions.</p>
+<h3 id="leverage-built-in-taxonomies">Leverage built-in taxonomies</h3>
+<p>Media libraries don’t support <a href="/guides/architecture/content-modeling/content-modeling-guide/model-taxonomies">categorization or tagging</a>. This limits filtering, personalization, and content discovery. In contrast, <em>Content hub assets</em> can use <a href="/guides/digital-marketing/work-with-taxonomies/taxonomies">taxonomies</a> out of the box, allowing your teams to group and retrieve assets dynamically based on marketing themes, campaigns, or topics.</p>
+<p>For example, a marketing team can tag product images with taxonomies, such as <em>Winter Campaign</em> or <em>Eco-Friendly Collection</em>.</p>
+<p>When building a campaign landing page, editors can use a <a href="/guides/architecture/content-modeling/model-website-presentation-components/model-page-builder-widgets#widgets-that-display-data-from-semantic-content-types">widget</a> and select only the images tagged with <em>Winter Campaign</em> without manually sorting through folders. Developers can also use these tags to dynamically load matching assets on the website or in personalized email campaigns, ensuring the right visuals appear in the proper context automatically.</p>
+<h3 id="control-access-to-protected-files">Control access to protected files</h3>
+<p>Files stored in Media libraries are always <a href="/documentation/business-users/media-libraries">publicly accessible</a> through their URLs. Developers or DevOps engineers need to create custom solutions to enforce login or restrict access.</p>
+<p><em>Content hub assets</em> support access control natively. Editors can <a href="/documentation/business-users/content-hub/content-items#secure-content-items">configure which assets</a> require authentication in the default admin UI, making <em>content hub assets</em> more than suitable for storing gated, licensed, or confidential content.</p>
+<h3 id="track-versions-and-localize-assets-without-workarounds">Track versions and localize assets without workarounds</h3>
+<p>Media libraries don’t offer publishing <a href="/guides/digital-marketing/work-with-workflows/workflows">workflows</a> or <a href="/guides/digital-marketing/work-with-multilingual/multilingual-variant-of-content">language variants</a>. That made it hard to manage content across regions or align with campaign timelines.</p>
+<p>Reusable content items support default draft and published states. Editors can build custom <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a> that fully fit the project’s content lifecycle. Additionally, items support scheduled publishing and creating per-language variants with the option to <a href="/guides/digital-marketing/work-with-multilingual/multilingual-variant-of-content#what-is-a-fallback-language">fallback to the default language variant</a>.</p>
+<h3 id="optimize-image-delivery">Optimize image delivery</h3>
+<p>Media libraries don’t support <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">image transformations</a>, <a href="/documentation/business-users/content-hub/content-item-assets#change-image-focal-point">focal point cropping</a>, or <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">responsive image variants</a>. These tasks always required customization by front-end developers.</p>
+<p>Content hub assets simplify delivering a <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">responsive experience</a> with built-in tools for image resizing, format switching, and responsive rendering—without requiring extra markup or manual asset prep.</p>
+<p></p>
+<h2 id="define-content-types-for-media-assets">Define content types for media assets</h2>
+<p>Xperience does not provide a <em>default content type</em> for managing media assets. Instead, customers define their asset <a href="/documentation/developers-and-admins/development/content-types">content types</a> based on the file types they plan to use and the structure their solution requires.</p>
+<p>Xperience offers advanced functionality for working with image-based assets, like <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">transformations</a>, <a href="/documentation/business-users/content-hub/content-item-assets#change-image-focal-point">focal point cropping</a>, or <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">responsive variants</a>. However, these capabilities are only available when the asset is stored in a properly modeled content type.</p>
+<p>To support a flexible, scalable approach to asset management, we recommend defining different content types for each major file format used in your project.</p>
+<h3 id="image-content-type">Image content type</h3>
+<p>Define this content type to manage image files used in <a href="/guides/digital-marketing/work-with-reusable-content/reuse-content-with-the-hero-widget">banners</a> , <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-article">articles</a>, <em>product listings</em>, or <em>promotional content</em>. Then, enable built-in image tools and responsive delivery features, such as transformations, focal point cropping, and device-based variant selection.</p>
+<p>Recommended fields:</p>
+<ul>
+<li>
+<strong>File</strong> – image uploader using the <a href="/documentation/developers-and-admins/development/content-types#configure-asset-content-types">Asset uploader</a> form component. <a href="/documentation/developers-and-admins/development/content-types#configure-asset-content-types">Configure mass asset upload</a> for this content type and set this field as the target field.</li>
+<li><strong>Title</strong></li>
+<li><strong>Alt text</strong></li>
+<li>
+<strong>Caption</strong> (or <strong>Description</strong>)</li>
+<li>
+<strong>Tags</strong> – reference to <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomy</a> collections.</li>
+</ul>
+<p></p>
+<p>Optional fields depending on the business requirements:</p>
+<ul>
+<li>
+<strong>Expiration date</strong> – for managing licensing or campaign life cycles.</li>
+<li><strong>License owner</strong></li>
+</ul>
+<h3 id="restricted-image-content-type">Restricted image content type</h3>
+<p>For some projects, you might need to introduce a second asset <a href="/documentation/developers-and-admins/development/content-types">content type</a> to store files for legally protected, license-limited, or tightly controlled images. Typical use cases include <em>licensed photos from an agency</em>, <em>regulated visuals in the medical or pharmaceutical space</em>, and <em>internal</em> or <em>embargoed media</em>. Customers can leverage this content type when they don’t plan to use Xperience’s built-in <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">transformations</a>.</p>
+<p>We recommend creating an additional content type and defining dedicated fields to hold different file variants you plan to serve in the presentation channels. For example, you can introduce the following fields:</p>
+<ul>
+<li>Separate <strong>content item asset</strong> fields for desktop, tablet, and mobile to store only pre-approved image variants.</li>
+<li>
+<strong>Metadata</strong> fields for licensing notes or usage restrictions.</li>
+<li>Do not enable image transformations in the <a href="/documentation/developers-and-admins/development/content-types#configure-asset-content-types">Asset uploader</a> – editors can upload pre-approved variants only.</li>
+<li>Enable <a href="/documentation/business-users/media-libraries">authentication</a> if the content needs to be hidden behind a login.</li>
+</ul>
+<p>This approach ensures that Xperience doesn’t automatically apply any unauthorized changes to the asset and gives developers full control over which version appears on different devices or regions.</p>
+<h3 id="content-types-for-non-image-files">Content types for non-image files</h3>
+<p>Depending on the business requirements, you might need to introduce additional content types to hold other asset types.</p>
+<h4 id="document-asset">Document asset</h4>
+<p>A <strong>Document asset</strong> <a href="/documentation/developers-and-admins/development/content-types">content type</a> can store and manage files that aren’t images or videos but are still crucial for sharing information with website visitors or internal users. This typically includes file formats, such as <em>PDFs</em> (brochures, whitepapers, or eBooks), <em>Microsoft Word</em> documents (such as reports or instructional guides), <em>spreadsheets</em> (for example, pricing sheets or data summaries), <em>presentations</em> created in PowerPoint, and other downloadable files like <em>ZIP archives</em> or <em>plain text</em> files.</p>
+<p>Recommended fields:</p>
+<ul>
+<li>
+<strong>File</strong> – document field using the <a href="/documentation/developers-and-admins/development/content-types#configure-asset-content-types">Asset uploader</a> form component.</li>
+<li><strong>Title</strong></li>
+<li><strong>Author</strong></li>
+<li><strong>Publication date</strong></li>
+<li>
+<strong>Lede</strong>, <strong>Perex</strong>, or <strong>Summary</strong>
+</li>
+<li>
+<strong>Download tracking</strong> – optional boolean to <a href="/guides/development/activities-and-marketing/log-custom-activities">log custom file download activity</a> for every reference. Your developers can enable editors to enable download tracking in the presentation layer, e.g., in a widget property.</li>
+</ul>
+<h4 id="video-asset">Video asset</h4>
+<p>Editors can use the <strong>Video asset</strong> <a href="/documentation/developers-and-admins/development/content-types">content type</a> to store and manage video content they want to embed or share on their website. This can include externally hosted videos, such as YouTube or Vimeo links, and internally hosted video files in formats like MP4 or WebM. Video assets make it easy to centralize video content so editors can reuse it across multiple pages without uploading it repeatedly.</p>
+<p>Customers might use this content type for <em>promotional videos</em>, <em>customer testimonials</em>, <em>product demos</em>, <em>feature walkthroughs</em>, <em>recorded webinars</em>, or <em>training videos</em>. Whether the video is streamed from an external platform or hosted directly within the system, a <em>Video asset</em> helps ensure consistent access, descriptions, and preview images across the site.</p>
+<p></p>
+<p>Depending on your project’s requirements, consider adding the following properties:</p>
+<ul>
+<li>
+<strong>File</strong> – local video file</li>
+<li>
+<strong>Video ID</strong> - external embed code, e.g., YouTube URL slug or Vimeo ID.</li>
+<li>
+<strong>Platform ID</strong> – an optional field for third-party video services.</li>
+<li><strong>Duration</strong></li>
+<li><strong>Transcript</strong></li>
+<li>
+<strong>Thumbnail</strong> image - can reference to <a href="#image-content-type">Image</a> content type using the <em>Combined content selector</em> form control.</li>
+</ul>
+
+<div>
+<p>The <strong>Video</strong> content type can include a visibility condition, letting editors choose how to add a specific video. For example, when creating a new video content item, an editor can select through a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#radio-group-component">Radio button</a> form component whether the video is coming from YouTube or they uploaded it directly. Based on that selection, Xperience automatically hides or shows only relevant fields.</p>
+<p>Developers can <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-visibility-conditions">implement visibility logic</a> into the content type and display data using the correct presentation. If the editor selects YouTube, the system might display a field for entering the YouTube URL and hide any <em>file upload options</em> or the <em>Thumbnail</em> field. If they choose to upload a file, the interface might show a field for uploading the video file and hide the YouTube URL input. This approach makes the content editing experience cleaner and more intuitive, helping editors focus only on the information they need to fill out.</p>
+<p>Developers can define different presentation options based on the video source. For example, they can present the YouTube link through an embedded YouTube player component to leverage its capabilities and serve uploaded videos through a custom media player to ensure proper embedding, styling, and playback behavior.</p>
+</div>
+
+<h4 id="audio-asset">Audio asset</h4>
+<p>If the project requires it, you might need to define a dedicated <strong>Audio asset</strong> content type to store and manage audio content. This can include direct uploads of audio files, such as MP3 or WAV formats, and links to externally hosted audio, like a podcast episode hosted on a streaming service.</p>
+<p>Customers can store data, such as podcast recordings, voiceovers for tutorials, interviews, background music for specific sections of a website, or downloadable audio guides. Just like with <a href="#video-asset">Video</a> and <a href="#document-asset">Document</a> assets, audio files stored as <strong>Audio</strong> can be reused across multiple website pages or referenced from emails, and editors can manage metadata like titles, descriptions, and cover images for consistent presentation.</p>
+<p>Recommended fields:</p>
+<ul>
+<li>
+<strong>File</strong> – uploaded audio file.</li>
+<li><strong>Duration</strong></li>
+<li><strong>Transcript</strong></li>
+<li>
+<strong>Series</strong> / <strong>Episode number</strong> – for podcasts or serialized content.</li>
+</ul>
+<h3 id="serve-the-right-asset-for-every-context">Serve the right asset for every context</h3>
+<p>Once assets are stored as structured content items, developers can retrieve them consistently across channels using the Xperience API.</p>
+<h4 id="provide-optimized-asset-delivery">Provide optimized asset delivery</h4>
+<p>To render content that includes asset references, developers will use the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a>, which allows them to query asset metadata and binaries defined in the project’s content types, including:</p>
+<ul>
+<li>
+<strong>File URLs</strong> (original and predefined image variants) using the built-in attribute <a href="/documentation/developers-and-admins/development/reference-tag-helpers#attribute-tag-helpers-images">TagHelper</a>.</li>
+<li>Related custom <strong>Metadata</strong> fields (e.g., alt text, caption, copyright).</li>
+<li>
+<strong>References</strong> to related content via taxonomy or linked items.</li>
+</ul>
+<p>This supports rendering content in web pages, mobile apps, and other delivery channels, without requiring separate queries for file storage or metadata.</p>
+<h4 id="best-practices-for-images">Best practices for images</h4>
+<p>To ensure responsive and accessible image delivery across devices, follow these best practices when working with <a href="/documentation/business-users/content-hub/content-item-assets">Content item assets</a>:</p>
+<ul>
+<li>Use predefined <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">image variants</a> (e.g., thumbnail, mobile, desktop) to support responsive display.</li>
+<li>Reference variants using <code>&lt;picture&gt;</code> and <code>srcset</code> to <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images" target="_blank">adapt to screen size or device type</a>.</li>
+<li>Let editors define <a href="/documentation/business-users/content-hub/content-item-assets#change-image-focal-point">focal points</a> during upload for smart cropping and visual consistency.</li>
+<li>The system automatically <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">optimizes image variants</a> for performance.</li>
+<li>Developers can request variants by name or use <a href="/documentation/developers-and-admins/development/reference-tag-helpers#attribute-tag-helpers-images">predictable URL patterns</a>.</li>
+<li>Always include alt text and fallback images to support accessibility and reliability.</li>
+</ul>
+<h2 id="metadata-taxonomy-and-smart-organization">Metadata, taxonomy, and smart organization</h2>
+<p>Asset content types in Xperience give you complete control over how files are described, categorized, and grouped for reuse. You can include structured metadata and <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a> based on your project’s requirements to make assets easier to search, filter, personalize, and manage over time.</p>
+<h3 id="use-metadata-to-support-retrieval-and-compliance">Use metadata to support retrieval and compliance</h3>
+<p>Include fields that help editors and developers retrieve and evaluate the asset quickly, for example:</p>
+<ul>
+<li>
+<strong>Title</strong> and description for identifying the asset.</li>
+<li>
+<strong>Alt text</strong> for <a href="/guides/architecture/content-modeling/model-website-content-types/model-an-article-page#consult-required-data-with-stakeholders-and-seos">accessibility and SEO</a>.</li>
+<li>
+<strong>Copyright</strong>, <strong>author</strong>, or <strong>licensing information</strong> for legal tracking.</li>
+<li>
+<strong>Expiration dates</strong> for campaign or <a href="/documentation/business-users/content-hub/content-items">usage control</a>.</li>
+<li>
+<strong>Internal notes</strong> to support editorial workflows.</li>
+</ul>
+<p>Metadata can also support integrations with external systems by including fields like external IDs or source references.</p>
+<h3 id="tag-assets-using-taxonomies">Tag assets using Taxonomies</h3>
+<p><a href="/guides/digital-marketing/work-with-taxonomies/taxonomies">Taxonomies</a> let editors classify assets in a consistent, structured way. Instead of relying on folder names or filenames, editors can <a href="/documentation/developers-and-admins/configuration/taxonomies#enable-editors-to-tag-content">assign tags</a> to reflect the topic, a campaign, or the dedicated audience.</p>
+<p>Benefits of using taxonomies:</p>
+<ul>
+<li>Editors can <a href="/guides/digital-marketing/work-with-taxonomies/work-with-taxonomies-in-kbank#use-tags-to-filter-categories-in-the-article-list-widget">filter assets</a> during selection or content creation.</li>
+<li>Developers can <a href="/documentation/developers-and-admins/configuration/taxonomies#retrieve-taxonomies-and-tagged-content">query</a> assets dynamically based on tags.</li>
+<li>Marketers can use categories to support personalization and targeting.</li>
+</ul>
+<p>This approach also helps large teams stay aligned on naming and categorization, making it easier to scale content operations without confusion or duplication.</p>
+<h3 id="use-smart-folders-for-organization">Use Smart folders for organization</h3>
+<p><a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Smart folders</a> provide a dynamic way to group and filter content items based on live conditions. Editors don’t need to manually maintain content in smart folders, as it automatically includes or excludes items when an item’s data or tags change, and it now fits the smart folder <a href="/documentation/business-users/content-hub/content-hub-folders">filter conditions</a>.</p>
+<p>Each <em>smart folder</em> is defined by a filter, such as <em>Items modified in the last 7 days</em>, <em>Items with the Draft status</em>, or <em>Items tagged with [company/topic/campaign name]</em>. A single content item can appear in multiple <em>smart folders</em> if it matches more than one condition.</p>
+<p><em>Smart folders</em> help both editorial workflows and content delivery. Editors use them to <a href="/documentation/business-users/content-hub/content-hub-folders#create-smart-folders">create views</a> to quickly find relevant items in the <em>Content hub</em>. They also don’t need to manually manage item references or update the widget each time, since developers can use the <a href="/guides/development/advanced-content/deliver-content-dynamically-with-smart-folders">smart folders API</a> to retrieve content dynamically into website pages.</p>
+<p>For example, an editor working on a website adds a widget to the homepage and selects a smart folder, such as “This month’s campaign” or “Press releases”. The widget then displays a rotating set of items that updates automatically as other team members add or change their content items. Developers, in turn, build this widget to pull content from these folders at runtime and ensure that the website stays in sync with editorial updates.</p>
+<p>Additional details about smart folders:</p>
+<ul>
+<li>Conditions are evaluated in real time as content changes.</li>
+<li>A single item can belong to any number of smart folders.</li>
+<li>They support organizing content in the admin interface, as editors don’t need to sort content items manually.</li>
+<li>Dynamic data retrieval and display help editors manage campaign content, seasonal assets, or status-based workflows.</li>
+<li>They can be used to dynamically filter and deliver content on website channels.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Currently, Xperience doesn’t support smart folder-based delivery for <a href="/documentation/developers-and-admins/configuration/headless-channel-management">headless</a> or <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channels</a>.</p>
+</div>
+
+<p>Using <em>smart folders</em> helps large teams stay organized and makes dynamic content filtering much easier to manage across growing libraries.</p>
+<h2 id="summary-recommendations-for-modeling-asset-content-types">Summary: Recommendations for modeling asset content types</h2>
+<p>When modeling content types that store different assets in Xperience, treat each media format as a distinct content structure with its purpose, metadata, and lifecycle. Let’s consider a few aspects that will help you design flexible and consistent asset content types that align with how the editor team creates and delivers their content.</p>
+<ul>
+<li>
+<strong>Model each media format separately.</strong> Use dedicated content types for images, videos, PDFs, or audio files. This lets you define only the fields relevant to each asset type and keeps the UI clean for editors.</li>
+<li>
+<strong>Use an image asset type as your baseline.</strong> <em>Image</em> content types benefit from Xperience’s built-in features, like responsive variants, focal point cropping, and automatic transformations. Most projects will need this type from the start.</li>
+<li>
+<strong>Add controlled asset types only where needed.</strong> Use a <em>Restricted image</em> content type when legal, licensing, or technical constraints prevent automated resizing or transformation. Keep this structure lean and purpose-driven.</li>
+<li>
+<strong>Make use of asset selectors.</strong> Include the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#combined-content-selector">Combined content selector</a> in other content types to reference assets to avoid data duplication, support reuse, and ensure consistency.</li>
+<li>
+<strong>Tag assets using taxonomies.</strong> Taxonomies support dynamic filtering, content personalization, and campaign grouping. Editors can apply tags directly in the asset form, and developers can query by tag.</li>
+<li>
+<strong>Structure for editorial clarity, not just technical needs.</strong> Collaborate with marketers, content designers, and legal teams when defining which asset types to create and what each should include.</li>
+<li>
+<strong>Plan for growth.</strong> Choose field names and structures that will scale with your library—avoid assumptions that only work for initial content volume or a single channel.</li>
+</ul>
+<p>Using Xperience Content hub to store assets in purpose-built content types gives editors and developers more control over how files are described, used, and delivered. It ensures that your content model remains flexible and scalable as your content library and team needs grow.</p>
+<h2 id="unmanaged-files-and-when-to-use-them">Unmanaged files and when to use them</h2>
+<p>Not every file in your project has to become a content item. Some files make more sense to handle outside the content model, especially when they’re static, technical, or not part of the team’s editorial workflow.</p>
+<p>Let’s look at what qualifies as an unmanaged file, when to use them, and how to organize them in your project.</p>
+<h3 id="what-are-unmanaged-files">What are unmanaged files?</h3>
+<p>Unmanaged files aren’t created, edited, or referenced through the <em>Content hub</em> or the Xperience content API. Instead, they are deployed directly as part of your project code or infrastructure.</p>
+<p>Unmanaged files include:</p>
+<ul>
+<li>
+<strong>Front-end assets</strong> – icons, favicons, fonts, CSS, JavaScript, or background images used for styling and layout.</li>
+<li>
+<strong>System or integration files</strong> – configuration files, embedded PDFs, or attachments managed by a third-party service.</li>
+<li>
+<strong>Non-marketing assets</strong> – internal-only resources that don’t need metadata, tagging, or structured reuse.</li>
+</ul>
+<p>These files are not searchable, taggable, or retrievable via the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-retriever-api">Xperience API</a>, and editors cannot manage them through the content lifecycle.</p>
+<h3 id="where-to-store-unmanaged-files">Where to store unmanaged files</h3>
+<p>Store unmanaged files in a separate location in your project’s directory structure. We recommend using subfolders under <code>~/assets/&lt;project_name&gt;/</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Avoid placing unmanaged files in folders used by the <em>Content hub</em> or legacy Media libraries. This helps prevent confusion and keeps deployment pipelines clean.</p>
+</div>
+
+<p>When deploying to a SaaS environment, unmanaged files need to be <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#create-a-deployment-package">deployed to Azure Blob storage</a> as part of your application’s asset pipeline.</p>
+<h3 id="when-to-use-unmanaged-files">When to use unmanaged files</h3>
+<p>Use unmanaged files when:</p>
+<ul>
+<li>The file is tightly bound to your front-end layout or code.</li>
+<li>There’s no need for editor access, tagging, or personalization.</li>
+<li>The file doesn’t change often (e.g., logos, placeholder images, system PDFs).</li>
+<li>The file is part of an integration that manages its storage lifecycle.</li>
+</ul>
+<p>Avoid unmanaged files for anything that requires:</p>
+<ul>
+<li>Metadata or structured categorization.</li>
+<li>Reuse across multiple content items that editors might want to update from the UI.</li>
+<li>Personalization, localization, or content security.</li>
+<li>Editorial updates or workflows.</li>
+</ul>
+<p>By keeping unmanaged files separate from content-managed assets, you simplify your content model and avoid unnecessary complexity for developers and editors alike.</p>
+<h2 id="summary">Summary</h2>
+<p>Modeling files as structured content items in <em>Content hub</em> gives your project a strong foundation for flexibility, scalability, and long-term maintainability. Whether you’re managing images, PDFs, videos, or licensed assets, treating them as content opens the door to better editorial workflows, secure delivery, and content reuse across channels.</p>
+<p>Let’s recap what this guide covered:</p>
+<ul>
+<li>Use <em>Content hub</em> to store and manage assets as structured content items.</li>
+<li>Model each media format, such as images, PDFs, videos, audio, with its content type.</li>
+<li>Leverage built-in features for image optimization, responsive variants, and focal point cropping.</li>
+<li>Use taxonomies and metadata to make assets discoverable and reusable.</li>
+<li>Apply asset selectors to connect files to pages, components, or other content items.</li>
+<li>Avoid Media libraries for new projects—they are being deprecated and lack critical features.</li>
+<li>Use unmanaged files only for static or technical assets that don’t require structured management.</li>
+</ul>
+<p>A well-structured asset model improves editors’ day-to-day content operations, strengthens content curation, supports compliance, and future-proofs your solution for personalization and multichannel delivery.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>You have learned about the options for storing data in Xperience. In the <a href="/guides/architecture/content-modeling/content-modeling-guide/design-content">Design content</a> section, you’ll learn about different approaches to designing and presenting this data in your application.</p>
+
+</body>
+</html>

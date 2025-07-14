@@ -5,7 +5,15 @@
 <title>Data caching</title>
 </head>
 <body>
-<p>The Xperience API allows developers to cache data in website code. We recommend caching any frequent API calls that load significant data from the Xperience database (or other external sources). For example, caching is typically a good idea when <a href="/documentation/developers-and-admins/development/content-retrieval">retrieving content in the code of your sites</a>.</p>
+<p>The Xperience API allows developers to cache data in website code. We recommend caching any frequent API calls that load significant data from the Xperience database (or other external sources). For example, caching is typically a good idea when <a href="/documentation/developers-and-admins/api/content-item-api">retrieving content in the code of your sites</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>The <code>IContentRetriever</code> <a href="#caching-content-retrieval-in-web-app-contexts">API</a> provides implicit caching for content retrieval operations. This removes the need to manually wrap data retrieval logic in a caching service, which simplifies your code.</p>
+</div>
+
 <p>To cache data, the system provides the <code>CMS.Helpers.IProgressiveCache</code> service.</p>
 <p>The service supports <strong>sliding expiration</strong> (cache duration is refreshed upon successive requests for the same item), and <strong>progressive caching</strong> (parallel caching requests from multiple threads don’t result in redundant database operations; instead, one thread is used to fetch the data, which is then shared with other waiting threads). Use the following methods to cache data:</p>
 <ul>
@@ -188,6 +196,7 @@ private async IEnumerable&lt;CacheDependencyPath&gt; GetPaths(IEnumerable&lt;Art
 <p>See <a href="#set-cache-dependencies">Set cache dependencies</a> for an example of usage.</p>
 <h3 id="preview-mode-and-caching">Preview mode and caching</h3>
 <p>We strongly suggest disabling caching for preview mode in order to prevent cache bloat. You can check whether the current request is under preview mode via <code>IWebsiteChannelContext.IsPreview</code>. For example, you can create a helper method that you can use together with <code>CacheSettings.Cached</code>.</p>
+<p><a href="#caching-content-retrieval-in-web-app-contexts">ContentRetriever API</a> automatically detects preview mode and disables caching accordingly when retrieving content, preventing cache bloat without additional configuration.</p>
 
 <div>
 <div>
@@ -477,6 +486,8 @@ var data = await progressiveCache.LoadAsync(async cacheSettings =&gt;
 </tr>
 </table>
 
+<h3 id="icontentretriever-cache-settings">IContentRetriever cache settings</h3>
+<p>When using <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a>, you can configure the cache settings using the <code>RetrievalCacheSettings</code> class. See <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api#implicit-result-caching">ContentRetriever API</a> for details.</p>
 
 </body>
 </html>
