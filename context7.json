@@ -1,0 +1,6 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Xperience by Kentico",
+  "description": "Xperience by Kentico is a digital experience platform that simplifies content creation, content management, and boosts digital marketing.",
+  "folders": ["src"]
+}
