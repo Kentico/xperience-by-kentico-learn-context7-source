@@ -65,12 +65,12 @@
 <p>Finally, you can check the current status of the Xperience SaaS infrastructure on the <a href="https://status.xperience-portal.com/" target="_blank">Xperience by Kentico Status</a> page.</p>
 <h2 id="how-to-resolve-database-inconsistencies-on-saas-environments">How to resolve database inconsistencies on SaaS environments?</h2>
 <p>Database inconsistencies may be introduced for various reasons (custom development, integration and migration scenarios) to databases of SaaS projects, but developers do not have direct access to run SQL scripts on databases of applications deployed in SaaS environments.</p>
-<p>You can use <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts">CD migration scripts</a> to perform SQL queries on the database of applications deployed in <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#deploy-the-application-package-to-another-deployment-environment">SaaS environments</a>. However, remember to always <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#create-a-manual-backup">create a backup</a> before modifying the database.</p>
+<p>You can use <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts">CD migration scripts</a> to perform SQL queries on the database of applications deployed in <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#deploy-the-application-package-to-another-deployment-environment">SaaS environments</a>. However, remember to always <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#create-a-manual-restore-point">create a restore point</a> before modifying the database.</p>
 <h2 id="how-to-resolve-broken-deployment-package-in-the-production-environment">How to resolve broken deployment package in the Production environment?</h2>
 <p>You may encounter an issue where you deploy a package to the SaaS environment and promote it to the <em>Production</em> environment before realizing that the package is faulty and causes issues on your live site.</p>
 <p>There are two options how to handle this situation:</p>
 <ul>
-<li>You can <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#restore-a-backup">restore a previous backup</a> of your application directly from the Xperience Portal interface. The system automatically creates backups before each deployment. Note that you may lose content created between the faulty deployment and the time when you choose to restore the backup.</li>
+<li>You can <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#restore-from-a-restore-point">restore a previous restore point</a> of your application directly from the Xperience Portal interface. The system automatically creates backups before each deployment. Note that you may lose content created between the faulty deployment and the time when you choose to restore the backup.</li>
 <li>You can create a new deployment package that fixes the previous issue if possible. The advantage is that all recently created content is preserved. This approach works best when using smaller and more frequent deployments which enable you to identify the cause of the issue.</li>
 </ul>
 <h2 id="what-is-the-user-limit-in-xperience-portal">What is the user limit in Xperience Portal?</h2>
@@ -79,6 +79,8 @@
 <p>Why can you not create license keys in the client portal and where should you create your license keys?</p>
 <p>License keys for SaaS development are generated in the <strong>License key generator</strong> application in the <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a>.</p>
 <p>See <a href="/documentation/developers-and-admins/installation/licenses#license-keys-for-saas-local-development">Licenses</a> for more information.</p>
+<h2 id="what-xperience-by-kentico-versions-are-supported-in-saas">What Xperience by Kentico versions are supported in SaaS?</h2>
+<p>The minimum Xperience by Kentico version for new projects that can be deployed to the SaaS environment is <strong>30.1.0</strong>. If you are using an earlier version, you need to <a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects">update</a> your project to the latest version before deploying it to the SaaS environment. Existing projects are not affected, but we recommend updating them to the latest version.</p>
 
 </body>
 </html>

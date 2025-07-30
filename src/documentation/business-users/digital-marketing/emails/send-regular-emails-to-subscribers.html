@@ -227,7 +227,12 @@ You can also send the autoresponder as part of a more complex <a href="/document
 <li><p>In the <strong>Send to</strong> property, choose the <a href="#create-recipient-lists">recipient list</a> to which you want to send the email.</p></li>
 <li><p>Select <strong>Save</strong>.<br>
 </p></li>
-<li><p>If the email’s content type is under <a href="/documentation/developers-and-admins/configuration/workflows">workflow</a>, you need to go through the workflow’s steps before the email becomes ready to be sent. Users who belong to roles with full control for the given workflow can directly send the email from any step.</p></li>
+<li>
+<p>If the email’s content type is under <a href="/documentation/developers-and-admins/configuration/workflows">workflow</a>, you need to go through the workflow’s steps before the email becomes ready to be sent. Users who belong to roles with full control for the given workflow can directly send the email from any step.</p>
+<ul>
+<li>When you move the email to a custom workflow step with <a href="/documentation/developers-and-admins/configuration/workflows#workflow-notifications">workflow notifications</a> enabled, you can enter a comment about your action. The comment will be included in the notification email.</li>
+</ul>
+</li>
 <li><p>To send the email, select <strong>Review and send</strong>. For emails under workflow, select <strong>Change workflow step</strong> and choose the <strong>Schedule / Send</strong> step.</p></li>
 <li>
 <p>Choose one of the options:</p>
@@ -246,7 +251,7 @@ You can also send the autoresponder as part of a more complex <a href="/document
 <div>
 <p><strong>Publishing linked content items</strong></p>
 <p>If the email has fields linking to reusable content items or pages, you need to select <strong>Continue</strong> instead of <em>Send</em>. The cascade publishing dialog opens, showing all linked items that are currently not published. You can select any of the listed items to <strong>immediately</strong> publish them.</p>
-<p>Carefully consider which items are ready to be published. If you cannot publish linked items immediately, you can use the edit (<span></span>) action and individually <a href="/documentation/business-users/content-hub/content-items#scheduled-publishing">schedule</a> items to be published just before the email’s sendout time.</p>
+<p>Carefully consider which items are ready to be published. If you cannot publish linked items immediately, you can open (<span></span>) each of them in a new tab and individually <a href="/documentation/business-users/content-hub/content-items#scheduled-publishing">schedule</a> items to be published just before the email’s sendout time.</p>
 <p><strong>Note</strong>: The system cannot guarantee all items will be published exactly at the scheduled time. If there’s a large volume of content scheduled to be published at the same time, there may be a delay before all items are published. To ensure that linked content items are published in time, we advise scheduling the publishing of linked items with a “buffer period” before the email’s sendount. The length of this buffer period depends on the number of items that are scheduled to be published. The publishing process may take several seconds for around 100 items, or a few minutes when publishing many thousands of items.</p>
 </div>
 

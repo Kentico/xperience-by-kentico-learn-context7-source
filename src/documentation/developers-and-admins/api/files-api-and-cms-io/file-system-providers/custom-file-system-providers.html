@@ -118,7 +118,7 @@ public FileStream(string path, CMS.IO.FileMode mode, CMS.IO.FileAccess access, C
 </li>
 </ol>
 <h3 id="example">Example</h3>
-<p>The following code registers a module that maps the media library folder to a custom storage provider:</p>
+<p>The following code registers a module that maps the content items folder to a custom storage provider:</p>
 
 <div>
 <div>
@@ -158,10 +158,10 @@ public class CustomInitializationModule : Module
         base.OnInit();
 
         // Creates a new StorageProvider instance using the custom 'CustomFileSystemProvider' assembly
-        var customMediaProvider = new StorageProvider("custom", "CustomFileSystemProvider");
+        var customContentItemAssetProvider = new StorageProvider("custom", "CustomFileSystemProvider");
 
         // Maps a directory to the provider
-        StorageHelper.MapStoragePath("~/assets/media/", customMediaProvider);
+        StorageHelper.MapStoragePath("~/assets/contentitems/", customContentItemAssetProvider);
     }
 }
 

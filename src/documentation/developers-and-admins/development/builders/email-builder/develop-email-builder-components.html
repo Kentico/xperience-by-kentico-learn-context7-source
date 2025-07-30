@@ -1097,10 +1097,12 @@ using Kentico.EmailBuilder.Web.Mvc;
 <p>In some cases, you may need to adjust the content or functionality of your components according to the context in which they are used.</p>
 <ul>
 <li><a href="#email-builder-mode">Email Builder mode</a></li>
+<li><a href="#email-preview-mode">Email preview mode</a></li>
 <li><a href="#email-fields">Email fields</a></li>
 <li><a href="#email-metadata">Email metadata</a></li>
 <li><a href="#recipient-context">Recipient context</a></li>
 <li><a href="#regular-email-unsubscription-links">Regular email unsubscription links</a></li>
+<li><a href="#commerce-order-context">Commerce order context</a></li>
 </ul>
 <h3 id="email-builder-mode">Email Builder mode</h3>
 <p>The Email Builder mode allow you to check the stage of the email lifecycle where a component is being used. For example, a component can be displayed to content editors in the Email Builder’s editing mode, or processed by the system when putting together the final email content sent to recipients.</p>
@@ -1163,6 +1165,71 @@ private readonly IEmailContextAccessor emailContextAccessor;
 
 // Executes the following block only in Email Builder edit mode
 if (emailContextAccessor.GetContext().BuilderMode == EmailBuilderMode.Edit)
+{
+    // Targeted custom logic
+}
+</code></pre>
+</div>
+
+<h3 id="email-preview-mode">Email preview mode</h3>
+<p>The Email Builder API allows you to check if an Email Builder component is being viewed in preview mode or processed by the system when putting together the final email content sent to recipients. This can be useful when working with contexts that are not available in preview modes (for example <a href="#commerce-order-context">Commerce order context</a>), or if you wish to populate a component with sample data for previews.</p>
+<p>Obtain an instance of the <code>IEmailContextAccessor</code> service (using dependency injection), call the <code>GetContext</code> method to retrieve an <code>EmailContext</code> object, and access the <code>IsPreview</code> property. The property’s value is:</p>
+<ul>
+<li>
+<code>true</code> when the email is being viewed in Preview or Email Builder mode in the administration UI or being sent as a draft.</li>
+<li>
+<code>false</code> when the email is being sent to real recipients.</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>Razor markup</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using Kentico.EmailBuilder.Web.Mvc
+
+@inject IEmailContextAccessor emailContextAccessor
+
+@if (emailContextAccessor.GetContext().IsPreview)
+{
+    @* Content rendered only in preview modes *@
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>C# code-behind</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.EmailBuilder.Web.Mvc;
+
+// Stores an instance of the IEmailContextAccessor service (e.g., obtained using dependency injection)
+private readonly IEmailContextAccessor emailContextAccessor;
+
+// Executes the following block only in preview modes
+if (emailContextAccessor.GetContext().IsPreview)
 {
     // Targeted custom logic
 }
@@ -1313,7 +1380,7 @@ dotnet run --no-build -- --kxp-codegen --type "EmailContentTypes"
 @code {
     private EmailRecipientContext _recipient;
 
-   // Property storing the EmailRecipientContext object
+    // Property storing the EmailRecipientContext object
     protected EmailRecipientContext Recipient =&gt; _recipient ??= RecipientContextAccessor.GetContext();
 
     [Inject]
@@ -1364,6 +1431,91 @@ dotnet run --no-build -- --kxp-codegen --type "EmailContentTypes"
     private IEmailRecipientContextAccessor RecipientContextAccessor { get; set; }
 
     protected EmailRecipientContext Recipient =&gt; _recipient ??= RecipientContextAccessor.GetContext();
+}
+</code></pre>
+</div>
+
+<h3 id="commerce-order-context">Commerce order context</h3>
+<p>When developing Email Builder components for <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses#configure-notifications-for-order-statuses">customer order notification emails</a>, you need to access data from the order for which the notification is being sent.</p>
+<ol type="1">
+<li>Obtain an instance of the <code>IEmailBuilderOrderContextAccessor</code> service (using dependency injection).</li>
+<li>Get the ID of the related order the via the <code>Context.OrderId</code> property of the accessor service.</li>
+<li>Use the order ID and the Xperience <a href="/documentation/developers-and-admins/api/database-table-api">Info and provider API</a> to retrieve the order’s data, for example <code>OrderInfo</code> for the order and its properties, and <code>OrderItemInfo</code> for the purchased items.</li>
+<li>Populate a model with the required order data and display it within the component’s markup.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Handle order context in preview modes</strong></p>
+<p>The Email Builder order context is only available when sending notification emails for a real order to actual customers. When the email is viewed in various preview modes, <code>IEmailBuilderOrderContextAccessor.Context</code> returns a <code>null</code> value. This includes <em>Preview</em> and <em>Email Builder</em> mode in the administration UI, and draft emails.</p>
+<p>To avoid errors in preview modes, add conditions around all order context logic using the <a href="#email-preview-mode">Email preview mode API</a>.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Accessing order data in a component’s code-behind</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using CMS.Commerce;
+using Kentico.EmailBuilder.Web.Mvc;
+
+[Inject]
+private IEmailContextAccessor EmailContextAccessor { get; set; } = default!;
+
+[Inject]
+private IEmailBuilderOrderContextAccessor OrderContextAccessor { get; set; } = default!;
+
+[Inject]
+private IInfoProvider&lt;OrderInfo&gt; OrderInfoProvider { get; set; } = default!;
+
+[Inject]
+private IInfoProvider&lt;OrderItemInfo&gt; OrderItemInfoProvider { get; set; } = default!;
+
+
+protected override async Task OnInitializedAsync()
+{
+    // Only accesses the order context for actual emails
+    // Note that the order context is null in preview modes
+    if (!EmailContextAccessor.GetContext().IsPreview)
+    {
+        // Gets the ID of the related order from the order context
+        int orderId = OrderContextAccessor.Context.OrderId;
+
+        // Gets the OrderInfo object holding the order data
+        OrderInfo order = await OrderInfoProvider.GetAsync(orderId);
+
+        // Gets values from the order's properties, for example the grand total
+        decimal? orderGrandTotal = order?.OrderGrandTotal;
+
+        // Gets a collection of order items (purchased products)
+        IEnumerable&lt;OrderItemInfo&gt; orderItems = await OrderItemInfoProvider.Get()
+                    .WhereEquals(nameof(OrderItemInfo.OrderItemOrderID), orderId)
+                    .GetEnumerableTypedResultAsync();
+
+        // Populate a model for the component containing the required order data
+        // ...
+    }
+    else
+    {
+        // We recommend populating a model for the component with sample order data for preview modes
+        // ...
+    }
 }
 </code></pre>
 </div>

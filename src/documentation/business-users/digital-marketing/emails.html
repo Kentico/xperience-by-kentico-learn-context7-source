@@ -32,7 +32,7 @@
 <li>
 <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">Macro-based email templates</a> (edited directly in the administration)</li>
 <li>
-<a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder/email-builder-templates">Email Builder templates</a> (prepared and registered by developers within the project’s code) – only available for emails with the <em>Automation</em> and <em>Regular</em> purposes</li>
+<a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder/email-builder-templates">Email Builder templates</a> (prepared by developers within the project’s code) – only available for emails with the <em>Automation</em>, <em>Regular</em> and <em>Order status change</em> purposes.</li>
 </ul>
 </li>
 <li>To send <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">regular emails to subscribers</a>, the <a href="/documentation/developers-and-admins/digital-marketing-setup/enable-email-subscriptions#enable-the-email-marketing-feature">email marketing feature</a> must be enabled</li>
@@ -55,7 +55,7 @@
 <li>
 <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">Macro-based email templates</a> – edited directly in the administration. These templates contain macros that serve as placeholders for the fields of email content types, as well as system elements, such as a regular email’s unsubscribe link URL. Every email content type has a set of allowed email templates that can be selected.</li>
 <li>
-<a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder/email-builder-templates">Email Builder templates</a> – prepared and registered by developers within the project’s code. Allow content editors to compose emails using configurable components in the <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder">Email Builder visual interface</a>. Only available for emails with the <em>Automation</em> and <em>Regular</em> purposes.</li>
+<a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder/email-builder-templates">Email Builder templates</a> – prepared and registered by developers within the project’s code. Allow content editors to compose emails using configurable components in the <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder">Email Builder visual interface</a>. Only available for emails with the <em>Automation</em>, <em>Regular</em> and <em>Order status change</em> purposes.</li>
 </ul>
 </li>
 <li><p><a href="#create-emails">Emails</a> – every email is based on a selected email template and content type. Email content is added into fields predefined by the selected content type, and then displayed within the template. Additionally, every email has system fields for setting standard email properties, such as the subject and sender information.</p></li>
@@ -72,13 +72,15 @@
 <strong>Confirmation</strong> – confirmation messages sent to users after they subscribe or unsubscribe from email marketing.</li>
 <li>
 <strong>Automation</strong> – sent out by an <a href="/documentation/business-users/digital-marketing/automation">automation process</a>. Cannot be sent manually.</li>
+<li>
+<strong>Order status change</strong> – emails automatically sent to customers when <a href="/documentation/business-users/manage-commerce-stores">commerce orders</a> are created or moved between <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses">statuses</a>.</li>
 </ul>
 
 <div>
 
 </div>
 <div>
-<p>Currently, the <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder">Email Builder visual interface</a> is only supported for emails with the <em>Regular</em> or <em>Automation</em> purposes.</p>
+<p>Currently, the <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder">Email Builder visual interface</a> is only supported for emails with the <em>Regular</em>, <em>Automation</em> or <em>Order status change</em> purposes.</p>
 </div>
 
 <h2 id="create-emails">Create emails</h2>
@@ -157,7 +159,7 @@ All emails within an email channel use the same <a href="/documentation/develope
 <h3 id="email-lifecycle">Email lifecycle</h3>
 <p>When viewing an email in an email channel application, you can find the current status at the end of the administration breadcrumbs navigation, and the available action in the upper right corner of the view.</p>
 <p></p>
-<p>Emails with the <strong>Form autoresponder</strong>, <strong>Confirmation</strong> or <strong>Automation</strong> <a href="#email-purposes">purpose</a> can have one of the following statuses:</p>
+<p>Emails with the <strong>Form autoresponder</strong>, <strong>Confirmation</strong>, <strong>Automation</strong> or <strong>Order status change</strong> <a href="#email-purposes">purpose</a> can have one of the following statuses:</p>
 <ul>
 <li> <strong>Draft (Initial)</strong> – new emails that have never been published.
 <ul>
@@ -206,16 +208,18 @@ All emails within an email channel use the same <a href="/documentation/develope
 </ul>
 </li>
 <li>
-<strong>Email Builder</strong> – allows you to compose the email’s content using configurable components in a visual interface. Only available for emails with the <em>Automation</em> and <em>Regular</em> <a href="#email-purposes">purposes</a>. For detailed information, see <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder">Create emails in Email Builder</a>. While in the <em>Email Builder</em> view mode, you can access the <em>Properties</em> panel to adjust the email’s sender information.</li>
+<strong>Email Builder</strong> – allows you to compose the email’s content using configurable components in a visual interface. Only available for emails with the <em>Automation</em>, <em>Regular</em> and <em>Order status change</em> <a href="#email-purposes">purposes</a>. For detailed information, see <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder">Create emails in Email Builder</a>. While in the <em>Email Builder</em> view mode, you can access the <em>Properties</em> panel to adjust the email’s sender information.</li>
 <li>
 <strong>Statistics</strong> – displays statistics tracked for the email, including the number of sent emails, email opens and clicked links. These statistics are anonymous, collected without connecting actions to individual recipients. See <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics">Track email statistics</a>.</li>
 <li>
 <strong>Contact activities</strong> – displays actions performed by individual email recipients, specifically link clicks. Depending on your project’s <a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-email-tracking/log-email-activities">implementation</a>, email activities are only logged for recipients who agree to be tracked, for example based on <a href="/documentation/developers-and-admins/data-protection/consent-management">consents</a>). This can result in discrepancies between the number of logged activities and the email’s overall statistics, which are anonymously logged for all recipients.</li>
 </ul>
 <h3 id="personalize-emails-with-dynamic-text">Personalize emails with dynamic text</h3>
-<p>Emails allow you to include personalized pieces of text based on information known about the recipient.</p>
+<p>Emails allow you to include personalized pieces of text based on information known about the recipient or data relevant to the email’s context.</p>
 <p>You can add dynamic text while editing emails in an email channel application in the <strong>Content</strong> view mode, or when working in the <strong>Plain text</strong> dialog. Dynamic text is supported for text fields (fields that use a <em>Text input</em>, <em>Text area</em> or <em>Rich text editor</em> form component in the <a href="/documentation/developers-and-admins/development/content-types">content type</a> configuration).</p>
-<p>Add dynamic text by entering or copying the following placeholders into the appropriate location within email fields:</p>
+<p>Add dynamic text by entering or copying placeholders into the appropriate location within email fields:</p>
+<ul>
+<li>For most email <a href="#email-purposes">purposes</a>, the following placeholders are available:
 <ul>
 <li>
 <strong>{{FirstName}}</strong> – the recipient’s first name</li>
@@ -223,6 +227,9 @@ All emails within an email channel use the same <a href="/documentation/develope
 <strong>{{LastName}}</strong> – the recipient’s last name</li>
 <li>
 <strong>{{Email}}</strong> – the recipient’s email address</li>
+</ul>
+</li>
+<li>For <em>Order status change</em> emails, the available placeholders are different, and instead allow you to access the data of the given customer’s <a href="/documentation/business-users/manage-commerce-stores">order</a>.</li>
 </ul>
 <p>Optionally, you can add a backup text to any placeholder in the following format: <strong>{{FirstName, backup}}</strong>. The backup text is displayed when the system doesn’t have the given value available for the recipient.</p>
 <p></p>
@@ -232,7 +239,7 @@ All emails within an email channel use the same <a href="/documentation/develope
 <li>Fill in the dialog:
 <ul>
 <li>
-<strong>Recipient attribute</strong> – select the recipient attribute that will be displayed (<em>First name</em>, <em>Last name</em> or <em>Email</em>).</li>
+<strong>Recipient attribute</strong> – select the recipient attribute or order value that will be displayed.</li>
 <li>
 <strong>Backup text</strong> – text displayed to recipients who do not have a value available for the selected attribute.</li>
 </ul>
@@ -253,6 +260,7 @@ All emails within an email channel use the same <a href="/documentation/develope
 <li>For <em>Regular</em> and <em>Confirmation</em> emails, the email attempts to get the values from the <a href="/documentation/business-users/digital-marketing/contact-management">contact</a> representing the recipient.</li>
 <li>For <em>Form autoresponder</em> emails, the values are loaded from the matching fields of the submitted form. If fields are not available for the <em>First</em> or <em>Last name</em>, the email attempts to get the values from the contact representing the recipient.</li>
 <li>For <em>Automation</em> emails, the values are loaded from the matching fields of the form whose submission triggered the <a href="/documentation/business-users/digital-marketing/automation">automation process</a>. If the process isn’t triggered by a form submission or such fields are not available, the email attempts to get the values from the processed contact.</li>
+<li>For <em>Order status change</em> emails, the placeholders values are always loaded from the data of the related commerce <a href="/documentation/business-users/manage-commerce-stores">order</a>.</li>
 </ul>
 </div>
 

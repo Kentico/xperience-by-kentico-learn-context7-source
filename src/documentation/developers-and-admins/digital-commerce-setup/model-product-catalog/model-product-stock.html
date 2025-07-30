@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Model product stock</title>
+</head>
+<body>
+<p>Product stock management is a critical component of any commerce system. This page covers key considerations for implementing a product stock model in Xperience by Kentico.</p>
+<p>The product stock model manages the relationship between products and their available quantities. It provides functionality to track, update, and display stock levels while handling various business scenarios such as purchases, returns, and restocking. We recommend that you implement the product stock model as a custom module to ensure flexibility and maintainability.</p>
+
+<div>
+
+</div>
+<div>
+<p>This page provides basic requirements for implementing stock management. While the current text focuses on the basic architecture and design patterns, we’re working on expanding this documentation with code samples and more detailed scenarios.</p>
+</div>
+
+<h2 id="product-stock-module">Product stock module</h2>
+<p>Create a <a href="/documentation/developers-and-admins/customization/object-types">custom module</a> to handle product stock information. The module should include the following fields:</p>
+<ul>
+<li>Product SKU – unique identifier linking to the product</li>
+<li>Product stock value – current quantity available for purchase</li>
+</ul>
+<p>Depending on your requirements, you may use a simple implementation with just product SKU and product stock value, or a more complex model that also includes fields such as reserved stock for pending orders and minimum threshold value.</p>
+<h2 id="management-interfaces">Management interfaces</h2>
+<p><a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">Create</a> the following UI pages to manage product stock:</p>
+<ul>
+<li>
+<a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template">Listing page</a> – create a listing interface to display product stock information: product name, SKU, and current stock levels</li>
+<li>
+<a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template">Edit page</a> – provide an interface for administrators to manage stock records</li>
+</ul>
+<h2 id="product-stock-creation">Product stock creation</h2>
+<h3 id="automatic-stock-creation">Automatic stock creation</h3>
+<p>Consider implementing automatic stock creation when new products are added:</p>
+<ul>
+<li>Set up <a href="/documentation/developers-and-admins/customization/handle-global-events">event handlers</a> for product creation</li>
+<li>Initialize default stock values based on business rules</li>
+<li>Ensure proper data consistency between products and stock</li>
+</ul>
+<h3 id="manual-stock-creation">Manual stock creation</h3>
+<p>Provide administration interface for manual stock creation and management:</p>
+<ul>
+<li>Create an interface where administrators can create new stock records</li>
+<li>Consider adding bulk operations for mass stock updates</li>
+</ul>
+<h2 id="business-logic-implementation">Business logic implementation</h2>
+<h3 id="purchase-transactions">Purchase transactions</h3>
+<p>Handle stock reduction when products are purchased.</p>
+<h3 id="returns-and-restocking">Returns and restocking</h3>
+<p>Implement logic for increasing stock levels when products are returned or restocked:</p>
+<ul>
+<li>Handle product returns by adding quantities back to available stock</li>
+<li>Process restocking operations with proper validation</li>
+</ul>
+<h3 id="stock-reservations">Stock reservations</h3>
+<p>Consider managing temporary stock allocations for pending orders:</p>
+<ul>
+<li>Reserve stock during the checkout process</li>
+<li>Release reservations for abandoned carts</li>
+<li>Convert reservations to actual purchases upon order completion</li>
+</ul>
+<h2 id="validation-and-business-rules">Validation and business rules</h2>
+<p>Implement product stock validation and business rules to ensure data integrity:</p>
+<ul>
+<li>Negative stock prevention – ensure stock levels cannot go below zero</li>
+<li>Threshold alerts – consider generating notifications when stock falls below minimum levels</li>
+<li>Concurrent access handling – prevent race conditions during simultaneous stock updates</li>
+<li>Data integrity checks – validate relationships between products and stock records</li>
+</ul>
+<h2 id="display-product-stock">Display product stock</h2>
+<p>Display product stock information to customers on the live site:</p>
+<ul>
+<li>In-stock indicators – display indication whether a product is available for purchase</li>
+<li>Quantity selectors – prevent customers from selecting more items than are in stock</li>
+<li>Low stock warnings – consider alerting customers when quantities are limited and encourage them to purchase soon</li>
+</ul>
+
+</body>
+</html>

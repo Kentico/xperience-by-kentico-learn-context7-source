@@ -129,7 +129,17 @@
 </div>
 </li>
 <li>
-<p>Register the resource file in the system using the <code>RegisterLocalizationResource</code> attribute. The registration requires the type encapsulating the resource file and the language for which to use the resource. Xperience by Kentico doesn’t currently support administration interface localization – only English is supported. Use the <code>SystemContext.SYSTEM_CULTURE_NAME</code> property, which registers the resource for English.</p>
+<p>Register the resource file in the system using the <code>RegisterLocalizationResource</code> attribute. The registration requires the type encapsulating the resource file, the language for which to use the resource, and optionally the resource target.</p>
+<p><code>SystemContext.SYSTEM_CULTURE_NAME</code> contains the default language code for English and should be used when creating English resource files. For registering resources in other languages, see <a href="/documentation/developers-and-admins/customization/admin-ui-localization">Admin UI localization</a>.</p>
+<p>The available resource targets are:</p>
+<ul>
+<li>
+<strong>LocalizationTarget.Server</strong> – Localization resources intended for the server. These resources are resolved dynamically and sent as part of API responses during request lifecycle processing. Default when no target provided.</li>
+<li>
+<strong>LocalizationTarget.Client</strong> – Localization resources intended for the client. These resources are bundled and sent to the browser during admin UI initialization, making them immediately available for client components.</li>
+<li>
+<strong>LocalizationTarget.Builder</strong> – Localization resources intended for <a href="/documentation/developers-and-admins/development/builders">builder</a> components. These resources are resolved and sent later as part of builder-specific request lifecycle operations.</li>
+</ul>
 
 <div>
 <div>
@@ -149,23 +159,37 @@
  using CMS.Base;
  using CMS.Localization;
 
- using Acme.Web.Admin;
+ // Resource file registration with target specification
+ [assembly: RegisterLocalizationResource(typeof(MyProjectResources), SystemContext.SYSTEM_CULTURE_NAME, LocalizationTarget.Client)]
+ [assembly: RegisterLocalizationResource(typeof(MyProjectServerResources), SystemContext.SYSTEM_CULTURE_NAME, LocalizationTarget.Server)]
+ [assembly: RegisterLocalizationResource(typeof(MyProjectBuilderResources), SystemContext.SYSTEM_CULTURE_NAME, LocalizationTarget.Builder)]
 
- // Resource file registration
- [assembly: RegisterLocalizationResource(typeof(MyProjectResources), SystemContext.SYSTEM_CULTURE_NAME)]
-
- namespace Acme.Web.Admin
- {
-     // Class encapsulating the resource file
-     public class MyProjectResources
-     {
-     }
- }
+ // Classes encapsulating the resource files
+ public class MyProjectResources {}
+ public class MyProjectServerResources {}
+ public class MyProjectBuilderResources {}
  </code></pre>
 </div>
 </li>
 </ol>
-<p>When creating resource strings, consider using a unique prefix in your resource keys to prevent potential conflicts when deploying to other projects. For example, the prefix can match your company, project, or customization name.</p>
+<h3 id="resource-key-naming">Resource key naming</h3>
+<p>Use a consistent prefix in your resource keys to prevent conflicts with system resources. For example, include the project or company name in your keys:</p>
+
+<div>
+<pre><code>
+// Good examples using company/project name prefixes
+mycompany.admin.users.createButton
+myproject.validation.emailRequired
+myapp.dashboard.welcomeMessage
+
+// Avoid generic keys that may conflict
+createButton
+validation
+welcomeMessage
+</code></pre>
+</div>
+
+<h3 id="retrieval-api">Retrieval API</h3>
 <p>Retrieve resource strings from registered resource files using <code>ILocalizationService</code>.</p>
 
 <div>
@@ -173,7 +197,7 @@
 <div>
 <span>C#</span>
 </div>
-<strong></strong>
+<strong>Example - ILocalizationService usage</strong>
 </div>
 <div>
 <button>
@@ -315,7 +339,7 @@ public async Task LoadData()
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="7"><code>
 var tasks = new List&lt;Task&gt;();
 
 for (int i = 0; i &lt; 100; ++i)

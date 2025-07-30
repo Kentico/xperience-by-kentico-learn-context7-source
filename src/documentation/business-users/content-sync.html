@@ -18,8 +18,19 @@
 </div>
 
 <h2 id="supported-content">Supported content</h2>
-<p>Currently, content sync is supported for <a href="/documentation/business-users/content-hub/content-items">reusable content items</a>. Support for synchronizing <a href="/documentation/business-users/website-content">website channel pages</a> will be added in the future.</p>
-<p>The following data is automatically synchronized together with content items:</p>
+<p>Content sync is supported for <a href="/documentation/business-users/content-hub/content-items">reusable content items</a> and <a href="/documentation/business-users/website-content">website channel pages</a>.</p>
+<p>The following data is automatically included when synchronizing content:</p>
+
+<table>
+<thead>
+<tr>
+<td colspan="2">
+<p>Reusable content items</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td colspan="2">
 <ul>
 <li>
 <a href="/documentation/business-users/content-hub/content-item-assets">Content item assets</a> (physical files)
@@ -28,32 +39,92 @@
 </ul>
 </li>
 <li>
-<a href="/documentation/business-users/content-hub/content-items#link-content-items">Linked content items</a> (includes both items linked via fields and assets used in <a href="/documentation/business-users/rich-text-editor">rich text content</a> via the <em>Insert image</em> and <em>Insert link</em> options)
+<a href="/documentation/business-users/content-hub/content-hub-folders#content-folders">Content folders</a> where synchronized items are placed (<em>Smart folders</em> are not synchronized)</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<p>Pages</p>
+</td>
+</tr>
+<tr>
+<td colspan="2">
 <ul>
-<li>The synchronization cascades if the linked items themselves link to other content items.</li>
+<li>
+<a href="/documentation/business-users/website-content/manage-page-urls">Page URLs</a> (both system and vanity)</li>
+<li>
+<a href="/documentation/business-users/website-content/manage-page-urls#manage-redirects-from-unpublished-pages">Page redirects from unpublished pages</a> (Former URLs)</li>
+<li>Folders in the page tree that contain synchronized pages</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<p>Both content items and pages</p>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<ul>
+<li>
+<a href="/documentation/business-users/content-hub/content-items#link-content-items">Linked</a> content items and pages
+<ul>
+<li>Includes items/pages linked via content fields or <a href="/documentation/business-users/website-content/widgets-and-page-builder">Page Builder component</a> properties, and assets used in <a href="/documentation/business-users/rich-text-editor">rich text content</a> via the <em>Insert image</em> and <em>Insert link</em> options.</li>
+<li>The synchronization cascades if the linked items themselves link to other content items or pages.</li>
 </ul>
 </li>
 <li>
 <a href="/documentation/developers-and-admins/configuration/taxonomies">Taxonomies</a> and tags assigned to synchronized items</li>
-<li>
-<a href="/documentation/business-users/content-hub/content-hub-folders#content-folders">Content folders</a> where synchronized items are placed (<em>Smart folders</em> are not synchronized)</li>
 </ul>
+</td>
+</tr>
+</table>
+
 <h3 id="what-is-not-synchronized">What is not synchronized?</h3>
-<p>The following limitations apply when synchronizing content items:</p>
+<p>The following limitations apply when synchronizing content:</p>
 <ul>
-<li>Only items with the <strong>Published</strong> or <strong>Unpublished</strong> <a href="/documentation/business-users/content-hub/content-items#content-items-lifecycle">status</a> can be synchronized.
+<li>
+<a href="/documentation/business-users/content-hub/content-items#content-items-lifecycle">Content item lifecycle</a> and <a href="/documentation/business-users/website-content#page-lifecycle">Page lifecycle</a>
 <ul>
-<li>If a linked content item is currently not published, its latest <em>Published</em> version is synchronized. Linked items that were never published are not synchronized at all.</li>
-<li>Synchronization of <a href="/documentation/business-users/content-hub/content-items#unpublish-content-items">unpublished items</a> only works for items that already exist on the target instance in a <em>Published</em> state. If you synchronize a “new” content item with the <em>Unpublished</em> status, no changes are made on the target.</li>
+<li>Content items or pages that were never published cannot be synchronized. This includes items/pages in the <strong>Draft (Initial)</strong> status or a <a href="/documentation/developers-and-admins/configuration/workflows">custom workflow step</a> before the first publish.</li>
+<li>For items/pages that were published in the past, but are currently in the <strong>Draft (New version)</strong> status or a <a href="/documentation/developers-and-admins/configuration/workflows">custom workflow step</a>, the latest <em>Published</em> version is synchronized.</li>
+<li>If a content item or page is scheduled to be published or scheduled to be unpublished, this information is <strong>not</strong> included in the synchronization.</li>
 </ul>
 </li>
-<li>You cannot “select” a deleted content item for synchronization. Content synchronization cannot be used to delete items on the target instance.</li>
-<li>Only the currently selected <a href="/documentation/business-users/content-hub/content-items#translate-content-items">language variant</a> is included in each synchronization. You can switch the language in Content hub and perform a separate synchronization for each language.</li>
-<li>If a content item is <a href="/documentation/business-users/content-hub/content-items#scheduled-publishing">scheduled to be published</a> or <a href="/documentation/business-users/content-hub/content-items#unpublish-content-items">scheduled to be unpublished</a>, this information is not included in the synchronization.</li>
+<li>Unpublished content
+<ul>
+<li>Synchronization of <a href="/documentation/business-users/content-hub/content-items#unpublish-content-items">unpublished reusable content items</a> only works for items that already exist on the target instance in a <em>Published</em> state. If you synchronize a “new” content item with the <em>Unpublished</em> status, no changes are made on the target.</li>
 <li>
-<a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Smart folders</a> are not synchronized.</li>
+<a href="/documentation/business-users/website-content/edit-and-publish-pages#unpublish-pages">Unpublished pages</a> can be synchronized without limitations, together with published or unpublished child pages.</li>
 </ul>
-<p>Additionally, the following data is required by content items, but is <strong>not</strong> included in content synchronization:</p>
+</li>
+<li>Deleted content
+<ul>
+<li>You cannot “select” a deleted content item or page for synchronization. Content synchronization cannot be used to delete items on the target instance.</li>
+</ul>
+</li>
+<li>Multilingual content
+<ul>
+<li>Only items/pages from the currently selected <a href="/documentation/developers-and-admins/configuration/languages">language</a> are included in each synchronization. You can switch the language in Content hub or website channel applications, and perform a separate synchronization for each language.</li>
+</ul>
+</li>
+<li>Linked pages
+<ul>
+<li>
+<a href="/documentation/business-users/website-content">Website channel pages</a>, including pages linked from content items, cannot be synchronized if all of their parent pages are not available for synchronization (i.e., if the parents are not translated in the selected language or have never been published).</li>
+</ul>
+</li>
+<li>Unsupported data
+<ul>
+<li>
+<a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Smart folders</a> cannot be synchronized together with content items.</li>
+<li>
+<a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms">Forms</a> are currently not synchronized together with pages. Support for form synchronization is planned to be added in the future.</li>
+</ul>
+</li>
+</ul>
+<p>Additionally, the following data is required by content items and/or pages, but is <strong>not</strong> included in content synchronization:</p>
 <ul>
 <li>Channels that use the content (<a href="/documentation/developers-and-admins/configuration/website-channel-management">website</a>, <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email</a>, <a href="/documentation/developers-and-admins/configuration/headless-channel-management">headless</a>)</li>
 <li><a href="/documentation/developers-and-admins/development/content-types">Content types</a></li>
@@ -66,18 +137,19 @@
 <p>If you manually edit content directly on the target instance, you risk losing the changes when content is synchronized from the source. You may also cause incompatibility of required objects, such as content types or languages, which would prevent future synchronization.</p>
 <p>For example, if you have a setup with one <em>Staging</em> instance as a source and a public-facing <em>Production</em> instance, only edit content on the staging instance, and use the content sync feature to move changes to production.</p>
 <h3 id="workflow-and-content-sync">Workflow and content sync</h3>
-<p>If you use <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a> to control the lifecycle of your content, only set up and apply the workflow on the source instance where you edit. Any workflow applied on the target instance is ignored, as content items are always transferred with the <em>Published</em> or <em>Unpublished</em> status and a completed workflow cycle.</p>
-<h2 id="synchronize-content-items">Synchronize content items</h2>
+<p>If you use <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a> to control the lifecycle of your content, only set up and apply the workflow on the source instance where you edit. Any workflow applied on the target instance is ignored, as content items are always transferred in the <em>Published</em> or <em>Unpublished</em> status and with a completed workflow cycle.</p>
+<h2 id="synchronize-content">Synchronize content</h2>
 
 <div>
 
 </div>
 <div>
 <p><strong>Recommended content size per synchronization</strong></p>
-<p>We recommend that you do not include more than 200 content items and 200 MB of related asset files within a single synchronization.</p>
+<p>We recommend that you do not include over 1000 content items or 200 pages, and 200 MB of related asset files within a single synchronization. The recommended number of pages per synchronization is lower, since pages on most websites often contain more linked items and assets.</p>
 <p>Larger synchronizations may still work correctly, depending on the performance of your application’s servers and your connection speed. However, splitting large content updates into multiple synchronizations is generally a better approach. This reduces the chance of issues during the synchronization, for example due to network errors.</p>
 </div>
 
+<h3 id="content-items">Content items</h3>
 <ol type="1">
 <li>Open the <strong>Content hub</strong> application.</li>
 <li>Select the content items you want to synchronize.
@@ -87,13 +159,57 @@
 </li>
 <li>Use the <strong>Sync</strong> () action.<br>
 </li>
-<li>Choose when you want the content to be restored on the target instance:
+<li>Choose <a href="#choose-the-restoration-time-for-synchronized-content">when you want the content to be restored</a> on the target instance.</li>
+<li>Review the content items that will be synchronized.
+<ul>
+<li>Any content items that cannot be synchronized are grayed out in the list. For example, this occurs if the synchronization selection includes items that are not translated to the current language or items that have never been published.</li>
+<li>Keep in mind that <a href="/documentation/business-users/content-hub/content-items#link-content-items">linked content items</a> and linked pages are not displayed in the list, but will also be synchronized.</li>
+</ul>
+</li>
+<li>Select <strong>Sync</strong>.</li>
+</ol>
+<p>The content sync dialog displays the progress of the synchronization and informs you about the result.</p>
+<h3 id="pages">Pages</h3>
+<p>You can synchronize individual pages, or entire subsections of the page tree.</p>
+<ol type="1">
+<li>Open a website channel application.</li>
+<li>Find the page you want to synchronize in the page tree.</li>
+<li>Open the context menu () of the page.</li>
+<li>Select the <strong>Sync this page</strong> or <strong>Sync with all subpages</strong> () action.<br>
+</li>
+<li>Choose <a href="#choose-the-restoration-time-for-synchronized-content">when you want the content to be restored</a> on the target instance.</li>
+<li>Review the pages that will be synchronized.
+<ul>
+<li>Pages can only be synchronized if you also select all parent pages or folders up to the first level of the page tree. Otherwise the synchronization would result in an invalid page tree on the target instance.</li>
+<li>Any pages that cannot be synchronized are grayed out in the list. For example, this occurs if the synchronization selection includes pages that are not translated to the current language or items that have never been published.</li>
+<li>Keep in mind that <a href="/documentation/business-users/content-hub/content-items#link-content-items">linked content items</a> and linked pages are not displayed in the list, but will also be synchronized.</li>
+<li>Folders in the page tree can only be synchronized together with child pages. Folders cannot be synchronized alone if they do not contain any child pages in the selected language.</li>
+</ul>
+</li>
+<li>Select <strong>Sync</strong>.</li>
+</ol>
+<p>The content sync dialog displays the progress of the synchronization and informs you about the result.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Duration of page content sync</strong></p>
+<p>Pages on many websites often contain a large number of linked items, assets and other pages. For this reason, synchronization may take longer than expected, even if you select only a small number of pages.</p>
+</div>
+
+<h4 id="sync-moved-or-reordered-pages">Sync moved or reordered pages</h4>
+<p>To correctly synchronize pages that were <a href="/documentation/business-users/website-content/edit-and-publish-pages#move-pages">moved</a> or reordered in the page tree, you need to sync <strong>all items on the same level</strong> of the page tree, for both the original and new location. This ensures that the correct order of all affected pages is synchronized.</p>
+<p>To simplify this process, we recommend synchronizing the original and new parents of the moved page together with all direct child pages. However, the root page of a website channel cannot be synchronized – transferring an entire website channel within a single content sync action is not supported.</p>
+<h3 id="choose-the-restoration-time-for-synchronized-content">Choose the restoration time for synchronized content</h3>
+<p>Whenever you synchronize content, you can choose when the data will be restored on the target instance:</p>
 <ul>
 <li>
 <strong>Restore on the target immediately</strong> – the content will be transferred to the target instance and restored as soon as possible. The restoration may take up to 30 seconds to start, may be delayed by other content sync operations, and may take some time depending on the size of the synchronized content. You can view the progress in the content sync dialog.</li>
 <li>
 <strong>Postpone restoration on the target</strong> – select a date and time in the future. The content will be transferred to the target instance and restored at the scheduled time. You can <a href="#track-incoming-synchronizations">track scheduled synchronizations</a> on the target instance.</li>
 </ul>
+<p></p>
 
 <div>
 
@@ -101,18 +217,9 @@
 <div>
 <p><strong>Scheduling multiple synchronizations</strong></p>
 <p>If you are planning multiple scheduled synchronizations, make sure to set the restoration times according to the order in which you want the content to be created or updated. Leave appropriate time intervals for the restoration to finish for each synchronization (at least 15 minutes are recommended).</p>
-If you schedule multiple synchronizations with updates for the same content items, the last restored synchronization overwrites the previous ones.
+<p>If you schedule multiple synchronizations with updates for the same content items or pages, the last restored synchronization overwrites the previous ones.</p>
 </div>
-</li>
-<li>Review the content items that will be synchronized.
-<ul>
-<li>Any content items that cannot be synchronized are grayed out in the list. For example, this occurs if items that have a different status than <em>Published</em> or <em>Unpublished</em> are selected for synchronization.</li>
-<li>Keep in mind that <a href="/documentation/business-users/content-hub/content-items#link-content-items">linked content items</a> are not displayed in the list, but will also be synchronized.</li>
-</ul>
-</li>
-<li>Select <strong>Sync</strong>.</li>
-</ol>
-<p>The content sync dialog displays the progress of the synchronization and informs you about the result.</p>
+
 <h2 id="track-incoming-synchronizations">Track incoming synchronizations</h2>
 <p>When working on an Xperience instance that is the target of content synchronization, you can monitor synchronizations that recently occurred or are scheduled to take place in the <strong>Content synchronization</strong> application.</p>
 <p></p>

@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Understand Xperience email stats to spot what’s working</title>
+</head>
+<body>
+<p>When you send an email, your job isn’t finished once you click the <em>Send</em> button. Every message is a chance to build trust. Your contacts permitted you to reach their inbox, and treating their trust with respect is essential.</p>
+<p>Email statistics help you see how your message performed: how many people received it, who opened it, and whether they clicked any links. You will see what’s working and what’s not, and improve your future messages.</p>
+<p>Xperience collects statistics only for emails sent through a configured <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channel</a>. <em>Draft</em> emails aren’t tracked. That means you’ll see real data only after you publish and send an email to actual recipients.</p>
+
+<div>
+
+</div>
+<div>
+<p>Not seeing any stats? Here’s what to check:</p>
+<ul>
+<li>Ask your administrator to confirm that the <em>email channel</em> is correctly <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#create-and-configure-email-channels">configured</a>.</li>
+<li>Make sure the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#add-sender-addresses">email sender</a> address is valid and approved for sending.</li>
+<li>Check that your <a href="/guides/digital-marketing/work-with-email/create-a-recipient-list">recipient list</a> includes real contacts – not test addresses or users who have opted out of communication.</li>
+</ul>
+<p>Remember: Email stats only appear when messages are sent to trackable contacts through a working email channel.</p>
+</div>
+
+<h2 id="analyze-email-performance-in-xperience">Analyze email performance in Xperience</h2>
+<p>Xperience provides a few places where you can check how your emails performed. These views help you understand <em>delivery rates</em> in <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics#email-statistics">statistics</a>, your contact’s <em>engagement</em> through <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics#contact-activities-for-emails">contact activities</a>, and <em>trends</em> over time.</p>
+<h3 id="view-stats-for-individual-emails-in-the-admin-interface">View stats for individual emails in the admin interface</h3>
+<p>To see statistics for a <strong>specific email</strong>, open the <strong>email channel</strong> you sent it from in the Xperience administration. <em>Email channel</em> is the technical foundation for sending emails. Depending on how your team sets them up, the channels will have business-friendly names. For example, the Kbank demo site has one <em>Marketing Emails</em> channel.</p>
+
+<div>
+
+</div>
+<div>
+<p>The number of available channels can also vary based on your project’s license.</p>
+</div>
+
+<p>Choose your email and switch to the <strong>Statistics</strong> tab. You’ll find the most important metrics here, such as how many emails were sent, how many were opened, the overall delivery rate, how many clicks each email generated, and more.</p>
+<p></p>
+<h3 id="monitor-overall-email-health-in-the-xperience-portal">Monitor overall email health in the Xperience Portal</h3>
+<p>If you’re working on a SaaS project, you can also view email performance in the <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#email-metrics">Email metrics</a> application under the <strong>Monitoring</strong> section in the <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a>. This view shows statistics collected directly from the <a href="/documentation/developers-and-admins/configuration/email-configuration#sendgrid-integration">SendGrid platform</a>, which is Xperience’s built-in email delivery provider for <a href="/guides/configuration/saas">SaaS</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Who can access the <strong>Email metrics</strong> app?</p>
+<p>Access to the <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#email-metrics">Email metrics</a> application in the <em>Portal</em> is separate from access to the <em>email channel</em> in the Xperience administration. Usually, only <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">users with access</a> to the Xperience Portal, such as administrators, can view these SaaS-level statistics. If you don’t have access, ask your project admin to check your permissions.</p>
+</div>
+
+<p>You’ll see total counts for <strong>delivered</strong>, <strong>bounced</strong>, and <strong>deferred</strong> emails, along with the number of <strong>unique</strong> clicks. These metrics help you spot potential deliverability issues, understand how recipients interact with your emails, and find opportunities to improve campaign performance.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>Comparing email performance?</p>
+<p>Use the <strong>Statistics</strong> tab to review the results of individual emails, then check the <strong>Email metrics</strong> app in the Portal to spot delivery patterns and engagement trends across multiple sends.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Can’t find stats for an email? Double-check that:</p>
+<ul>
+<li>The email was sent through a configured email channel.</li>
+<li>You’re looking at the correct <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments">project environment</a> in SaaS (usually called <em>production</em>).</li>
+<li>The email isn’t in <a href="/documentation/business-users/digital-marketing/emails#email-lifecycle">Draft</a> state or wasn’t sent as a test message.</li>
+</ul>
+</div>
+
+<h2 id="understand-the-key-email-metrics">Understand the key email metrics</h2>
+<p>Email <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics#email-statistics">statistics</a> in Xperience show a few core metrics that help you quickly assess whether your message reached people and how they reacted. Xperience calculates them based on real-world email behaviors, but it helps to understand what’s tracked, and how.</p>
+<h3 id="sent-emails">Sent emails</h3>
+<p>This shows how many times your email was <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics#sent-emails">sent</a> to contacts. It confirms that the email left the Xperience’s <a href="/documentation/business-users/email-queue">Email queue</a>and was handed off to a delivery service, like an <em>SMTP</em> server or <em>SendGrid</em>. It doesn’t mean the message was delivered, it could still bounce later.</p>
+<p></p>
+<p>In some cases, Xperience can send the same email to the same recipient more than once. For example, if a visitor submits the same form multiple times , which triggers an <a href="/guides/digital-marketing/work-with-email/introduction-to-emails#form-autoresponders">email autoresponder</a>, Xperience counts each send separately.</p>
+
+<div>
+
+</div>
+<div>
+<p>Check the <strong>Sent</strong> count to see the number of delivery attempts made, but use the <strong>Delivered</strong> count to measure actual inbox success.</p>
+</div>
+
+<h3 id="delivered-emails">Delivered emails</h3>
+<p>The number of <a href="/guides/digital-marketing/work-with-email/introduction-to-emails#regular-emails-newsletters-announcements">regular emails</a> that reached inboxes. It subtracts <strong>hard</strong> and <strong>soft</strong> bounces (temporary or permanent failures) from the total sent. It is your <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics#delivered-emails">most reliable indicator</a> that your contact received the email.</p>
+<p></p>
+<p>If an email address causes too many <strong>soft bounces</strong> (temporary issues) or any <strong>hard bounce</strong> (permanent issue), Xperience automatically marks the contact as <em>Bounced</em> and excludes them from future sends. You can <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers#bounced-email-tracking">reset this manually</a> for individual contacts in <a href="/documentation/business-users/digital-marketing/contact-management">Contact management</a> if needed. The report doesn’t show an empty box if no such event has occurred. That’s why the following screenshots shows only <strong>hard bounces</strong> box and not the <em>soft bounces</em>.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>A falling delivery rate often points to problems with list quality. Try cleaning up inactive or outdated contacts to improve results.</p>
+</div>
+
+<h3 id="email-opens">Email opens</h3>
+<p>This tracks how many recipients opened your email. The system uses a small invisible image (called a <a href="https://en.wikipedia.org/wiki/Spy_pixel" target="_blank">tracker pixel</a> or <em>tracking pixel</em>”*) that loads when the message is opened. If the recipient’s email client blocks images, the email open isn’t tracked, unless they also click a link.Then, Xperience counts this as an open.</p>
+<p></p>
+<h4 id="privacy-policies-made-email-opens-highly-unreliable">Privacy policies made email opens highly unreliable</h4>
+<p>Apple <a href="litmus.com/blog/apple-mail-privacy-protection-for-marketers" target="_blank">Mail Privacy Protection (MPP)</a> preloads remote content, such as a <em>tracking pixel,</em> even blocks it to prevent senders from knowing if emails have been read. Xperience (and other senders) register an “open” event even if the user never actually read the email, or sometimes not at all if the provider blocks opening the <em>tracking pixel</em>.</p>
+<p>Though <em>Gmail</em> or other third-party email clients don’t have an alternative to Apple MPP, their <em>enhanced privacy</em> or <em>encryption features</em> often turn off automatic image loading by default. This means that the <strong>open tracking fails</strong> as it requires explicit user action, which they might not make. These inbox tools, including Apple MPP, also mostly block or obfuscate IP-address locations, making the geographical data about email interactions imprecise.</p>
+<p>In many cases <em>default behaviors</em> of email tools artificially inflate or deflate your <em>email open</em> statistics, which no longer represent real user engagement. As a result, you should shift your focus to more dependable metrics like <strong>clicks</strong>, <strong>conversions</strong>, or <strong>replies</strong>. Campaigns that rely on IP-based data, for example, the recipient’s location or open time, are also less effective because that information is now hidden.</p>
+
+<div>
+
+</div>
+<div>
+<p>Use <em>open rate</em> to get a general sense of visibility, but don’t rely on it alone. Email clients and services may skew results, so compare <em>open rates</em> with <em>clicked links</em> to get a better picture.</p>
+</div>
+
+<h3 id="clicked-links">Clicked links</h3>
+<p>This is one of the most reliable signs of recipients engaging with your email. When you send the email, Xperience rewrites links in the email content into tracking links, which record clicks before redirecting users to the original target.</p>
+<p>You can see:</p>
+<ul>
+<li>
+<strong>Click rate</strong> – percentage of recipients who clicked at least one link.</li>
+<li>
+<strong>Unique clicks</strong> – number of individual recipients who clicked.</li>
+</ul>
+<p></p>
+<p><em>Click data</em> for specific links is only available in contact activities, not in the anonymous statistics you have available in the email channel’s <em>Statistics</em>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Clicks are harder to fake than opens. Track click rate over time to measure whether your content motivates action.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>Unsubscribe links are not tracked. This ensures compliance and makes the opt-out experience clean and “by the book”.</p>
+</div>
+
+<h3 id="unsubscribe-rate">Unsubscribe rate</h3>
+<p>The <strong>unsubscribe</strong> metric shows how many people clicked the opt-out link in a <a href="/guides/digital-marketing/work-with-email/introduction-to-emails#regular-emails-newsletters-announcements">regular email</a>. Xperience automatically removes these contacts from the <a href="/guides/digital-marketing/work-with-email/create-a-recipient-list">recipient list</a> and they won’t receive future messages that you send to this recipient list.</p>
+<p></p>
+<p>Xperience calculates the <strong>unsubscribe rate</strong> based on the number of emails that were <strong>successfully delivered</strong>. A few <em>unsubscribes</em> are normal. But if the number of unsubscribes starts rising, it’s a signal that something may not be working. It might mean the content you sent is irrelevant or you’re emailing too often.</p>
+
+<div>
+
+</div>
+<div>
+<p>Facing too many unsubscriptions?</p>
+<ul>
+<li>Review emails with <em>high unsubscribe rates</em>. Look at your <em>subject line</em>, <em>frequency</em>, and whether you’ve sent relevant emails to relevant recipients. Try small changes in tone or timing to rebuild trust with your audience.</li>
+<li>A higher unsubscribe rate doesn’t always mean failure. Remove disengaged users to keep your list clean.</li>
+<li>Check how many recipients opted out of future emails after receiving this one. A small number is normal, but consistent spikes should prompt a review of your content and targeting.</li>
+</ul>
+</div>
+
+<h3 id="spam-reports">Spam reports</h3>
+<p>Spam reports show how many recipients marked your email as spam in their inbox. This metric is only available when you’re <a href="/documentation/developers-and-admins/configuration/email-configuration#sendgrid-integration">using SendGrid</a> to send emails, as is the case for SaaS in Xperience.</p>
+<p></p>
+<p>In Xperience, spam complaints from SendGrid are pulled into the system automatically. But if you’re running <a href="/documentation/developers-and-admins/configuration/email-configuration">a custom SMTP server</a> or a custom-tailored delivery setup that combines different email servers, developers may be able to implement their own version of spam reporting.</p>
+<h4 id="leverage-custom-spam-report-implementations">Leverage custom spam report implementations</h4>
+<p>Behind the scenes, all major email service providers (ESPs) offer tools that allow developers to access spam and complaint data programmatically, depending on the email provider’s features. These are sometimes referred to as <em>complaint APIs</em>, <em>feedback loops</em>, or simply <em>FBLs</em>. For example, Amazon SES uses <a href="https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications.html" target="_blank">Amazon SNS</a> to send automatic alerts when a user flags an email. <a href="https://documentation.mailgun.com/docs/mailgun/api-reference/openapi-final/complaints" target="_blank">Mailgun</a>, <a href="https://mailchimp.com/resources/avoid-spam-filters/" target="_blank">Mailchimp</a>, <a href="https://spamcheck.postmarkapp.com/doc/" target="_blank">Postmark</a>, or <a href="https://mailtrap.io/blog/email-feedback-loop/" target="_blank">Mailtrap</a> all provide APIs that let developers track, fetch, and manage spam complaints. Some platforms, like <a href="https://mxtoolbox.com/c/products/features/complaints" target="_blank">MxToolbox</a>, even aggregate complaints from multiple inbox providers into one dashboard.</p>
+<p>Even a few spam complaints can hurt your sender reputation and reduce future deliverability, so it’s critical to monitor this metric closely.</p>
+
+<div>
+
+</div>
+<div>
+<p>Too many complaints?</p>
+<p>Review your opt-in process and email content if you’re running into repeated spam complaints. Developers can also explore spam reporting integrations with your email infrastructure to catch issues early.</p>
+</div>
+
+<h2 id="find-out-who-clicked-and-what-they-clicked">Find out who clicked and what they clicked</h2>
+<p>While overall statistics give you a snapshot of email performance, <a href="/guides/digital-marketing/xperience-essentials/collect-visitor-data-essentials">contact activities</a> help you zoom in and see what individual users did with your message. This view is especially useful if you want to target engaged <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers#create-recipient-lists">recipients</a>, build smarter <a href="/documentation/business-users/digital-marketing/contact-groups">segments</a>, trigger follow-up actions in <a href="/documentation/business-users/digital-marketing/automation">automation</a>, or improve <a href="/guides/customer-journeys">customer journeys</a>.</p>
+<p>To view activities of individual contacts for a specific email, open the email in the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channel</a> application and switch to the <strong>Contact activities</strong> view in the panel on the right. You’ll see a list of <strong>recipients</strong> who interacted with the <strong>email</strong> with their <strong>activity</strong>, such as a <strong>click</strong>. Xperience displays the exact <strong>link</strong> they clicked in the <strong>Value</strong> column.</p>
+<p>Xperience tracks <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics">email click</a> activities for contacts who have <a href="/documentation/developers-and-admins/data-protection/consent-management">consented to tracking</a>.</p>
+<p>Your project’s consent policy typically controls consents. If someone hasn’t <a href="/guides/digital-marketing/xperience-essentials/manage-visitor-data-essentials#data-protection-and-gdpr">agreed to be tracked</a>, their activity won’t appear in the <em>Contact activities</em>. Their clicks will still be counted anonymously in the overall email statistics that serve as an aggregated overview.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you compare total clicks in the statistics view with individual clicks in Contact activities, don’t be surprised if the numbers don’t match. Anonymous clicks and identified clicks are logged separately.</p>
+</div>
+
+<p>Once logged, contact activities become powerful data points you can use across the platform. You can <a href="/guides/digital-marketing/work-with-contacts/contact-segmentation-overview">segment your audience</a> using <strong>Email click</strong> conditions, personalize your digital marketing content on <a href="/guides/digital-marketing/xperience-essentials/personalize-website-content-essentials">websites</a> or in <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder#personalize-widgets">emails</a> on their behavior, or build <a href="/documentation/business-users/digital-marketing/automation">automated processes</a> that respond when a contact clicks in an email to access something important like a <em>pricing page</em>, <em>demo registration form</em>, or a <em>product features overview</em>.</p>
+<p>Combine contact activities with <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder#email-builder-components">email widgets</a> to personalize the email content. If someone clicked a specific type of content in the past, you can tailor the following email they receive to show similar or complementary content.</p>
+
+<div>
+
+</div>
+<div>
+<p>Make sure your forms and subscriptions collect consent for tracking. Without consent, you’ll lose visibility into who’s engaging with your business and miss opportunities to act on those signals.</p>
+</div>
+
+<h2 id="check-these-before-jumping-to-conclusions">Check these before jumping to conclusions</h2>
+<p>Email statistics in Xperience give you valuable insights, but only if you understand how and when Xperience collects the data. These quick tips will help you avoid common misunderstandings and make you more confident when you dive into your reports.</p>
+<h3 id="email-stats-dont-update-instantly">Email stats don’t update instantly</h3>
+<p>Email statistics in Xperience refresh automatically, but not in real time. It can take <strong>up to 30 minutes</strong> for new data to appear, especially after sending an email blast.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you don’t see expected results right after sending, give it some time or use the <strong>Refresh</strong> button to manually reload the latest data.</p>
+</div>
+
+<h3 id="test-sends-and-drafts-dont-count">Test sends and drafts don’t count</h3>
+<p>Xperience collects statistics only for emails sent through email channels. Sent <em>drafts</em> or links clicked in email <em>previews</em> won’t appear in your performance reports.</p>
+
+<div>
+
+</div>
+<div>
+<p>To confirm your setup is working, send a small live campaign to internal contacts first. You’ll see how your stats populate in a real-life scenario.</p>
+</div>
+
+<h3 id="watch-for-high-bounce-or-unsubscribe-rates">Watch for high bounce or unsubscribe rates</h3>
+<p>A spike in bounces or unsubscribes often points to issues with contact quality or content relevance. These numbers affect both deliverability and audience trust.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you see frequent <em>soft</em> or <em>hard bounces</em>, review your contact lists for outdated or invalid emails. For unsubscribes, revisit your <em>subject lines</em>, email <em>frequency</em>, and overall value your emails deliver to your readers.</p>
+</div>
+
+<h2 id="consent-affects-what-you-can-track">Consent affects what you can track</h2>
+<p>Some metrics – especially contact activities – depend on tracking consent. Without it, you’ll only see anonymous data, which limits personalization and automation options.</p>
+
+<div>
+
+</div>
+<div>
+<p>Make sure your forms and subscription points clearly request consent for tracking. Even a simple checkbox can help unlock richer insights later.</p>
+</div>
+
+<h2 id="wrap-up">Wrap up</h2>
+<p><em>Email statistics</em> help you understand how your messages perform and where to improve. When you learn what each metric means and how to read it correctly, you can spot what’s working, fix what’s not, and drive your marketing activities with data-informed decisions.</p>
+<p>Focus on reliable signals like <em>clicks</em> and <em>delivery rates</em>, and use <em>contact activities</em> to take personalized action when possible. Don’t forget to watch <em>bounces</em>, <em>unsubscribes</em>, and <em>spam reports</em>. They’ll tell you just as much as the other metrics that only show how good your email program is.</p>
+<p>Most importantly, use the insights to improve your next email. Email statistics are there to help you improve, not just to fill out a report.</p>
+
+</body>
+</html>

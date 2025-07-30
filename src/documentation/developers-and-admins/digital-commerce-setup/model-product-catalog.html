@@ -5,25 +5,6 @@
 <title>Model the product catalog</title>
 </head>
 <body>
-
-<div>
-
-</div>
-<div>
-<p><strong>Developer preview feature</strong></p>
-<p>The digital commerce feature is currently not fully functional, and primarily intended to allow technical users to familiarize themselves with the development process of the commerce feature. You can expect the feature to be updated and extended in upcoming releases.</p>
-<p>The related API is <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/general#experimental-attributes" target="_blank">marked as experimental</a> and usage will result in warnings when compiling your project. The warnings are treated as errors for reporting purposes. To use the code, you need to <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/experimental-overview#suppress-warnings" target="_blank">suppress</a> the warnings.</p>
-<p>What should you do with this feature?</p>
-<ul>
-<li>
-<strong>DO</strong> try out development of digital commerce and examine the sample in the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat project template</a>.</li>
-<li>
-<strong>DO</strong> feel free to share your feedback with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</li>
-<li>
-<strong>DO NOT</strong> use this feature in public facing and production applications, as the feature is currently incomplete.</li>
-</ul>
-</div>
-
 <p>When designing the content model for the product catalog, it is recommended to use content storage options provided by Xperience by Kentico instead of developing custom classes or modules. In this release of the digital commerce feature, there are no dedicated commerce fields (e.g., price, currency, stock).</p>
 
 <div>
@@ -127,8 +108,6 @@
 <ul>
 <li>
 <em>ProductFields</em> (reusable field schema)</li>
-<li>
-<em>ProductFields</em> (reusable field schema)</li>
 </ul>
 </li>
 </ul>
@@ -216,30 +195,7 @@
 </ul>
 <p>The SKU field can be included in the <em>Product fields</em> reusable field schema. However, when implementing <a href="#product-variants">product variants</a>, you may want to have a distinct SKU for each product variant, but only need <em>Product fields</em> for the parent product.</p>
 <h2 id="product-stock">Product stock</h2>
-<p>Depending on the products you are offering, you may need to implement products with infinite stock (e.g., e-books, software, online courses, gift cards).</p>
-<ul>
-<li>If you offer products with infinite stock, create a separate reusable field schema that contains the stock field. This schema can be omitted when modeling products with infinite stock.
-<ul>
-<li>
-<em>ProductStock</em> (reusable field schema)
-<ul>
-<li><em>ProductStockNumber</em></li>
-</ul>
-</li>
-</ul>
-</li>
-<li>If you don’t offer products with infinite stock, the stock field can be added to the SKU reusable field schema.
-<ul>
-<li>
-<em>ProductSKU</em> (reusable field schema)
-<ul>
-<li><em>ProductSKUCode</em></li>
-<li><em>ProductSKUStockNumber</em></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<p>See <a href="/documentation/developers-and-admins/digital-commerce-setup/model-product-catalog/model-product-stock">Model product stock</a> for details on implementing product stock management.</p>
 <h2 id="seo-fields">SEO fields</h2>
 <p>If you use content hub as the storage for your product catalog and you want to automatically generate pages for each product, it is recommended to store SEO fields (e.g., title, description, keywords) together with the product in the content hub, so that you can edit all properties of a product in one place.</p>
 

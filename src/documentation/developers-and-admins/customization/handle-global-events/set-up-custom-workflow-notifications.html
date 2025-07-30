@@ -5,6 +5,17 @@
 <title>Set up custom workflow notifications</title>
 </head>
 <body>
+
+<div>
+
+</div>
+<div>
+<p>As of version <a href="/documentation/changelog#refresh-july-24-2025">30.8.0</a>, Xperience includes built-in <a href="/documentation/developers-and-admins/configuration/workflows#workflow-notifications">workflow notifications</a>. You don’t have to create custom workflow notifications unless you need further customization.</p>
+</div>
+
+<p>This page provides a full example of <a href="/documentation/developers-and-admins/configuration/notifications#create-custom-notifications">custom notification</a> development, including the implementation of <a href="/documentation/developers-and-admins/customization/handle-global-events">event handlers</a>, their assignment to global events, and obtaining <a href="/documentation/developers-and-admins/configuration/users">user</a> IDs of the intended notification recipients.</p>
+<p>You can use this demonstration as a blueprint to implement your own custom notifications, or follow it more closely to set up custom <a href="/documentation/developers-and-admins/configuration/workflows">workflow</a> notifications if the built-in <a href="/documentation/developers-and-admins/configuration/workflows#workflow-notifications">workflow notifications</a> do not fit your needs. For example, this can be the case if you do not want to use email to deliver notifications, or if you need to send the notification to a different group of recipients.</p>
+<h2 id="workflow-notifications">Workflow notifications</h2>
 <p>When using <a href="/documentation/developers-and-admins/configuration/workflows">workflows</a> in your content editing process, users in various roles need to work with items at different stages of the content lifecycle. Notifications about workflow step transitions can help people keep track of their work. For example, users may wish to be notified when an item transitions to a step that requires their approval or review.</p>
 <p>Developers can set up notifications by handling <a href="/documentation/developers-and-admins/customization/handle-global-events/reference-global-system-events">global events</a> that the system triggers when items transition between workflow steps:</p>
 <ul>
@@ -18,7 +29,7 @@
 <p>The content of notification messages can either be based on <a href="/documentation/developers-and-admins/configuration/notifications#create-custom-notifications">custom notifications</a> and managed in the Xperience administration, or created directly in code.</p>
 <p>Limitations:</p>
 <ul>
-<li>The system currently does not provide events covering workflow transitions of <a href="/documentation/business-users/digital-marketing/emails">emails</a>.</li>
+<li>The system currently does not provide events covering workflow transitions of <a href="/documentation/business-users/digital-marketing/emails">emails</a>. However, you can use built-in <a href="/documentation/developers-and-admins/configuration/workflows#workflow-notifications">workflow notifications</a> for emails.</li>
 <li>Workflow events are not triggered when an item enters the system’s default <em>Draft</em> step for the first time in a workflow cycle, for example after creating a completely new item or a new version of a published or unpublished item. For newly added items, you can handle the <code>Create</code> event via the <em>ContentItemEvents</em>, <em>WebPageEvents</em> or <em>HeadlessItemEvents</em> classes.</li>
 </ul>
 <h2 id="example">Example</h2>

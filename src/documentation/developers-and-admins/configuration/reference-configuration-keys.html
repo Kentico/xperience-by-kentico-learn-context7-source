@@ -41,9 +41,10 @@
 <td>
 <p>Specifies characters that are forbidden in page URLs (see <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing">content tree-based routing</a>). Forbidden characters are automatically replaced by the character specified in the <strong>Forbidden characters replacement</strong> setting in <strong>Settings → URLs and SEO</strong>.</p>
 <p>By default, the following characters are forbidden:</p>
-<p>\/:*?“&lt;&gt;|&amp;%.’#[]+=„“ and the space character.</p>
+<p>\/:*?“&lt;&gt;|&amp;%.’#[]+=„“ and the space and tab characters.</p>
 <p>If you add this key, its value overrides the default forbidden character set. You can either allow some of the forbidden characters or add new ones.</p>
 <p>We recommend keeping the default characters forbidden, since they may prevent URLs from working correctly.</p>
+<p>This key cannot be used to <a href="/documentation/developers-and-admins/development/routing/configure-forbidden-url-characters#allow-the-slash-character-in-vanity-urls">configure</a> the support for the slash character (‘/’) in <a href="/documentation/business-users/website-content/manage-page-urls">vanity URLs</a>.</p>
 <div>
 <div>
 <div>

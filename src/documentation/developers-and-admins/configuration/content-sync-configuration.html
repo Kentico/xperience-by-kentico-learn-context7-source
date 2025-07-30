@@ -108,7 +108,7 @@ if (builder.Environment.IsProduction())
 <h4 id="set-up-a-staging-environment">Set up a Staging environment</h4>
 <p>Use the following process to initialize a <em>Staging</em> deployment environment for an existing project:</p>
 <ol type="1">
-<li>Download a <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#backups">backup</a> of your production environment.</li>
+<li>Download an <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#restore-points">export</a> of your production environment.</li>
 <li>Create a new <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#create-a-deployment-package">deployment package</a>.
 <ul>
 <li>Make sure that the package contains all required data by editing the <strong>$CDRepository/repository.config</strong> file (see <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">Configure CI/CD repositories</a>).</li>
@@ -163,23 +163,30 @@ if (builder.Environment.IsProduction())
 <h2 id="configure-xperience-for-content-sync">Configure Xperience for content sync</h2>
 <p>To prepare your Xperience instances for content sync, configure the following features:</p>
 <ul>
+<li>Permissions
+<ul>
+<li>To synchronize content items, users need to have a role with the <strong>Synchronize</strong> <a href="/documentation/developers-and-admins/configuration/users/role-management">permission</a> assigned for the <strong>Content hub</strong> application and the appropriate <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspaces</a>.</li>
+<li>To synchronize website channel pages, users need to have a role with the <strong>Synchronize</strong> <a href="/documentation/developers-and-admins/configuration/users/role-management/page-permission-management">permission for individual pages</a> or the <strong>Manage permissions</strong> permission for the website channel.</li>
+</ul>
+</li>
 <li>
-<a href="/documentation/developers-and-admins/configuration/users/role-management">Permissions</a> – to synchronize content items, users need to have a role with the <strong>Synchronize</strong> permission assigned for the <strong>Content hub</strong> application and the appropriate <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspaces</a>.</li>
-<li>
-<a href="/documentation/developers-and-admins/configuration/workflows">Workflows</a> –if you use workflows to control the lifecycle of your content, only set up and apply the workflow on the source instance where content is edited. Any workflow applied on target content sync instances is ignored, as content items are always transferred with the <em>Published</em> or <em>Unpublished</em> status and a completed workflow cycle.</li>
+<a href="/documentation/developers-and-admins/configuration/workflows">Workflows</a> – if you use workflows to control the lifecycle of your content, only set up and apply the workflow on the source instance where content is edited. Any workflow applied on target content sync instances is ignored, as content items and pages are always transferred with the <em>Published</em> or <em>Unpublished</em> status and a completed workflow cycle.</li>
 <li>
 <a href="/documentation/developers-and-admins/configuration/content-hub-configuration#customize-supported-file-types">Allowed asset extensions</a> – instances connected using content synchronization must use the same set of allowed file extensions for content item assets.</li>
 <li>
+<a href="/documentation/developers-and-admins/development/routing/configure-forbidden-url-characters#allow-the-slash-character-in-vanity-urls">Allowed slash character in page vanity URLs</a> – to ensure consistent page URL behavior, instances connected using content synchronization must have the same enabled/disabled status for the slash (‘/’) character in page vanity URLs.</li>
+<li>
 <a href="/documentation/business-users/content-hub/content-hub-folders#content-folders">Content folders</a> – instances connected using content synchronization must have the same enabled/disabled status for content folders. See <a href="/documentation/developers-and-admins/configuration/content-hub-configuration#enable-content-hub-folders">Enable content hub folders</a>.</li>
 </ul>
-<p>Additionally, the following objects are required by content items, but are <strong>not</strong> included in content synchronization:</p>
+<h3 id="ensure-compatibility-between-instances">Ensure compatibility between instances</h3>
+<p>The following objects are required by content items and/or pages, but are <strong>not</strong> included in content synchronization:</p>
 <ul>
 <li>Channels that use the content (<a href="/documentation/developers-and-admins/configuration/website-channel-management">website</a>, <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email</a>, <a href="/documentation/developers-and-admins/configuration/headless-channel-management">headless</a>)</li>
 <li>
 <a href="/documentation/developers-and-admins/development/content-types">Content types</a>
 <ul>
 <li>
-<a href="/documentation/developers-and-admins/development/content-types/limit-the-pages-users-can-create">Content item restrictions</a> for content types do not apply when restoring synchronized content on target instances.</li>
+<a href="/documentation/developers-and-admins/development/content-types/limit-the-pages-users-can-create">Page restrictions</a> for content types do not apply when restoring synchronized content on target instances.</li>
 <li>
 <a href="/documentation/developers-and-admins/development/content-types#configure-image-variants">Image variant definitions</a> for asset content types must also match between instances connected using content sync.</li>
 </ul>
@@ -187,8 +194,25 @@ if (builder.Environment.IsProduction())
 <li><a href="/documentation/developers-and-admins/configuration/languages">Languages</a></li>
 <li><a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">Workspaces</a></li>
 </ul>
-<p>You need to ensure that all connected instances have exactly the same set of these objects. For example, an error will occur if you try to synchronize a content item for which an exactly matching <a href="/documentation/developers-and-admins/development/content-types">content type</a> is not available on the target.</p>
+<p>You need to ensure that all instances connected through content sync have exactly the same set of these objects. For example, an error will occur if you try to synchronize a content item for which an exactly matching <a href="/documentation/developers-and-admins/development/content-types">content type</a> is not available on the target.</p>
 <p>The compatibility of objects is calculated based on their GUID identifiers and all available data. It is not sufficient to manually recreate objects with the same code name (with the exception of <a href="/documentation/developers-and-admins/configuration/languages">languages</a>, which are only validated by their code name). When you update or add any of the required objects on the source server, you need to transfer them to the next environments using a standard deployment, i.e., <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">SaaS deployment</a> or <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Page synchronization requirements</strong></p>
+<p>To enable synchronization of <a href="/documentation/business-users/website-content">website channel pages</a>, you also need to use standard deployments to transfer all page-related code components. This includes page views, controllers, <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing">routing configuration</a>, <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder components</a> components, etc.</p>
+</div>
+
+<h3 id="synchronization-of-linked-content">Synchronization of linked content</h3>
+<p>Synchronization of linked content items and pages relies on the system’s usage tracking features:</p>
+<ul>
+<li><a href="/documentation/business-users/content-hub/content-items#track-usage-of-content-items">Track usage of content items</a></li>
+<li><a href="/documentation/business-users/website-content/track-page-usages">Track page usages</a></li>
+</ul>
+<p>The limitations described for usage tracking also apply to content sync. Content items or pages that are “linked” in an untracked manner are not automatically synchronized together with the linking item or page.</p>
+<p>If your Xperience by Kentico instance was updated from a version older than <strong>29.3.0</strong>, which introduced the usage tracking feature, you need to manually run the <strong>Track missing content item usages</strong> <a href="/documentation/developers-and-admins/customization/scheduled-tasks">scheduled task</a> to track missing content item usages.</p>
 <h2 id="content-sync-internals">Content sync internals</h2>
 <p>When a target application receives content through content sync, the updates are not immediately applied. Every synchronization is represented and stored in the following way:</p>
 <ul>
@@ -202,8 +226,8 @@ if (builder.Environment.IsProduction())
 <li>
 <a href="/documentation/developers-and-admins/customization/handle-global-events">Global events</a> are triggered for the changes. The API is called in multiple waves when restoring content:
 <ol type="1">
-<li>Items are first created or updated in the <em>Draft</em> status.</li>
-<li>Items are published or unpublished (depending on the status of the synchronized content).</li>
+<li>Content items and pages are first created or updated in the <em>Draft</em> status.</li>
+<li>Items and pages are published or unpublished (depending on the status of the synchronized content).</li>
 </ol>
 </li>
 <li>

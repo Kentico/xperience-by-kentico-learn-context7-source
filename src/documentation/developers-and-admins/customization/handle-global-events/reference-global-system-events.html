@@ -970,6 +970,7 @@ Failure</p>
 <td colspan="1">
 <p>Occurs when a page/content item/headless item is moved from one workflow step to another.</p>
 <p>The event arguments allow you to access the name of the current and original workflow step, the <a href="/documentation/developers-and-admins/configuration/users">user</a> who changed the step, and also properties of the given page, content item or headless item (ID, name, content type, language, etc.).</p>
+<p>If built-in <a href="/documentation/developers-and-admins/configuration/workflows#workflow-notifications">workflow notifications</a> are enabled for the step the item is moved to, you can also access the comment entered by the user who moved the item.</p>
 <p>The event is <strong>not</strong> triggered when an item is published or scheduled to be published. For publish transitions, you need to handle the <code>Publish</code> or <code>UpdateLanguageMetadata</code> event of <code>WebPageEvents</code>, <code>ContentItemEvents</code> or <code>HeadlessItemEvents</code>.</p>
 <p><strong>Example</strong>: <a href="/documentation/developers-and-admins/customization/handle-global-events/set-up-custom-workflow-notifications">Set up custom workflow notifications</a></p>
 </td>
