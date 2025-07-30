@@ -16,6 +16,7 @@
 <li><a href="#email-builder">Email Builder</a></li>
 <li><a href="#form-builder">Form Builder</a></li>
 <li><a href="#digital-marketing">Digital marketing</a></li>
+<li><a href="#digital-commerce">Digital commerce</a></li>
 <li><a href="#system-customization-and-api">System customization and API</a></li>
 </ul>
 <h2 id="general">General</h2>
@@ -124,7 +125,7 @@
 <p>Notification</p>
 </td>
 <td>
-<p>Messages that provide information to administration users about various events in the system. In the current version of Xperience by Kentico, <a href="/documentation/developers-and-admins/configuration/notifications">notifications</a> are system emails providing information about user management events, such as <a href="/documentation/developers-and-admins/configuration/users/user-management#reset-password">password reset emails</a> or <a href="/documentation/developers-and-admins/configuration/users/user-management#multi-factor-authentication">multi-factor authentication</a>.</p>
+<p>Messages that provide information to administration users about various events in the system. In the current version of Xperience by Kentico, <a href="/documentation/developers-and-admins/configuration/notifications">notifications</a> are system emails providing information about user management events, such as <a href="/documentation/developers-and-admins/configuration/users/user-management#reset-password">password reset emails</a> or <a href="/documentation/developers-and-admins/configuration/users/user-management#multi-factor-authentication">multi-factor authentication</a>, and about <a href="/documentation/developers-and-admins/configuration/workflows#workflow-notifications">workflow step changes</a>.</p>
 </td>
 </tr>
 <tr>
@@ -308,7 +309,7 @@
 </td>
 <td>
 <p><a href="/documentation/business-users/media-libraries">Media libraries</a> allow you to store various types of files, for example, photos, pictures, sound files, videos, package files, presentations, or documents. You can reuse files stored in media libraries throughout the system.</p>
-<p>While media libraries are available for file storage, using <a href="/documentation/business-users/content-hub/content-item-assets">content item assets</a> is the recommended method for managing files within the system.</p>
+<p><strong>Note:</strong> Media libraries have been sunset, and their related API members are marked as obsolete and will be removed in the future. It is strongly recommended to transition to using <a href="/documentation/business-users/content-hub/content-item-assets">content item assets</a> for managing files within the system. See <a href="/guides/architecture/media-libraries-migration-guidance">Media library migration</a> for instructions on how to migrate your media library files to <a href="/documentation/business-users/content-hub">Content hub</a>.</p>
 </td>
 </tr>
 <tr>
@@ -748,6 +749,45 @@
 </td>
 <td>
 <p>A mailing list containing contacts who <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">opt in to receive regular emails</a>. Marketers select a recipient list when sending out emails.</p>
+</td>
+</tr>
+</table>
+
+<h2 id="digital-commerce">Digital commerce</h2>
+
+<table>
+<thead>
+<tr>
+<td>
+<p>Term</p>
+</td>
+<td>
+<p>Description</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p>Customer</p>
+</td>
+<td>
+<p><a href="/documentation/business-users/manage-commerce-stores">Customers</a> represent individuals or entities that engage with your business, typically by purchasing products or services. The system tracks customer information, including shipping addresses and order history. Customers are managed in the <em>Customers</em> application.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Order</p>
+</td>
+<td>
+<p><a href="/documentation/business-users/manage-commerce-stores">Orders</a> represent requests made by customers to purchase products or services. The system tracks order information, including product details, quantities, and customer data. Orders are managed in the <em>Orders</em> application.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Product catalog</p>
+</td>
+<td>
+<p><a href="/documentation/developers-and-admins/digital-commerce-setup/model-product-catalog">Product catalog</a> is a structured collection of products available for sale in your online store. The implementation of the product catalog depends on the implementation of your commerce solution, but products are usually stored either as pages in the content tree or as content items in the <em>Content hub</em> application.</p>
 </td>
 </tr>
 </table>

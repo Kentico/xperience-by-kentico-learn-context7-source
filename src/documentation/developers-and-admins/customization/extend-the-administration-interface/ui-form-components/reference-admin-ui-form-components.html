@@ -20,7 +20,6 @@
 <li><a href="#combined-content-selector">Combined content selector</a></li>
 <li><a href="#content-item-folder-selector">Content item folder selector</a></li>
 <li><a href="#email-selector">Email selector</a></li>
-<li><a href="#media-file-selector">Media file selector</a></li>
 <li><a href="#object-selector">Object selector</a></li>
 <li><a href="#page-selector">Page selector</a></li>
 <li><a href="#url-selector">URL selector</a></li>
@@ -426,7 +425,7 @@ public class DisabledContentFoldersFilter : IContentFolderIdsFilter
 <strong>MaximumEmails</strong> – sets the maximum number of selected emails. If not specified, the default value is 1 (single email selection). Setting the value to 0 means the number of selected emails is not limited.</li>
 <li>
 <strong>Sortable</strong> – enables or disables the ordering of the selected emails.</li>
-<li>Allowed email purposes – the following properties allow you to restrict the selection to emails with specific <a href="/documentation/business-users/digital-marketing/emails#email-purposes">email purposes</a> (regular, form autoresponder, automation, confirmation). Set the purpose using the string constants from <code>CMS.EmailLibrary.EmailPurposeOptions</code>.
+<li>Allowed email purposes – the following properties allow you to restrict the selection to emails with specific <a href="/documentation/business-users/digital-marketing/emails#email-purposes">email purposes</a>. Set the purpose using the string constants from <code>CMS.EmailLibrary.EmailPurposeOptions</code>.
 <ul>
 <li>
 <strong>AllowedEmailPurpose</strong> – string property that allows you to set one allowed email purpose.</li>
@@ -465,117 +464,6 @@ public IEnumerable&lt;EmailRelatedItem&gt; Emails { get; set; } = new List&lt;Em
 </code></pre>
 </div>
 
-<h3 id="media-file-selector">Media file selector</h3>
-<p><strong>Field data type</strong>: Media files<br>
-<strong>C# data type</strong>: IEnumerable&lt;AssetRelatedItem&gt;<br>
-<strong>Form component attribute</strong>: AssetSelectorComponent</p>
-<p>Enables users to select assets from <a href="/documentation/business-users/media-libraries">media libraries</a>.</p>
-<p>Returns a collection of <code>AssetRelatedItem</code> objects that contain metadata of the selected files. Use the <code>ForAssets</code> <a href="/documentation/developers-and-admins/api/objectquery-api">ObjectQuery</a> extension method to convert the <code>IEnumerable&lt;AssetRelatedItem&gt;</code> collection into a collection of <code>MediaFileInfo</code> objects.</p>
-
-<div>
-<div>
-<div>
-<span>C#</span>
-</div>
-<strong></strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
-
-using CMS.MediaLibrary;
-
-IEnumerable&lt;MediaFileInfo&gt; assetToMediaFileInfo =
-    new ObjectQuery&lt;MediaFileInfo&gt;().ForAssets(assetCollection).GetEnumerableTypedResult();
-
-</code></pre>
-</div>
-
-<h4 id="configuration-properties-3">Configuration properties</h4>
-<ul>
-<li>
-<strong>MaximumAssets</strong> – sets the maximum number of selectable assets. If not specified, the default value is 1 (single file selection).
-<ul>
-<li>0 – no limit.</li>
-<li>
-<em>n</em> – at most <em>n</em> files can be selected at once.</li>
-</ul>
-</li>
-<li>
-<strong>AllowedExtensions</strong> – a semicolon-separated list of extensions allowed to be selected. The specified list of extensions must be a subset of extensions allowed for the entire system as configured in the <strong>Settings</strong> application.</li>
-</ul>
-<h4 id="examples">Examples</h4>
-
-<div>
-<div>
-<div>
-<span>C#</span>
-</div>
-<strong>Assignment in model classes</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
-
-// Assigns the asset selector as the property's editing component
-// Returns a list of media files selector items (objects that contain the GUIDs of selected media files)
-[AssetSelectorComponent(MaximumAssets = 5, AllowedExtensions = "gif;png;jpg;jpeg")]
-public IEnumerable&lt;AssetRelatedItem&gt; Images { get; set; } = new List&lt;AssetRelatedItem&gt;();
-
-</code></pre>
-</div>
-
-
-<div>
-<div>
-<div>
-<span>C#</span>
-</div>
-<strong>Selection retrieval</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
-
-public class AssetSelectorUsage : ViewComponent
-{
-    private readonly IInfoProvider&lt;MediaFileInfo&gt; mediaFileInfoProvider;
-
-    public AssetSelectorUsage(IInfoProvider&lt;MediaFileInfo&gt; mediaFileInfoProvider)
-    {
-        this.mediaFileInfoProvider = mediaFileInfoProvider;
-    }
-
-    public IViewComponentResult Invoke(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
-    {
-        // Retrieves the selected assets from the properties (of a widget, for example)
-        IEnumerable&lt;AssetRelatedItem&gt; images = model?.Properties?.Images;
-
-        // Gets the media files represented by the selected assets 
-        IEnumerable&lt;MediaFileInfo&gt; mediaFiles = new ObjectQuery&lt;MediaFileInfo&gt;().ForAssets(images);
-
-        return View("...");
-    }
-}
-
-</code></pre>
-</div>
-
 <h3 id="object-selector">Object selector</h3>
 
 <div>
@@ -589,7 +477,7 @@ public class AssetSelectorUsage : ViewComponent
 <strong>Form component attribute</strong>: ObjectSelectorComponent</p>
 <p>Enables users to select any object types from the Xperience database.</p>
 <p>Returns a collection of <code>ObjectRelatedItem</code> objects that represent the selected objects from the Xperience database. Each <code>ObjectRelatedItem</code> object contains an <code>ObjectGuid</code> or <code>ObjectCodeName</code> property (depending on the <code>IdentifyObjectByGuid</code> property) which contains the identifier of a selected object.</p>
-<h4 id="configuration-properties-4">Configuration properties</h4>
+<h4 id="configuration-properties-3">Configuration properties</h4>
 <ul>
 <li>
 <strong>ObjectType</strong> – a string identifier that sets the code name of the object type listed in the selector.</li>
@@ -743,7 +631,7 @@ public class ObjectSelectorUsage : ViewComponent
 <strong>Form component attribute</strong>: WebPageSelectorComponent</p>
 <p>Enables users to select <a href="/documentation/business-users/website-content">pages</a> from the content tree of a website channel.</p>
 <p>Returns a collection of <code>WebPageRelatedItem</code> objects that represent the selected pages. Each <code>WebPageRelatedItem</code> object contains a <code>WebPageGuid</code> property with the GUID of a selected page. You can use the GUIDs to <a href="/documentation/developers-and-admins/development/content-retrieval">retrieve</a> the selected pages and work with them in your custom components.</p>
-<h4 id="configuration-properties-5">Configuration properties</h4>
+<h4 id="configuration-properties-4">Configuration properties</h4>
 <ul>
 <li>
 <strong>TreePath</strong> – limits the selection of pages to a subtree under a page identified by its tree path (e.g., <em>“/Products/Coffee-grinders”</em>). Only the specified page and its sub-pages can be selected. If not configured, users can select from the entire content tree of a selected website channel.</li>
@@ -1124,7 +1012,7 @@ public class SmartFolderSelectorUsage : ViewComponent
 <strong>Form component attribute</strong>: TagSelectorComponent</p>
 <p>Enables users to select tags from <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a> to associate them with the currently edited object.</p>
 <p>When used as an <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/editing-components">editing component</a>, returns a collection of <code>TagReference</code> objects that contain GUIDs of the selected tags.</p>
-<h4 id="configuration-properties-6">Configuration properties</h4>
+<h4 id="configuration-properties-5">Configuration properties</h4>
 <ul>
 <li>
 <strong>TaxonomyName</strong> – the code name of the taxonomy to offer the selection from.</li>
@@ -1220,7 +1108,7 @@ public class TagSelectorUsage : ViewComponent
 <strong>Form component attribute</strong>: GeneralSelectorComponent</p>
 <p>Allows users to select one or more items using a drop-down menu with a search bar. The items offered by the selector can be of any type, including external data outside of Xperience. Developers need to implement a data provider that loads and prepares the items displayed in the selector.</p>
 <p>The selector returns a collection of <em>string</em> objects, which contain the values of the selected items.</p>
-<h4 id="configuration-properties-7">Configuration properties</h4>
+<h4 id="configuration-properties-6">Configuration properties</h4>
 <ul>
 <li>
 <p><strong>MaximumItems</strong> – sets the maximum number of selected items. If not specified, the default value is 0, which means the number of selected items is not limited.</p>
@@ -1376,7 +1264,7 @@ public class UserGeneralSelectorDataProvider : IGeneralSelectorDataProvider
 <strong>C# data type</strong>: string<br>
 <strong>Form component attribute</strong>: CodeEditorComponent</p>
 <p>Provides a text editing area suitable for code, with support for syntax highlighting and line numbers.</p>
-<h4 id="configuration-properties-8">Configuration properties</h4>
+<h4 id="configuration-properties-7">Configuration properties</h4>
 <ul>
 <li>
 <p><strong>Language</strong> – sets the language for the syntax highlighting applied by the editor. The following values are supported:</p>
@@ -1394,7 +1282,7 @@ public class UserGeneralSelectorDataProvider : IGeneralSelectorDataProvider
 <strong>C# data type</strong>: string<br>
 <strong>Form component attribute</strong>: DropDownComponent</p>
 <p>Drop-down selector offering multiple options. Only one option can be selected.</p>
-<h4 id="configuration-properties-9">Configuration properties</h4>
+<h4 id="configuration-properties-8">Configuration properties</h4>
 <ul>
 <li>
 <p><strong>Options</strong> – items must be specified one per line in the format:</p>
@@ -1600,7 +1488,7 @@ public DateTime? DateAndTime { get; set; } = null;
 <strong>C# data type</strong>: string<br>
 <strong>Form component attribute</strong>: LinkComponent</p>
 <p>Displays a non-editable link within forms in the administration interface.</p>
-<h4 id="configuration-properties-10">Configuration properties</h4>
+<h4 id="configuration-properties-9">Configuration properties</h4>
 <ul>
 <li>
 <strong>Text</strong> – the text displayed for the link in the form. If null or empty, the value of the link (the URL) is used instead.</li>
@@ -1617,7 +1505,7 @@ public DateTime? DateAndTime { get; set; } = null;
 <strong>C# data type</strong>: string<br>
 <strong>Form component attribute</strong>: PasswordComponent</p>
 <p>Text input field that obscures user input.</p>
-<h4 id="configuration-properties-11">Configuration properties</h4>
+<h4 id="configuration-properties-10">Configuration properties</h4>
 <ul>
 <li>
 <strong>IgnorePasswordPolicy</strong> – if set, disregards all password policy configuration when validating input.</li>
@@ -1639,7 +1527,7 @@ public DateTime? DateAndTime { get; set; } = null;
 <strong>C# data type</strong>: string<br>
 <strong>Form component attribute</strong>: RichTextEditorComponent</p>
 <p>Allows users to enter HTML-enriched text using the <a href="/documentation/business-users/rich-text-editor">Rich text editor</a>.</p>
-<h4 id="configuration-properties-12">Configuration properties</h4>
+<h4 id="configuration-properties-11">Configuration properties</h4>
 <ul>
 <li>
 <strong>ConfigurationName</strong> – the configuration to use for the editor. See <a href="/documentation/developers-and-admins/configuration/rich-text-editor-configuration">Rich text editor configuration</a>.</li>
@@ -1649,7 +1537,7 @@ public DateTime? DateAndTime { get; set; } = null;
 <strong>C# data type</strong>: string<br>
 <strong>Form component attribute</strong>: RadioGroupComponent</p>
 <p>Allows single selection from a group of radio buttons.</p>
-<h4 id="configuration-properties-13">Configuration properties</h4>
+<h4 id="configuration-properties-12">Configuration properties</h4>
 <ul>
 <li>
 <strong>Options</strong> – specifies each button in the radio group, one per line in the <code>value;label</code> format. For example: <code>1;One</code>.</li>
@@ -1665,7 +1553,7 @@ public DateTime? DateAndTime { get; set; } = null;
 <strong>C# data type</strong>: string<br>
 <strong>Form component attribute</strong>: TextAreaComponent</p>
 <p>Allows users to enter text into an area with adjustable size.</p>
-<h4 id="configuration-properties-14">Configuration properties</h4>
+<h4 id="configuration-properties-13">Configuration properties</h4>
 <ul>
 <li>
 <strong>CopyButtonVisible</strong> – indicates whether a copy that enables users to copy the contents of the text area is visible.</li>
@@ -1691,7 +1579,7 @@ public DateTime? DateAndTime { get; set; } = null;
 <strong>C# data type</strong>: string<br>
 <strong>Form component attribute</strong>: ExtensionSelectorComponent</p>
 <p>Allows you to specify a list of allowed extensions using a simple interface. Defaults to the list of system-wide allowed extensions specified in the <strong>Settings</strong> application: <strong>Content</strong> → <strong>Media</strong> → <strong>Media file allowed extensions</strong> setting.</p>
-<h4 id="configuration-properties-15">Configuration properties</h4>
+<h4 id="configuration-properties-14">Configuration properties</h4>
 <ul>
 <li>
 <strong>AllowedExtensions</strong> – the semicolon-delimited list of allowed extensions.</li>

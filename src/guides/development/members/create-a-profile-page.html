@@ -642,7 +642,6 @@ using TrainingGuides.Web.Features.Membership.Profile;
 using TrainingGuides.Web.Features.Membership.Services;
 using TrainingGuides.Web.Features.Shared.Helpers;
 
-
 namespace TrainingGuides.Web.Features.Membership.Controllers;
 
 public class MemberManagementController : Controller
@@ -673,7 +672,7 @@ public class MemberManagementController : Controller
             return PartialView(UPDATE_PROFILE_FORM_VIEW_PATH, model);
         }
 
-        //Get the current member instead of pulling from the model, so that members cannot attempt to change each others information.
+        // Get the current member instead of pulling from the model, so that members cannot attempt to change each others information.
         var guidesMember = await membershipService.GetCurrentMember();
 
         if (guidesMember is not null)

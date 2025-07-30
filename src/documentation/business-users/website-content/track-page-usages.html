@@ -7,12 +7,16 @@
 <body>
 <p>Tracking of page usages allows editors to see where their pages are used and in what channels. It is especially useful to see what impact <a href="/documentation/business-users/website-content/edit-and-publish-pages">editing</a> or <a href="/documentation/business-users/website-content/delete-pages">deleting</a> a page would have. For example, you can check whether the page you are about to delete is used in published content and whether deleting the page may break that content.</p>
 <p>The chain of usage starts with items that directly reference your page. These items, in turn, may be used in other items (found under <em>Related items</em>), and this pattern continues. Unfolding these chains of usage creates a tree-like structure, illustrating how your content item is referenced across different levels.</p>
-<p>Usage tracking allows you to monitor items linked in the the following ways:</p>
-<ul>
-<li>Combined content selector – Tracks usage through the <em>Combined content selector</em> form component.</li>
-<li>Page selector – Monitors pages linked through the <em>Page selector</em> form component.</li>
-<li>Rich text editor – Includes widgets, content fields, in-line editors, and other rich text elements.</li>
-</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Tracking limitations</strong></p>
+<p>The system does not track or display usage of pages in <a href="/documentation/developers-and-admins/configuration/notifications">notifications</a>. You should manually check whether a page is used in notification emails before making any significant edits or deletions.</p>
+<p>Similarly, the system does not track usage in custom fields added to <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extendable system object types</a> or in custom classes. If you’re managing pages linked this way, it’s important to manually confirm where they’re used before performing changes.</p>
+</div>
+
 <p>To view the usages of a page:</p>
 <ol type="1">
 <li>Open a website channel application.</li>

@@ -5,6 +5,15 @@
 <title>Deploy to the SaaS environment</title>
 </head>
 <body>
+
+<div>
+
+</div>
+<div>
+<p><strong>Minimum Xperience by Kentico version</strong></p>
+<p>The minimum Xperience by Kentico version for new projects that can be deployed to the SaaS environment is <strong>30.1.0</strong>. If you are using an earlier version, you need to <a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects">update</a> your project to the latest version before deploying it to the SaaS environment. Existing projects are not affected, but we recommend updating them to the latest version.</p>
+</div>
+
 <p>Xperience by Kentico enables you to deploy, host, and maintain Xperience websites in a Software-as-a-Service (SaaS) environment. You can deploy to multiple environments to isolate the production and non-production application instances.</p>
 <p>Kentico manages the deployment infrastructure and selected third-party services for you – such as <a href="/documentation/developers-and-admins/configuration/saas-configuration#microsoft-application-insights-integration">Microsoft Application Insights</a>, <a href="/documentation/developers-and-admins/configuration/saas-configuration#cloudflare-cdn">CloudFlare CDN</a>, and <a href="/documentation/developers-and-admins/configuration/email-configuration#Emailconfiguration-EnableManagedSendGrid">Twilio SendGrid</a>. This allows you to focus on website and content development.</p>
 <p>Develop a website for deployment to the SaaS environment:</p>
@@ -230,7 +239,7 @@ app.Run();
 </div>
 <div>
 <p><strong>Run SQL scripts on the database</strong><br>
-You can use <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts">CD migration scripts</a> to perform SQL queries on the database of applications deployed in <a href="#deploy-the-application-package-to-another-deployment-environment">SaaS environments</a>, for example, to fix database inconsistencies. However, remember to always <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#create-a-manual-backup">create a backup</a> before modifying the database.</p>
+You can use <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts">CD migration scripts</a> to perform SQL queries on the database of applications deployed in <a href="#deploy-the-application-package-to-another-deployment-environment">SaaS environments</a>, for example, to fix database inconsistencies. However, remember to always <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#create-a-manual-restore-point">create a restore point</a> before modifying the database.</p>
 </div>
 </li>
 <li>

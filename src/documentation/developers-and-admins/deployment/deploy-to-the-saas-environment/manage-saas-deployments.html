@@ -13,7 +13,7 @@
 <a href="#channel-management">Add and configure your content channels</a>.</li>
 <li>Debug the deployments by examining the deployment <strong>Logs</strong> in the <strong>Deployments</strong> application.</li>
 <li>
-<a href="#backups">Manage backups of your deployed application</a>.</li>
+<a href="#restore-points">Manage restore points and exports of your deployed application</a>.</li>
 <li>
 <a href="#uptime-monitoring">Monitor the uptime of application deployments and the Xperience Portal project</a>.</li>
 <li>
@@ -49,48 +49,58 @@
 <li><a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#email-channels-in-the-saas-environment">Email channels in the SaaS environment</a></li>
 <li><a href="/documentation/developers-and-admins/configuration/headless-channel-management#graphql-api-endpoints">GraphQL API endpoints</a></li>
 </ul>
-<h2 id="backups">Backups</h2>
-<p>Backups allow you to restore previous versions of your project for a particular environment.</p>
-<p>Xperience Portal creates <a href="#automatic-production-backups">automatic production backups</a>, and you can also <a href="#create-a-manual-backup">create manual backups</a> for production and non-production environments. Backups can be viewed, managed and <a href="#restore-a-backup">restored</a> using the <strong>Backups</strong> application.</p>
-<h3 id="full-and-partial-backups">Full and partial backups</h3>
-<p>Applications deployed in the SaaS environment consist of the following:</p>
+<h2 id="restore-points">Restore points</h2>
+<p>The SaaS environment uses a two-tier system consisting of <strong>restore points</strong> and <strong>exports</strong> to ensure data protection and disaster recovery. This system allows you to restore previous versions of your project for a particular environment.</p>
+<p>Xperience Portal creates <a href="#automatic-restore-points-and-exports">automatic restore points and exports</a>, and you can also <a href="#create-a-manual-restore-point">create manual restore points</a> for production and non-production environments. Restore points can be viewed, managed and <a href="#restore-from-a-restore-point">restored</a> using the <strong>Restore points</strong> application.</p>
+<h3 id="restore-points-vs.-exports">Restore points vs. exports</h3>
+<p>Understanding the difference between restore points and exports is crucial for effective data management:</p>
+<p><strong>Restore points:</strong></p>
 <ul>
-<li>
-<strong>Application service</strong> – application binaries and runtime files,</li>
-<li>
-<strong>Database</strong> – reflects the current state of the environment’s database,</li>
-<li>
-<strong>Storage and files</strong> – reflects the current state of files in the environment’s Azure Blob storage.</li>
+<li>A timestamp referencing the app state at a given time</li>
+<li>Created automatically before deployments, manually on demand, or on a regular schedule</li>
+<li>Always contain all services (application, database, and storage)</li>
+<li>Faster creation process as files aren’t physically copied</li>
+<li>Most services can be downloaded directly; the database needs to be exported to access the files</li>
 </ul>
-<p>When <a href="#create-a-manual-backup">creating a manual backup</a>, you can choose whether to create a <strong>full</strong> or <strong>partial</strong> backup.</p>
+<p><strong>Exports:</strong></p>
 <ul>
-<li>Full backups include all of the above components, and can be <a href="#restore-a-backup">restored</a>.</li>
-<li>For partial backups, you can select which components are included. Create and <a href="#download-a-backup">download</a> partial backups if you wish to inspect the current state of the application – debug the database or check the integrity, versions, and number of files in the deployment environment.</li>
+<li>Physical copies of data that can be downloaded</li>
+<li>Can be full (all services) or partial (selected services)</li>
+<li>Only full exports can be used to restore a project to a previous state</li>
+<li>Can be downloaded and stored locally for long-term storage</li>
+<li>Limited to 30 exports per environment per project (may be adjusted with custom plans)</li>
+<li>The files are retained for 60 hours after the export is created and you need to download them before they are removed</li>
 </ul>
-<h3 id="automatic-production-backups">Automatic production backups</h3>
-<p>Kentico automatically creates the following <strong>full backups</strong>:</p>
+<p>Applications deployed in the SaaS environment consist of the following services:</p>
 <ul>
-<li>For deployments to <strong>all</strong> environments:
-<ul>
-<li>
-<strong>Predeployment backups</strong> which are retained until overwritten by a new deployment to the given environment.</li>
+<li>Application service – application binaries and runtime files</li>
+<li>Database – reflects the current state of the environment’s database</li>
+<li>Storage and files – reflects the current state of files in the environment’s Azure Blob storage</li>
 </ul>
-</li>
-<li>For deployments only to the <strong>Staging</strong> or <strong>Production</strong> environment:
+<h3 id="automatic-restore-points-and-exports">Automatic restore points and exports</h3>
+<p>Kentico automatically creates the following <strong>restore points and exports</strong>:</p>
+<ul>
+<li>For all environments:
 <ul>
 <li>
-<strong>Daily backups</strong> with a retention policy based on your service plan:
-<ul>
-<li>
-<strong>Level 1</strong> – 3 days</li>
-<li>
-<strong>Level 2</strong> – 3 days</li>
-<li>
-<strong>Custom</strong> – 7 days or more</li>
+<em>Predeployment restore points</em> which expire in 30 days</li>
 </ul>
 </li>
+<li>For the <em>Staging</em> or <em>Production</em> environment:
+<ul>
 <li>
-<strong>Weekly backups</strong> with a retention policy of 30 days.</li>
+<em>Daily restore points</em> with a retention policy based on your service plan:
+<ul>
+<li>
+<em>Level 1</em> – 3 days</li>
+<li>
+<em>Level 2</em> – 3 days</li>
+<li>
+<em>Custom</em> – 7 days or more</li>
+</ul>
+</li>
+<li>
+<em>Weekly full exports</em> with a retention policy of 30 days (created on Sundays)</li>
 </ul>
 </li>
 </ul>
@@ -102,90 +112,117 @@
 <p>See <a href="/documentation/developers-and-admins/saas/saas-service-plans">SaaS service plans</a> for information about service plans and <a href="/documentation/developers-and-admins/installation/licenses#licensing-xperience-by-kentico">Licensing Xperience by Kentico</a> for information how to change to a different service plan.</p>
 </div>
 
-<h3 id="create-a-manual-backup">Create a manual backup</h3>
-<p>You can create manual backups for both production and non-production environments.</p>
-<p>The retention policy for manual backups is:</p>
+<h3 id="create-a-manual-restore-point">Create a manual restore point</h3>
+<p>You can create manual restore points for both production and non-production environments. These restore points can then be exported when you need to download or inspect the data.</p>
+<p>The retention policy for manual restore points is:</p>
 <ul>
 <li>
-<p><strong>Full</strong> backups:</p>
+<em>Restore points</em>:
 <ul>
 <li>
-<strong>Level 1</strong> service plan – 3 days</li>
+<em>Level 1</em> service plan – 3 days</li>
 <li>
-<strong>Level 2</strong> service plan – 3 days</li>
+<em>Level 2</em> service plan – 3 days</li>
 <li>
-<strong>Custom</strong> service plan – 7 days or more</li>
+<em>Custom</em> service plan – 7 days or more</li>
 </ul>
 </li>
-<li>
-<p><strong>Partial</strong> backups – 60 hours</p>
-<p>To create a manual backup:</p>
-</li>
 </ul>
+<p>To create a manual restore point:</p>
 <ol type="1">
-<li><p>Navigate to the <strong>Backups</strong> application.</p></li>
-<li><p>Select <strong>Create backup</strong> in the upper-right corner.</p></li>
+<li><p>Navigate to the <strong>Restore points</strong> application.</p></li>
+<li><p>Select <strong>Create restore point</strong> in the upper-right corner.</p></li>
 <li>
-<p>Select the environment for which you want to create a backup.</p>
+<p>Select the environment for which you want to create a restore point.</p>
 
 <div>
 
 </div>
 <div>
-<p>Only <strong>Tenant administrator</strong> and <strong>DevOps</strong> roles can access and create backups for <strong>Production</strong> or <strong>Staging</strong> environments. See <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">Reference - Xperience Portal user roles</a>.</p>
+<p>Only <strong>Tenant administrator</strong> and <strong>DevOps</strong> roles can access and create restore points for <strong>Production</strong> or <strong>Staging</strong> environments. See <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">Reference - Xperience Portal user roles</a>.</p>
 </div>
 </li>
-<li><p>Select whether to create a <strong>full backup</strong> or select the components you want to include in the <strong>partial backup</strong>.</p></li>
 <li>
-<p>Select <strong>Create</strong> and wait for the backup to be created.</p>
+<p>Select <strong>Create</strong> and wait for the restore point to be created.</p>
 
 <div>
 
 </div>
 <div>
-<p>SaaS processes (e.g., backups, <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#deploy-the-application-package-to-another-deployment-environment">deployments</a>) are queued, and you can have only one backup process running at a time.</p>
+<p>SaaS processes (e.g., restore points, <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#deploy-the-application-package-to-another-deployment-environment">deployments</a>) are queued, and you can have only one process running at a time.</p>
 </div>
 </li>
 </ol>
-<p>Your backup is now available in the <strong>Backups</strong> application.</p>
-<h3 id="download-a-backup">Download a backup</h3>
+<p>Your restore point is now available in the <strong>Restore points</strong> application. To access the files or download the data, you need to create an export from this restore point.</p>
+<h3 id="create-a-manual-export">Create a manual export</h3>
+<p>The export process creates physical copies of the data, which can then be downloaded. Exports are limited to 30 exports per environment per project (may be adjusted with custom plans).</p>
+<p>To create a manual export:</p>
 <ol type="1">
-<li>Navigate to the <strong>Backups</strong> application.</li>
-<li>Select an environment and select <strong>Apply</strong>. A list of backups for the environment is displayed.</li>
-<li>Download the backup by selecting <strong>Download</strong> () under <strong>Actions</strong>.</li>
+<li><p>Navigate to the <strong>Restore points</strong> application.</p></li>
+<li><p>Select <strong>Create restore point</strong> in the upper-right corner.</p></li>
+<li>
+<p>Select the environment for which you want to create an export.</p>
+
+<div>
+
+</div>
+<div>
+<p>Only <strong>Tenant administrator</strong> and <strong>DevOps</strong> roles can access and create restore points for <strong>Production</strong> or <strong>Staging</strong> environments. See <a href="/documentation/developers-and-admins/saas/xperience-portal/reference-xperience-portal-user-roles">Reference - Xperience Portal user roles</a>.</p>
+</div>
+</li>
+<li><p>Select <strong>Export</strong> in the <strong>Restore point type</strong> selector.</p></li>
+<li><p>Select what services should be included in the export. Note that only a full export (with all services included) can be used to restore a project to a previous state.</p></li>
+<li>
+<p>Select <strong>Create</strong> and wait for the export to be created.</p>
+
+<div>
+
+</div>
+<div>
+<p>SaaS processes (e.g., restore points, <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#deploy-the-application-package-to-another-deployment-environment">deployments</a>) are queued, and you can have only one process running at a time.</p>
+</div>
+</li>
+</ol>
+<p>Downloading exports allows you to inspect the state of the application, debug the database or check the integrity, versions, and number of files in the deployment environment.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Contained users authentication</strong></p>
+<p>Enable <a href="https://learn.microsoft.com/en-us/sql/relational-databases/security/contained-database-users-making-your-database-portable?view=sql-server-ver17" target="_blank">contained users authentication</a> on your local SQL Server to be able to use the exported database backups.</p>
+</div>
+
+<h3 id="export-and-download-from-restore-points">Export and download from restore points</h3>
+<p>You can also download data from restore points. Application service and storage files can be downloaded directly, while the database needs to be exported to access the files. Exports are limited to 30 exports per environment per project (may be adjusted with custom plans).</p>
+<ol type="1">
+<li>Navigate to the <strong>Restore points</strong> application.</li>
+<li>Select an environment and select <strong>Apply</strong>. A list of restore points for the environment is displayed.</li>
+<li>Select <strong>Create export</strong> next to the database of a restore point you want to download.</li>
+<li>Once the export is ready, download it by selecting <strong>Download</strong> () under <strong>Actions</strong>.</li>
 </ol>
 
 <div>
 
 </div>
 <div>
-<p><strong>Download backups of storage and files</strong></p>
-<p>Unlike the backups of the application service and database, the storage and files backups are not directly downloadable. Instead, they are accessible via the <a href="https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10" target="_blank">AzCopy</a> or <a href="https://azure.microsoft.com/en-us/products/storage/storage-explorer" target="_blank">Azure Storage Explorer</a> tools using a generated <strong>Storage URL</strong>. The URL is set to expire in 12 hours after its creation. If you will need a new URL, simply click the download button again and a new <strong>Storage URL</strong> gets generated.</p>
-<p>To access and download the backup files, follow the onscreen instructions in Xperience Portal for either the AzCopy or Azure Storage Explorer tool.</p>
+<p><strong>Contained users authentication</strong></p>
+<p>Enable <a href="https://learn.microsoft.com/en-us/sql/relational-databases/security/contained-database-users-making-your-database-portable?view=sql-server-ver17" target="_blank">contained users authentication</a> on your local SQL Server to be able to use the exported database backups.</p>
 </div>
 
-<p>Downloading backups allows you to inspect the state of the application – debug the database or check the integrity, versions, and number of files in the deployment environment.</p>
-<h3 id="restore-a-backup">Restore a backup</h3>
+<h3 id="restore-from-a-restore-point">Restore from a restore point</h3>
+<p>You can restore your application to a previous state using restore points. This is useful if you need to revert changes or recover from an issue.</p>
 <ol type="1">
-<li>Navigate to the <strong>Backups</strong> application.</li>
-<li>Select an environment and select <strong>Apply</strong>. A list of backups for the environment is displayed.</li>
-<li>Restore the backup by selecting <strong>Restore</strong> (<i></i>) under <strong>Actions</strong> next to a full backup.
+<li>Navigate to the <strong>Restore points</strong> application.</li>
+<li>Select an environment and select <strong>Apply</strong>. A list of restore points for the environment is displayed.</li>
+<li>Restore from a restore point by selecting <strong>Restore</strong> (<i></i>) next to a restore point.</li>
+<li>On the <strong>Restore a restore point or an export</strong> page:
 <ul>
-<li>Note: You cannot restore a partial backup.</li>
+<li>Select the exact restore point you wish to restore from.</li>
+<li>Select whether to restore immediately or schedule the restore for a later date.</li>
 </ul>
 </li>
-<li>On the <strong>Restore a backup</strong> page:
-<ul>
-<li>Select exactly which backup you wish to restore.</li>
-<li>For production and staging environments, you can upload an “offline” HTML page in the <strong>Custom HTML page</strong> field.
-<ul>
-<li>This page is displayed on the live site while the backup is being restored.</li>
-<li>We recommend creating a page that matches your site’s design and branding.</li>
-<li>A default offline page is used if you do not add a custom one.</li>
-</ul>
-</li>
-</ul>
-</li>
+<li>Select <strong>Restore</strong> and wait for the restore process to complete.</li>
 </ol>
 <h2 id="application-monitoring">Application monitoring</h2>
 <p>The <strong>Monitoring</strong> set of applications in the Xperience Portal are designed to keep your application running smoothly and provide full visibility into your application’s performance, enabling you to quickly detect and resolve issues, optimize performance, and ensure the best possible user experience.</p>

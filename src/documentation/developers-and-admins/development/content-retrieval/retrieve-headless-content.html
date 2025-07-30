@@ -508,7 +508,12 @@ query {
 </ul>
 </li>
 <li>
-<strong>Media files</strong> fields of any content type linking to one or more <a href="/documentation/business-users/media-libraries/manage-media-files">media library files</a> are represented as an <code>[_Asset!]</code> array in the GraphQL schema.</li>
+<strong>Media files</strong> fields of any content type linking to one or more <a href="/documentation/business-users/media-libraries/manage-media-files">media library files</a> are represented as an <code>[_Asset!]</code> array in the GraphQL schema.
+<ul>
+<li>
+<strong>Note:</strong> Media libraries have been sunset and will be removed in the future.</li>
+</ul>
+</li>
 </ul>
 <p>The <code>_ContentItemAsset</code> and <code>_Asset</code> types expose various fields with the file’s metadata. The <code>path</code> field stores the <strong>relative URL path</strong>, which you can use to link or display the file.</p>
 <p>In the following query example, a linked <em>Promotion</em> content type has a <code>promotionTeaserImage</code> asset field.</p>

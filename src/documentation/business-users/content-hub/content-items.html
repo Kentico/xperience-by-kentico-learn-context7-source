@@ -142,6 +142,7 @@
 <p><strong>Tracking limitations</strong></p>
 <p>The system does not track or display usage of content items through <a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">smart folders</a>. If you use smart folders to dynamically link content items or deliver content to channels, we recommend manually checking the content of such folders before you delete or significantly edit content items that could be related.</p>
 <p>Similarly, the usage of content items in <a href="/documentation/developers-and-admins/configuration/notifications">notifications</a> is not tracked by the system. You should manually check whether a content item is used in notification emails before making any significant edits or deletions.</p>
+<p>The system also does not track usage in custom fields added to <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extendable system object types</a> or in custom classes. If you’re managing content linked this way, it’s important to manually confirm where it’s used before performing changes.</p>
 </div>
 
 <h2 id="publish-content-items">Publish content items</h2>
@@ -207,7 +208,7 @@
 <li>You must be allowed to publish the item under the item’s workflow restrictions for roles.</li>
 <li>The item must be translated in the currently selected <a href="/documentation/developers-and-admins/configuration/languages">language</a>.</li>
 </ul>
-<p>If any of the selected items do <strong>not</strong> fulfill the requirements for publishing, they are listed in the dialog. You can directly edit () items in the list to make adjustments and move items to a publishable state.</p>
+<p>If any of the selected items do <strong>not</strong> fulfill the requirements for publishing, they are listed in the dialog. You can directly open () each item in the list in a new tab to make adjustments and move it to a publishable state.</p>
 <p></p>
 <p>To confirm the mass publish, select <strong>Publish</strong> or <strong>Continue</strong> (appears if <a href="#cascade-publishing">cascade publishing</a> of linked items is possible for any of the published items).</p>
 <h3 id="cascade-publishing">Cascade publishing</h3>

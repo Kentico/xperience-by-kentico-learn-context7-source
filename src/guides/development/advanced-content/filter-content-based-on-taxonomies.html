@@ -82,12 +82,18 @@ namespace TrainingGuides.Web.Features.Articles.Widgets.ArticleList;
 
 public class ArticleListWidgetProperties : IWidgetProperties
 {
-    [WebPageSelectorComponent(
-        Label = "Select the content tree section",
-        MaximumPages = 1,
-        Sortable = true,
+    [ContentItemSelectorComponent(
+        [
+            ArticlePage.CONTENT_TYPE_NAME,
+            DownloadsPage.CONTENT_TYPE_NAME,
+            EmptyPage.CONTENT_TYPE_NAME,
+            LandingPage.CONTENT_TYPE_NAME,
+            ProductPage.CONTENT_TYPE_NAME
+        ],
+        Label = "Select a parent page to pull articles from",
+        MaximumItems = 1,
         Order = 10)]
-    public IEnumerable&lt;WebPageRelatedItem&gt; ContentTreeSection { get; set; } = Enumerable.Empty&lt;WebPageRelatedItem&gt;();
+    public IEnumerable&lt;ContentItemReference&gt; ContentTreeSection { get; set; } = Enumerable.Empty&lt;ContentItemReference&gt;();
 
     // new property definition
     [TagSelectorComponent(
@@ -170,12 +176,13 @@ public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ArticleListWidgetPr
 <pre><code>
 ...
 // add IEnumerable of tag references as a new parameter
-private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(WebPageRelatedItem parentPageSelection, IEnumerable&lt;TagReference&gt; tags)
+private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(ContentItemReference parentPageSelection, IEnumerable&lt;TagReference&gt; tags)
 {
-    var selectedPageGuid = parentPageSelection.WebPageGuid;
+    var selectedPageGuid = parentPageSelection.Identifier;
 
-    var selectedPage = await genericPageRetrieverService.RetrieveWebPageByGuid(selectedPageGuid);
-    string selectedPageContentTypeName = await GetWebPageContentTypeName(selectedPageGuid);
+    var selectedPage = await genericPageRetrieverService.RetrieveWebPageByContentItemGuid(selectedPageGuid);
+    var selectedPageWebPageGuid = selectedPage?.SystemFields.WebPageItemGUID;
+    string selectedPageContentTypeName = await GetWebPageContentTypeName(selectedPageWebPageGuid);
     string selectedPagePath = selectedPage?.SystemFields.WebPageItemTreePath ?? string.Empty;
 
     if (string.IsNullOrEmpty(selectedPagePath))
@@ -627,7 +634,7 @@ public interface IContentItemRetrieverService&lt;T&gt;
 <div>
 <pre><code>
 ...
-private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(WebPageRelatedItem parentPageSelection, IEnumerable&lt;TagReference&gt; tags)
+private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(ContentItemReference parentPageSelection, IEnumerable&lt;TagReference&gt; tags, string securedItemsDisplayMode)
 {
     ...
     else

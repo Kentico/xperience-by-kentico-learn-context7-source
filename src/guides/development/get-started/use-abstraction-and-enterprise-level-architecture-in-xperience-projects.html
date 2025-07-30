@@ -1324,7 +1324,7 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
     /// &lt;param name="webPageItemId"&gt;The Id of the Web page content item.&lt;/param&gt;
     /// &lt;param name="contentTypeName"&gt;Content type name of the Web page.&lt;/param&gt;
     /// &lt;param name="depth"&gt;The maximum level of recursively linked content items that should be included in the results. Default value is 1.&lt;/param&gt;
-    /// &lt;returns&gt;A Web page content item of specified type, with the specifiied Id&lt;/returns&gt;
+    /// &lt;returns&gt;A Web page content item of specified type, with the specified Id&lt;/returns&gt;
     public async Task&lt;T?&gt; RetrieveWebPageById(
         int webPageItemId,
         string contentTypeName,
@@ -1332,9 +1332,11 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
     {
         var pages = await RetrieveWebPageContentItems(
                 contentTypeName,
-                config =&gt; config
-                    .Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), webPageItemId))
-                    .WithLinkedItems(depth));
+                innerParams =&gt; innerParams
+                    .WithLinkedItems(depth, options =&gt; options.IncludeWebPageData(true)),
+                outerParams =&gt; outerParams
+                    .Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), webPageItemId)),
+                languageName: languageName);
         return pages.FirstOrDefault();
     }
 

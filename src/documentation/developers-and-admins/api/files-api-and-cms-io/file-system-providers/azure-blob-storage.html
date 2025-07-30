@@ -11,7 +11,7 @@
 <li><a href="/documentation/developers-and-admins/deployment/deploy-to-private-cloud">Deploying to private cloud</a></li>
 <li>You need to store parts of the application file system in a shared storage. For example, shared storage is a requirement for all <a href="/documentation/developers-and-admins/configuration/auto-scaling-support">scaled</a> Xperience deployments.</li>
 </ul>
-<p>Blob storage is particularly suitable for storing content item assets, media library files and all other <a href="/guides/architecture/content-modeling/content-modeling-guide/store-files">unmanaged binary files</a> referenced by the Xperience application. Some application deployment environments, like <a href="https://azure.microsoft.com/en-us/products/app-service/web/" target="_blank">Azure Web Apps</a> for example, do not guarantee a persistent file system for files created outside of the original deployment package. Therefore, if Azure needs to recycle the application due to rolling infrastructure updates or unexpected outages, all but the image with the original deployment is lost. Blob storage does not suffer from these limitations, as the infrastructure ensures redundancy in case of an outage.</p>
+<p>Blob storage is particularly suitable for storing content item assets, and all other <a href="/guides/architecture/content-modeling/content-modeling-guide/store-files">unmanaged binary files</a> referenced by the Xperience application. Some application deployment environments, like <a href="https://azure.microsoft.com/en-us/products/app-service/web/" target="_blank">Azure Web Apps</a> for example, do not guarantee a persistent file system for files created outside of the original deployment package. Therefore, if Azure needs to recycle the application due to rolling infrastructure updates or unexpected outages, all but the image with the original deployment is lost. Blob storage does not suffer from these limitations, as the infrastructure ensures redundancy in case of an outage.</p>
 <p>Follow the instructions on this page to create Azure Blob storage providers for:</p>
 <ul>
 <li><a href="#azure-blob-storage-for-kenticos-saas">projects deployed to the SaaS environment</a></li>
@@ -27,6 +27,16 @@
 </div>
 
 <h2 id="media-library-files-in-azure-blob-storage">Media library files in Azure Blob storage</h2>
+
+<div>
+
+</div>
+<div>
+<p><strong>Media libraries sunset</strong></p>
+<p>Media libraries have been officially sunset. Support for media libraries will continue for one more year (until July 24, 2026), after which the feature and all associated APIs will be completely removed.</p>
+<p>Before mapping media library files to the <a href="https://azure.microsoft.com/en-us/services/storage/blobs/" target="_blank">Microsoft Azure Blob Storage</a>, consider migrating media libraries and mapping content item assets instead. See <a href="/guides/architecture/media-libraries-migration-guidance">Media library migration</a> for instructions on how to migrate your media library files to <a href="/documentation/business-users/content-hub">Content hub</a>.</p>
+</div>
+
 <p>Media library files stored in Azure Blob storage have the following limitations:</p>
 <ul>
 <li>

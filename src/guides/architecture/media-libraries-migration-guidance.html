@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Media library migration</title>
+</head>
+<body>
+<p>Media libraries have been officially sunset, and their related API members have been marked as obsolete. Support will continue for a year (until July 24, 2026), after which the feature and all associated APIs will be removed. <a href="/documentation/business-users/content-hub/content-item-assets">Content item assets</a> are the long-term replacement, offering a more structured and future-ready way to manage files in Xperience by Kentico.</p>
+<p>This guide walks you through migrating media library files to content item assets. It covers how assets are transformed, which metadata is preserved (such as GUIDs, custom fields, and system fields), and how legacy URLs are handled during the transition.</p>
+<h2 id="migration-overview">Migration overview</h2>
+<p>When you migrate your media library files, each one is transformed into a content item asset within a dedicated <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspace</a> in the Content hub application.</p>
+<p>The full migration involves the following high-level steps:</p>
+<ol type="1">
+<li><a href="#migrate-media-library-files-to-content-hub">Migrate media library files to Content hub</a></li>
+<li><a href="#create-a-database-backup">Create a database backup</a></li>
+<li><a href="#set-up-your-development-environment">Set up your development environment</a></li>
+<li><a href="#migrate-fields-referencing-media-library-files">Migrate fields referencing media files</a></li>
+<li><a href="#migrate-codebase">Migrate codebase</a></li>
+<li><a href="#deploy">Deploy</a></li>
+<li><a href="#delete-media-libraries">Delete media libraries</a></li>
+</ol>
+<p></p>
+<h3 id="how-media-library-files-are-transformed">How media library files are transformed</h3>
+<p>Each media library file becomes a content item of type <code>MediaLibrariesMigration.MigratedMediaFile</code>.</p>
+<p>The newly created content items:</p>
+<ul>
+<li>Retain their original unique identifier (GUID).</li>
+<li>Preserve all <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">custom fields</a>.</li>
+<li>Include all system fields.</li>
+</ul>
+<h3 id="folder-structure-and-workspaces">Folder structure and workspaces</h3>
+<p>Migration places the files in the <em>Migration from media libraries</em> <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspace</a>, which is created when the migration is first run in the <strong>Media libraries</strong> application.</p>
+<p>The folder hierarchy in the migration workspace mirrors the original structure in the <a href="/documentation/business-users/media-libraries">media libraries</a>. For example, a file in <code>~/AcmeMediaLibrary/Icons/</code> will be located under <code>~/AcmeMediaLibrary/Icons/</code> in the <em>Migration from media libraries</em> workspace.</p>
+<h3 id="linking-and-redirect-behavior">Linking and redirect behavior</h3>
+<p>All existing <code>~/getmedia/...</code> links are automatically redirected to their <code>~/getcontentasset/...</code> counterparts. This ensures that legacy links continue to function without modification.</p>
+
+<div>
+
+</div>
+<div>
+<p>Legacy <code>~/getmedia/...</code> links leading to migrated content item assets do not support <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-from-media-libraries#resize-images">URL-based image resizing</a>.</p>
+</div>
+
+<p><a href="/documentation/business-users/content-hub/content-items#track-usage-of-content-items">Usage</a> of media library files (now content items) linked through <code>~/getmedia/...</code> links is tracked only for the default <a href="/documentation/developers-and-admins/configuration/languages">language</a> variant of the content items.</p>
+
+<div>
+
+</div>
+<div>
+<p><em>Direct path</em> media library URLs (e.g., <code>~/AcmeMediaLibrary/coffee_cup.png</code>) are not supported for redirections.</p>
+</div>
+
+<h2 id="migration-process">Migration process</h2>
+<p>The migration from media library files to content item assets involves a combination of tool-assisted and manual steps. Follow these steps in order to ensure a complete and consistent migration.</p>
+<h3 id="migrate-media-library-files-to-content-hub">Migrate media library files to Content hub</h3>
+
+<div>
+
+</div>
+<div>
+<p><strong>Important</strong>: To avoid the need to include the newly created content type and its items in your deployment package, run the migration directly in your target environment (e.g., Production). This is especially important for enviroments where the size of your deployment package has a limit, for example the <a href="/documentation/developers-and-admins/saas">SaaS</a> environment.</p>
+</div>
+
+<p>This migration step is done in the administration interface of your application and can only be performed by users with the <em>Administrator</em> <a href="/documentation/developers-and-admins/configuration/users/role-management">role</a> or a role with the <em>Migrate media library</em> permission for the <em>Media libraries</em> application.</p>
+<p>Each media library file is copied into a content item of type <code>MediaLibrariesMigration.MigratedMediaFile</code> in the project’s default <a href="/documentation/developers-and-admins/configuration/languages">language</a>, and retains its unique identifier (GUID). The items are created in a <em>Migration from media libraries</em> <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspace</a>, which is created when running the migration for the first time. The folder structure in the workspace is identical to the folder structure in the original media libraries.</p>
+<p>This is a non-destructive migration – it does not remove or alter the original media library files. Instead, it creates a copy in the Content hub application (in the <em>Migration from media libraries</em> workspace). As a result, any existing functionality or features in your application that rely on media libraries will continue to work without modification.</p>
+<p>This migration step migrates only media libraries that have not been migrated yet, ensuring no duplicate content is created even if the step is rerun. Users who previously had permissions for the <em>Media libraries</em> application will retain the same level of access to the <em>Migration from media libraries</em> workspace, maintaining consistency in permissions and access control.</p>
+<p>To migrate media libraries along with their files:</p>
+<ol type="1">
+<li><p>Open the <strong>Media libraries</strong> application.</p></li>
+<li>
+<p>Migrate your media libraries.<br>
+</p>
+
+<div>
+
+</div>
+<div>
+<p>After the migration finishes you can check its result in the <strong>Event log</strong> application.</p>
+</div>
+</li>
+<li><p>You have successfully migrated your media libraries including their files.</p></li>
+</ol>
+<p></p>
+<h3 id="create-a-database-backup">Create a database backup</h3>
+<p>Before proceeding with any further modifications, create a <strong>full database backup</strong> of your target environment where you performed the migration of media library files. This allows you to recreate the state of your target’s database in your local environment and you can roll back safely if needed during the fields or codebase migration.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Content freeze</strong></p>
+<p>After your backup is created, make sure no changes are made to your existing media library files, links to media library files are not changed, and no changes are made to content types with a <em>Media files</em> field. This ensures no media library files or their references are lost during the following migration steps.</p>
+</div>
+
+<h3 id="set-up-your-development-environment">Set up your development environment</h3>
+<p>Restore your local (or other development) environment’s database using the <a href="#create-a-database-backup">database backup</a> created in the previous step to replicate the target environment’s database in your local environment. You’ll use this local environment to carry out the upcoming migration steps safely before <a href="#deploy">deploying</a> your changes back to the target environment.</p>
+<h3 id="migrate-fields-referencing-media-library-files">Migrate fields referencing media library files</h3>
+<p>Before you migrate the fields that reference your media files, ensure that <strong>all</strong> media files in your media library have been successfully migrated and that your Xperience application is not running.</p>
+<p>The field reference migration is handled entirely through the <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/" target="_blank">.NET Command Line Interface (CLI)</a>.</p>
+<p>The migration CLI script migrates database definitions of fields, including their data, which reference media files. This means that fields that referenced media files are changed to reference content items on the database level. The <a href="#migrate-codebase">codebase migration</a> is done separately.</p>
+<p>The fields of the <em>Media files</em> <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data type</a> are migrated to the <em>Pages and reusable content</em> data type. The original <em>Media file selector</em> <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components">admin UI form component</a> for the field is also changed to the <em>Combined content selector</em>. After migration, the allowed content type for the <em>Combined content selector</em> for the migrated fields is automatically set to the new replacement <em>Migrated media file</em> content type. The value set for the maximum number of files is also migrated, which corresponds to the <code>MaximumAssets</code> configuration property in media file selector and <code>MaximumItems</code>in combined content selector.</p>
+<p>The migrated fields include:</p>
+<ul>
+<li>Content type fields</li>
+<li>Custom class fields</li>
+<li>Custom fields in <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extendable system object types</a>
+</li>
+<li>Widget properties with the <code>AssetSelectorComponent</code> as the editing component</li>
+<li>Module class UI forms</li>
+</ul>
+<p>References to media files in <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> and <a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a> are not migrated and need to be recalculated using the <em>Track missing content item usages</em> <a href="/documentation/developers-and-admins/customization/scheduled-tasks">scheduled task</a>.</p>
+<p>The migration script is safely rerunnable without the risk of creating duplicate data. If a field fails to migrate (e.g., because of a collision in field names), an error is logged in the command line, and the process continues.</p>
+<p>To begin the migration, open the command line and run the following command:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+dotnet run --kxp-migrate-media-file-fields
+
+</code></pre>
+</div>
+
+<h3 id="migrate-codebase">Migrate codebase</h3>
+<p>Review your project’s codebase and manually replace references to now obsolete media library API members.</p>
+<p>We’ve suggested a replacement for each outdated API to make your migration easier. These are just recommendations – feel free to take a different approach if it better suits your project.</p>
+
+<table>
+<thead>
+<tr>
+<td>
+<p>Original</p>
+</td>
+<td>
+<p>Target</p>
+</td>
+<td>
+<p>Description</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p>MediaFileInfo</p>
+</td>
+<td>
+<p>Generated model class of a given <a href="/documentation/developers-and-admins/development/content-types">content type</a></p>
+</td>
+<td>
+<p>The content type needs to have a content item asset field.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MediaLibraryInfo</p>
+</td>
+<td>
+<p>ContentFolderInfo</p>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<p>IInfoProvider&lt;MediaFileInfo&gt;</p>
+</td>
+<td>
+<p>IContentItemManager</p>
+</td>
+<td>
+<p>You can use the <code>IContentItemManager</code> API to manage content items programmatically, offering similar functionality as the obsolete <a href="/documentation/developers-and-admins/api/database-table-api#generic-provider-class-iinfoprovidertinfo">info provider</a>. See <a href="/api/content-management/content-items">Content items</a> for examples of usage.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>IInfoProvider&lt;MediaLibraryInfo&gt;</p>
+</td>
+<td>
+<p>IContentFolderManager</p>
+</td>
+<td>
+<p>You can use the <code>IContentFolderManager</code> API to manage content folders programmatically, offering similar functionality as the obsolete <a href="/documentation/developers-and-admins/api/database-table-api#generic-provider-class-iinfoprovidertinfo">info provider</a>. See <a href="/api/content-management/content-hub-folders">Content hub folders</a> for examples of usage.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>AssetRelatedItem</p>
+</td>
+<td>
+<p>ContentItemReference</p>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<p>AssetSelectorComponent</p>
+</td>
+<td>
+<p>ContentItemSelectorComponent</p>
+</td>
+<td>
+<p>Use the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#combined-content-selector">combined content selector</a> admin UI form component instead of the obsolete media file selector.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>IMediaFileUrlRetriever</p>
+</td>
+<td>
+<p>No direct replacement</p>
+</td>
+<td>
+<p>There’s no built-in way to resolve URLs of retrieved assets or to resize images via URL parameters during migration. But with a bit of custom development, you can create a similar solution that fits your needs.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>IMediaFileUrl</p>
+</td>
+<td>
+<p>No direct replacement</p>
+</td>
+<td>
+<p>There is no direct replacement. However, URLs of assets can be obtained from properties of the <code>ContentItemAsset</code> object. See <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">Retrieve content items</a> for more information.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>IMediaProtectionService</p>
+</td>
+<td>
+<p>No direct replacement</p>
+</td>
+<td>
+<p>There is no direct replacement. Content items do not support URL-based image resizing.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>ObjectQuery<mediafileinfo>().ForAssets()</mediafileinfo></p>
+</td>
+<td>
+<p><a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">Content item query</a></p>
+</td>
+<td>
+<p>The same functionality as the <code>ForAssets</code> object query extension method can be achieved using content item query, for example by using the <code>Where</code> parameterization method.</p>
+</td>
+</tr>
+</table>
+
+<h3 id="deploy">Deploy</h3>
+<p>Once all fields and their data have been successfully migrated and corresponding fixes in the codebase were made, deploy your changes to the desired environment. See <a href="/documentation/developers-and-admins/deployment">Deployment</a> for information about deploying to different environments.</p>
+<p>When using the <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">continuous deployment</a> feature or deploying to the <a href="/documentation/developers-and-admins/saas">SaaS</a> environment, ensure the newly created content type (<code>MediaLibrariesMigration.MigratedMediaFile</code>) is excluded when serializing your data to a deployment package. Additionally, set the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories#configure-cd-restore-mode">CD restore mode</a> to at least <code>CreateUpdate</code> during serialization.</p>
+<h3 id="delete-media-libraries">Delete media libraries</h3>
+<p>After you deploy your application and confirm that all assets are working as intended, you can delete the original media libraries from your environment.</p>
+<p>You can delete a media library using the bin icon (<i></i>) beside its name in the <em>Media libraries</em> application.</p>
+<p>When you delete all your media libraries, make sure to update <a href="/documentation/developers-and-admins/configuration/users/role-management">roles</a> which have permissions to them to prevent others from accidentaly creating new media libraries or files.</p>
+<p>To remove the permissions for the <em>Media libraries</em> application from a given role:</p>
+<ol type="1">
+<li>Open the <strong>Role management</strong> application.</li>
+<li>Select the role you want to remove the permissions for.</li>
+<li>Switch to the <strong>Permissions</strong> tab of the selected role.</li>
+<li>
+<strong>Delete</strong> permissions for the <em>Media libraries</em> application.</li>
+</ol>
+<p>You have successfully removed permissions for the <em>Media libraries</em> application for a given role.</p>
+
+</body>
+</html>

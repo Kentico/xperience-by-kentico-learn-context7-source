@@ -147,7 +147,7 @@
 <div>
 <p><strong>Command details</strong></p>
 <p>If updating a deployed application containing built assemblies, use the <code>dotnet myxperienceproject.dll --kxp-update</code> command instead (replace the assembly with the name of your Xperience project’s DLL). For more information, see the <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-run#description" target="_blank">dotnet run documentation</a>.</p>
-<p>When updating a full project locally, add the <code>--no-build</code> parameter to the <code>dotnet run</code> command if you have already rebuilt your project after <a href="#update-nuget-packages">updating the NuGet packages</a>. This option saves time and avoids another unnecessary project build before the update.</p>
+<p>When updating a full project locally, add the <code>--no-build</code> parameter to the <code>dotnet run</code> command if you have already rebuilt your project after <a href="#update-nuget-packages">updating the NuGet packages</a>. This option saves time and avoids another unnecessary project build before the update. To prevent errors after building the project with a configuration other than <em>Debug</em> mode, set the <code>--property:Configuration</code> parameter to the desired value.</p>
 <p>Add the <code>--</code> syntax separator before any command parameters that you wish to pass directly to the Xperience application (<code>--kxp-update</code>). This prevents conflicts with general .NET CLI parameters, for example when using the <code>--help</code> option.</p>
 <p>If you wish to skip the database backup prompt when running the update command (e.g., in an automated environment), add the <code>--skip-confirmation</code> parameter. For example:</p>
 <div>
