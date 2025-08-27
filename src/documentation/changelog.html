@@ -5,6 +5,195 @@
 <title>Changelog</title>
 </head>
 <body>
+<section id="refresh-august-25-2025" data-release="" data-release-refresh="">
+<h2>Refresh (August 25, 2025)</h2>
+<p><strong>version 30.9.0</strong></p>
+<section id="new-features" data-section="" data-section-feature="">
+<h3>New features</h3>
+
+<p><strong>Content synchronization for forms</strong><br>
+The <a href="/documentation/business-users/content-sync">Content sync</a> feature was extended to support <a href="/documentation/business-users/digital-marketing/forms">forms</a>. Users can now synchronize forms and their field configuration from one instance of Xperience by Kentico to another, either directly from the Forms application or when synchronizing pages that include a form in their Page Builder content. Currently, forms are synchronized without their submission data, autoresponder settings, and related automation processes or submission notifications.</p>
+
+
+<p><strong>Customer journey insights</strong><br>
+AIRA now provides <a href="/documentation/business-users/aira#customer-journey-insights">in-product insights</a> into <a href="/documentation/business-users/digital-marketing/customer-journeys">customer journeys</a> through its chatbot interface. The insights show a breakdown of the <a href="/documentation/business-users/digital-marketing/contact-groups">contact groups</a> represented in a journey, how the contacts in these groups progress through stages, and which contact segments perform best or worst. This helps marketers and content editors better understand audience behavior and optimize engagement strategies.</p>
+
+
+<p><strong>Deletion of inactive contacts</strong><br>
+<a href="/documentation/business-users/digital-marketing/contact-management">Contact management</a> features generate a very large amount of data, which may be overwhelming for marketers and eventually lead to performance issues. To mitigate these issues, the system now provides a way to regularly delete inactive contacts. See <a href="/documentation/developers-and-admins/digital-marketing-setup/contact-configuration/delete-inactive-contacts">Delete inactive contacts</a> to learn more.</p>
+
+
+<p><strong>AIRA translations</strong><br>
+Editors can now <a href="/documentation/business-users/aira#aira-translations">translate their content using AIRA</a> when creating new language variants of pages or content items.</p>
+
+
+<p><strong>Shipping and payment options in digital commerce</strong><br>
+<a href="/documentation/developers-and-admins/digital-commerce-setup">Digital commerce</a> now enables users to configure <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-shipping-and-payment-methods">shipping and payment methods</a> in the <em>Commerce configuration</em> application.</p>
+
+
+<p><strong>Admin UI localization – date and time globalization</strong><br>
+<a href="/documentation/developers-and-admins/customization/admin-ui-localization">Localized</a> admin UI interfaces now format date and time values displayed in the UI according to the user’s selected locale. This is based on the culture code used to <a href="/documentation/developers-and-admins/customization/admin-ui-localization#configure-available-languages-for-users">register</a> the corresponding localization.</p>
+
+
+<p><strong>Workflow notifications overview</strong><br>
+Administrators can now <a href="/documentation/developers-and-admins/configuration/workflows#see-all-custom-workflow-steps-with-notifications-enabled">see an overview</a> of all custom workflow steps with notifications enabled, making it easier to monitor notification coverage across workflows.</p>
+
+</section>
+<section id="updates-and-changes" data-section="" data-section-update="">
+<h3>Updates and changes</h3>
+
+<p><strong>Froala editor update</strong><br>
+The <a href="https://froala.com/wysiwyg-editor" target="_blank">Froala WYSIWYG editor</a> that provides the <a href="/documentation/business-users/rich-text-editor">Rich text editor</a> in Xperience was updated to version 4.6.0. See <a href="https://froala.com/blog/editor/new-releases/froala-4-6-0-table-editing-react-19-support-find-replace/" target="_blank">Froala Editor 4.6.0</a> for details.</p>
+
+
+<p><strong>New ActionStateEvaluator async API</strong><br>
+A new asynchronous version of the <code>ActionStateEvaluator</code> <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template#actionstateevaluator">API</a> used for modifying commands of items in <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template">listing UI page templates</a> was added.</p>
+
+
+<p><strong>UI listing page template actions API</strong><br>
+New variants of the existing listing UI page template methods used for adding <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template#add-header-and-item-actions">header and listing item actions</a> were introduced. The new method variants accept similarly named parameter objects, rather than multiple individual parameters, for example:</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+.AddCommand
+  (
+    new AddCommandParameters(commandName: nameof(DoSomething), label: "Title") { }
+  );
+</code></pre>
+</div>
+</div>
+
+</section>
+<section id="new-object-types-for-cicd" data-section="" data-section-ci-cd="">
+<h3>New object types for CI/CD</h3>
+
+<p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
+<ul>
+<li>
+<code>commerce.shippingmethod</code> – stores configured <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-shipping-and-payment-methods">shipping methods</a> for the checkout process.</li>
+<li>
+<code>commerce.paymentmethod</code> – stores configured <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-shipping-and-payment-methods">payment methods</a> for the checkout process.</li>
+</ul>
+
+</section>
+<section id="newly-obsolete-api" data-section="" data-section-obsolete="">
+<h3>Newly obsolete API</h3>
+
+<p><strong>Legacy contact management API</strong><br>
+The following API classes from the <code>CMS.ContactManagement</code> namespace were used by legacy features that are not implemented in Xperience by Kentico and were made obsolete without replacements:</p>
+<ul>
+<li><code>AccountInfo</code></li>
+<li><code>AccountContactInfo</code></li>
+<li><code>AccountStatusInfo</code></li>
+<li><code>ContactRoleInfo</code></li>
+<li><code>ContactStatusInfo</code></li>
+<li><code>AccountHelper</code></li>
+</ul>
+
+
+<p><strong>Contact batch deletion API</strong><br>
+The <code>IContactsDeleteService</code> interface from the <code>CMS.ContactManagement</code> namespace is now obsolete. If you need to delete batches of contacts, use the new <code>IContactsBulkDeletionService</code>, which provides async support. See <a href="/documentation/developers-and-admins/digital-marketing-setup/contact-configuration/delete-inactive-contacts">Delete inactive contacts</a> for more information and examples.</p>
+
+</section>
+<section id="fixed-issues" data-section="" data-section-issue="">
+<h3>Fixed issues</h3>
+<ul>
+<li><p>AIRA – Deprecation warnings in the <a href="/documentation/developers-and-admins/configuration/aira-configuration#manage-aira-features">feature settings</a> of AIRA were displayed incorrectly, prompting customers to <a href="/documentation/developers-and-admins/installation/update-xperience-by-kentico-projects">update</a> their Xperience by Kentico version even when no new version had been released.</p></li>
+<li><p>Content hub – An error occurred when moving <a href="/documentation/business-users/content-hub/content-hub-folders#content-folders">content folders</a> if the folder was renamed in the past, and its original name matched a folder in the new location.</p></li>
+<li><p>Content items – If a <a href="/documentation/business-users/content-hub/content-items">content item</a> was scheduled to be published or unpublished in one <a href="/documentation/developers-and-admins/configuration/languages">language</a>, its <em>Status</em> was displayed incorrectly when viewing content item lists in another language where the item didn’t exist. The wrong language version’s scheduled status was displayed instead of the <em>Not translated</em> status.</p></li>
+<li><p>Content versioning – The date and time values displayed in <a href="/documentation/business-users/content-versioning">version history</a> records were based on the server’s location. As of this update, they now correspond to the user’s local time zone.</p></li>
+<li><p>Custom admin UI – When an individual <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components">UI form component</a> was configured to appear as read-only on a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-pages-with-forms">UI page</a> where <code>PageConfiguration.EditMode</code> was set to <code>FormEditMode.Default</code>, the component was incorrectly rendered as editable.</p></li>
+<li><p>Customer journeys – Inconsistencies occurred in the results displayed for a <a href="/documentation/business-users/digital-marketing/customer-journeys">customer journey</a> when a contact that fulfilled the conditions of a stage in the journey was <a href="/documentation/business-users/digital-marketing/contact-management#contact-merging">merged</a> or deleted.</p></li>
+<li>
+<p>Digital commerce</p>
+<ul>
+<li>Certain UI strings in the <em>Orders</em> application were not <a href="/documentation/developers-and-admins/customization/admin-ui-localization">localizable</a>.</li>
+<li>It was not possible to attach more than one <a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process">address</a> to one customer. </li>
+</ul>
+</li>
+<li>
+<p>Localization</p>
+<ul>
+<li>Some of the text displayed in the <a href="/documentation/business-users/content-sync">content sync</a> dialog was not <a href="/documentation/developers-and-admins/customization/admin-ui-localization">localized</a> correctly to the user’s preferred language for the administration interface.</li>
+<li>The names of <a href="/documentation/business-users/digital-marketing/contact-management">contact</a> fields were not <a href="/documentation/developers-and-admins/customization/admin-ui-localization">localized</a> to the user’s preferred language for the administration interface, for example in the configuration dialog for the <em>Set contact field value</em> step in <a href="/documentation/business-users/digital-marketing/automation">automation processes</a>. </li>
+</ul>
+</li>
+<li><p>Rich text editor – When inserting links into the <a href="/documentation/business-users/rich-text-editor">rich text editor</a>, URLs containing encoded characters (e.g., spaces encoded as <code>%20</code>) were encoded again, which could break the URL in some cases.</p></li>
+</ul>
+</section>
+</section>
+<hr>
+<section id="saas-update-august-21-2025" data-release="" data-release-refresh="">
+<h2>SaaS update (August 21, 2025)</h2>
+<p><strong>NuGet packages not released for this update</strong></p>
+<section id="new-features-1" data-section="" data-section-feature="">
+<h3>New features</h3>
+
+<p><strong>SaaS custom restore</strong><br>
+<a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#custom-restore">Custom restore</a> allows you to upload a large amount of data to your SaaS environments. This feature helps you bypass the 2 GB <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#create-a-deployment-package">deployment package</a> limit and simplifies initial deployments, for example, when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico.</p>
+
+</section>
+<section id="updates-and-changes-1" data-section="" data-section-update="">
+<h3>Updates and changes</h3>
+
+<p><strong>SaaS Terms of Service</strong><br>
+Terms of Service (ToS) for Xperience by Kentico SaaS no longer need to be accepted by the administrator in <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a>. Instead, ToS agreement is now part of the contract signing process.</p>
+
+
+<p><strong>SaaS Backups application update</strong><br>
+Following the update in the <a href="#refresh-july-24-2025">last Refresh</a>, where the <em>Backups</em> feature for SaaS was changed to a system of <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#restore-points">restore points and exports</a>, the <em>Backups</em> application has now been replaced by the <em>Data Management</em> set of applications. This new set includes restore points and the <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#custom-restore">custom restore</a> feature added in this update.</p>
+
+</section>
+</section>
+<hr>
+<section id="hotfix-august-14-2025" data-release="" data-release-hotfix="">
+<h3>Hotfix (August 14, 2025)</h3>
+<p><strong>version 30.8.3</strong></p>
+
+<p>Fixed issues</p>
+<ul>
+<li><span data-entry="" data-entry-issue="">General – The hotfix updates several internal third-party dependencies of client admin UI scripts to newer versions that address vulnerabilities.</span></li>
+</ul>
+
+</section>
+<hr>
+<section id="hotfix-august-7-2025" data-release="" data-release-hotfix="">
+<h3>Hotfix (August 7, 2025)</h3>
+<p><strong>version 30.8.2</strong></p>
+
+<p>Fixed issues</p>
+<ul>
+<li><p><span data-entry="" data-entry-issue="">Digital commerce – When a project used an <a href="/documentation/developers-and-admins/development/registration-and-authentication/add-fields-to-member-objects#modify-the-applicationuser-class">extended</a> <code>ApplicationUser</code> class to represent <a href="/documentation/business-users/members">members</a>, invoking <a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process#manage-the-current-shopping-cart">shopping cart-related</a> services (<code>ICurrentShoppingCartCreator</code> and <code>ICurrentShoppingCartRetriever</code>) resulted in an error (“No service for type …UserManager[…ApplicationUser] has been registered” exception).</span></p></li>
+<li><p><span data-entry="" data-entry-issue="">Rich text editor – Multiple links leading to the same <a href="/documentation/business-users/media-libraries">media library file</a> within a single <a href="/documentation/business-users/rich-text-editor">rich text field</a> could cause an error when saving the content in which the field is located (e.g., a page, content item, email, etc.).</span></p></li>
+</ul>
+
+</section>
+<hr>
+<section id="hotfix-july-31-2025" data-release="" data-release-hotfix="">
+<h3>Hotfix (July 31, 2025)</h3>
+<p><strong>version 30.8.1</strong></p>
+
+<p>Fixed issues</p>
+<ul>
+<li><p><span data-entry="" data-entry-issue="">Content hub – Cache wasn’t handled properly for the workspace selector found in the <em>Content hub</em> application. This could lead to issues when accessing <em>Content hub</em> for roles that had their permissions changed (e.g., removed permissions for a <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspace</a>).</span></p></li>
+<li><p><span data-entry="" data-entry-issue="">Emails – If the system contained a very large number of logged <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics">email statistics</a>, a timeout could occur during the periodic recalculation of these statistics for emails. The email statistic recalculation procedure was modified and its performance was improved to prevent such issues. Applying the update temporarily clears all calculated statistics for emails, which means data will not be displayed in the <em>Statistics</em> view mode of emails in email channels. To restore the statistics, you can wait until the first periodic recalculation (approximately 30 minutes after updating your project) or use the <em>Refresh</em> button in the <em>Statistics</em> view of individual emails.</span></p></li>
+</ul>
+
+</section>
+<hr>
 <section id="refresh-july-24-2025" data-release="" data-release-refresh="">
 <h2>Refresh (July 24, 2025)</h2>
 <p><strong>version 30.8.0</strong></p>
@@ -20,7 +209,7 @@
 <p><a href="/documentation/business-users/media-libraries">Media libraries</a> and all their related API members are now obsolete. They will remain available and supported until <strong>July 24, 2026</strong>, after which they will be removed. We recommend beginning migration to their modern and future-proof alternative (content item assets) as soon as possible. See <a href="/guides/architecture/media-libraries-migration-guidance">Media libraries migration guidance</a> for instructions on migrating media libraries to Content hub.</p>
 
 </section>
-<section id="new-features" data-section="" data-section-feature="">
+<section id="new-features-2" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Digital commerce production release</strong><br>
@@ -57,7 +246,7 @@ The update introduces a <a href="/api/content-management/page-url-management">ne
 When implementing Email Builder components, developers can now check whether the component is being viewed in preview mode (<em>Email Builder</em>, <em>Preview</em> or draft emails). This can be useful when working with contexts that are not available in preview modes, or for populating components with sample data for email previews. See <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#email-preview-mode">Email preview mode</a> for detailed information.</p>
 
 </section>
-<section id="updates-and-changes" data-section="" data-section-update="">
+<section id="updates-and-changes-2" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>Minimum Xperience by Kentico version for new SaaS projects</strong><br>
@@ -102,7 +291,7 @@ The edit icon (<span></span>) was changed to a different icon (<span></span>) in
 </ul>
 
 </section>
-<section id="newly-obsolete-api" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-1" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>Media libraries</strong><br>
@@ -131,7 +320,7 @@ The <code>IWebPageQueryResultMapper</code> class is now obsolete, following mapp
 The <code>ApplicationBackgroundService</code> is now obsolete. Use the <code>ApplicationLifecycleBackgroundService</code> class instead.</p>
 
 </section>
-<section id="fixed-issues" data-section="" data-section-issue="">
+<section id="fixed-issues-1" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>AIRA – In some cases, documentation links in <a href="/documentation/business-users/aira">AIRA</a>’s in-product guidance responses were not rendered as clickable links, appearing as plain text instead of using the correct Markdown format <code>[text](URL)</code>.</p></li>
@@ -242,7 +431,7 @@ The <code>ApplicationBackgroundService</code> is now obsolete. Use the <code>App
 <section id="refresh-june-12-2025" data-release="" data-release-refresh="">
 <h2>Refresh (June 12, 2025)</h2>
 <p><strong>version 30.6.0</strong></p>
-<section id="new-features-1" data-section="" data-section-feature="">
+<section id="new-features-3" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Multiple vanity URLs for pages</strong><br>
@@ -281,7 +470,7 @@ The option to switch between different views of an <a href="/documentation/busin
 Digital commerce feature preview now enables users to set up <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses#create-order-statuses">order statuses</a>, set up <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses#configure-notifications-for-order-statuses">internal notifications on status transitions</a>, and <a href="/documentation/business-users/manage-commerce-stores">manage orders</a>.</p>
 
 </section>
-<section id="updates-and-changes-1" data-section="" data-section-update="">
+<section id="updates-and-changes-3" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>Preset page templates application replacement</strong><br>
@@ -316,17 +505,21 @@ The <em>Information</em> section on the <em>Properties</em> tab now also display
 The method <code>PageConfiguration.ColumnConfigurations.AddColumn()</code> now supports rendering tooltips for columns on <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template">listing pages</a>.</p>
 
 </section>
-<section id="new-object-types-for-cicd" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-1" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
 <ul>
 <li>
 <code>emaillibrary.emailpresettemplate</code> – Email Builder configuration of saved <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder/email-builder-templates">preset email templates</a>.</li>
+<li>
+<code>commerce.orderstatus</code> – stores stages in the lifecycle of <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses">orders</a>.</li>
+<li>
+<code>commerce.orderstatusnotification</code> – stores binding records indicating which users are configured to receive <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses#set-internal-notification-content">internal notifications</a> about order status changes.</li>
 </ul>
 
 </section>
-<section id="fixed-issues-1" data-section="" data-section-issue="">
+<section id="fixed-issues-2" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>API – In certain cases, the <code>ContextUtils.PropagateCurrent</code> method didn’t correctly <a href="/documentation/developers-and-admins/customization/integrate-custom-code#database-connection-issues-when-scheduling-parallel-or-asynchronous-work-from-external-libraries">pass context values</a> to tasks managed in custom code, which could lead to exceptions when awaiting tasks using <code>Task.WhenAll</code>.</p></li>
@@ -428,7 +621,7 @@ Xperience version 30.1.0 updated the <em>Hot Chocolate</em> GraphQL server used 
 <p>If you have a <a href="/documentation/developers-and-admins/saas/saas-overview">SaaS</a> project or use the <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> feature, you need to ensure that your <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files include the <code>cms.user</code> object type. Otherwise the new system user will not be deployed after you perform the update. The update also requires you to use the <code>CreateUpdate</code> <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories#configure-cd-restore-mode">CD restore mode</a> (<code>Create</code> is not sufficient).</p>
 
 </section>
-<section id="new-features-2" data-section="" data-section-feature="">
+<section id="new-features-4" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Content synchronization</strong><br>
@@ -482,7 +675,7 @@ You can now see all the <a href="/documentation/business-users/website-content/t
 You can now <a href="/documentation/business-users/digital-marketing/customer-journeys#CJScheduledRecalculation">schedule recalculation</a> of a customer journey to keep the journey results automatically up to date.</p>
 
 </section>
-<section id="updates-and-changes-2" data-section="" data-section-update="">
+<section id="updates-and-changes-4" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>Former URLs application replaced by a new URLs application</strong><br>
@@ -522,7 +715,7 @@ A <code>FormContext</code> property was added to the <code>ValidationRule</code>
 <p>Submit your feedback via our roadmap portal: <a href="https://roadmap.kentico.com/" target="_blank">https://roadmap.kentico.com/</a></p>
 
 </section>
-<section id="newly-obsolete-api-1" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-2" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>Command events in UI page extenders</strong><br>
@@ -537,7 +730,7 @@ The <code>disabled</code> property in <a href="/documentation/developers-and-adm
 The <code>EmailContext.EmailFields</code> property, which allows retrieval of email field values within <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components">Email Builder components</a>, is now obsolete. Instead, use the new <code>EmailContext.GetEmail&lt;T&gt;</code> method together with <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">generated classes</a> for email content types. See <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#email-fields">Email fields</a>.</p>
 
 </section>
-<section id="fixed-issues-2" data-section="" data-section-issue="">
+<section id="fixed-issues-3" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Content hub – An error occurred when deleting <a href="/documentation/business-users/content-hub/content-items">content items</a> while using the Content hub grid view (gallery showing thumbnail images).</p></li>
@@ -611,7 +804,7 @@ The <code>EmailContext.EmailFields</code> property, which allows retrieval of em
 <p>When updating from versions older than <a href="/documentation/changelog#refresh-july-25-2024">version 29.3.0</a>, which introduced the <a href="/documentation/business-users/content-hub/content-items#track-usage-of-content-items">usage tracking feature</a>, use the new <em>Track missing content item usages</em> <a href="/documentation/developers-and-admins/customization/scheduled-tasks">scheduled task</a> to track missing content item usages. The tracking of existing references is no longer done automatically during the update.</p>
 
 </section>
-<section id="new-features-3" data-section="" data-section-feature="">
+<section id="new-features-5" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>New content retrieval APIs</strong><br>
@@ -692,7 +885,7 @@ Several visual improvements were made to <a href="/documentation/business-users/
 The update improves the personalization options for <a href="/documentation/business-users/digital-marketing/emails">email</a> content. In older versions, <a href="/documentation/business-users/digital-marketing/emails#personalize-emails-with-dynamic-text">dynamic text</a> could only be added into rich text fields. Now users can insert personalization placeholders into all types of text fields. These placeholders represent attributes of the email’s recipient, such as their name or email address. When the email is sent, the placeholders are replaced by appropriate values for the given recipient.</p>
 
 </section>
-<section id="updates-and-changes-3" data-section="" data-section-update="">
+<section id="updates-and-changes-5" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>Customer journeys</strong><br>
@@ -715,7 +908,7 @@ You can now control the zoom level of an edited <a href="/documentation/business
 The <code>WorkspaceEvaluatePermission</code> attribute was made public. This attribute allows users to place <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages">UI pages</a> in workspace-scoped applications behind permissions.</p>
 
 </section>
-<section id="newly-obsolete-api-2" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-3" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>Application.PostStart event</strong><br>
@@ -747,7 +940,7 @@ The following classes representing <a href="/documentation/developers-and-admins
 <p>To access the identifiers of the system’s rich text editor configurations (for example when implementing <a href="/documentation/developers-and-admins/configuration/rich-text-editor-configuration/rich-text-editor-customization#replace-the-default-editor-configuration">custom replacement of the default editor configuration</a>), use the constants available in the new <code>RichTextEditorConfigurationsIdentifiers</code> class (<code>Kentico.Xperience.Admin.Base.Forms</code> namespace).</p>
 
 </section>
-<section id="fixed-issues-3" data-section="" data-section-issue="">
+<section id="fixed-issues-4" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Admin UI – If the selection dialog was opened for a field using the <em>Combined content selector</em> form component while one or more items were already selected, the dialog performed unnecessary loading, which could lower the performance of the admin UI in the browser.</p></li>
@@ -838,7 +1031,7 @@ The following classes representing <a href="/documentation/developers-and-admins
 <p>A new Kentico documentation chatbot is now available. This intelligent assistant helps you quickly find answers about Xperience by Kentico and easily navigate our documentation. Try it out by using the chat button on the bottom right of the screen in the Xperience documentation.</p>
 
 </section>
-<section id="new-features-4" data-section="" data-section-feature="">
+<section id="new-features-6" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Email Builder production release</strong><br>
@@ -882,7 +1075,7 @@ Editors can now find their desired pages more easily in a <a href="/documentatio
 The system now provides new <a href="/documentation/developers-and-admins/development/routing/custom-redirects">API</a> for managing redirects that consists of <code>IWebPageRedirectManager</code> interface with one method <code>CreateOrUpdateRedirect</code>. The API can be useful during upgrades or when adjusting redirects from deleted pages. For managing redirects from unpublished pages, use existing methods in <code>IWebPageManager</code>.</p>
 
 </section>
-<section id="updates-and-changes-4" data-section="" data-section-update="">
+<section id="updates-and-changes-6" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>Continuous Deployment improvements in version 30.1.0</strong><br>
@@ -901,7 +1094,7 @@ Temporary folders related to <a href="/documentation/developers-and-admins/api/f
 Portal users can now view the system email service domain in the <em>Channel and domain</em> → <em>System domains</em> application and view DNS records for <a href="/documentation/developers-and-admins/configuration/website-channel-management#view-dns-records-of-custom-domains">website</a> and <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email</a> channel domains in the <em>Channels and Domains</em> → <em>Channels</em> application.</p>
 
 </section>
-<section id="new-object-types-for-cicd-1" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-2" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
@@ -922,7 +1115,7 @@ Portal users can now view the system email service domain in the <em>Channel and
 <a href="/documentation/security-advisories/security-advisory-2025-03-24">Security advisory 2025-03-24</a> – information about security issues fixed within this release.</li>
 </ul>
 </section>
-<section id="fixed-issues-4" data-section="" data-section-issue="">
+<section id="fixed-issues-5" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -1009,7 +1202,7 @@ Portal users can now view the system email service domain in the <em>Channel and
 <section id="refresh-february-20-2025" data-release="" data-release-refresh="">
 <h2>Refresh (February 20, 2025)</h2>
 <p><strong>version 30.2.0</strong></p>
-<section id="new-features-5" data-section="" data-section-feature="">
+<section id="new-features-7" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Image variants</strong><br>
@@ -1043,7 +1236,7 @@ The AIRA Companion app is a new integration that provides an alternative interfa
 An API Reference for Xperience by Kentico is now available at <a href="http://api-reference.kentico.com" target="_blank">http://api-reference.kentico.com</a>.</p>
 
 </section>
-<section id="updates-and-changes-5" data-section="" data-section-update="">
+<section id="updates-and-changes-7" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>Improved DataProtection API for SaaS deployments</strong></p>
@@ -1109,7 +1302,7 @@ if (builder.Environment.IsQa() || builder.Environment.IsUat() || builder.Environ
 </ul>
 
 </section>
-<section id="new-object-types-for-cicd-2" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-3" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
@@ -1123,7 +1316,7 @@ if (builder.Environment.IsQa() || builder.Environment.IsUat() || builder.Environ
 </ul>
 
 </section>
-<section id="newly-obsolete-api-3" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-4" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p>With the introduction of <a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a>, the following interfaces that allow developers to work with <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> component properties were made obsolete and replaced:</p>
@@ -1149,7 +1342,7 @@ if (builder.Environment.IsQa() || builder.Environment.IsUat() || builder.Environ
 </ul>
 
 </section>
-<section id="fixed-issues-5" data-section="" data-section-issue="">
+<section id="fixed-issues-6" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>API – Using the <code>IRowActionListingConfiguration.AddEditRowAction</code> extension method multiple times with the same <code>parameters</code> argument could lead to an unexpected exception.</p></li>
@@ -1240,7 +1433,7 @@ if (builder.Environment.IsQa() || builder.Environment.IsUat() || builder.Environ
 <p><strong>Update:</strong> This issue was resolved in <a href="#hotfix-january-30-2025">hotfix 30.1.1</a>. We recommend removing the workaround if used.</p>
 </section>
 </section>
-<section id="new-features-6" data-section="" data-section-feature="">
+<section id="new-features-8" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Redirects for deleted and unpublished pages</strong><br>
@@ -1274,7 +1467,7 @@ If users cannot access a deployed Xperience application, they can <a href="/docu
 Users can now manually synchronize an Xperience instance with the Kentico license server via a new <em>Synchronize</em> button located under <em>Settings</em> -&gt; <em>System</em> -&gt; <em>License</em>. For example, this can be useful if you want to quickly recover from an accidental license violation.</p>
 
 </section>
-<section id="updates-and-changes-6" data-section="" data-section-update="">
+<section id="updates-and-changes-8" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>Dynamic column width in object listing tables</strong><br>
@@ -1318,7 +1511,7 @@ The following interfaces for <a href="/documentation/developers-and-admins/custo
 Continuous Deployment was updated to more quickly <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories#configure-cd-restore-mode">restore</a> the serialized repository on the target machine. The most significant performance increase was recorded when using the <code>Create</code> mode. Larger speedup was also observed with the <code>CreateUpdate</code> and <code>Full</code> restore modes.</p>
 
 </section>
-<section id="newly-obsolete-api-4" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-5" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p>The following API members were marked obsolete, to be removed in one of the future releases:</p>
@@ -1343,7 +1536,7 @@ Continuous Deployment was updated to more quickly <a href="/documentation/develo
 </ul>
 
 </section>
-<section id="fixed-issues-6" data-section="" data-section-issue="">
+<section id="fixed-issues-7" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -1459,7 +1652,7 @@ Continuous Deployment was updated to more quickly <a href="/documentation/develo
 <p><strong>Update</strong>: Support for the <a href="https://learn.microsoft.com/en-us/aspnet/core/release-notes/aspnetcore-9.0?view=aspnetcore-9.0#static-asset-delivery-optimization" target="_blank">MapStaticAssets</a> feature was introduced in <a href="#hotfix-january-9-2025">hotfix 30.0.2</a>.</p>
 
 </section>
-<section id="new-features-7" data-section="" data-section-feature="">
+<section id="new-features-9" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Workspaces</strong><br>
@@ -1539,7 +1732,7 @@ Content Hub now supports <a href="/documentation/business-users/content-hub#conf
 The <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#object-selector">object code name selector</a> UI form component now has an <code>ObjectCodeNameSelectorComponent</code> attribute, which allows developers to use the selector as an <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/editing-components">editing component</a>.</p>
 
 </section>
-<section id="updates-and-changes-7" data-section="" data-section-update="">
+<section id="updates-and-changes-9" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>.NET 8 is now the minimum supported .NET framework version</strong><br>
@@ -1624,7 +1817,7 @@ The following system page URLs used by the <a href="/documentation/developers-an
 With the Content hub now being scoped under <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspaces</a>, the URL structure in the <em>Content hub</em> has been updated to include the <code>WorkspaceID</code>. When <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages#generate-urls-to-other-administration-pages">generating URLs</a> to <em>Content hub</em> pages, make sure to specify the <code>WorkspaceID</code> in the <code>IPageLinkGenerator</code> URL parameters to avoid incorrect URLs. The <code>WorkspaceID</code> is retrieved from workspace-scoped items, for example, content items, content folders, or smart folders.</p>
 
 </section>
-<section id="new-object-types-for-cicd-3" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-4" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p><span id="CiCdObjects30"></span></p>
@@ -1655,7 +1848,7 @@ With the Content hub now being scoped under <a href="/documentation/developers-a
 The obsolete <code>VersionStatus.Archived</code> and <code>ContentItemVersionStatus.Archived</code> enum values now produce a compilation <em>error</em>. This change ensures developers transition to the recommended <code>Unpublished</code> value. To restore project compatibility, replace all instances of <code>Archived</code> from the corresponding enum with <code>Unpublished</code>.</p>
 
 </section>
-<section id="newly-obsolete-api-5" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-6" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>Generic provider updates</strong><br>
@@ -1753,7 +1946,7 @@ The <code>UINoPermissionRequired</code> attribute, which indicated permissionles
 </ul>
 
 </section>
-<section id="fixed-issues-7" data-section="" data-section-issue="">
+<section id="fixed-issues-8" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -1891,7 +2084,7 @@ The <code>UINoPermissionRequired</code> attribute, which indicated permissionles
 </ul>
 
 </section>
-<section id="new-features-8" data-section="" data-section-feature="">
+<section id="new-features-10" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Combined content selector</strong><br>
@@ -1922,7 +2115,7 @@ When viewing contacts in the <em>Contact management</em> application, the new <e
 The <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> utility now supports running <a href="/documentation/developers-and-admins/ci-cd/ci-cd-database-migration-scripts">database migrations</a> as part of the CI/CD database restore operation via the <code>--enable-migrations</code> parameter. When using this parameter, migrations don’t need to be applied using external scripts. The utility now covers all CI/CD scenarios supported by Xperience.</p>
 
 </section>
-<section id="updates-and-changes-8" data-section="" data-section-update="">
+<section id="updates-and-changes-10" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 <ul>
 <li><p>Automation – The <em>Backspace</em>, <em>Shift</em> and <em>Space</em> keys no longer have any effect in the <a href="/documentation/business-users/digital-marketing/automation">Automation Builder</a> interface. Previously, these keys could cause unintentional interactions while designing automation processes.</p></li>
@@ -1930,7 +2123,7 @@ The <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> utility now s
 <li><p>Forms – The UI for configuring basic autoresponders and more advanced email automation for <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms">forms</a> was split into two separate tabs in the form options panel (<em>Autoresponder</em> and <em>Automation</em>).</p></li>
 </ul>
 </section>
-<section id="new-object-types-for-cicd-4" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-5" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
@@ -1942,7 +2135,7 @@ The <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> utility now s
 </ul>
 
 </section>
-<section id="newly-obsolete-api-6" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-7" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>Generic provider updates</strong></p>
@@ -1976,7 +2169,7 @@ The <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> utility now s
 <a href="/documentation/security-advisories/security-advisory-2024-11-14">Security advisory 2024-11-14</a> – information about security issues fixed within this release.</li>
 </ul>
 </section>
-<section id="fixed-issues-8" data-section="" data-section-issue="">
+<section id="fixed-issues-9" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -2051,7 +2244,7 @@ The <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> utility now s
 <p>All projects that update to version 29.6.0 and newer must use the new license keys exclusively.</p>
 
 </section>
-<section id="new-features-9" data-section="" data-section-feature="">
+<section id="new-features-11" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Multi-factor authentication for the administration</strong><br>
@@ -2079,7 +2272,7 @@ The <code>IWebPageUrlRetriever</code> interface now enables users to directly <a
 A new condition is available for <a href="/documentation/business-users/digital-marketing/contact-groups">contact groups</a> and <a href="/documentation/business-users/digital-marketing/automation">automation processes</a>, which allows marketers to check if a contact has clicked a link with a specific URL within a selected email.</p>
 
 </section>
-<section id="updates-and-changes-9" data-section="" data-section-update="">
+<section id="updates-and-changes-11" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p><strong>.NET 8 in Kentico.Xperience.Templates projects</strong><br>
@@ -2133,7 +2326,7 @@ dotnet run --no-build -- --kxp-codegen --type "Classes" --with-provider-class Fa
 The <em>Microsoft.Extensions.Configuration.Binder</em> package (transitive dependency) was removed from the <em>Kentico.Xperience.Core</em> package.</p>
 
 </section>
-<section id="newly-obsolete-api-7" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-8" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <ul>
@@ -2142,7 +2335,7 @@ The <em>Microsoft.Extensions.Configuration.Binder</em> package (transitive depen
 </ul>
 
 </section>
-<section id="fixed-issues-9" data-section="" data-section-issue="">
+<section id="fixed-issues-10" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -2226,7 +2419,7 @@ The <em>Microsoft.Extensions.Configuration.Binder</em> package (transitive depen
 <section id="refresh-september-19-2024" data-release="" data-release-refresh="">
 <h2>Refresh (September 19, 2024)</h2>
 <p><strong>version 29.5.0</strong></p>
-<section id="new-features-10" data-section="" data-section-feature="">
+<section id="new-features-12" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Vanity URLs</strong><br>
@@ -2265,7 +2458,7 @@ The <strong>UI tree</strong> in the <a href="/documentation/developers-and-admin
 Support for Canada East, UK West, Japan West, Australia Southeast, North Central US, and Switzerland North regions was added for <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments">SaaS deployments</a>. See <a href="/documentation/developers-and-admins/saas/saas-overview#where-is-the-saas-service-available">SaaS overview</a> for a list of all available regions.</p>
 
 </section>
-<section id="updates-and-changes-10" data-section="" data-section-update="">
+<section id="updates-and-changes-12" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -2282,7 +2475,7 @@ Support for Canada East, UK West, Japan West, Australia Southeast, North Central
 </ul>
 
 </section>
-<section id="newly-obsolete-api-8" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-9" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>Generic provider updates</strong></p>
@@ -2352,7 +2545,7 @@ public SmartFolderReference SmartFolderWithCoffee { get; set; }
 </div>
 
 </section>
-<section id="fixed-issues-10" data-section="" data-section-issue="">
+<section id="fixed-issues-11" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Admin UI authentication – If an unauthenticated user attempted to access an administration page while the application was configured to use an <a href="/documentation/developers-and-admins/configuration/users/administration-registration-and-authentication/administration-external-authentication">external authentication provider</a> for the admin UI, the <em>returnUrl</em> query string parameter was lost during the redirection to the authentication provider. As a result, the administration dashboard was always displayed after successfully signing in instead of the originally request admin UI page.</p></li>
@@ -2498,7 +2691,7 @@ public SmartFolderReference SmartFolderWithCoffee { get; set; }
 <section id="refresh-august-22-2024" data-release="" data-release-refresh="">
 <h2>Refresh (August 22, 2024)</h2>
 <p><strong>version 29.4.0</strong></p>
-<section id="new-features-11" data-section="" data-section-feature="">
+<section id="new-features-13" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Automation</strong><br>
@@ -2538,7 +2731,7 @@ The new public <code>WebPageAclManager</code> <a href="/api/content-management/p
 The <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#email-selector">email selector</a> UI form component was extended with the <code>AllowedEmailPurposes</code> property, which allows developers to set multiple allowed email purposes.</p>
 
 </section>
-<section id="newly-obsolete-api-9" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-10" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>Generic provider updates</strong><br>
@@ -2574,7 +2767,7 @@ The following Info providers in the <em>CMS.EmailMarketing</em> and <em>CMS.Emai
 The <a href="/documentation/developers-and-admins/development/builders/form-builder/reference-form-builder-components">Checkbox</a> component in Form Builder was vulnerable to Cross-Site-Scripting attack (XSS). To eliminate this vulnerability, support for HTML in Checkbox component was removed.</p>
 
 </section>
-<section id="fixed-issues-11" data-section="" data-section-issue="">
+<section id="fixed-issues-12" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>AIRA – When an <a href="/documentation/business-users/aira#email-subject-fields">email subject suggestion</a> was clicked in the <em>Generate with AI</em> dialog and inserted into the email subject field, the <em>Save</em> button didn’t become active unless another change was made in the email’s editing form.</p></li>
@@ -2582,7 +2775,7 @@ The <a href="/documentation/developers-and-admins/development/builders/form-buil
 <p>Admin UI</p>
 <ul>
 <li>The <em>More actions</em> menu for listing page mass actions wasn’t displayed correctly in the <em>Content hub</em> application. The more actions menu appears when the mass actions available for a listing page cannot fit into the width of the viewing device.</li>
-<li>The date string of the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#date-input">Date</a> and <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#datetime-input">DateTime</a> selector component could overflow the designated input field when displayed on some browsers. </li>
+<li>The date string of the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#date-input">Date</a> and <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#date-and-time-input">DateTime</a> selector component could overflow the designated input field when displayed on some browsers. </li>
 </ul>
 </li>
 <li><p>Channels – It is now possible to set an additional website domain via the admin UI (<em>Channel management</em> → edit a channel → <em>General</em> tab) for channels with <a href="/documentation/developers-and-admins/configuration/website-channel-management#domain-aliases-and-environment-specific-domains">domains and domain aliases</a> set via application configuration. Domains set via the admin UI were previously disregarded for such channels. Domains configured this way behave as additional domain aliases.</p></li>
@@ -2719,7 +2912,7 @@ The <a href="/documentation/developers-and-admins/development/builders/form-buil
 <p>Product documentation related to <a href="/documentation/developers-and-admins/installation/licenses">licensing</a> was updated to reflect the newly introduced approach. The documentation will contain information about both licensing models until the end of the transition period, marked by the release of the <em>October 2024 Refresh</em>. All information related to the old licensing process will be removed from that point onward.</p>
 
 </section>
-<section id="new-features-12" data-section="" data-section-feature="">
+<section id="new-features-14" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Page permissions</strong><br>
@@ -2762,7 +2955,7 @@ Allows you to connect your Shopify store with an Xperience by Kentico applicatio
 Allows you to connect a <a href="/13/e-commerce-features">Kentico Xperience 13 store</a> with an Xperience by Kentico application. The integration is primarily intended to enable migration of existing Kentico Xperience 13 E-Commerce projects to Xperience by Kentico, but can also be used for other scenarios. For more information and detailed instructions, see the <a href="https://github.com/Kentico/xperience-by-kentico-k13ecommerce" target="_blank">Xperience by Kentico - Kentico Xperience 13 E-commerce</a> GitHub repository.</p>
 
 </section>
-<section id="new-object-types-for-cicd-5" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-6" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
@@ -2777,7 +2970,7 @@ Allows you to connect a <a href="/13/e-commerce-features">Kentico Xperience 13 s
 <p>The combination of using the <em>Rich text editor</em> form component with <em>Text</em> or <em>Long text</em> <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data types</a> in the <a href="/documentation/developers-and-admins/customization/field-editor">field editor</a> is now obsolete. If you want to use the <em>Rich text editor</em> form component, use the new <em>Rich text (HTML)</em> data type. Using <em>Text</em> and <em>Long text</em> for non-rich text fields is still valid, and the data types themselves are not obsolete.</p>
 
 </section>
-<section id="newly-obsolete-api-10" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-11" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <ul>
@@ -2788,7 +2981,7 @@ Allows you to connect a <a href="/13/e-commerce-features">Kentico Xperience 13 s
 </ul>
 
 </section>
-<section id="fixed-issues-12" data-section="" data-section-issue="">
+<section id="fixed-issues-13" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>CI/CD – Under certain circumstances, working with pages under one website channel could also influence the <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> repository structure of pages in other website channels.</p></li>
@@ -2833,7 +3026,7 @@ Allows you to connect a <a href="/13/e-commerce-features">Kentico Xperience 13 s
 <section id="refresh-june-27-2024" data-release="" data-release-refresh="">
 <h2>Refresh (June 27, 2024)</h2>
 <p><strong>version 29.2.0</strong></p>
-<section id="new-features-13" data-section="" data-section-feature="">
+<section id="new-features-15" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Smart folders in Content hub</strong><br>
@@ -2864,7 +3057,7 @@ The <a href="/documentation/developers-and-admins/customization/extend-the-admin
 Support for the East US 2 region was added for <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments">SaaS deployments</a>.</p>
 
 </section>
-<section id="updates-and-changes-11" data-section="" data-section-update="">
+<section id="updates-and-changes-13" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -2882,7 +3075,7 @@ Support for the East US 2 region was added for <a href="/documentation/developer
 </ul>
 
 </section>
-<section id="new-object-types-for-cicd-6" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-7" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
@@ -2891,7 +3084,7 @@ Support for the East US 2 region was added for <a href="/documentation/developer
 </ul>
 
 </section>
-<section id="newly-obsolete-api-11" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-12" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>“Archive” API</strong><br>
@@ -2908,7 +3101,7 @@ All content management API with the “Archive” keyword (e.g., <code>IContentI
 </ul>
 
 </section>
-<section id="fixed-issues-13" data-section="" data-section-issue="">
+<section id="fixed-issues-14" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -3027,7 +3220,7 @@ All content management API with the “Archive” keyword (e.g., <code>IContentI
 <section id="refresh-may-16-2024" data-release="" data-release-refresh="">
 <h2>Refresh (May 16, 2024)</h2>
 <p><strong>version 29.1.0</strong></p>
-<section id="new-features-14" data-section="" data-section-feature="">
+<section id="new-features-16" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Scheduled publishing of pages and content items</strong><br>
@@ -3074,7 +3267,7 @@ The editing experience was improved with two new improvements to the administrat
 </ul>
 
 </section>
-<section id="updates-and-changes-12" data-section="" data-section-update="">
+<section id="updates-and-changes-14" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -3084,7 +3277,7 @@ The editing experience was improved with two new improvements to the administrat
 </ul>
 
 </section>
-<section id="newly-obsolete-api-12" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-13" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p><strong>Generic provider updates</strong></p>
@@ -3137,7 +3330,7 @@ The editing experience was improved with two new improvements to the administrat
 <li>Admin UI – Admin UI API endpoints related to Page Builder and Form Builder were accessible to member accounts under specified conditions. The vulnerability didn’t enable attackers to extract sensitive data or perform unauthorized actions in the administration interface.</li>
 </ul>
 </section>
-<section id="fixed-issues-14" data-section="" data-section-issue="">
+<section id="fixed-issues-15" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>API – Resetting thread context using the <code>ContextUtils</code> class added in version 29.0.1 caused concurrency issues in certain cases.</p></li>
@@ -3239,7 +3432,7 @@ The editing experience was improved with two new improvements to the administrat
 <section id="refresh-april-18-2024" data-release="" data-release-refresh="">
 <h2>Refresh (April 18, 2024)</h2>
 <p><strong>version 29.0.0</strong></p>
-<section id="new-features-15" data-section="" data-section-feature="">
+<section id="new-features-17" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Content hub folders</strong><br>
@@ -3319,7 +3512,7 @@ Fields defined in <a href="/documentation/developers-and-admins/development/cont
 Users can now <a href="/documentation/business-users/website-content/create-pages">create new pages</a> and folders directly in the content tree of website channel applications.</p>
 
 </section>
-<section id="updates-and-changes-13" data-section="" data-section-update="">
+<section id="updates-and-changes-15" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -3333,7 +3526,7 @@ Users can now <a href="/documentation/business-users/website-content/create-page
 </ul>
 
 </section>
-<section id="new-object-types-for-cicd-7" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-8" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
@@ -3426,7 +3619,7 @@ public string FolderId { get; set; }
 </ul>
 
 </section>
-<section id="newly-obsolete-api-13" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-14" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p>Info provider interfaces in the <code>CMS.ContactManagement</code> namespace were replaced by the generic <code>IInfoProvider&lt;TInfo&gt;</code> <a href="/documentation/developers-and-admins/api/database-table-api#generic-provider-class-iinfoprovidertinfo">provider</a> and made obsolete.</p>
@@ -3443,7 +3636,7 @@ public string FolderId { get; set; }
 </ul>
 
 </section>
-<section id="fixed-issues-15" data-section="" data-section-issue="">
+<section id="fixed-issues-16" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>AIRA – Content items with custom fields of type <em>Text</em> assigned exclusively via reusable field schemas were unavailable when selecting items as the content source in the <em>Generate with AI</em> dialog for a field using the <a href="/documentation/business-users/aira#generate-email-content">generate email content</a> AI feature.</p></li>
@@ -3556,7 +3749,7 @@ public string FolderId { get; set; }
 <section id="refresh-march-21-2024" data-release="" data-release-refresh="">
 <h2>Refresh (March 21, 2024)</h2>
 <p><strong>version 28.4.0</strong></p>
-<section id="new-features-16" data-section="" data-section-feature="">
+<section id="new-features-18" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Taxonomies support</strong></p>
@@ -3706,7 +3899,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="updates-and-changes-14" data-section="" data-section-update="">
+<section id="updates-and-changes-16" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -3717,7 +3910,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="new-object-types-for-cicd-8" data-section="" data-section-ci-cd="">
+<section id="new-object-types-for-cicd-9" data-section="" data-section-ci-cd="">
 <h3>New object types for CI/CD</h3>
 
 <p>The update introduces the following object types, which are supported by the <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous Deployment</a> features. Consider updating the <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository.config</a> files of your CI/CD repositories, particularly when using the <code>&lt;IncludedObjectTypes&gt;</code> allowlist for object type filtering.</p>
@@ -3727,7 +3920,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="newly-obsolete-api-14" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-15" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p>Info provider interfaces in the following namespaces were replaced by the generic <code>IInfoProvider&lt;TInfo&gt;</code> <a href="/documentation/developers-and-admins/api/database-table-api#generic-provider-class-iinfoprovidertinfo">provider</a> and made obsolete.</p>
@@ -3777,7 +3970,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <li>Admin UI authentication – Antiforgery cookies used by the admin UI are now generated with the <code>secure</code> <a href="https://owasp.org/www-community/controls/SecureCookieAttribute" target="_blank">attribute</a>. We recommend clearing the cookies for your administration project domain after applying the refresh update to ensure the new cookie configuration is used.</li>
 </ul>
 </section>
-<section id="fixed-issues-16" data-section="" data-section-issue="">
+<section id="fixed-issues-17" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Admin UI – Very long workflow or workflow step names were displayed incorrectly in various parts of the administration UI.</p></li>
@@ -3872,7 +4065,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-february-22-2024" data-release="" data-release-refresh="">
 <h2>Refresh (February 22, 2024)</h2>
 <p><strong>version 28.3.0</strong></p>
-<section id="new-features-17" data-section="" data-section-feature="">
+<section id="new-features-19" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p>Workflow</p>
@@ -3901,7 +4094,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="updates-and-changes-15" data-section="" data-section-update="">
+<section id="updates-and-changes-17" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -3923,7 +4116,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="newly-obsolete-api-15" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-16" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <ul>
@@ -3952,7 +4145,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <p>The <a href="https://www.nuget.org/packages/System.IdentityModel.Tokens.Jwt/6.31.0" target="_blank">System.IdentityModel.Tokens.Jwt</a> package (transitive dependency) was updated to the latest version.</p>
 
 </section>
-<section id="fixed-issues-17" data-section="" data-section-issue="">
+<section id="fixed-issues-18" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Admin UI – The tile view of the applications list in the administration displayed an incorrect number of applications per row.</p></li>
@@ -4042,7 +4235,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-january-25-2024" data-release="" data-release-refresh="">
 <h2>Refresh (January 25, 2024)</h2>
 <p><strong>version 28.2.0</strong></p>
-<section id="new-features-18" data-section="" data-section-feature="">
+<section id="new-features-20" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p>Reusable field schemas</p>
@@ -4139,7 +4332,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="updates-and-changes-16" data-section="" data-section-update="">
+<section id="updates-and-changes-18" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p>Code generators</p>
@@ -4173,7 +4366,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="fixed-issues-18" data-section="" data-section-issue="">
+<section id="fixed-issues-19" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -4323,7 +4516,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <p>You can read a <a href="https://community.kentico.com/blog/xperience-by-kentico-refresh-december-14-2023" target="_blank">blog post by Sean Wright</a> for a brief introduction of this refresh.</p>
 </div>
 
-<section id="new-features-19" data-section="" data-section-feature="">
+<section id="new-features-21" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p>Headless channels</p>
@@ -4372,7 +4565,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="newly-obsolete-api-16" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-17" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <ul>
@@ -4381,7 +4574,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="updates-and-changes-17" data-section="" data-section-update="">
+<section id="updates-and-changes-19" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -4397,7 +4590,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="fixed-issues-19" data-section="" data-section-issue="">
+<section id="fixed-issues-20" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -4522,7 +4715,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-november-16-2023" data-release="" data-release-refresh="">
 <h2>Refresh (November 16, 2023)</h2>
 <p><strong>version 28.0.0</strong></p>
-<section id="new-features-20" data-section="" data-section-feature="">
+<section id="new-features-22" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p>General</p>
@@ -4601,7 +4794,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="newly-obsolete-api-17" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-18" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <p>The following API members were marked obsolete, to be removed in one of the future releases:</p>
@@ -4642,7 +4835,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="fixed-issues-20" data-section="" data-section-issue="">
+<section id="fixed-issues-21" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>AIRA – <a href="/documentation/developers-and-admins/configuration/aira-configuration">Email subject suggestions</a> generated by the AI feature were in some cases displayed in a different language than the one set for the email channel after requesting adjustments via the quick refinement buttons or the manual text prompt.</p></li>
@@ -4876,7 +5069,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <p>With the introduction of channels, the concept of grouping project-related data under a site (<code>SiteInfo</code> object) and the existence of site-specific objects was also removed. This should not pose a problem for existing projects, since previous Xperience by Kentico versions only supported a single site.</p>
 </section>
 
-<section id="new-features-21" data-section="" data-section-feature="">
+<section id="new-features-23" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="content-management" data-entry="" data-entry-feature="">
 <h4>Content management</h4>
@@ -5118,7 +5311,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="newly-obsolete-api-18" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-19" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <ul>
@@ -5145,7 +5338,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <li>XSS – Fixed a potential cross-site scripting vulnerability in the <a href="/documentation/developers-and-admins/configuration/rich-text-editor-configuration">Rich text editor configuration</a> used for emails.</li>
 </ul>
 </section>
-<section id="fixed-issues-21" data-section="" data-section-issue="">
+<section id="fixed-issues-22" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -5206,7 +5399,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-september-7-2023" data-release="" data-release-refresh="">
 <h2>Refresh (September 7, 2023)</h2>
 <p><strong>version 26.6.0</strong></p>
-<section id="new-features-22" data-section="" data-section-feature="">
+<section id="new-features-24" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="administration-1" data-entry="" data-entry-feature="">
 <h4>Administration</h4>
@@ -5223,7 +5416,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 </section>
 </section>
-<section id="fixed-issues-22" data-section="" data-section-issue="">
+<section id="fixed-issues-23" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>Membership – The Xperience-specific implementation of ASP.NET Core Identity’s <a href="/documentation/developers-and-admins/development/registration-and-authentication/forms-authentication">password reset functionality</a> did not update member passwords when implemented.</li>
@@ -5256,7 +5449,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-august-10-2023" data-release="" data-release-refresh="">
 <h2>Refresh (August 10, 2023)</h2>
 <p><strong>version 26.5.0</strong></p>
-<section id="new-features-23" data-section="" data-section-feature="">
+<section id="new-features-25" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="content-management-1" data-entry="" data-entry-feature="">
 <h4>Content management</h4>
@@ -5306,7 +5499,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-july-13-2023" data-release="" data-release-refresh="">
 <h2>Refresh (July 13, 2023)</h2>
 <p><strong>version 26.4.0</strong></p>
-<section id="new-features-24" data-section="" data-section-feature="">
+<section id="new-features-26" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="xperience-portal" data-entry="" data-entry-feature="">
 <h4>Xperience Portal</h4>
@@ -5321,7 +5514,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 </section>
 </section>
-<section id="fixed-issues-23" data-section="" data-section-issue="">
+<section id="fixed-issues-24" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Users – An error occurred when adding a new <a href="/documentation/developers-and-admins/configuration/users/user-management">user</a> in the <em>Users</em> application if the site configured in the <em>Sites</em> application was not running on the same domain as the administration.</p></li>
@@ -5386,7 +5579,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-june-15-2023" data-release="" data-release-refresh="">
 <h2>Refresh (June 15, 2023)</h2>
 <p><strong>version 26.3.0</strong></p>
-<section id="new-features-25" data-section="" data-section-feature="">
+<section id="new-features-27" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="content-management-3" data-entry="" data-entry-feature="">
 <h4>Content management</h4>
@@ -5405,7 +5598,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 </section>
 </section>
-<section id="fixed-issues-24" data-section="" data-section-issue="">
+<section id="fixed-issues-25" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Emails – Tracking of bounced emails, as well as delivered email and spam report <a href="/documentation/business-users/digital-marketing/emails/track-email-statistics">statistics</a> didn’t work for projects <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">deployed to the SaaS environment</a>. The issue also caused errors in the system’s Event log.</p></li>
@@ -5483,7 +5676,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-may-18-2023" data-release="" data-release-refresh="">
 <h2>Refresh (May 18, 2023)</h2>
 <p><strong>version 26.2.0</strong></p>
-<section id="new-features-26" data-section="" data-section-feature="">
+<section id="new-features-28" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="digital-marketing" data-entry="" data-entry-feature="">
 <h4>Digital marketing</h4>
@@ -5500,7 +5693,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 </section>
 </section>
-<section id="updates-and-changes-18" data-section="" data-section-update="">
+<section id="updates-and-changes-20" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -5513,7 +5706,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="fixed-issues-25" data-section="" data-section-issue="">
+<section id="fixed-issues-26" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Database – The system persisted incorrect <em>Info</em> object state in its cache in cases where a database transaction failed and was rolled back. For example, if a database transaction updating a <em>MediaFileInfo</em> object failed, the database state was not updated, but the updated state persisted in the system cache. This lead to data inconsistency between the application and the database, and could cause a subsequent <em>Get</em> operation to obtain incorrect data (when retrieved from the system cache).</p></li>
@@ -5568,7 +5761,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-april-20-2023" data-release="" data-release-refresh="">
 <h2>Refresh (April 20, 2023)</h2>
 <p><strong>version 26.1.0</strong></p>
-<section id="new-features-27" data-section="" data-section-feature="">
+<section id="new-features-29" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="digital-marketing-1" data-entry="" data-entry-feature="">
 <h4>Digital marketing</h4>
@@ -5596,7 +5789,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 </section>
 </section>
-<section id="fixed-issues-26" data-section="" data-section-issue="">
+<section id="fixed-issues-27" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Admin UI – Fixed inconsistent spacing between elements in the administration UI.</p></li>
@@ -5673,7 +5866,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-march-27-2023" data-release="" data-release-refresh="">
 <h2>Refresh (March 27, 2023)</h2>
 <p><strong>version 26.0.0</strong></p>
-<section id="new-features-28" data-section="" data-section-feature="">
+<section id="new-features-30" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="general" data-entry="" data-entry-feature="">
 <h4>General</h4>
@@ -5719,7 +5912,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 </section>
 </section>
-<section id="updates-and-changes-19" data-section="" data-section-update="">
+<section id="updates-and-changes-21" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -5764,7 +5957,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="newly-obsolete-api-19" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-20" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <ul>
@@ -5825,7 +6018,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <li>Xperience Portal – Under certain circumstances, there was a risk an unauthorized third party could access and download backups of projects deployed in the SaaS environment.</li>
 </ul>
 </section>
-<section id="fixed-issues-27" data-section="" data-section-issue="">
+<section id="fixed-issues-28" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Administration – In certain cases, it was possible to submit values using disabled fields in the administration’s editing forms.</p></li>
@@ -5888,7 +6081,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-february-23-2023" data-release="" data-release-refresh="">
 <h2>Refresh (February 23, 2023)</h2>
 <p><strong>version 25.0.0</strong></p>
-<section id="new-features-29" data-section="" data-section-feature="">
+<section id="new-features-31" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="content-management-6" data-entry="" data-entry-feature="">
 <h4>Content management</h4>
@@ -5918,7 +6111,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 </section>
 </section>
-<section id="updates-and-changes-20" data-section="" data-section-update="">
+<section id="updates-and-changes-22" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -5950,7 +6143,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="newly-obsolete-api-20" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-21" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <ul>
@@ -5958,7 +6151,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 
 </section>
-<section id="fixed-issues-28" data-section="" data-section-issue="">
+<section id="fixed-issues-29" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -6061,7 +6254,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 <section id="refresh-january-26-2023" data-release="" data-release-refresh="">
 <h2>Refresh (January 26, 2023)</h2>
 <p><strong>version 24.0.0</strong></p>
-<section id="new-features-30" data-section="" data-section-feature="">
+<section id="new-features-32" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="users" data-entry="" data-entry-feature="">
 <h4>Users</h4>
@@ -6107,7 +6300,7 @@ List&lt;Blog&gt; blogs = result.OfType&lt;Blog&gt;().ToList();
 </ul>
 </section>
 </section>
-<section id="updates-and-changes-21" data-section="" data-section-update="">
+<section id="updates-and-changes-23" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 <section id="api" data-entry="" data-entry-update="">
 <h4>API</h4>
@@ -6313,7 +6506,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 </ul>
 
 </section>
-<section id="newly-obsolete-api-21" data-section="" data-section-obsolete="">
+<section id="newly-obsolete-api-22" data-section="" data-section-obsolete="">
 <h3>Newly obsolete API</h3>
 
 <ul>
@@ -6335,7 +6528,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 </ul>
 
 </section>
-<section id="fixed-issues-29" data-section="" data-section-issue="">
+<section id="fixed-issues-30" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -6392,7 +6585,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 <li>It was not possible to view more than the first 150 files in a selected media library via the <em>Media file selector</em> <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">UI form component</a>.</li>
 <li>It was possible to clear a selection made using the <em>Object selector</em> even if the field was marked as required.</li>
 <li>Pages selected within the <em>Page selector</em> form component cast a shadow incorrectly when dragged.</li>
-<li>Selecting a month or year in the <em>DateTime input</em> form component incorrectly saved the whole form.</li>
+<li>Selecting a month or year in the <em>Date and time input</em> form component incorrectly saved the whole form.</li>
 <li>The <code>MinimumDecimalValueValidationRule</code> and <code>MaximumDecimalValueValidationRule</code> <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-validation-rules#assign-validation-rules-using-attributes">validation rule attributes</a> could not be used because the attribute constructor did not allow the <em>decimal</em> type as a valid attribute parameter type. The attribute constructors now accept <em>double</em> instead. Conversion to decimal is done by rounding to 15 significant digits using rounding to nearest (a limitation of the <em>double</em> input type).</li>
 <li>When the <em>Object selector</em> was placed in a side panel, selecting any action inside the selector caused the side panel to collapse. </li>
 </ul>
@@ -6547,7 +6740,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 <section id="refresh-november-7-2022" data-release="" data-release-refresh="">
 <h2>Refresh (November 7, 2022)</h2>
 <p><strong>version 23.0.0</strong></p>
-<section id="new-features-31" data-section="" data-section-feature="">
+<section id="new-features-33" data-section="" data-section-feature="">
 <h3>New features</h3>
 <section id="users-1" data-entry="" data-entry-feature="">
 <h4>Users</h4>
@@ -6583,7 +6776,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 </ul>
 </section>
 </section>
-<section id="updates-and-changes-22" data-section="" data-section-update="">
+<section id="updates-and-changes-24" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -6666,7 +6859,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 </ul>
 
 </section>
-<section id="fixed-issues-30" data-section="" data-section-issue="">
+<section id="fixed-issues-31" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Admin UI – Several minor issues with alignment, font size, spacing and shadows were fixed in the administration interface.</p></li>
@@ -6760,7 +6953,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 <section id="refresh-october-6-2022" data-release="" data-release-refresh="">
 <h2>Refresh (October 6, 2022)</h2>
 <p><strong>version 22.3.0</strong></p>
-<section id="new-features-32" data-section="" data-section-feature="">
+<section id="new-features-34" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <ul>
@@ -6816,7 +7009,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 </ul>
 
 </section>
-<section id="updates-and-changes-23" data-section="" data-section-update="">
+<section id="updates-and-changes-25" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <ul>
@@ -6826,7 +7019,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 </ul>
 
 </section>
-<section id="fixed-issues-31" data-section="" data-section-issue="">
+<section id="fixed-issues-32" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -6919,7 +7112,7 @@ public partial class MyObjectTypeInfo : AbstractInfo&lt;MyObjectTypeInfo, IMyObj
 <section id="refresh-september-8-2022" data-release="" data-release-refresh="">
 <h2>Refresh (September 8, 2022)</h2>
 <p><strong>version 22.2.0</strong></p>
-<section id="new-features-33" data-section="" data-section-feature="">
+<section id="new-features-35" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Object type management and customization</strong><br>
@@ -6947,13 +7140,13 @@ Xperience offers an external module that integrates with the <a href="https://di
 New <em>Code editor</em> <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components">UI form component</a> for the administration. Provides a text editing area suitable for code, with support for syntax highlighting and line numbers.</p>
 
 </section>
-<section id="updates-and-changes-24" data-section="" data-section-update="">
+<section id="updates-and-changes-26" data-section="" data-section-update="">
 <h3>Updates and changes</h3>
 
 <p>The original <em>Emails</em> application in the Xperience administration was renamed to <em>Email queue</em>. The new <em>Emails</em> application is now used to manage the content of emails. See <a href="/documentation/business-users/digital-marketing/emails">Emails</a>.</p>
 
 </section>
-<section id="fixed-issues-32" data-section="" data-section-issue="">
+<section id="fixed-issues-33" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li>
@@ -7031,7 +7224,7 @@ New <em>Code editor</em> <a href="/documentation/developers-and-admins/customiza
 <section id="refresh-august-12-2022" data-release="" data-release-refresh="">
 <h2>Refresh (August 12, 2022)</h2>
 <p><strong>version 22.1.0</strong></p>
-<section id="new-features-34" data-section="" data-section-feature="">
+<section id="new-features-36" data-section="" data-section-feature="">
 <h3>New features</h3>
 
 <p><strong>Minimal APIs support</strong><br>
@@ -7059,7 +7252,7 @@ The hash string salt value assigned to Xperience Portal projects is now visible 
 The Xperience administration now uses an appropriately-themed dialog window when notifying users about interactive events (e.g., notifications about unsaved changes), instead of each browser’s default notification system.</p>
 
 </section>
-<section id="fixed-issues-33" data-section="" data-section-issue="">
+<section id="fixed-issues-34" data-section="" data-section-issue="">
 <h3>Fixed issues</h3>
 <ul>
 <li><p>Admin UI customization – The <code>BarItemGroup</code> component (<a href="https://www.npmjs.com/package/@kentico/xperience-admin-components" target="_blank">@kentico/xperience-admin-components</a>) generated the “Each child in a list should have a unique ‘key’ prop” warning in the browser console, for example when using the field editor in the <em>Page types</em> application.</p></li>

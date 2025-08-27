@@ -9,9 +9,25 @@
 <p>This guide will provide more details about the points from the later top-level sections of the <a href="/guides/architecture/upgrade-from-kx13/upgrade-from-kx13-overview">upgrade overview</a>.</p>
 <h2 id="adjust-your-code">Adjust your code</h2>
 <h3 id="update-content-querying-code">Update content querying code</h3>
-<p>Xperience by Kentico uses the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item API</a> to query content, in place of <a href="/13/custom-development/working-with-pages-in-the-api">DocumentQuery and MultiDocumentQuery</a> from Kentico Xperience 13.</p>
+<p>Xperience by Kentico uses the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a> and the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item query API</a> to query content, in place of <a href="/13/custom-development/working-with-pages-in-the-api">DocumentQuery and MultiDocumentQuery</a> from Kentico Xperience 13.</p>
 <p>The documentation in the above link has more information about the specifics of how it works, but in broad strokes, here are the steps to retrieve content:</p>
 <ul>
+<li>
+<strong>ContentRetrieval API</strong>
+<ul>
+<li>This is an approach we recommend.</li>
+<li>Use an <code>IContentRetriever</code> object and its generic extension methods that fit your scenario, e.g., <code>RetrieveContentByGuids</code> or <code>RetrieveCurrentPage</code>.
+<ul>
+<li>Specify the content type you want to retrieve for each method call - the implementation takes care of the data mapping for you.</li>
+<li>You can pass additional information specifying your request through method parameters, like <code>additionalQueryConfiguration</code> or <code>cacheSettings</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<strong>Content item query API</strong>
+<ul>
+<li>You can use this approach for advanced scenarios which the ContentRetrieval API doesn’t cover.</li>
 <li>Use a <code>ContentItemQueryBuilder</code> object to construct a query.
 <ul>
 <li>Apply one of the <code>ForContentType</code> or <code>ForContentTypes</code> extension methods to filter the query based on system aspects of the content type. For example, whether content items include a given reusable field schema, whether they <em>link to</em> or <em>are linked from</em> another item, and whether they are part of a given website channel.</li>
@@ -21,13 +37,15 @@
 </li>
 <li>Use an <code>IContentQueryExecutor</code> to get a result from the query.</li>
 </ul>
+</li>
+</ul>
 <p>We recommend creating some kind of shared resource that you can use across your project to centralize content querying logic, such as a service.</p>
 
 <div>
 
 </div>
 <div>
-<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">ContentItemRetrieverService</a> from our Training guides repository illustrates this approach, though you may want to create different methods to more closely mirror the content in your KX13 project.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">ContentItemRetrieverService</a> from our Training guides repository illustrates both approaches, though you may want to create different methods to more closely mirror the content in your KX13 project.</p>
 </div>
 
 <p>There are some notable changes in related functionality as well:</p>
@@ -138,9 +156,10 @@ public string TextProperty { get; set; }
 <li><p><strong>Implement your own custom module</strong> - If your project requires a specific way of handling resource strings, your team can create a custom implementation using the XbyK <a href="/guides/development/customizations-and-integrations/create-basic-module">custom module</a> that suits your client’s needs.</p></li>
 </ul>
 <h3 id="migrate-commerce">Migrate commerce</h3>
-<p>Since Xperience by Kentico does not yet support commerce natively, the way your code will need to change will depend heavily on which service you choose to integrate with.</p>
-<p>If you choose the <a href="https://github.com/Kentico/xperience-by-kentico-k13ecommerce" target="_blank">E-commerce bridge integration</a>, you can leave calculation logic unchanged on the KX13 side. Then, you can use the approaches exemplified in the repo to list products and interface with the KX13 shopping cart from the XbyK side.</p>
+<p>Xperience by Kentico now supports digital commerce natively. However, many components do not map directly between KX13 and XbyK, as we redesigned the system from scratch. Therefore, you should count on some level of redevelopment. The complexity will vary project-by-project.</p>
+<p>If you choose the <a href="https://github.com/Kentico/xperience-by-kentico-k13ecommerce" target="_blank">E-commerce bridge integration</a> instead, you can leave the calculation logic unchanged on the KX13 side. Then, you can use the approaches exemplified in the repo to list products and interface with the KX13 shopping cart from the XbyK side.</p>
 <p>If you choose to migrate your commerce to Shopify and use the <a href="https://github.com/Kentico/xperience-by-kentico-shopify" target="_blank">Shopify integration</a>, you won’t need your calculation and checkout code, as these things are handled directly in Shopify. From the Xperience side, you’ll need to add code to manage the contents of shopping carts and discount coupons.</p>
+<p>How your code changes will depend heavily on which of the above options you choose.</p>
 <h3 id="handle-marketing-changes">Handle marketing changes</h3>
 <p>XbyK and KX13 both feature online marketing, but key differences exist. Let’s take a look into some of them.</p>
 <p>When you log custom activities from server-side code in Xperience by Kentico, use <code>ICustomActivityLogger</code> instead of <code>IActivityLogService</code>. Custom activities no longer need an <em>initializer</em> class for the logger to work. Note that XbyK also allows you to log custom activities with <em>client-side code</em>.</p>

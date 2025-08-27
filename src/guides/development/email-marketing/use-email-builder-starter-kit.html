@@ -12,7 +12,7 @@
 <p>This guide requires the following:</p>
 <ul>
 <li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a>, <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>, <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection" target="_blank">Dependency injection</a>, and the <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">MVC pattern</a>.</li>
-<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">30.5.0</a> or higher.
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">30.6.2</a> or higher.
 
 <div>
 
@@ -38,7 +38,7 @@ Some features covered in the Training guides may not work in older versions.
 
 </div>
 <div>
-<p>Make sure to install the version of <strong>Kentico.Xperience.Mjml</strong> that matches your other Kentico NuGet packages (30.5.0 in this example).</p>
+<p>Make sure to install the version of <strong>Kentico.Xperience.Mjml</strong> that matches your other Kentico NuGet packages (30.6.2 in this example).</p>
 </div>
 
 <p>The process may vary depending on your approach, but in the <em>Training guides</em> repository, you can simply edit the <strong>Directory.Packages.props</strong> file.</p>
@@ -62,7 +62,7 @@ Some features covered in the Training guides may not work in older versions.
   ...
   &lt;ItemGroup&gt;
     ...
-    &lt;PackageVersion Include="kentico.xperience.mjml" Version="30.5.0" /&gt;
+    &lt;PackageVersion Include="kentico.xperience.mjml" Version="30.6.2" /&gt;
     
     &lt;PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="8.0.14" /&gt;
 ...
@@ -175,19 +175,18 @@ namespace TrainingGuides.Web.Features.Shared.EmailBuilder.ModelMappers;
 
 public class ImageEmailWidgetModelMapper : IComponentModelMapper&lt;ImageWidgetModel&gt;
 {
-    private readonly IContentItemRetrieverService&lt;Asset&gt; assetRetrieverService;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
 
     public ImageEmailWidgetModelMapper(
-        IContentItemRetrieverService&lt;Asset&gt; assetRetrieverService)
+        IContentItemRetrieverService contentItemRetrieverService)
     {
-        this.assetRetrieverService = assetRetrieverService;
+        this.contentItemRetrieverService = contentItemRetrieverService;
     }
 
     public async Task&lt;ImageWidgetModel&gt; Map(Guid itemGuid, string languageName)
     {
-        var asset = await assetRetrieverService.RetrieveContentItemByGuid(
-                contentItemGuid: itemGuid,
-                contentTypeName: Asset.CONTENT_TYPE_NAME,
+        var asset = await contentItemRetrieverService.RetrieveContentItemByGuid&lt;Asset&gt;(
+                itemGuid,
                 languageName: languageName);
 
         if (asset is null)
@@ -237,20 +236,20 @@ namespace TrainingGuides.Web.Features.Shared.EmailBuilder.ModelMappers;
 public class ProductEmailWidgetModelMapper : IComponentModelMapper&lt;ProductWidgetModel&gt;
 {
 
-    private readonly IContentItemRetrieverService&lt;ProductPage&gt; productPageRetrieverService;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
 
     public ProductEmailWidgetModelMapper(
-        IContentItemRetrieverService&lt;ProductPage&gt; productPageRetrieverService)
+        IContentItemRetrieverService contentItemRetrieverService)
     {
-        this.productPageRetrieverService = productPageRetrieverService;
+        this.contentItemRetrieverService = contentItemRetrieverService;
     }
 
     // Here we set a very specific name for the Guid parameter to clarify that the web page's ContentItemGuid should be used instead of WebPageItemGuid
     public async Task&lt;ProductWidgetModel&gt; Map(Guid webPageItemContentItemGuid, string languageName)
     {
-        var page = await productPageRetrieverService.RetrieveWebPageByContentItemGuid(
+        var page = await contentItemRetrieverService.RetrieveWebPageByContentItemGuid&lt;ProductPage&gt;(
             contentItemGuid: webPageItemContentItemGuid,
-            contentTypeName: ProductPage.CONTENT_TYPE_NAME,
+                                                           
             depth: 2,
             languageName: languageName);
 
@@ -457,7 +456,7 @@ builder.Services.AddKenticoMjmlStarterKit(options =&gt;
 <h2 id="explore-further">Explore further</h2>
 <p>To see more examples of Email Builder components in action, we recommend checking out those used on the <a href="https://github.com/Kentico/community-portal/tree/v30.5.1.6/src/Kentico.Community.Portal.Web/Components/EmailBuilder" target="_blank">Community Portal</a>.</p>
 <p>Here, you can see the code that makes up <a href="https://community.kentico.com/" target="_blank">community.kentico.com</a>, our site for the Xperience by Kentico community that features many helpful resources.</p>
-<h2 id="whats-next">What’s next?</h2>
+<h2 id="whats-next">What’s next</h2>
 <p>Continue on to the <a href="/guides/development/email-marketing/create-an-email-widget-for-articles">next guide in this series</a>, to walk through the construction of a custom <em>Article</em> widget in line with the examples from the Starter Kit.</p>
 
 </body>

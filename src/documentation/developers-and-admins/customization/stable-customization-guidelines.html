@@ -138,6 +138,30 @@
 <li>The default UI forms and their fields are protected against deletion and non-compatible changes (<em>Field name</em>, <em>Data type</em>, etc.).</li>
 <li>Any changes to the optional settings (<em>Default value</em>, <em>Field appearance</em> settings, etc.) of one of the default UI form fields may be <strong>overwritten during any update</strong>. Carefully consider if such changes are truly necessary, and if so, maintain documentation of the changes so that you can easily recover if a custom change is lost during an update.</li>
 </ul>
+<h2 id="custom-templating-expressions">Custom templating expressions</h2>
+<p>Templating can be a powerful tool that allows users to create dynamic content by combining static text or templates with variable data. Expressions or placeholders used by a templating feature are typically distinguished from regular text using special syntax delimiters.</p>
+<p>If you need to introduce a custom templating language or expression syntax into your Xperience implementation, <strong>avoid using the following delimiter patterns</strong>, which are reserved by native functionality in Xperience:</p>
+<ul>
+<li>
+<code>{%...%}</code> – used for <a href="/documentation/developers-and-admins/configuration/macro-expressions/macro-syntax">macro syntax</a>
+</li>
+<li>
+<code>{$...$}</code> – used for <a href="/documentation/developers-and-admins/customization/admin-ui-localization">admin UI localization</a> functionality</li>
+<li>
+<code>{{...}}</code> – used for placeholders in <a href="/documentation/developers-and-admins/configuration/notifications">notifications</a> and <a href="/documentation/business-users/digital-marketing/emails#personalize-emails-with-dynamic-text">dynamic text in emails</a>
+</li>
+</ul>
+<p>Using these reserved delimiters in your custom templating implementation can lead to parsing conflicts, unexpected behavior, or interference with existing Xperience functionality.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Future compatibility considerations</strong></p>
+<p>Xperience by Kentico may expand its templating and macro functionality to additional locations in future updates. Areas that currently do not process these expressions may gain such capabilities, potentially affecting custom templating implementations that use conflicting delimiter syntax.</p>
+</div>
+
+<p>To avoid the issues described above, we recommend using a delimiter pattern that is unique and clearly identifiable as part of your custom implementation. For example, <code>@acme{...}</code> or <code>@custom[...]</code>.</p>
 
 </body>
 </html>

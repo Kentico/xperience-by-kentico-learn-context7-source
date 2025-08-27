@@ -25,7 +25,7 @@
 <li>Familiarity with <a href="/documentation/developers-and-admins/development/builders">builders in Xperience by Kentico</a>
 </li>
 <li>Familiarity with <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/" target="_blank">ASP.NET Razor components</a>, <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#blazor-development-best-practices">Blazor development best practices</a>, and <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#mjml-markup">MJML markup</a>.</li>
-<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">30.5.0</a> or higher.
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">30.6.2</a> or higher.
 
 <div>
 
@@ -144,15 +144,15 @@ public class NatureSpotlightEmailModel
 
     public string PreviewText { get; set; } = string.Empty;
 
-    public IEnumerable&lt;string&gt; Countries { get; set; } = Enumerable.Empty&lt;string&gt;();
+    public IEnumerable&lt;string&gt; Countries { get; set; } = [];
 
     public string Topic { get; set; } = string.Empty;
 
     public MarkupString Text { get; set; } = new MarkupString();
 
-    public IEnumerable&lt;ImageWidgetModel&gt; Images { get; set; } = Enumerable.Empty&lt;ImageWidgetModel&gt;();
+    public IEnumerable&lt;ImageWidgetModel&gt; Images { get; set; } = [];
 
-    public IEnumerable&lt;ArticleEmailWidgetModel&gt; RelatedArticles { get; set; } = Enumerable.Empty&lt;ArticleEmailWidgetModel&gt;();
+    public IEnumerable&lt;ArticleEmailWidgetModel&gt; RelatedArticles { get; set; } = [];
 }
 </code></pre>
 </div>
@@ -217,7 +217,9 @@ public class NatureSpotlightEmailModel
             {
                 &lt;mj-image src="@image.ImageUrl" alt="@image.AltText" /&gt;
             }
-            &lt;EditableArea AreaIdentifier="MainContent" /&gt;
+        &lt;/mj-section&gt;
+        &lt;EditableArea AreaIdentifier="MainContent" /&gt;
+        &lt;mj-section&gt;
             &lt;mj-text&gt;
                 &lt;h2&gt;@Model.Topic&lt;/h2&gt;
                 &lt;p&gt;
@@ -247,18 +249,31 @@ public class NatureSpotlightEmailModel
                     Read More
                 &lt;/mj-button&gt;
             }
-            &lt;EditableArea AreaIdentifier="SecondaryContent" /&gt;
-            &lt;EmailBuilderScripts /&gt;
         &lt;/mj-section&gt;
+        &lt;EditableArea AreaIdentifier="SecondaryContent" /&gt;
+        &lt;mj-text align="center"&gt;
+            &lt;a href="@Recipient.UnsubscriptionUrl" data-click-tracking="false"&gt;Unsubscribe&lt;/a&gt;
+        &lt;/mj-text&gt;
+        &lt;EmailBuilderScripts /&gt;
     &lt;/mj-body&gt;
 &lt;/mjml&gt;
 
 </code></pre>
 </div>
 
+
+<div>
+
+</div>
+<div>
+<p>You might notice that this uses the <code>mj-section</code> component to wrap some content, but does not wrap <code>EditableArea</code> components in the same way.</p>
+<p>We avoided wrapping the editable area in this example because the Email Builder sections in this project use <code>mj-section</code> around their widget zones, and MJML does not support nesting <code>mj-section</code> components within one another.</p>
+<p>This approach is not a requirement, but you should make sure the approach you decide on is consistent across all of the Email Builder components of each type within your project.</p>
+</div>
+
 <h3 id="add-a-service-for-the-components-code-behind">Add a service for the component’s code-behind</h3>
 <p>The code-behind of the Razor component needs to populate the template’s data by filling a <code>NatureSpotlightEmailModel</code> with data from the database, alongside handling CSS.</p>
-<p>For the sake of keeping things clean and testable, let’s move the model-related code to a separate service.</p>
+<p>For the sake of keeping things clean and testable, let’s move this code to a separate service.</p>
 <p><strong>Interface:</strong></p>
 
 <div>
@@ -280,12 +295,20 @@ namespace TrainingGuides.Web.Features.Newsletters.NatureSpotlight;
 
 public interface INatureSpotlightEmailService
 {
+    /// &lt;summary&gt;
+    /// Gets the Nature Spotlight email from the current email context.
+    /// &lt;/summary&gt;
+    Task&lt;NatureSpotlightEmail&gt; GetNatureSpotlightEmailFromContext();
+
+    /// &lt;summary&gt;
+    /// Gets the model for the Nature Spotlight email.
+    /// &lt;/summary&gt;
     Task&lt;NatureSpotlightEmailModel&gt; GetNatureSpotlightEmailModel();
 }
 </code></pre>
 </div>
 
-<p>To implement the service, resolve an <code>IEmailContextAccessor</code> with dependency injection and use it to retrieve a <code>NatureSpotlightEmail</code>. You can populate a module based on the retrieved email.</p>
+<p>To implement the service, resolve an <code>IEmailContextAccessor</code> with dependency injection and use it to retrieve a <code>NatureSpotlightEmail</code>. You can populate a model based on the retrieved email.</p>
 <p>Find the display names of the retrieved countries using an <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Services/CountryService.cs" target="_blank">implementation</a> of <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Services/ICountryService.cs" target="_blank">ICountryService</a>.</p>
 
 <div>
@@ -333,9 +356,14 @@ public class NatureSpotlightEmailService : INatureSpotlightEmailService
         this.countryService = countryService;
     }
 
+    /// &lt;inheritdoc /&gt;
+    public virtual async Task&lt;NatureSpotlightEmail&gt; GetNatureSpotlightEmailFromContext() =&gt;
+        await emailContextAccessor.GetContext().GetEmail&lt;NatureSpotlightEmail&gt;();
+
+    /// &lt;inheritdoc /&gt;
     public async Task&lt;NatureSpotlightEmailModel&gt; GetNatureSpotlightEmailModel()
     {
-        var email = await emailContextAccessor.GetContext().GetEmail&lt;NatureSpotlightEmail&gt;();
+        var email = await GetNatureSpotlightEmailFromContext();
 
         var model = new NatureSpotlightEmailModel
         {
@@ -442,6 +470,7 @@ public static class ServiceCollectionExtensions
 </div>
 <div>
 <pre><code>
+using CMS.EmailMarketing;
 using Kentico.EmailBuilder.Web.Mvc;
 using Kentico.Xperience.Mjml.StarterKit.Rcl;
 using Microsoft.AspNetCore.Components;
@@ -457,7 +486,7 @@ using TrainingGuides.Web.Features.Newsletters.NatureSpotlight;
 namespace TrainingGuides.Web.Features.Newsletters.NatureSpotlight;
 
 
-public partial class NatureSpotlightEmailTemplate : ComponentBase
+public partial class NatureSpotlightEmailTemplate
 {
     public const string IDENTIFIER = $"TrainingGuides.{nameof(NatureSpotlightEmailTemplate)}";
 
@@ -468,6 +497,13 @@ public partial class NatureSpotlightEmailTemplate : ComponentBase
         get =&gt; cssContent ?? string.Empty;
         set =&gt; cssContent = value;
     }
+
+    private EmailRecipientContext? recipient;
+
+    protected EmailRecipientContext Recipient =&gt; recipient ??= RecipientContextAccessor.GetContext();
+
+    [Inject]
+    private IEmailRecipientContextAccessor RecipientContextAccessor { get; set; } = default!;
 
     [Inject]
     private INatureSpotlightEmailService NatureSpotlightEmailService { get; set; } = default!;
@@ -505,6 +541,8 @@ public partial class NatureSpotlightEmailTemplate : ComponentBase
 <p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the Training guides repo already contains a content type for subscription confirmation, but you’ll still need to create a form, an autoresponder email, and other components as described in <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">the documentation</a>.</p>
 </div>
 
+<h2 id="whats-next">What’s next</h2>
+<p>The <a href="/guides/development/email-marketing/build-a-flexible-email-builder-template">next guide in this series</a> explores Email Builder’s flexibility, creating a template and section that allow marketers to create and style complex layouts.</p>
 
 </body>
 </html>

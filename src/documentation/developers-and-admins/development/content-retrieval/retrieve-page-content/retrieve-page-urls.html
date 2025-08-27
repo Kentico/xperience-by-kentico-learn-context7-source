@@ -127,7 +127,8 @@ public async Task PageRetrievalWithCustomUrlLanguage()
     var pages = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
         new RetrievePagesParameters { LanguageName = "es" },
         query =&gt; query.SetUrlLanguageBehavior(UrlLanguageBehavior.UseFallbackLanguage),
-        new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(SetUrlLanguageBehavior)}|UseFallbackLanguage")
+        new RetrievalCacheSettings(cacheItemNameSuffix:
+                                        $"{nameof(RetrievePagesQueryParameters.SetUrlLanguageBehavior)}|UseFallbackLanguage")
     );
 
     foreach(var page in pages)

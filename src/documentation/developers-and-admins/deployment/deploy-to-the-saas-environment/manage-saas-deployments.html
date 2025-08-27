@@ -15,6 +15,8 @@
 <li>
 <a href="#restore-points">Manage restore points and exports of your deployed application</a>.</li>
 <li>
+<a href="#custom-restore">Perform a custom restore</a>.</li>
+<li>
 <a href="#uptime-monitoring">Monitor the uptime of application deployments and the Xperience Portal project</a>.</li>
 <li>
 <a href="#event-log-and-exceptions">Monitor the event log and exceptions of application deployments</a>.</li>
@@ -51,12 +53,13 @@
 </ul>
 <h2 id="restore-points">Restore points</h2>
 <p>The SaaS environment uses a two-tier system consisting of <strong>restore points</strong> and <strong>exports</strong> to ensure data protection and disaster recovery. This system allows you to restore previous versions of your project for a particular environment.</p>
-<p>Xperience Portal creates <a href="#automatic-restore-points-and-exports">automatic restore points and exports</a>, and you can also <a href="#create-a-manual-restore-point">create manual restore points</a> for production and non-production environments. Restore points can be viewed, managed and <a href="#restore-from-a-restore-point">restored</a> using the <strong>Restore points</strong> application.</p>
+<p>Xperience Portal creates <a href="#automatic-restore-points-and-exports">automatic restore points and exports</a>, and you can also <a href="#create-a-manual-restore-point">create manual restore points</a> for production and non-production environments. Restore points can be viewed, managed and <a href="#restore-from-a-restore-point">restored</a> under <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</p>
 <h3 id="restore-points-vs.-exports">Restore points vs. exports</h3>
 <p>Understanding the difference between restore points and exports is crucial for effective data management:</p>
 <p><strong>Restore points:</strong></p>
 <ul>
 <li>A timestamp referencing the app state at a given time</li>
+<li>Restore points enable you to restore the application to a previous state</li>
 <li>Created automatically before deployments, manually on demand, or on a regular schedule</li>
 <li>Always contain all services (application, database, and storage)</li>
 <li>Faster creation process as files aren’t physically copied</li>
@@ -65,10 +68,13 @@
 <p><strong>Exports:</strong></p>
 <ul>
 <li>Physical copies of data that can be downloaded</li>
-<li>Can be full (all services) or partial (selected services)</li>
-<li>Only full exports can be used to restore a project to a previous state</li>
+<li>Can be full (all services) or partial (selected services)
+<ul>
+<li>Full exports enable you to restore a project to a previous state in the SaaS environment, providing the same functionality as restore points</li>
+</ul>
+</li>
 <li>Can be downloaded and stored locally for long-term storage</li>
-<li>Limited to 30 exports per environment per project (may be adjusted with custom plans)</li>
+<li>Limited to 30 exports per environment per project per month (may be adjusted with custom plans)</li>
 <li>The files are retained for 60 hours after the export is created and you need to download them before they are removed</li>
 </ul>
 <p>Applications deployed in the SaaS environment consist of the following services:</p>
@@ -130,7 +136,7 @@
 </ul>
 <p>To create a manual restore point:</p>
 <ol type="1">
-<li><p>Navigate to the <strong>Restore points</strong> application.</p></li>
+<li><p>Navigate to <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</p></li>
 <li><p>Select <strong>Create restore point</strong> in the upper-right corner.</p></li>
 <li>
 <p>Select the environment for which you want to create a restore point.</p>
@@ -153,12 +159,12 @@
 </div>
 </li>
 </ol>
-<p>Your restore point is now available in the <strong>Restore points</strong> application. To access the files or download the data, you need to create an export from this restore point.</p>
+<p>Your restore point is now available in the <strong>Restore points</strong> application under <strong>Data Management</strong>. To access the files or download the data, you need to create an export from this restore point.</p>
 <h3 id="create-a-manual-export">Create a manual export</h3>
-<p>The export process creates physical copies of the data, which can then be downloaded. Exports are limited to 30 exports per environment per project (may be adjusted with custom plans).</p>
+<p>The export process creates physical copies of the data, which can then be downloaded. Exports are limited to 30 exports per environment per project per month (may be adjusted with custom plans).</p>
 <p>To create a manual export:</p>
 <ol type="1">
-<li><p>Navigate to the <strong>Restore points</strong> application.</p></li>
+<li><p>Navigate to <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</p></li>
 <li><p>Select <strong>Create restore point</strong> in the upper-right corner.</p></li>
 <li>
 <p>Select the environment for which you want to create an export.</p>
@@ -194,9 +200,9 @@
 </div>
 
 <h3 id="export-and-download-from-restore-points">Export and download from restore points</h3>
-<p>You can also download data from restore points. Application service and storage files can be downloaded directly, while the database needs to be exported to access the files. Exports are limited to 30 exports per environment per project (may be adjusted with custom plans).</p>
+<p>You can also download data from restore points. Application service and storage files can be downloaded directly, while the database needs to be exported to access the files. Exports are limited to 30 exports per environment per project per month (may be adjusted with custom plans).</p>
 <ol type="1">
-<li>Navigate to the <strong>Restore points</strong> application.</li>
+<li>Navigate to <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</li>
 <li>Select an environment and select <strong>Apply</strong>. A list of restore points for the environment is displayed.</li>
 <li>Select <strong>Create export</strong> next to the database of a restore point you want to download.</li>
 <li>Once the export is ready, download it by selecting <strong>Download</strong> () under <strong>Actions</strong>.</li>
@@ -213,7 +219,7 @@
 <h3 id="restore-from-a-restore-point">Restore from a restore point</h3>
 <p>You can restore your application to a previous state using restore points. This is useful if you need to revert changes or recover from an issue.</p>
 <ol type="1">
-<li>Navigate to the <strong>Restore points</strong> application.</li>
+<li>Navigate to <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</li>
 <li>Select an environment and select <strong>Apply</strong>. A list of restore points for the environment is displayed.</li>
 <li>Restore from a restore point by selecting <strong>Restore</strong> (<i></i>) next to a restore point.</li>
 <li>On the <strong>Restore a restore point or an export</strong> page:
@@ -223,6 +229,131 @@
 </ul>
 </li>
 <li>Select <strong>Restore</strong> and wait for the restore process to complete.</li>
+</ol>
+<h2 id="custom-restore">Custom restore</h2>
+<p>Custom restore allows you to upload a large amount of data to the selected environment without being restricted by the 2 GB <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#create-a-deployment-package">deployment package</a> limit. This process is primarily intended for initial deployments (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico).</p>
+<p>Custom restore bypasses the regular deployment process and enables you to transfer the database and <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage#azure-blob-storage-for-kenticos-saas">storage</a> files to the selected environment. It does not provide a way to deploy application libraries and therefore is not a full replacement for <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">deployments</a>.</p>
+<p>During the process, you first upload the data to automatically created containers in Azure Storage that are separate from your SaaS environments. When you apply the custom restore, all existing data in the target environment’s database and storage is overwritten with the uploaded data, and the target environment is unavailable while the restore itself runs.</p>
+<p>The changes introduced by a custom restore are not propagated between environments with the deployment package. Transferring them to other environments requires a custom restore for each environment.</p>
+<h3 id="perform-a-custom-restore">Perform a custom restore</h3>
+
+<div>
+
+</div>
+<div>
+<p>Only <strong>Tenant administrator</strong> and <strong>DevOps</strong> roles can manage custom restore sessions (create and close sessions, revoke access) and restore to all environments. <strong>Developers</strong> can restore to non-production environments (QA, UAT) and access the restore containers.</p>
+</div>
+
+<p>To perform a custom restore:</p>
+<ol type="1">
+<li>
+<p>Back up your data.</p>
+<ol type="a">
+<li>Create a <a href="#create-a-manual-restore-point">restore point</a> or an <a href="#create-a-manual-export">export</a> for the target environment before starting.</li>
+</ol>
+</li>
+<li>
+<p>Create a restore session.</p>
+<ol type="a">
+<li>Navigate to <strong>Data Management</strong> -&gt; <strong>Custom restore</strong>.</li>
+<li>Select <strong>Create session</strong>.</li>
+</ol>
+<p></p>
+</li>
+<li>
+<p>Get access to restore containers.</p>
+<ol type="a">
+<li><p>Select <strong>Get access</strong>.</p></li>
+<li><p>If you want to restrict access to the restore containers, specify an allowlist by entering an IP address or an IP address range and confirm with <strong>Get access</strong>. Otherwise, select <strong>Get access</strong> without entering any values.</p></li>
+<li>
+<p>Copy both <a href="https://learn.microsoft.com/en-us/rest/api/storageservices/delegate-access-with-shared-access-signature" target="_blank">SAS URLs</a> for the database and storage containers.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>SAS URLs</strong></p>
+<p>You can’t retrieve the same SAS URLs again. However, you can get new SAS URLs with <strong>Get access</strong>. The previously existing SAS URLs are still valid. To revoke all current SAS URLs, select <strong>Revoke access</strong> under <strong>Current session</strong>.</p>
+Within a session, the SAS URL pairs provide access to the same containers.
+</div>
+</li>
+</ol>
+</li>
+<li>
+<p>Upload the database.</p>
+<ul>
+<li>You can use <a href="https://azure.microsoft.com/en-us/products/storage/storage-explorer" target="_blank">Azure Storage Explorer</a> to connect to the container:
+<ol type="a">
+<li><p>In Azure Storage Explorer, connect to the restore Azure Storage (select the type <em>Blob container or directory</em>).</p></li>
+<li><p>Select the connection through <em>Shared access signature URL (SAS)</em>.</p></li>
+<li><p>Enter the SAS URL for the database container and connect to the resource. The display name does not matter.</p></li>
+<li>
+<p>Upload the database exported as a <em>bacpac</em> file to the database container.</p>
+
+<div>
+
+</div>
+<div>
+The file must be named <code>db.bacpac</code>. The database to be restored must have the same version as the one currently in the environment. If these conditions are not met, the restore will not succeed.
+</div>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>Upload storage files.</p>
+<ol type="a">
+<li>Connect to the storage container using the second SAS URL (as in the previous step).</li>
+<li>Upload the files to be stored in <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage#azure-blob-storage-for-kenticos-saas">Azure Blob Storage</a>.
+<ul>
+<li>Organize the files according to the Azure Blob Storage configuration of your project. You can obtain this structure by downloading a <strong>Storage and files</strong> <a href="#restore-points">export</a> once you have deployed with this Blob storage configuration.</li>
+<li>For each container used in your Blob storage mapping, upload a folder with the same name. Within that folder, include the files arranged according to your project’s storage structure.
+<ul>
+<li>For example, if you’re using the <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage#default-kentico-managed-azure-blob-storage-configuration">default configuration</a>, the structure would be <code>default/assets/…</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+The uploaded files count toward the file storage limit, which you can view on the <strong>Dashboard</strong>.
+</div>
+</li>
+<li>
+<p>Restore to an environment.</p>
+<ol type="a">
+<li>Make sure you have a backup of the target environment. The custom restore process itself cannot be undone, but you can use <a href="#restore-points">restore points</a> to revert the changes.</li>
+<li>Once you have uploaded both the database and the storage files to be restored, you can select <strong>Restore to environment</strong> under <strong>Current session</strong>.</li>
+<li>Select the target environment where the data should be restored. The environment will be unavailable during the restore process. The database in the target environment will be replaced with the uploaded one. All storage containers in the environment will be deleted and recreated based on the uploaded data.</li>
+<li>Select <strong>Create</strong> to start the custom restore process.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<strong>Tenant administrator</strong> and <strong>DevOps</strong> roles can restore to any environment. <strong>Developers</strong> can restore only to non-production environments (QA, UAT).
+</div>
+</li>
+<li>
+<p>Close the session.</p>
+<ol type="a">
+<li>You can see the restore in progress under <strong>Active restores</strong>. Once finished, it will appear under <strong>Last completed restores</strong>.</li>
+<li>When the restore process is complete and you no longer need to keep the data (for example, to restore it to another environment), <strong>Close</strong> the session.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+Each session expires after a week. Once a session has expired, you can no longer upload data to the containers, but you can still restore the data you uploaded previously (up to 180 days from the session creation). Only one restore session can be open at a time.
+</div>
+</li>
 </ol>
 <h2 id="application-monitoring">Application monitoring</h2>
 <p>The <strong>Monitoring</strong> set of applications in the Xperience Portal are designed to keep your application running smoothly and provide full visibility into your application’s performance, enabling you to quickly detect and resolve issues, optimize performance, and ensure the best possible user experience.</p>
@@ -352,7 +483,7 @@
 </ol>
 <p></p>
 <h3 id="email-metrics">Email metrics</h3>
-<p>Use the <strong>Email metrics</strong> application under <strong>Monitoring</strong> to see email sending statistics from the <a href="/documentation/developers-and-admins/configuration/email-configuration#sendgrid-integration">SendGrind platform</a>. The available statistics include total numbers of delivered, bounced, and deferred emails. You can also track the number of <a href="https://www.twilio.com/docs/sendgrid/glossary/clicks" target="_blank">unique clicks</a> in emails. These metrics help identify deliverability issues, optimize campaigns, and improve user engagement to drive better marketing performance.</p>
+<p>Use the <strong>Email metrics</strong> application under <strong>Monitoring</strong> to see email sending statistics from the <a href="/documentation/developers-and-admins/configuration/email-configuration#sendgrid-integration">SendGrid platform</a>. The available statistics include total numbers of delivered, bounced, and deferred emails. You can also track the number of <a href="https://www.twilio.com/docs/sendgrid/glossary/clicks" target="_blank">unique clicks</a> in emails. These metrics help identify deliverability issues, optimize campaigns, and improve user engagement to drive better marketing performance.</p>
 <p>To view email metrics for various email channels and <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#deploy-the-application-package-to-another-deployment-environment">deployment environment</a>:</p>
 <ol type="1">
 <li>In <a href="https://xperience-portal.com" target="_blank">Xperience Portal</a>, navigate to <strong>Monitoring → Email metrics</strong>.</li>

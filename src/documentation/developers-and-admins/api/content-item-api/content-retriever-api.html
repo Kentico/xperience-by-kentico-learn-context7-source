@@ -177,7 +177,8 @@ var testimonials = await contentRetriever.RetrieveContent&lt;TestimonialItem&gt;
 var pages = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
     new RetrievePagesParameters { LanguageName = "es" },
     query =&gt; query.SetUrlLanguageBehavior(UrlLanguageBehavior.UseFallbackLanguage),
-    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(SetUrlLanguageBehavior)}|UseFallbackLanguage")
+    new RetrievalCacheSettings(cacheItemNameSuffix:
+        $"{nameof(RetrievePagesQueryParameters.SetUrlLanguageBehavior)}|UseFallbackLanguage")
 );
 
 foreach (var page in pages) {
@@ -213,7 +214,8 @@ var pagesWithUrlsOnly = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
     query =&gt; query
               .Columns("ArticleTitle")
               .UrlPathColumns(),
-    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(Columns)}|{nameof(UrlPathColumns)}")
+    new RetrievalCacheSettings(cacheItemNameSuffix:
+        $"{nameof(RetrievePagesQueryParameters.Columns)}|ArticleTitle|{nameof(RetrievePagesQueryParameters.UrlPathColumns)}")
 );
 </code></pre>
 </div>
@@ -255,13 +257,15 @@ var pagesWithUrlsOnly = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
 </div>
 </div>
 <div>
-<pre data-line="4-5,11"><code>
+<pre data-line="3-8,13"><code>
 // Configure cache settings with a 30-minute expiration and sliding expiration enabled.
-var cacheSettings = new RetrievalCacheSettings
-{
-    CacheExpiration = TimeSpan.FromMinutes(30),
-    UseSlidingExpiration = true
-};
+var cacheSettings = new RetrievalCacheSettings(
+    // Add a unique suffix to identify the cached data.
+    cacheItemNameSuffix: $"{nameof(ContentTypesQueryParameters.OfContentType)}|ArticleGenerated",
+    // Cache entries will expire 30 minutes after their last access.
+    cacheExpiration: TimeSpan.FromMinutes(30),
+    // Resets the expiration timer on each access to keep frequently accessed items in the cache.
+    useSlidingExpiration: true);
 
 var result = await contentRetriever.RetrieveCurrentPage&lt;ArticleGenerated&gt;(
     RetrieveCurrentPageParameters.Default,
@@ -319,7 +323,7 @@ var result = await contentRetriever.RetrieveCurrentPage&lt;ArticleGenerated&gt;(
 var cacheSettings = new RetrievalCacheSettings(
     // Constructs a unique suffix by combining the string representation of the parameter values.
     // This ensures that different query configurations result in different cache keys.
-    cacheItemNameSuffix: $"{nameof(TopN)}|3"
+    cacheItemNameSuffix: $"{nameof(RetrievePagesQueryParameters.TopN)}|3"
 );
 
 var result = await contentRetriever.RetrieveCurrentPage&lt;ArticleGenerated&gt;(
@@ -333,7 +337,7 @@ var result = await contentRetriever.RetrieveCurrentPage&lt;ArticleGenerated&gt;(
 <p>This practice helps prevent cache collisions when different query configurations might otherwise produce the same default cache key. Your strategy for generating suffixes should ensure consistent outputs varied only by the provided parameterization. This way, you leverage the cache item name generated internally by the method to its maximum potential and minimize the possibility of caching identical results multiple times under different keys.</p>
 <p>In requests that don’t modify the retrieval query in any way, the suffix can be defined as an empty string.</p>
 <h4 id="set-global-cache-expiration-time">Set global cache expiration time</h4>
-<p>Results returned by the API are by default cached for 10 minutes, unless overriden directly at the point of the retrieval operation by a specific instance of <code>RetrievalCacheSettings</code>. You can set this default caching period using <code>ContentRetrieverCacheOptions</code> and the <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options" target="_blank">options pattern</a>.</p>
+<p>Results returned by the API are by default cached for 10 minutes, unless overridden directly at the point of the retrieval operation by a specific instance of <code>RetrievalCacheSettings</code>. You can set this default caching period using <code>ContentRetrieverCacheOptions</code> and the <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/options" target="_blank">options pattern</a>.</p>
 
 <div>
 <div>
@@ -393,7 +397,7 @@ using (var dependencyCollector = new CacheDependencyCollector())
             RetrieveCurrentPageParameters.Default,
             RetrieveCurrentPageQueryParameters.Default,
             // Cache disabled for the request
-            cacheSettings: RetrievalCacheSettings.CacheDisabled 
+            cacheSettings: RetrievalCacheSettings.CacheDisabled
         );
 
         var relatedArticles = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(

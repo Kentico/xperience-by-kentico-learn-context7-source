@@ -9,7 +9,7 @@
 <p>In Xperience source code, the <code>Contact</code> class has a predefined set of fields to store customer information. But in many cases, your customer needs to track <em>custom domain-specific</em> data about visitors, e.g., their favorite coffee.</p>
 
 <div>
-<p>If you are looking for a way to <strong>extend contact</strong> in Xperience by Kentico <strong>with custom fields</strong>, this guide is for you!</p>
+<p>If you are looking for a way to <strong>extend contact</strong> in Xperience by Kentico <strong>with custom fields</strong>, this page is for you!</p>
 </div>
 
 <h2 id="overview">Overview</h2>
@@ -127,7 +127,7 @@ If you are following our example, add three fields - one for each of our new dat
 <div>
 <p>You may have noticed that out-of-the-box, the <strong>Contact class</strong> already has two forms: <strong>Contact edit</strong> and <strong>Personal details - read only</strong>.</p>
 <p></p>
-<p>The <strong>Contact edit</strong> form allows <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#map-form-submission-to-contact-attributes">mapping form fields to contact attributes</a> and exposing contact fields in the <a href="/documentation/business-users/digital-marketing/contact-groups"><strong>Contact groups</strong></a> application. We will discuss it <a href="#enable-custom-fields-in-contact-groups">later in this guide</a>.</p>
+<p>The <strong>Contact edit</strong> form allows <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#map-form-submission-to-contact-attributes">mapping form fields to contact attributes</a> and exposing contact fields in the <a href="/documentation/business-users/digital-marketing/contact-groups"><strong>Contact groups</strong></a> application. We will discuss it later on.</p>
 <p><strong>Personal details - read only</strong> is the form displayed in the contact <strong>Overview</strong> under the <strong>Personal details</strong> section. If you add fields to this form, they will automatically appear there.</p>
 <p>To avoid UI inconsistency, we <strong>do not recommend</strong> this approach.</p>
 <p>Due to a system limitation, you cannot easily add fields to the default edit dialog. It would not be a good UX practice to add fields to the <strong>Personal details</strong> with no control over what fields will render after the user clicks <strong>Edit</strong>.</p>
@@ -457,7 +457,8 @@ private string? GetContactMemberId() =&gt;
 <p>See the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Admin/Pages/ContactCustomFieldsEditPage.cs" target="_blank">full ContactCustomFieldsEditPage.cs file</a> in our Training guides repository for your reference.</p>
 </div>
 
-<h2 id="enable-custom-fields-in-contact-groups">Enable custom fields in Contact groups</h2>
+<h2 id="enable-custom-fields-in-other-applications">Enable custom fields in other applications</h2>
+<h3 id="enable-usage-in-contact-groups">Enable usage in Contact groups</h3>
 <p><a href="/documentation/business-users/digital-marketing/contact-groups">Contact groups</a> allow to editors organize contacts by defining custom conditions.</p>
 <p>Since the <a href="/documentation/changelog#refresh-may-16-2024">29.1.0 Xperience by Kentico refresh</a>, the editor can set up a new condition, <strong>‘Contact has value in field’</strong>.</p>
 <p>Your contact fields are not yet available for the editor to utilize in this condition. To expose them, you need to add your custom fields to the <strong>Contact edit</strong> form.</p>
@@ -466,6 +467,9 @@ private string? GetContactMemberId() =&gt;
 <li>
 <p>Add your fields one by one.</p>
 
+<div>
+
+</div>
 <div>
 <p>When assigning a <strong>Database column</strong>, the available fields are ordered alphabetically.</p>
 <p>The <strong>Field caption</strong> is what the editors will see in the <strong>Contact groups</strong> application as a field identifier. The other settings don’t affect the Contact groups conditions.</p>
@@ -481,6 +485,21 @@ private string? GetContactMemberId() =&gt;
 <p><strong>String values only</strong></p>
 <p>The system currently only supports string (Text) fields in the <strong>Contact has value in field</strong> condition.</p>
 <p>For example, despite adding both <em>TrainingGuidesContactFavoriteCoffee</em> and <em>TrainingGuidesContactLastCommunitationDate</em> fields to the <strong>Contact edit</strong>, only the <em>TrainingGuidesContactFavoriteCoffee</em> field will be available in the <strong>Contact groups</strong> condition.</p>
+</div>
+
+<h3 id="enable-usage-in-automation">Enable usage in Automation</h3>
+<p>Similarly, if you want your custom field to be available in <a href="/documentation/business-users/digital-marketing/automation#steps">automation steps</a>, you need to add it to the <strong>Set contact field value automation step</strong> UI form.</p>
+<p>Navigate to <strong>Modules → Contact management → Classes → Contact management → Contact → UI Forms → Set contact field value automation step</strong> and add your custom field.</p>
+<p></p>
+<p>After you save, you should be able to utilize your new field in steps of your automation processes, like in the video below.</p>
+
+
+<div>
+
+</div>
+<div>
+<p>Like in Contact groups, the <strong>Contact has value in field</strong> condition in <strong>Automation</strong> only supports string values.</p>
+<p>However, you can utilize non-string contact fields in the <strong>Set contact field value</strong>, for example, the <em>TrainingGuidesContactLastCommunitationDate</em>.</p>
 </div>
 
 <h2 id="whats-next">What’s next</h2>

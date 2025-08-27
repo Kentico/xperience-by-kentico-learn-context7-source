@@ -899,7 +899,7 @@ If you do not plan to use a similar customization, make sure to handle errors th
 <h4 id="create-the-controller">Create the controller</h4>
 <ol type="1">
 <li>In the <em>~/Features/Products</em> folder, add a file called <em>ProductPageController</em>.</li>
-<li>Use an <code>IContentItemRetriever&lt;ProductPage&gt;</code> to get the product data from Xperience.</li>
+<li>Use an <code>IContentItemRetrieverService</code> to get the product data from Xperience.</li>
 <li>Use an instance of the <code>IProductPageService</code> we defined <a href="#add-a-supporting-service">earlier</a> to convert the <code>ProductPage</code> to a <code>ProductPageViewModel</code>.</li>
 <li>Add a new <code>ProductFeatureViewModel</code> containing the product’s price, so that it appears in the table.</li>
 </ol>
@@ -919,62 +919,54 @@ If you do not plan to use a similar customization, make sure to handle errors th
 </div>
 <div>
 <pre><code>
-    using Kentico.Content.Web.Mvc;
-    using Kentico.Content.Web.Mvc.Routing;
-    using Kentico.PageBuilder.Web.Mvc.PageTemplates;
-    using Microsoft.AspNetCore.Mvc;
-    using TrainingGuides;
-    using TrainingGuides.Web.Features.Products.Models;
-    using TrainingGuides.Web.Features.Products.Services;
-    using TrainingGuides.Web.Features.Shared.Services;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc.PageTemplates;
+using Microsoft.AspNetCore.Mvc;
+using TrainingGuides;
+using TrainingGuides.Web.Features.Products.Models;
+using TrainingGuides.Web.Features.Products.Services;
+using TrainingGuides.Web.Features.Shared.Services;
 
-    [assembly: RegisterWebPageRoute(
-        contentTypeName: ProductPage.CONTENT_TYPE_NAME,
-        controllerType: typeof(TrainingGuides.Web.Features.Products.ProductPageController))]
+[assembly: RegisterWebPageRoute(
+    contentTypeName: ProductPage.CONTENT_TYPE_NAME,
+    controllerType: typeof(TrainingGuides.Web.Features.Products.ProductPageController))]
 
-    namespace TrainingGuides.Web.Features.Products;
+namespace TrainingGuides.Web.Features.Products;
 
-    public class ProductPageController : Controller
+public class ProductPageController : Controller
+{
+    private readonly IContentItemRetrieverService contentItemRetriever;
+    private readonly IProductPageService productPageService;
+
+    public ProductPageController(
+        IContentItemRetrieverService contentItemRetriever,
+        IProductPageService productPageService)
     {
-        private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
-        private readonly IContentItemRetrieverService&lt;ProductPage&gt; contentItemRetriever;
-        private readonly IProductPageService productPageService;
-
-        public ProductPageController(
-            IWebPageDataContextRetriever webPageDataContextRetriever,
-            IContentItemRetrieverService&lt;ProductPage&gt; contentItemRetriever,
-            IProductPageService productPageService)
-        {
-            this.webPageDataContextRetriever = webPageDataContextRetriever;
-            this.contentItemRetriever = contentItemRetriever;
-            this.productPageService = productPageService;
-        }
-        public async Task&lt;IActionResult&gt; Index()
-        {
-            var context = webPageDataContextRetriever.Retrieve();
-
-            var productPage = await contentItemRetriever.RetrieveWebPageById
-                (context.WebPage.WebPageItemID,
-                ProductPage.CONTENT_TYPE_NAME,
-                3);
-
-            var model = await productPageService.GetProductPageViewModel(productPage);
-            model.Features.Add(
-                    new ProductFeatureViewModel
-                    {
-                        Key = "price-from-product-content-item",
-                        Name = "Price",
-                        LabelHtml = new("Price"),
-                        Price = model.Price,
-                        ValueHtml = new(string.Empty),
-                        FeatureIncluded = false,
-                        ValueType = ProductFeatureValueType.Number,
-                        ShowInComparator = true,
-                    });
-
-            return new TemplateResult(model);
-        }
+        this.contentItemRetriever = contentItemRetriever;
+        this.productPageService = productPageService;
     }
+
+    public async Task&lt;IActionResult&gt; Index()
+    {
+        var productPage = await contentItemRetriever.RetrieveCurrentPage&lt;ProductPage&gt;(3);
+
+        var model = await productPageService.GetProductPageViewModel(productPage);
+        model.Features.Add(
+                new ProductFeatureViewModel
+                {
+                    Key = "price-from-product-content-item",
+                    Name = "Price",
+                    LabelHtml = new("Price"),
+                    Price = model.Price,
+                    ValueHtml = new(string.Empty),
+                    FeatureIncluded = false,
+                    ValueType = ProductFeatureValueType.Number,
+                    ShowInComparator = true,
+                });
+
+        return new TemplateResult(model);
+    }
+}
 </code></pre>
 </div>
 
@@ -1055,7 +1047,7 @@ If you do not plan to use a similar customization, make sure to handle errors th
  </code></pre>
 </div>
 </li>
-<li>Implement the interface, mapping the selected options to sets of CSS classes. Use the <code>Parse</code> method from the <code>DropdownEnumOptionProvider</code> we defined <a href="/guides/development/page-builder/map-enum-to-dropdown">earlier in the series</a> for the string conversion methods.
+<li>Implement the interface, mapping the selected options to sets of CSS classes. Use the <code>Parse</code> method from the <code>EnumStringService</code> we defined <a href="/guides/development/page-builder/map-enum-to-dropdown">earlier in the series</a> for the string conversion methods.
 
 <div>
 <div>
@@ -1102,10 +1094,10 @@ If you do not plan to use a similar customization, make sure to handle errors th
          };
 
          public CornerStyleOption GetCornerStyle(string cornerStyleString) =&gt;
-             new DropdownEnumOptionProvider&lt;CornerStyleOption&gt;().Parse(cornerStyleString, CornerStyleOption.Round);
+             enumStringService.Parse(cornerStyleString, CornerStyleOption.Round);
 
          public ColorSchemeOption GetColorScheme(string colorSchemeString) =&gt;
-             new DropdownEnumOptionProvider&lt;ColorSchemeOption&gt;().Parse(colorSchemeString, ColorSchemeOption.TransparentDark);
+             enumStringService.Parse(colorSchemeString, ColorSchemeOption.TransparentDark);
      }
  </code></pre>
 </div>

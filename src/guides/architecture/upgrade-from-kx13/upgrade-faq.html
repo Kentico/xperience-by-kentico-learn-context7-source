@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Upgrade - Frequently asked questions</title>
+</head>
+<body>
+<p>This FAQ page addresses common questions about using the Kentico Migration Tool to upgrade from <strong>Kentico Xperience 13 (KX13)</strong> to <strong>Xperience by Kentico (XbyK)</strong>. It covers migration scope, testing strategies, and technical challenges that solution architects and tech leaders typically encounter during the upgrade process.</p>
+<h3 id="what-is-the-difference-between-the-documentation-in-the-github-repo-and-on-the-docs.kentico.com-site">What is the difference between the documentation in the GitHub repo and on the docs.kentico.com site?</h3>
+<h4 id="github-repository-documentation">GitHub repository documentation</h4>
+<p>The migration tool <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/tree/master" target="_blank">GitHub repository</a> is the official tool reference and public issue tracker. It’s a <strong>public</strong> repository, where you’ll find information about CLI usage, configuration, supported objects and mapping rules, plus release notes and known limitations.</p>
+<p>If you encounter an error or a bug during data migration, we encourage you to open an issue in the GitHub repo or look for an existing issue matching your problem <strong>before</strong> contacting our support or consulting.</p>
+<p>Support will likely recommend going through the repo anyway, as it’s the single source of truth for tool behavior and bugs, and public issues let everyone see existing reports, workarounds, and progress.</p>
+
+<div>
+
+</div>
+<div>
+<p>To avoid sharing sensitive client data, you can use the <a href="https://github.com/kentico-ericd/xperience-community-database-anonymizer" target="_blank">community anonymizer tool</a> before submitting your issue.</p>
+</div>
+
+<h4 id="upgrade-resources-on-learn-portal-docs.kentico.com">Upgrade resources on Learn portal (docs.kentico.com)</h4>
+<p>Our <a href="docs.kentico.com" target="_blank">Learn portal (docs.kentico.com)</a> provides end‑to‑end guidance on <em>how</em> to use the Kentico Migration Tool. Our materials focus on implementation scenarios, upgrade planning, environment preparation, iterative data migrations, and other specifics.</p>
+<p>As a starting point, see <a href="/guides/architecture/upgrade-from-kx13">Upgrade from Kentico Xperience 13</a>. For advanced technical topics, like remodeling, check out our <a href="/guides/development/upgrade-deep-dives">Upgrade deep dives</a> for developers.</p>
+<h3 id="can-i-run-the-kentico-migration-tool-against-my-project-multiple-times">Can I run the Kentico Migration Tool against my project multiple times?</h3>
+<p>Yes, data migration is designed to be iterative. Many teams run the tool, review the outcome, adjust the configuration, and run it again. Our <a href="/guides/architecture/upgrade-from-kx13/upgrade-from-kx13-overview">overview guide</a> illustrates the high‑level flow. Keep the scope small and run in batches - see the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migrate-command-parameters" target="_blank">GitHub README file</a> for list of parameters to migrate only certain objects.</p>
+<p><strong>Make sure to create a database backup between data migration runs.</strong> With a backup, you can easily reset your environment and start with a clean slate. Avoid manually deleting partially migrated content, as errors during migration can prevent the admin UI from working correctly. Restoring from backup is <strong>the safest way</strong> to undo failures or incorrectly migrated data.</p>
+
+<div>
+
+</div>
+<div>
+<p>Be mindful of <strong>chain dependencies</strong> between migrated objects. For example, to migrate <em>custom modules</em> or <em>page types</em>, you first need to migrate <em>sites</em>.</p>
+<p>The migration tool performs automatic checks of the dependencies and will alert you to issues.</p>
+<p>You can bypass the automatic checks using the <code>--bypass-dependency-check</code> parameter - see details in the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migrate-command-parameters" target="_blank">Migration.Tool.CLI README file in GitHub</a>.</p>
+</div>
+
+<h3 id="how-can-i-restrict-which-page-types-to-remigrate">How can I restrict which page types to (re)migrate?</h3>
+<p>You can configure selective migration in the <code>Migration.Tool.CLI/appsettings.json</code> file before each migration tool run. See in our <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough/migrate-data-and-binary-files">step‑by‑step walkthrough</a>, where the configuration fits into the process.</p>
+<p>For scope control, use the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#configuration" target="_blank"><code>EntityConfigurations</code> option</a> to <strong>exclude</strong> objects by code name (block‑list). At this time, the tool does not support a native allow‑list; you can emulate it by excluding everything except the target page type(s).</p>
+<p>For one‑type runs, temporarily exclude other page types, run the migration, review results, adjust, and repeat.</p>
+<p>For re‑migration, restore a pre‑run database backup and run again with updated exclusions. Avoid manual partial deletes to prevent dangling references.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Be mindful of dependencies and links</strong>. Include required parents, taxonomies, media, and custom module data in the same run (or migrate in the correct order) to avoid errors during migration.</p>
+<p>The tool will warn you about missing chain dependencies (e.g., you’re migrating <em>page types</em> without <em>sites</em>). If you are absolutely sure the dependencies have been migrated beforehand, you can use the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migrate-command-parameters" target="_blank"><code>--bypass-dependency-check</code> parameter</a> to skip the automatic checks.</p>
+</div>
+
+<h3 id="which-data-can-and-cannot-be-migrated">Which data can and cannot be migrated?</h3>
+<p>You can migrate the majority of objects from KX13, including custom object types and custom classes and their data, pages, sites, contacts (and activities), and forms with submitted data. See the full list with details and limitations in the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migration-details-for-specific-object-types" target="_blank">Migration.Tool.CLI README in GitHub</a>.</p>
+<p>Some objects have different names in XbyK (e.g., sites -&gt; websites), and some objects map one-to-one, while others don’t, expect to review mappings and adjust.</p>
+<p>For content types, most fields map automatically, though some limitations apply (no page type inheritance, no macros in field defaults, no field categories). See <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migration-details-for-specific-object-types" target="_blank">the GitHub documentation</a> for details.</p>
+<p>You need to manually migrate or reimplement emails (templates, emails/campaigns) and marketing email recipient lists.</p>
+
+<div>
+
+</div>
+<div>
+<p>For planning trade‑offs and feature differences, see our <a href="/guides/architecture/upgrade-from-kx13/plan-your-strategy-for-migrating-features">capability comparison guide</a>.</p>
+</div>
+
+<h3 id="can-i-change-the-structure-of-my-content-during-data-migration">Can I change the structure of my content during data migration?</h3>
+<p>Yes. The migration tool allows you to optimize your content model, using objects newly introduced in Xperience by Kentico, for example, Reusable field schemas (RFS).</p>
+<p>The RFS are optional and not required to complete the migration; use them for shared or repetitive fields when remodeling.</p>
+
+<div>
+
+</div>
+<div>
+<p>See one of our technical deep dives on <a href="/guides/development/upgrade-deep-dives/remodel-page-types-as-reusable-field-schemas">how to remodel page types using the RFS</a> during data migration.</p>
+</div>
+
+<h3 id="are-there-special-considerations-when-deploying-an-upgraded-project-to-production-for-the-first-time">Are there special considerations when deploying an upgraded project to production for the first time?</h3>
+<p>Plan how you will host the Administration UI and set up your deployment pipeline before the first cut‑over.</p>
+<h4 id="administration-ui">Administration UI</h4>
+<p>In Xperience by Kentico, the administration UI is not on a separate domain by default.</p>
+<p>If you require a different domain for the administration, a common setup is to run two application instances against the same database: one with the Admin enabled on a restricted domain for editors, and one <a href="/documentation/developers-and-admins/deployment/deploy-to-private-cloud/deploy-without-the-administration">without the Admin</a> for the public site domain.</p>
+<p>For more guidance, see our documentation on <a href="/documentation/developers-and-admins/configuration/administration-domain-configuration">how to configure the administration domain correctly</a>.</p>
+<h4 id="continuous-delivery">Continuous delivery</h4>
+<p>Xperience by Kentico supports <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">Continuous deployment</a> and <a href="/documentation/developers-and-admins/ci-cd/continuous-integration">Continuous Integration</a>. Set up your CI/CD pipelines (e.g., Azure DevOps, GitHub Actions) before your first production deployment to move schema and configuration changes through code and simplify long‑term maintenance.</p>
+<h4 id="security-and-operations">Security and operations</h4>
+<p>Consider how you can protect the Admin endpoint (use a separate domain if required, IP allowlisting, SSO/MFA, HTTPS), validate web‑farm configuration when running multiple instances, and test the whole pipeline in a staging environment before go‑live.</p>
+<h3 id="are-there-special-considerations-when-performing-an-upgrade-using-xperience-by-kentico-saas">Are there special considerations when performing an upgrade using Xperience by Kentico SaaS?</h3>
+<p>In short, deploy to SaaS the same way as any other Xperience project. Follow the <a href="/guides/configuration/saas/saas-walkthrough">SaaS deployment steps</a>. Ensure your target Xperience project was installed with the <a href="/documentation/developers-and-admins/installation#create-a-project"><code>--cloud</code> parameter</a> so it includes cloud‑specific configuration and deployment scripts.</p>
+
+<div>
+
+</div>
+<div>
+<p>If your deployment package exceeds 2 GB, contact Kentico Support for assistance with the upload.</p>
+</div>
+
+<p>Deploying via <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment#deploy-to-the-saas-environment">deployment packages</a> in Saas currently triggers downtime–we are working toward minimizing this.</p>
+<p>If you choose to use <a href="/documentation/business-users/content-sync">Content sync</a>, note that you should carefully configure it ahead of time. For example, you must deploy your content types with a <em>deployment package</em> before you can sync content.</p>
+<h3 id="do-i-have-to-update-my-kx13-site-before-migration">Do I have to update my KX13 site before migration?</h3>
+<p>For the migration to run correctly, your source KX13 project <a href="/guides/architecture/upgrade-from-kx13/prep-for-upgrade-and-transfer-data#hotfix-to-kentico-xperience-13-refresh-5-or-newer">has to run on Refresh 5 or newer</a>. If your source instance runs on a lower version, yes, you need to update before data migration.</p>
+
+<div>
+
+</div>
+<div>
+<p>We recommend to update all content you want to transfer into a “published” state and remove or archive content you don’t wish to migrate.</p>
+</div>
+
+<h3 id="can-i-continue-adding-to-my-kx13-site-while-we-are-attempting-the-migration-or-do-we-need-a-content-freeze">Can I continue adding to my KX13 site while we are attempting the migration or do we need a content freeze?</h3>
+<p>Yes. You can keep adding content in KX13 and run the migration again when your Xperience by Kentico project is ready. The Migration Tool does not remove existing data in the target; it imports new data in subsequent runs.</p>
+<p>When you run the data migration iteratively, we highly recommend taking database backups between runs; see the <a href="#can-i-run-the-kentico-migration-tool-against-my-project-multiple-times"><em>Can I run the Kentico Migration Tool against my project multiple times?</em> question</a>.</p>
+<p>Be mindful of dependencies when you perform additional migration runs: include or migrate required parents and related data (e.g., sites/channels, content types, taxonomies, media, custom module data) in the correct order, or in the same run. The migration tool performs dependency checks and will warn you if something is missing.</p>
+
+<div>
+
+</div>
+<div>
+<p>Before the final cut‑over, plan a short content freeze window (or schedule one last delta migration) to avoid losing last‑minute changes.</p>
+</div>
+
+<h2 id="did-you-find-the-answers-you-were-looking-for">Did you find the answers you were looking for?</h2>
+<p>Did this page address your concerns or are you missing some information? Let us know using the <strong>Send us feedback button</strong>.</p>
+
+</body>
+</html>

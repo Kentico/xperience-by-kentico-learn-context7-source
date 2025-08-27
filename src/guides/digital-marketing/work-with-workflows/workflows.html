@@ -9,11 +9,12 @@
 <p>In this article, you’ll learn about what workflows in Xperience by Kentico are and how to use them to optimize and align the content approval process with strategic business goals.</p>
 
 <div>
-<p>Prerequisites: - If you want to test the scenario, have the Kbank demo site available. If you don’t have it, request your instance <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Kbank</a> hosted on our servers.</p>
+<p><strong>Prerequisites:</strong></p>
+<p>If you want to test the scenario, have the Kbank demo site available. If you don’t have it, request your instance <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Kbank</a> hosted on our servers.</p>
 </div>
 
-<p><strong>Workflow</strong> in Xperience a process editors use to define the content lifecycle. It consists of steps from creating a content item and working with it in an intended way to publishing it. You can apply workflows to different content types, including reusable content items, web pages, emails, and headless items.</p>
-<p>Each workflow starts by default with a <strong>Draft</strong> step and finishes with a <strong>Published</strong> step. You can add any number of custom steps in between to ensure you cover any approval or other process your company requires. You cannot add any steps after the default <strong>Published</strong> step.</p>
+<p><strong>Workflow</strong> in Xperience is a process editors use to define the content lifecycle. It consists of steps from creating a content item, through working with it as intended, to publishing it. You can apply workflows to different <a href="/documentation/developers-and-admins/development/content-types">content types</a>, including <a href="/documentation/business-users/content-hub/content-items">reusable content items</a>, <a href="/documentation/business-users/website-content">web pages</a>, <a href="/documentation/business-users/digital-marketing/emails">emails</a>, and <a href="/documentation/business-users/headless-content">headless items</a>.</p>
+<p>Each <em>workflow</em> starts by default with a <strong>Draft</strong> step and finishes with a <strong>Published</strong> step. You can add any number of custom steps in between to ensure you cover any approval or other process your company requires. You cannot add any steps after the default <strong>Published</strong> step.</p>
 <p>However, after the page is published, you can either <strong>Edit</strong> the page or <strong>Unpublish</strong> it. In both cases, you’ll have to go through the workflow cycle again (unless it changed). The difference between <strong>Edit</strong> and <strong>Unpublish</strong> is that <strong>Edit</strong> keeps the page publicly available on your website and reflects any changes the moment you publish it again, and the <strong>Unpublish</strong> step removes the page from public access.</p>
 
 <div>
@@ -69,12 +70,24 @@
 <p>The steps you create will keep the content in draft status. The content going through your workflow is not published until the <strong>Publish</strong> step.</p>
 </div>
 
-<h2 id="a-note-about-notifications">A note about notifications</h2>
-<p>Xperience doesn’t have out-of-box notifications informing the responsible roles about the step change. However, your developers or partner can set up custom <a href="/documentation/developers-and-admins/customization/handle-global-events/set-up-custom-workflow-notifications">workflow notifications</a>.</p>
+<h2 id="workflow-notifications">Workflow notifications</h2>
+<p>You can improve your team’s editing experience and use <strong>notifications</strong> to inform different roles when some content needs their attention. In Xperience, you can send messages when an item moves to a <strong>custom step</strong> or a <strong>Draft step</strong>.</p>
+<p>When you add a new <strong>custom step</strong> to your workflow, Xperience is set to automatically notify all roles listed in the <em>Roles that can work with this step</em> box, including any role that <em>has full control over the workflow</em> (specified in the <strong>General</strong> tab). You can <em>add or remove roles</em> that you don’t want to notify in the step’s <strong>Security and behavior</strong> settings. Or, you can <em>turn off</em> sending any <em>notification</em> from this step entirely.</p>
+<p></p>
+<h3 id="notify-only-the-people-who-need-it-most">Notify only the people who need it most</h3>
+<p>By default, Xperience sends notifications to all roles that can <em>work with a custom workflow step</em>. Xperience adds all <em>roles with full access</em> automatically to receive notifications. To keep notifications relevant, we recommend removing <em>administrator</em> roles (i.e., roles with full control) from receiving messages from every workflow step and limiting the number of notifications to key events. When you remove them from the step configuration, <em>roles with full control</em> will still retain complete control over the workflow, but unnecessary notifications won’t distract them.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Published step</strong> doesn’t trigger a built-in notification. If you need to notify some roles that an item was published, consider <a href="/documentation/developers-and-admins/customization/handle-global-events/set-up-custom-workflow-notifications">setting up a custom notification</a> with the help of your developers.</p>
+</div>
+
 <h2 id="adjust-or-remove-a-workflow">Adjust or remove a workflow</h2>
 <p>If you need to slightly adjust an existing workflow, you don’t have to remove it and create it again from scratch. But there are some rules you should keep in mind.</p>
 <h3 id="adding-steps">Adding steps</h3>
-<p>If you want to add new steps, you can do so the same way described above, and rearrange their order as needed. The steps you added will immediately apply to every workflow, even those that are already running and are in process.</p>
+<p>If you want to add new steps, you can do so the same way described above, and rearrange their order as needed. The steps you added will immediately apply to every workflow, even those that are already running and are in process. Remember, every new custom step also triggers notifications, so don’t forget to adjust who receives a notification when an item moves to this step.</p>
 <h3 id="deleting-steps-or-workflow">Deleting steps or workflow</h3>
 <p>If you want to remove a workflow or adjust it by deleting workflow steps, you cannot do so while you still have items in the workflow steps. It doesn’t apply to items that were in the <strong>Draft</strong> status before you created the workflow.</p>
 <p>When you remove the content type from the workflow’s scope, items based on this type currently in the workflow will still go through the workflow steps until they’re published. A new item of the same type created after the content type removal will only go through the default <strong>Draft</strong> and <strong>Published</strong> steps.</p>
@@ -116,7 +129,7 @@
 <li>Give each step a <strong>name</strong> explaining what happens in this step.</li>
 <li>Add an <strong>icon</strong>.</li>
 <li>
-<strong>Assign the role(s)</strong> that take over the next workflow step.</li>
+<strong>Assign the role(s)</strong> that can manage this workflow step and get notified (as long as the notification is enabled) when an item moves to this step.</li>
 <li>Repeat for each step.</li>
 </ol>
 </li>

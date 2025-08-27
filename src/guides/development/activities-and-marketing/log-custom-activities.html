@@ -330,14 +330,14 @@ public class PageLikeRequestModel
 </code></pre>
 </div>
 
-<h3 id="expand-the-content-item-retriever-service">Expand the content item retriever service</h3>
+<h3 id="examine-the-content-item-retriever-service">Examine the content item retriever service</h3>
 <p>You may have noticed that the <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content">content item query api</a> requires a strongly typed mapping function in order to select the results of the query.</p>
 <p>However, since you’re building a widget, you may not know the content type of the web page item that your widget is placed on.</p>
 <p>In order to account for this, you need a way to retrieve a web page item by ID when you don’t necessarily know its content type. For this, you can use the <code>IWebPageFieldsSource</code> interface that all generated web page content types implement.</p>
 <ol type="1">
-<li>Go to the untyped <code>ContentItemRetrieverService</code> class in <em>ContentItemRetrieverService.cs</em>.</li>
-<li>Create a method called <code>RetrieveWebPageById</code>, taking the Id of a web page and the name of a content type as parameters.</li>
-<li>Use the ID to create a parameter action for the existing <code>RetrieveWebPages</code> method.
+<li>Go to the <code>ContentItemRetrieverService</code> class in <em>ContentItemRetrieverService.cs</em>.</li>
+<li>Notice the method called <code>RetrieveWebPageById</code>, taking the Id of a web page and optional language name as parameters.</li>
+<li>The method uses the ID to create a parameter action for another existing <code>RetrieveWebPages</code> method.
 
 <div>
 <div>
@@ -355,18 +355,18 @@ public class PageLikeRequestModel
 <div>
 <pre><code>
  ...
- /// &lt;summary&gt;
- /// Retrieves the IWebPageFieldsSource of a web page item by Id.
- /// &lt;/summary&gt;
- /// &lt;param name="webPageItemId"&gt;the Id of the web page item&lt;/param&gt;
- /// &lt;returns&gt;&lt;see cref="IWebPageFieldsSource"/&gt; object containing generic &lt;see cref="WebPageFields"/&gt; for the item&lt;/returns&gt;
+ /// &lt;inheritdoc /&gt;
  public async Task&lt;IWebPageFieldsSource?&gt; RetrieveWebPageById(
-     int webPageItemId)
+     int webPageItemId,
+     int depth = 2,
+     string? languageName = null)
  {
      var pages = await RetrieveWebPages(parameters =&gt;
          {
              parameters.Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), webPageItemId));
-         });
+         },
+         depth,
+         languageName ?? preferredLanguageRetriever.Get());
 
      return pages.FirstOrDefault();
  }
@@ -375,6 +375,15 @@ public class PageLikeRequestModel
 </div>
 </li>
 </ol>
+
+<div>
+
+</div>
+<div>
+<p>We are using the Content item retrieval API instead of ContentRetriever API.</p>
+<p>As an alternative approach you could use the ContentRetriever API, but because of its limitations, this would require listing all possible page content type code names, as the page types only share an interface, not a base class. See comment at the <code>RetrieveWebPageByContentItemGuid</code> method in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">finished branch of our Training guides repo</a>.</p>
+</div>
+
 <h3 id="create-the-logging-controller">Create the logging controller</h3>
 <p>The controller is central to the functionality of the <em>Page like</em> widget. It is where you must log the custom activity and account for any errors.</p>
 <ol type="1">

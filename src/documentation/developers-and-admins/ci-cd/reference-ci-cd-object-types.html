@@ -10,6 +10,7 @@
 <li><a href="#general">General</a></li>
 <li><a href="#content-management">Content management</a></li>
 <li><a href="#digital-marketing">Digital marketing</a></li>
+<li><a href="#digital-commerce">Digital commerce</a></li>
 <li><a href="#binding-object-types">Binding object types</a></li>
 </ul>
 
@@ -222,6 +223,7 @@
 <p>cms.workspace</p>
 </td>
 <td>
+<p>When using CI/CD to add a new workspace, your <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">repository configuration</a> must also include the <em>cms.contentfolder</em> object type. Each workspace requires a root content folder to ensure that <a href="/documentation/business-users/content-hub">Content hub</a> works correctly.</p>
 </td>
 </tr>
 </table>
@@ -879,6 +881,57 @@ cms.formclass</p>
 </tr>
 </table>
 
+<h2 id="digital-commerce">Digital commerce</h2>
+
+<table>
+<thead>
+<tr>
+<td>
+<p>Object type</p>
+</td>
+<td>
+<p>CI/CD folder name</p>
+</td>
+<td>
+<p>Notes</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p>Order status</p>
+</td>
+<td>
+<p>commerce.orderstatus</p>
+</td>
+<td>
+<p>Represents <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses">statuses</a> in the lifecycle of orders created by customers (<em>New</em>, <em>Payment received</em>, <em>Shipped</em>, <em>Delivered</em>, etc.).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Shipping method</p>
+</td>
+<td>
+<p>commerce.shippingmethod</p>
+</td>
+<td>
+<p>Defines <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-shipping-and-payment-methods">shipping options</a> available to customers during checkout.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Payment method</p>
+</td>
+<td>
+<p>commerce.paymentmethod</p>
+</td>
+<td>
+<p>Defines <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-shipping-and-payment-methods">payment options</a> available to customers during checkout.</p>
+</td>
+</tr>
+</table>
+
 <h2 id="binding-object-types">Binding object types</h2>
 <p>In addition to standard object types, CI/CD also supports most related bindings (i.e. objects representing relationships between the supported objects and other objects).</p>
 
@@ -1013,6 +1066,20 @@ cms.formclass</p>
 </tr>
 <tr>
 <td>
+<p>Order status notification users</p>
+</td>
+<td>
+<p>commerce.orderstatusnotification</p>
+</td>
+<td>
+<p>Order status</p>
+</td>
+<td>
+<p>User</p>
+</td>
+</tr>
+<tr>
+<td>
 <p>Users in roles</p>
 </td>
 <td>
@@ -1027,7 +1094,7 @@ cms.formclass</p>
 </tr>
 <tr>
 <td>
-<p>Webs page scope content type</p>
+<p>Web page scope content type</p>
 </td>
 <td>
 <p>cms.webpagescopecontenttype</p>

@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Speed up remodeling with AI</title>
+</head>
+<body>
+<p>In many cases, your client or organization may want to make many changes during the upgrade to Xperience by Kentico (XbyK) to modernize the project’s content model and take advantage of new features.</p>
+<p>When you need to restructure several classes, the process can be tedious, as you specify a mapping for every individual field in the new content model. For this type of monotonous work, AI coding assistants can come in handy.</p>
+<p>In this example, we used <a href="https://github.com/features/copilot" target="_blank">GitHub Copilot</a> in <strong>Agent</strong> mode with the <strong>GPT-4.1</strong> model to significantly speed up the migration of an <em>Article</em> page type in Kentico Xperience 13 (KX13) to XbyK. The <em>Article</em> page type included fields related directly to the article, as well as Open Graph metadata fields, which we wanted to move into a reusable field schema in XbyK.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>To follow along with the example in this guide, we recommend you have the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a> and <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>
+</li>
+<li>A running instance of Xperience by Kentico, installed with the <code>kentico-xperience-mvc</code> template, preferably version <a href="/documentation/changelog">30.8.0</a>.</li>
+<li>A running instance of Kentico Xperience 13 that contains page attachments and media files (such as the Dancing Goat sample site), running on <a href="/13/installation/hotfix-instructions-xperience-13">Refresh 5</a> or higher.</li>
+<li>A local copy of the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Kentico migration tool</a>, version <strong>3.12.0</strong>, connected to each instance.</li>
+<li>Access to an agentic AI coding assistant such as Cursor or GitHub Copilot.</li>
+</ul>
+<h2 id="give-samples-of-the-type-of-output-you-want">Give samples of the type of output you want</h2>
+<p>In our experience, AI coding assistants provide much better output when you provide them with an example of a similar finished product.</p>
+<p>They excel in scenarios where you need to repeat the same process with different but analogous input each time.</p>
+<p>In this case, we were able to provide Copilot with the existing class mapping from our <a href="/guides/development/upgrade-deep-dives/remodel-page-types-as-reusable-field-schemas">Remodel page types as reusable field schemas</a> guide.</p>
+<p>We told Copilot to pay special attention to this file using the <strong>Add context</strong> button in the chat window.</p>
+<p>You can also add the code from <a href="#see-the-results">the end of this guide</a> as reference material.</p>
+<p>In similar cases, it often helps to manually complete the first repetition of a process and provide its input and output to the coding assistant as context.</p>
+<h2 id="provide-structured-input">Provide structured input</h2>
+<p>AI tools are most effective when working with data in a structured format, such as JSON or XML.</p>
+<p>Luckily, data about the KX13 classes we want to remodel already exists in a structured format in the database.</p>
+<p>The <code>CMS_Class</code> table has a column named <code>ClassFormDefinition</code> that holds the XML structure of the class’s properties and their form controls.</p>
+<p>For this example, we were able to use this query to select the form definition of the article class from Dancing Goat:</p>
+
+<div>
+<div>
+<div>
+<span>SQL</span>
+</div>
+<strong>Class form definition query</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+SELECT [ClassFormDefinition]
+FROM [CMS_Class]
+WHERE [ClassName] = 'DancingGoatCore.Article'
+</code></pre>
+</div>
+
+<p>Here is the result, formatted for readability:</p>
+
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>DancingGoatCore.Article</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+&lt;form version="2"&gt;
+    &lt;field column="ArticleID" columnprecision="0" columntype="integer" guid="61a0aa87-d18b-4949-b1d0-d7671fd6f526" isPK="true"&gt;
+        &lt;properties&gt;
+            &lt;fieldcaption&gt;ArticleID&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;controlname&gt;labelcontrol&lt;/controlname&gt;
+        &lt;/settings&gt;
+    &lt;/field&gt;
+    &lt;field allowempty="true" column="OGTitle" columnsize="90" columntype="text" dependsonanotherfield="true" guid="8e46aa5a-2776-4e48-85e4-2288fdfad9c5" visible="true"&gt;
+        &lt;properties&gt;
+            &lt;fieldcaption&gt;OG title&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;AutoCompleteEnableCaching&gt;False&lt;/AutoCompleteEnableCaching&gt;
+            &lt;AutoCompleteFirstRowSelected&gt;False&lt;/AutoCompleteFirstRowSelected&gt;
+            &lt;AutoCompleteShowOnlyCurrentWordInCompletionListItem&gt;False&lt;/AutoCompleteShowOnlyCurrentWordInCompletionListItem&gt;
+            &lt;controlname&gt;TextBoxControl&lt;/controlname&gt;
+            &lt;FilterMode&gt;False&lt;/FilterMode&gt;
+            &lt;Trim&gt;False&lt;/Trim&gt;
+        &lt;/settings&gt;
+    &lt;/field&gt;
+    &lt;field allowempty="true" column="OGDescription" columnsize="200" columntype="text" guid="277af268-3b5e-414b-85cc-61c7f86e43a6" visible="true"&gt;
+        &lt;properties&gt;
+            &lt;fieldcaption&gt;OG Description&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;AutoCompleteEnableCaching&gt;False&lt;/AutoCompleteEnableCaching&gt;
+            &lt;AutoCompleteFirstRowSelected&gt;False&lt;/AutoCompleteFirstRowSelected&gt;
+            &lt;AutoCompleteShowOnlyCurrentWordInCompletionListItem&gt;False&lt;/AutoCompleteShowOnlyCurrentWordInCompletionListItem&gt;
+            &lt;controlname&gt;TextBoxControl&lt;/controlname&gt;
+            &lt;FilterMode&gt;False&lt;/FilterMode&gt;
+            &lt;Trim&gt;False&lt;/Trim&gt;
+        &lt;/settings&gt;
+    &lt;/field&gt;
+    &lt;field allowempty="true" column="OGImage" columnsize="300" columntype="text" guid="c497ae17-2065-477e-bb50-31ea5ea74a73" visible="true"&gt;
+        &lt;properties&gt;
+            &lt;fieldcaption&gt;OG Image&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;controlname&gt;MediaSelectionControl&lt;/controlname&gt;
+            &lt;ShowPreview&gt;True&lt;/ShowPreview&gt;
+        &lt;/settings&gt;
+    &lt;/field&gt;
+    &lt;field column="ArticleTitle" columnsize="450" columntype="text" guid="df654142-a892-4806-868f-b78c22f1c2b8" visible="true"&gt;
+        &lt;properties&gt;
+            &lt;defaultvalue ismacro="true"&gt;{% ArticleTitle %}&lt;/defaultvalue&gt;
+            &lt;fieldcaption&gt;Title&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;AutoCompleteEnableCaching&gt;False&lt;/AutoCompleteEnableCaching&gt;
+            &lt;AutoCompleteFirstRowSelected&gt;False&lt;/AutoCompleteFirstRowSelected&gt;
+            &lt;AutoCompleteShowOnlyCurrentWordInCompletionListItem&gt;False&lt;/AutoCompleteShowOnlyCurrentWordInCompletionListItem&gt;
+            &lt;controlname&gt;TextBoxControl&lt;/controlname&gt;
+            &lt;FilterMode&gt;False&lt;/FilterMode&gt;
+            &lt;Trim&gt;False&lt;/Trim&gt;
+        &lt;/settings&gt;
+    &lt;/field&gt;
+    &lt;field allowempty="true" column="ArticleTeaser" columntype="file" guid="decc0681-142f-488f-9e8a-0e55b09e3ba8" translatefield="true" visible="true"&gt;
+        &lt;properties&gt;
+            &lt;fieldcaption&gt;Teaser&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;Autoresize&gt;custom&lt;/Autoresize&gt;
+            &lt;Autoresize_Height&gt;0&lt;/Autoresize_Height&gt;
+            &lt;Autoresize_MaxSideSize&gt;1000&lt;/Autoresize_MaxSideSize&gt;
+            &lt;Autoresize_Width&gt;0&lt;/Autoresize_Width&gt;
+            &lt;controlname&gt;DirectUploadControl&lt;/controlname&gt;
+            &lt;Extensions&gt;inherit&lt;/Extensions&gt;
+        &lt;/settings&gt;
+    &lt;/field&gt;
+    &lt;field column="ArticleSummary" columnsize="190" columntype="text" guid="86ca0bd7-d483-45fd-a902-fe3a261d4a45" visible="true"&gt;
+        &lt;properties&gt;
+            &lt;fieldcaption&gt;Summary&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;AutoCompleteEnableCaching&gt;False&lt;/AutoCompleteEnableCaching&gt;
+            &lt;AutoCompleteFirstRowSelected&gt;False&lt;/AutoCompleteFirstRowSelected&gt;
+            &lt;AutoCompleteShowOnlyCurrentWordInCompletionListItem&gt;False&lt;/AutoCompleteShowOnlyCurrentWordInCompletionListItem&gt;
+            &lt;controlname&gt;TextAreaControl&lt;/controlname&gt;
+            &lt;FilterMode&gt;False&lt;/FilterMode&gt;
+            &lt;Rows&gt;5&lt;/Rows&gt;
+            &lt;Wrap&gt;True&lt;/Wrap&gt;
+        &lt;/settings&gt;
+        &lt;rules&gt;
+            &lt;rule errormsg="{$basicform.errortexttoolong$}"&gt;{%Rule("(Value.Length &amp;lt;= 190)", "&amp;lt;rules&amp;gt;&amp;lt;r pos=\"0\" par=\"\" op=\"and\" n=\"MaxLength\" &amp;gt;&amp;lt;p n=\"maxlength\"&amp;gt;&amp;lt;t&amp;gt;190&amp;lt;/t&amp;gt;&amp;lt;v&amp;gt;190&amp;lt;/v&amp;gt;&amp;lt;r&amp;gt;0&amp;lt;/r&amp;gt;&amp;lt;d&amp;gt;&amp;lt;/d&amp;gt;&amp;lt;vt&amp;gt;integer&amp;lt;/vt&amp;gt;&amp;lt;tv&amp;gt;0&amp;lt;/tv&amp;gt;&amp;lt;/p&amp;gt;&amp;lt;/r&amp;gt;&amp;lt;/rules&amp;gt;")|(identity)GlobalAdministrator|(hash)8122a99d4c158f82a9f6e88d9d95188995bb070d91f904fd641f0962cf47fda6%}&lt;/rule&gt;
+        &lt;/rules&gt;
+    &lt;/field&gt;
+    &lt;field column="ArticleText" columntype="longtext" guid="85787b75-3609-48e6-8584-1d88b4a85499" visible="true"&gt;
+        &lt;properties&gt;
+            &lt;fieldcaption&gt;Text&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;controlname&gt;HtmlAreaControl&lt;/controlname&gt;
+            &lt;Dialogs_Content_Hide&gt;False&lt;/Dialogs_Content_Hide&gt;
+            &lt;HeightUnitType&gt;PX&lt;/HeightUnitType&gt;
+            &lt;MediaDialogConfiguration&gt;True&lt;/MediaDialogConfiguration&gt;
+            &lt;ShowAddStampButton&gt;False&lt;/ShowAddStampButton&gt;
+            &lt;ToolbarSet&gt;Standard&lt;/ToolbarSet&gt;
+            &lt;WidthUnitType&gt;PX&lt;/WidthUnitType&gt;
+        &lt;/settings&gt;
+    &lt;/field&gt;
+    &lt;field allowempty="true" column="ArticleRelatedArticles" columntype="docrelationships" guid="1415dcbe-42f8-460b-91b9-12e52695622f" visible="true"&gt;
+        &lt;properties&gt;
+            &lt;fieldcaption&gt;Related articles&lt;/fieldcaption&gt;
+        &lt;/properties&gt;
+        &lt;settings&gt;
+            &lt;controlname&gt;Pages&lt;/controlname&gt;
+            &lt;StartingPath&gt;/Articles&lt;/StartingPath&gt;
+        &lt;/settings&gt;
+    &lt;/field&gt;
+&lt;/form&gt;
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>In more complex examples, you can also provide the form definitions of other page types that you already remodeled, so the coding assistant can see both the input and output of a previous case.</p>
+</div>
+
+<h2 id="mind-the-details-in-your-prompt">Mind the details in your prompt</h2>
+<p>When prompting the AI assistant for remodeling, be sure to provide a specific description of what to do, addressing each aspect of the source content type that you want the agent to treat differently.</p>
+<p>In this example, we made sure to specify that fields related to Open Graph should go in the schema, while fields related directly to the Article would go directly into the content type. After the first round of code, we refined the prompt with additional specific details based on what the tool had missed.</p>
+
+<div>
+<div>
+<div>
+<span>Text</span>
+</div>
+<strong>Prompt</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+Create a class mapping that migrates the Article page type to Xperience by Kentico, similar to the grinder class mapping in GrinderClassMapping.cs. 
+
+The Article page type has the following form definition:
+
+```
+(Paste the form definition of the Article page type here)
+```
+
+Separate OG-related fields into a reusable field schema that is assigned to the Article content type. 
+
+Keep Article related fields directly in the Article content type.
+
+For article fields, set the `isTemplate` parameter of the `SetFrom` method to true.
+
+Set the values of the schema fields while building the article class mapping, but without the `isTemplate` parameter
+
+Use constants for string values, like the example in GrinderClassMapping.cs
+
+</code></pre>
+</div>
+
+<p>This prompt produced code that only required minor refactoring and cleanup—something Copilot was also able to expedite.</p>
+
+<div>
+
+</div>
+<div>
+<p>Depending on your workflow, you may prefer to proceed one step at a time, asking your AI assistant to refine the generated code with individual refactors rather than starting from scratch with an adjusted prompt.</p>
+</div>
+
+<h2 id="see-the-results">See the results</h2>
+<p>Here is the final code we arrived at with this example, after some minor adjustments to the generated code:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Migration.Tool.Extensions/ClassMappings/ArticleClassMapping.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.DataEngine;
+using CMS.FormEngine;
+using Microsoft.Extensions.DependencyInjection;
+using Migration.Tool.Common.Builders;
+using Migration.Tool.KXP.Api.Auxiliary;
+
+namespace Migration.Tool.Extensions.ClassMappings;
+
+public static class ArticleClassMapping
+{
+    // Source class name
+    private const string Source_ClassName_Article = "DancingGoatCore.Article";
+
+    // Source field names
+    private const string Source_FieldName_OGTitle = "OGTitle";
+    private const string Source_FieldName_OGDescription = "OGDescription";
+    private const string Source_FieldName_OGImage = "OGImage";
+    private const string Source_FieldName_ArticleTitle = "ArticleTitle";
+    private const string Source_FieldName_ArticleTeaser = "ArticleTeaser";
+    private const string Source_FieldName_ArticleSummary = "ArticleSummary";
+    private const string Source_FieldName_ArticleText = "ArticleText";
+    private const string Source_FieldName_ArticleRelatedArticles = "ArticleRelatedArticles";
+
+    // Target schema/class names
+    // Make schema name public in case we want to assign it to content types located in other files.
+    public const string Target_ClassName_OGSchema = "DancingGoat.OGMetadata";
+    private const string Target_ClassName_Article = "DancingGoat.Article";
+
+    // Target display names
+    private const string Target_DisplayName_OGSchema = "Open Graph Metadata";
+    private const string Target_DisplayName_Article = "Article";
+
+    // Target schema descriptions
+    private const string Target_Description_OGSchema = "Reusable schema for OG metadata fields";
+
+    // Target table names
+    private const string Target_TableName_Article = "Article_ContentType";
+
+    // Target field names
+    private const string Target_FieldName_OGTitle = "OGSchemaTitle";
+    private const string Target_FieldName_OGDescription = "OGSchemaDescription";
+    private const string Target_FieldName_OGImage = "OGSchemaImage";
+    private const string Target_FieldName_ArticleID = "ArticleID";
+    private const string Target_FieldName_ArticleTitle = "ArticleTitle";
+    private const string Target_FieldName_ArticleTeaser = "ArticleTeaser";
+    private const string Target_FieldName_ArticleSummary = "ArticleSummary";
+    private const string Target_FieldName_ArticleText = "ArticleText";
+    private const string Target_FieldName_ArticleRelatedArticles = "ArticleRelatedArticles";
+
+    // Target field display names
+    private const string Target_FieldDisplayName_OGTitle = "OG title";
+    private const string Target_FieldDisplayName_OGDescription = "OG Description";
+    private const string Target_FieldDisplayName_OGImage = "OG Image";
+
+    // Target field guids
+    private const string Target_FieldGuid_OGTitle = "8E46AA5A-2776-4e48-85e4-2288fdfad9c5";
+    private const string Target_FieldGuid_OGDescription = "277af268-3b5e-414b-85cc-61c7f86e43a6";
+    private const string Target_FieldGuid_OGImage = "c497ae17-2065-477e-bb50-31ea5ea74a73";
+
+    // Target field sizes
+    private const int Target_FieldSize_OGTitle = 90;
+    private const int Target_FieldSize_OGDescription = 200;
+
+    // Setting names
+    private const string Target_Setting_ControlName = "controlname";
+
+    // Reusable field schema for OG metadata
+    private static ReusableSchemaBuilder BuildSchema()
+    {
+        var schemaBuilder = new ReusableSchemaBuilder(Target_ClassName_OGSchema, Target_DisplayName_OGSchema, Target_Description_OGSchema);
+
+        schemaBuilder
+            .BuildField(Target_FieldName_OGTitle)
+            .WithFactory(() =&gt; new FormFieldInfo
+            {
+                Name = Target_FieldName_OGTitle,
+                Caption = Target_FieldDisplayName_OGTitle,
+                Guid = new Guid(Target_FieldGuid_OGTitle),
+                DataType = FieldDataType.Text,
+                Size = Target_FieldSize_OGTitle,
+                Settings =
+                {
+                    [Target_Setting_ControlName] = FormComponents.AdminTextInputComponent
+                }
+            });
+
+        schemaBuilder
+            .BuildField(Target_FieldName_OGDescription)
+            .WithFactory(() =&gt; new FormFieldInfo
+            {
+                Name = Target_FieldName_OGDescription,
+                Caption = Target_FieldDisplayName_OGDescription,
+                Guid = new Guid(Target_FieldGuid_OGDescription),
+                DataType = FieldDataType.Text,
+                Size = Target_FieldSize_OGDescription,
+                Settings =
+                {
+                    [Target_Setting_ControlName] = FormComponents.AdminTextInputComponent
+                }
+            });
+
+        schemaBuilder
+            .BuildField(Target_FieldName_OGImage)
+            .WithFactory(() =&gt; new FormFieldInfo
+            {
+                Name = Target_FieldName_OGImage,
+                Caption = Target_FieldDisplayName_OGImage,
+                Guid = new Guid(Target_FieldGuid_OGImage),
+                DataType = FieldDataType.ContentItemAsset,
+                Settings =
+                {
+                    [Target_Setting_ControlName] = FormComponents.AdminAssetSelectorComponent,
+                }
+            });
+
+        return schemaBuilder;
+    }
+
+    // Article content type mapping
+    private static MultiClassMapping BuildArticleMapping()
+    {
+        var mapping = new MultiClassMapping(Target_ClassName_Article, target =&gt;
+        {
+            target.ClassName = Target_ClassName_Article;
+            target.ClassTableName = Target_TableName_Article;
+            target.ClassDisplayName = Target_DisplayName_Article;
+            target.ClassType = ClassType.CONTENT_TYPE;
+            target.ClassContentTypeType = ClassContentTypeType.WEBSITE;
+        });
+
+        mapping.BuildField(Target_FieldName_ArticleID).AsPrimaryKey();
+
+        // Assign schema to article
+        mapping.UseResusableSchema(Target_ClassName_OGSchema);
+
+        // Map article-specific fields
+        mapping.BuildField(Target_FieldName_ArticleTitle)
+            .SetFrom(Source_ClassName_Article, Source_FieldName_ArticleTitle, true);
+
+        mapping.BuildField(Target_FieldName_ArticleTeaser)
+            .SetFrom(Source_ClassName_Article, Source_FieldName_ArticleTeaser, true);
+
+        mapping.BuildField(Target_FieldName_ArticleSummary)
+            .SetFrom(Source_ClassName_Article, Source_FieldName_ArticleSummary, true);
+
+        mapping.BuildField(Target_FieldName_ArticleText)
+            .SetFrom(Source_ClassName_Article, Source_FieldName_ArticleText, true);
+
+        mapping.BuildField(Target_FieldName_ArticleRelatedArticles)
+            .SetFrom(Source_ClassName_Article, Source_FieldName_ArticleRelatedArticles, true);
+
+        // Map schema fields
+        mapping.BuildField(Target_FieldName_OGTitle)
+            .SetFrom(Source_ClassName_Article, Source_FieldName_OGTitle);
+
+        mapping.BuildField(Target_FieldName_OGDescription)
+            .SetFrom(Source_ClassName_Article, Source_FieldName_OGDescription);
+
+        mapping.BuildField(Target_FieldName_OGImage)
+            .SetFrom(Source_ClassName_Article, Source_FieldName_OGImage);
+
+        return mapping;
+    }
+
+    public static IServiceCollection MigrateArticles(this IServiceCollection serviceCollection)
+    {
+        // Prepare article mapping and schema builder
+        var schemaBuilder = BuildSchema();
+        var articleMapping = BuildArticleMapping();
+
+        // Register the article mapping and schema builder
+        serviceCollection.AddSingleton&lt;IClassMapping&gt;(articleMapping);
+        serviceCollection.AddSingleton&lt;IReusableSchemaBuilder&gt;(schemaBuilder);
+
+        return serviceCollection;
+    }
+}
+</code></pre>
+</div>
+
+<p>As you can see, the code sample here follows the conventions of the <a href="/guides/development/upgrade-deep-dives/remodel-page-types-as-reusable-field-schemas">Grinder example</a>, with a large set of private constants to centralize and organize string values. Feel free to take a different approach based on your project’s conventions.</p>
+
+<div>
+
+</div>
+<div>
+<p>You can use an AI coding assistant to quickly refactor our sample code to match your project’s style, creating better reference material for your prompts.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>We also made the name of the schema public, in case it needs to be applied to other class mappings outside of this file.</p>
+</div>
+
+<p>Once you register the mapper, the migration tool will utilize it when bringing the Article page type to XbyK.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Migration.Tool.Extensions/ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+using Migration.Tool.Extensions.ClassMappings;
+...
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection UseCustomizations(this IServiceCollection services)
+    {
+        ...
+        services.MigrateArticles();
+        ...
+</code></pre>
+</div>
+
+<h2 id="build-upon-this-example">Build upon this example</h2>
+<p>For the sake of this example, we only created a custom mapping for a single page type, but you’ll likely encounter several page types that benefit from remodeling when you upgrade larger projects.</p>
+<p>With each successful round of generation, you’ll have more context to provide your AI assistant, which will help improve the quality of output going forward and save you more time on current and future upgrades.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>The <a href="/guides/development/upgrade-deep-dives/optimize-images-during-upgrade">next guide in this series</a> illustrates how to enable Xperience by Kentico’s <a href="/documentation/developers-and-admins/development/content-types#automatically-optimize-image-assets">automatic asset optimization</a> feature for images stored as media library files and page attachments in KX13.</p>
+
+</body>
+</html>

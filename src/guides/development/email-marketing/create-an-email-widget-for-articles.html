@@ -22,7 +22,7 @@
 <li>Familiarity with <a href="/documentation/developers-and-admins/development/builders">builders in Xperience by Kentico</a>
 </li>
 <li>Familiarity with <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/" target="_blank">ASP.NET Razor components</a>, <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#blazor-development-best-practices">Blazor development best practices</a>, and <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#mjml-markup">MJML markup</a>.</li>
-<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">30.5.0</a> or higher.
+<li>A running instance of Xperience by Kentico, preferably <a href="/documentation/changelog">30.6.2</a> or higher.
 
 <div>
 
@@ -251,7 +251,7 @@ public sealed class ArticleEmailWidgetProperties : IEmailWidgetProperties
 </div>
 
 <h2 id="define-the-widget-model">Define the widget model</h2>
-<p>Next, we need to define the data the widget will display. Create a file called <strong>ArticleEmailWidgetModel.cs</strong> in the <em>~/Features/Articles/EmailWidgets</em> folder.</p>
+<p>With the article widget properties in place, we need to define the data the widget will display. Create a file called <strong>ArticleEmailWidgetModel.cs</strong> in the <em>~/Features/Articles/EmailWidgets</em> folder.</p>
 <p>The widget should not render the full text of the article directly in the email, because it is meant to drive traffic to the full version on the website. Properties for the <em>title</em>, <em>teaser image</em>, <em>summary</em>, and <em>URL</em> should be enough.</p>
 
 <div>
@@ -334,13 +334,14 @@ public class ArticleEmailWidgetModel
 <pre><code>
 using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
 using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
+using Microsoft.Extensions.Localization;
 using TrainingGuides.Web.Features.Shared.Services;
 
 namespace TrainingGuides.Web.Features.Articles.EmailWidgets;
 
 public class ArticleEmailWidgetModelMapper : IComponentModelMapper&lt;ArticleEmailWidgetModel&gt;
 {
-    private readonly IContentItemRetrieverService&lt;ArticlePage&gt; articleRetrieverService;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
     private readonly IStringLocalizer&lt;SharedResources&gt; stringLocalizer;
 
     private ArticleEmailWidgetModel DefaultModel =&gt; new()
@@ -353,10 +354,10 @@ public class ArticleEmailWidgetModelMapper : IComponentModelMapper&lt;ArticleEma
 
 
     public ArticleEmailWidgetModelMapper(
-        IContentItemRetrieverService&lt;ArticlePage&gt; articleRetrieverService,
+        IContentItemRetrieverService contentItemRetrieverService,
         IStringLocalizer&lt;SharedResources&gt; stringLocalizer)
     {
-        this.articleRetrieverService = articleRetrieverService;
+        this.contentItemRetrieverService = contentItemRetrieverService;
         this.stringLocalizer = stringLocalizer;
     }
 
@@ -364,10 +365,10 @@ public class ArticleEmailWidgetModelMapper : IComponentModelMapper&lt;ArticleEma
     {
         if (contentItemGuid == Guid.Empty)
         {
-            return defaultModel;
+            return DefaultModel;
         }
 
-        var articlePage = await articleRetrieverService.RetrieveWebPageByContentItemGuid(contentItemGuid, ArticlePage.CONTENT_TYPE_NAME, 2, languageName);
+        var articlePage = await contentItemRetrieverService.RetrieveWebPageByContentItemGuid&lt;ArticlePage&gt;(contentItemGuid, 2, true, languageName);
 
         string articlePageUrl = articlePage.GetUrl().AbsoluteUrl;
 
@@ -394,7 +395,7 @@ public class ArticleEmailWidgetModelMapper : IComponentModelMapper&lt;ArticleEma
                 },
                 ArticleUrl = articlePageUrl
             }
-            : defaultModel;
+            : DefaultModel;
     }
 }
 </code></pre>
@@ -593,7 +594,7 @@ public partial class ArticleEmailWidget : ComponentBase
 
 <p>To see more examples of Email Builder components in action, we recommend checking out those used on the <a href="https://github.com/Kentico/community-portal/tree/v30.5.1.6/src/Kentico.Community.Portal.Web/Components/EmailBuilder" target="_blank">Community Portal</a>.</p>
 <p>Here, you can see the code that makes up <a href="https://community.kentico.com/" target="_blank">community.kentico.com</a>, our site for the Xperience by Kentico developer community that features many helpful resources.</p>
-<h2 id="whats-next">What’s next?</h2>
+<h2 id="whats-next">What’s next</h2>
 <p>To see an example of an Email Builder template that displays content from a richly structured email content type, continue on to <a href="/guides/development/email-marketing/display-structured-content-email-builder">the next guide in this series</a>.</p>
 
 </body>

@@ -5,28 +5,7 @@
 <title>Reference - Global system events</title>
 </head>
 <body>
-<p> Event categories (classes):</p>
-<ul>
-<li><a href="#objectevents">ObjectEvents</a></li>
-<li><a href="#contentitemevents">ContentItemEvents</a></li>
-<li><a href="#webpageevents">WebPageEvents</a></li>
-<li><a href="#headlessitemevents">HeadlessItemEvents</a></li>
-<li><a href="#workflow-events">Workflow events</a></li>
-<li><a href="#dataprotectionevents">DataProtectionEvents</a></li>
-<li><a href="#eventlogevents">EventLogEvents</a></li>
-<li><a href="#bizformitemevents">BizFormItemEvents</a></li>
-<li><a href="#contactmanagementevents">ContactManagementEvents</a></li>
-<li><a href="#activityevents">ActivityEvents</a></li>
-<li><a href="#systemevents">SystemEvents</a></li>
-<li><a href="#sqlevents">SqlEvents</a></li>
-<li>
-<a href="#application-events">Application events</a>
-<ul>
-<li><a href="#applicationevents">ApplicationEvents</a></li>
-<li><a href="#requestevents">RequestEvents</a></li>
-</ul>
-</li>
-</ul>
+<p>Each section below represents an event category (class) that serves as an entry point for accessing that specific group of events.</p>
 <h2 id="objectevents">ObjectEvents</h2>
 <p><strong>Namespace</strong>: CMS.DataEngine</p>
 <p>Contains events that occur for all types of objects in the system. See also: <a href="/documentation/developers-and-admins/customization/handle-global-events/handle-object-events">Handle object events</a></p>
@@ -267,7 +246,6 @@ Failure</p>
 </tr>
 </table>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="contentitemevents">ContentItemEvents</h2>
 <p><strong>Namespace</strong>: CMS.ContentEngine</p>
 <p>Contains events that occur when changes are made to <a href="/documentation/business-users/content-hub/content-items">content items</a>.</p>
@@ -457,7 +435,6 @@ Failure</p>
 <p>Events handled by basic handlers are only used for notification.</p>
 </div>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="webpageevents">WebPageEvents</h2>
 <p><strong>Namespace</strong>: CMS.Websites</p>
 <p>Contains events that occur when changes are made to <a href="/documentation/business-users/website-content">pages</a>.</p>
@@ -740,7 +717,6 @@ Failure</p>
 <p>Events handled by basic handlers are only used for notification.</p>
 </div>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="headlessitemevents">HeadlessItemEvents</h2>
 <p><strong>Namespace</strong>: CMS.ContentEngine</p>
 <p>Contains events that occur when changes are made to <a href="/documentation/business-users/headless-content">headless items</a>.</p>
@@ -927,7 +903,6 @@ Failure</p>
 <p>Events handled by basic handlers are only used for notification.</p>
 </div>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="workflow-events">Workflow events</h2>
 <p><strong>Namespace</strong>: CMS.ContentWorkflowEngine</p>
 <p>The following classes contain events related to items under <a href="/documentation/developers-and-admins/configuration/workflows">workflow</a>:</p>
@@ -977,7 +952,6 @@ Failure</p>
 </tr>
 </table>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="dataprotectionevents">DataProtectionEvents</h2>
 <p><strong>Namespace</strong>: CMS.DataProtection</p>
 <p>Contains events related to protection of personal data in the system.</p>
@@ -1022,7 +996,6 @@ Failure</p>
 </tr>
 </table>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="eventlogevents">EventLogEvents</h2>
 <p><strong>Namespace</strong>: CMS.EventLog</p>
 <p>Contains events that occur when logging records into the system’s <a href="/documentation/developers-and-admins/configuration/event-log">event log</a>.</p>
@@ -1067,7 +1040,6 @@ Failure</p>
 </tr>
 </table>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="bizformitemevents">BizFormItemEvents</h2>
 <p><strong>Namespace</strong>: CMS.OnlineForms</p>
 <p>Contains events related to <a href="/documentation/business-users/digital-marketing/forms">form</a> actions. See <a href="/documentation/developers-and-admins/customization/handle-global-events/handle-form-events">Handle form events</a> for an example.</p>
@@ -1151,7 +1123,6 @@ Failure</p>
 </tr>
 </table>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="contactmanagementevents">ContactManagementEvents</h2>
 <p><strong>Namespace</strong>: CMS.ContactManagement</p>
 
@@ -1188,13 +1159,12 @@ Failure</p>
 </ul>
 </td>
 <td>
-<p>Occurs when multiple contacts are deleted.</p>
+<p>Occurs when multiple contacts are deleted in a batch. This event is triggered when calling <code>IContactsBulkDeletionService.BulkDelete</code>, for example when <a href="/documentation/developers-and-admins/digital-marketing-setup/contact-configuration/delete-inactive-contacts">deleting inactive contacts</a>.</p>
 <p>When a single contact is deleted, the <em>TypeInfoEvents.Delete</em> event can be used on <em>ContactInfo.TYPEINFO</em>.</p>
 </td>
 </tr>
 </table>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="activityevents">ActivityEvents</h2>
 <p><strong>Namespace</strong>: CMS.Activities</p>
 
@@ -1247,7 +1217,6 @@ Failure</p>
 </tr>
 </table>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="systemevents">SystemEvents</h2>
 <p><strong>Namespace</strong>: CMS.Base</p>
 <p>Contains general system events.</p>
@@ -1290,7 +1259,6 @@ Failure</p>
 </tr>
 </table>
 
-<p><a href="#ReferenceGlobalsystemevents-EventsTop">&gt; Back to list of event categories</a></p>
 <h2 id="sqlevents">SqlEvents</h2>
 <p><strong>Namespace</strong>: CMS.DataEngine</p>
 <p>Contains events related to the execution of queries and other database operations.</p>

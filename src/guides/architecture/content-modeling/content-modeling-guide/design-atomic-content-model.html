@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Design atomic content models</title>
+</head>
+<body>
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from <a href="/guides/architecture/content-modeling/content-modeling-guide">beginning to end</a>. You can also follow this series in , which helps you keep track of your progress as you move through this sequential material.</p>
+</div>
+
+<p>The <strong>atomic content model</strong> in Xperience by Kentico helps you build small, reusable content types that editors can compose into larger semantic content types. This approach allows your team to manage consistent, channel-neutral data and give editors flexibility to deliver personalized experiences across websites, emails, and headless channels. Xperience by Kentico is a <a href="https://www.kentico.com/platforms/xperience-by-kentico/development" target="_blank">hybrid-headless DXP</a>, and if you’re used to building content models for headless delivery, you’ll feel right at home. In this guide, we’ll explore how to build larger, cross-channel experiences using the <strong>atomic content model</strong>.</p>
+<h2 id="deliver-multi-channel-experience-with-atomic-content-model">Deliver multi-channel experience with atomic content model</h2>
+<p>The <strong>atomic content model</strong> breaks content into small, reusable elements – <em>titles and summaries</em>, <em>images</em>, <em>features</em>, <em>benefits</em>, or <em>call to actions</em> that you can link and compose into larger semantic types like <strong>Product</strong>, <strong>Article</strong>, or <strong>Event</strong>.</p>
+<h3 id="store-data-in-reusable-content-types">Store data in reusable content types</h3>
+<p>Instead of duplicating content across different channels, editors store it once in <strong>reusable content types</strong> that they can reassemble wherever needed. This keeps the <a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">structured data</a> without any presentation information and makes it easy to maintain.</p>
+<h3 id="keep-digital-content-channel-neutral">Keep digital content channel-neutral</h3>
+<p>This <em>atomic</em> approach keeps your content channel-neutral. The same <em>structured product data</em> can appear consistently across your website, email campaigns, headless applications, mobile apps, or any future channels you adopt.</p>
+<p>Editors don’t need to rewrite or duplicate content when expanding to a new channel. Instead, they can <em>refer to the same reusable data</em> and present it with the appropriate channel context.</p>
+<h3 id="simplify-content-management-workflow-across-teams">Simplify content management workflow across teams</h3>
+<p>Working with <em>reusable content</em> gives editors other advantages. They manage their reusable content in the <em>Content hub</em> and layer on channel-specific context using dedicated, channel-specific content types that we refer to as channel-specific <a href="#use-wrappers-to-display-atomic-content-across-multiple-channels">wrappers</a> for <em>website pages</em>, <a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content#populate-headless-channels-with-headless-specific-content">headless channel</a> or <a href="/guides/architecture/content-modeling/content-modeling-guide/design-email-content#reusable-content-in-emails">emails</a>.</p>
+<h3 id="content-becomes-a-single-source-of-truth-for-reusable-content">Content becomes a single source of truth for reusable content</h3>
+<p>Different departments can deliver consistent customer experiences across channels through single-source-of-truth management and ensure fast and reliable updates. Each team can manage different parts of the content or its fragments if the project requires it. Teams maintain clear ownership over their data, and the atomic content model helps the company simplify content workflows and approvals across the organization.</p>
+<h3 id="atomic-data-allows-your-team-to-grow">Atomic data allows your team to grow</h3>
+<p>The <em>atomic content model</em> makes the content ready for future expansion. The company’s content operation will not require a full re-architecture each time it adds a new channel or introduces a new marketing touch point. The data structure remains flexible and supports editors, marketers, and developers in delivering personalized and scalable digital experiences.</p>
+<h2 id="compare-atomic-content-modeling-with-traditional-approaches">Compare atomic content modeling with traditional approaches</h2>
+<p>In traditional content models, teams often use large, single-purpose content types, like a <em>Product</em> page, that contain <em>title</em>, <em>descriptions</em>, <em>images</em>, <em>benefits</em>, <em>CTAs</em>, <em>Open Graph</em>, or <em>SEO metadata</em> within a single item. The <a href="/guides/architecture/content-modeling/content-modeling-guide/design-page-based-content-model">page-based</a> approach can feel intuitive and straightforward, especially for single-channel, website-driven experiences.</p>
+<p>The traditional approach stores data in <em>pages</em>, which ties the content to a specific presentation layer, most commonly a website.</p>
+<p>While this approach can be easy to start with, it can slow down delivering marketing projects as the project grows and the team adds more channels, changes how they manage content, or introduces new ways they need to display data. In the extreme case of <a href="/guides/architecture/content-modeling/content-modeling-guide/design-page-based-content-model">page-based content model</a> with all content in <em>Page Builder</em> widgets, they will <em>need more time to update or remove outdated content</em> as editors need to find and update each page where similar or the same content piece appears.</p>
+<h2 id="see-how-atomic-content-modeling-works-in-practice">See how atomic content modeling works in practice</h2>
+<p>Let’s look at an example from the Kbank <em>Business Banking</em> demo site. Suppose you have a <strong>Product</strong> content type.</p>
+<p>The <strong>Product</strong> includes a <em>Core schema fields</em>, such as <em>Title</em>, <em>Description</em>, <em>Product summary</em>, and some basic <em>taxonomy</em>. In <a href="/guides/development/developer-kickstart/define-a-page-content-type">page-based content model</a>, you might have stored everything else besides the <em>Core content schema</em> into the <em>Product</em> page, as the data describes the product and its capabilities. In <em>the atomic content model</em>, instead of storing everything in one place, you can <strong>split related information into separate content types</strong>:</p>
+<ul>
+<li>Core product data in <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schema</a>
+</li>
+<li>Product features</li>
+<li>Product benefits</li>
+<li>Product images</li>
+</ul>
+<p></p>
+<p>See other examples of <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content#aim-for-semantic-content-types">semantic content types</a> you can use to translate content objects into a predictable structure.</p>
+<h2 id="use-linked-items-to-keep-your-content-reusable">Use linked items to keep your content reusable</h2>
+<p>Each of these smaller content types stores reusable information. So if two products share the benefit of <em>Fast access to funds</em>, editors don’t duplicate the information. Instead, they link the <em>benefit</em> to the <em>products</em>.</p>
+<p>This gives them the power to reuse content, not duplicate it. When an editor updates the <em>benefit’s description</em> or <em>icon</em> in a content item, all products (or <em>Page Builder</em> widgets) referencing it get the update automatically. Developers can <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api#configurable-retrieval-behavior">query</a> these linked items in custom code to retrieve collections of references, display the data through widgets, or pull additional data like <em>Call to actions</em> to accompany these benefits.</p>
+<h3 id="approach-every-content-type-like-a-media-asset">Approach every content type like a Media asset</h3>
+<p>Images and other assets, such as videos, infographics, or podcasts, are expensive to create, and it’s natural that businesses want to reuse them as much as possible.</p>
+<p>This makes <a href="/guides/architecture/content-modeling/content-modeling-guide/store-files">assets</a> the ultimate example of <em>content reusability</em> that you store in the <em>Content hub</em>. Editors refer to content item assets, images, or documents to display them in pages, emails, or headless content. You can find more information about building dedicated content types in <a href="/guides/architecture/content-modeling/content-modeling-guide/store-files">material about storing files</a>.</p>
+Break content into dedicated reusable pieces and have editors refer to a single item to improve content governance. Identify which pieces of content can be stored into <em>smaller content items</em> or combined into <em>content fragments</em> that convey a semantic meaning, such as a collection of <em>FAQ elements</em>, <em>product features</em>, <em>benefits</em>, <em>testimonials</em> provided by similar-size customers and other content that editors will want to share in the same combination across different channels, or content items that you want to feature together, e.g., in a slideshow.
+
+<div>
+
+</div>
+<div>
+<p>Linked items make it easier to govern who can edit what. For example, your <em>financial services team</em> can manage <em>benefits</em>, while the <em>product team</em> focuses on <em>product specs</em>.</p>
+</div>
+
+<h2 id="leverage-the-combined-content-selector">Leverage the combined content selector</h2>
+<p>Reusing content items improves content maintenance. When an editor updates the referenced item, the content changes are automatically promoted to every other item that uses this content, making content management a breeze. When defining the content model, discuss which types can be reused and create them accordingly.</p>
+<p>Editors will use the <em>content item</em> with the <strong>Combined content selector</strong> form component to ensure reusability. The <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-linked-content-items">ContentRetriever API</a> allows developers to query the linked items in their custom code and return <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">a collection</a> of <a href="/documentation/developers-and-admins/api/content-item-api/content-item-database-structure">references to content items</a>, which they can further process. For example, they can retrieve URLs of web pages to which editors want to guide their audience. You can also configure the <em>Combined content selector</em> to specify <a href="/documentation/developers-and-admins/development/content-types#add-the-option-to-link-content-items">which content types editors can refer to</a>. Specifying allowed content types creates predictable structures and improves the editing and development experience.</p>
+<h2 id="track-and-manage-language-variants-of-content">Track and manage language variants of content</h2>
+<p><em>Atomic content model</em> in Xperience supports multilingual delivery. It allows editors to store reusable content items in one language and track which language variants exist or are missing.</p>
+<p>When editors create a language variant of their content, Xperience indicates whether all other content items that compose this content item are translated or not.</p>
+<p></p>
+<p><a href="/documentation/developers-and-admins/configuration/languages#language-fallbacks">Language fallback</a> allows shared content to remain consistent across languages: Editors don’t need to duplicate it, which reduces translation workload.</p>
+<p>Teams can choose which linked items, such as <em>local-specific CTAs</em> or <em>product descriptions</em> that depend on the market variants, should be translated while leaving others, like globally defined <em>disclaimers</em>, <em>taxonomies</em>, or <em>brand visuals</em>, shared across all language versions. This simplifies managing multilingual sites and helps content stay consistent across markets.</p>
+<h2 id="use-wrappers-to-display-atomic-content-across-multiple-channels">Use wrappers to display atomic content across multiple channels</h2>
+<p>The <em>atomic content model</em> keeps the data clean of channel-specific details. To deliver the reusable content in a specific channel, editors will add necessary channel-specific context by using <em>wrapper pages</em> for headless or website delivery.</p>
+<p>A <strong>wrapper</strong> is a content item (<em>webpage content type</em> in website channels or* headless content type<em>). Editors use wrappers to refer to a specific item in the </em>Content hub* to get global, universal data, for example, for a <em>product</em>, and then layer on the details needed for a specific channel, such as your website, email campaigns, or a headless application. Adding the <em>wrapper page</em> into the content tree also ensures the content can be navigable through <a href="/documentation/business-users/website-content/manage-page-urls">a page URL</a>.</p>
+<p></p>
+<h3 id="how-page-wrappers-work-on-websites">How page wrappers work on websites</h3>
+<p>For example, when displaying a <em>product</em> on your website, editors don’t store <em>Open Graph</em> metadata, <em>SEO metadata</em>, <em>canonical URL</em>, or the <em>page publish date</em> inside the <strong>Product</strong> content type. Instead, they:</p>
+<ul>
+<li>Put a reusable <em>Product</em> content item with valid data for any presentation layer to the <em>Content hub</em>.</li>
+<li>Use a dedicated <em>wrapper</em> page to add a <em>Product page</em> in the website’s content tree.</li>
+<li>Refer to the <em>Product</em> content item stored in the <em>Content hub</em> using a selector.</li>
+<li>Add channel-specific fields in the page wrapper, such as:
+<ul>
+<li>
+<em>Open Graph title</em> and <em>description</em> for social sharing.</li>
+<li>
+<em>SEO title</em> and <em>meta description</em> for search engines.</li>
+<li>
+<em>Publish date</em> and <em>author</em> for blog-like content.</li>
+<li>Channel-specific <em>hero images</em> or <em>banners</em> used only for website channels.</li>
+</ul>
+</li>
+</ul>
+<p></p>
+<p>This approach ensures your <em>atomic content</em> remains clean, reusable, and consistent while allowing your website to display it with the metadata and context needed for that channel.</p>
+<h3 id="how-wrappers-work-in-headless-delivery">How wrappers work in headless delivery</h3>
+<p>In headless scenarios, editors can create a headless wrapper for their content. The <em>headless wrapper</em> references the reusable content items. It allows editors to add channel-specific calls to action, hero banners, or tracking tags needed for the app or headless site, without modifying the underlying structured data.</p>
+<p>For example, the marketing team can add a seasonal CTA to the headless wrapper while the Product content remains unchanged in the Content hub. We discuss approaches to <a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">designing headless content</a> in a dedicated guide.</p>
+<p></p>
+<h3 id="why-content-wrappers-matter">Why content wrappers matter</h3>
+<p><em>Page</em> (or <em>content</em>) <em>wrappers</em> allow you to:</p>
+<ul>
+<li>Maintain a single source of truth for your core content while adapting it for each channel’s needs.</li>
+<li>Avoid duplicating data just to add metadata necessary for a particular channel.</li>
+<li>Support flexible delivery across channels, ensuring your website, headless apps, and other customer touch points present the same content.</li>
+<li>Empower editors to enhance content items within their channel without changing the underlying <em>core reusable data</em>.</li>
+</ul>
+<p>This approach makes your content model scalable and helps marketing, product and other teams collaborate to deliver content across different digital marketing channels.</p>
+<h2 id="plan-content-lifecycle-workflows-and-governance">Plan content lifecycle workflows and governance</h2>
+<p>The <em>atomic model</em> works best with clear rules for who owns which content. Different teams can manage specific reusable parts without stepping on each other’s work. For example, product managers can own and update the <em>core product data</em>, the marketing team can manage and optimize <em>campaign CTAs</em>, and the legal team maintains <em>disclaimers</em> to ensure compliance.</p>
+<p>Using <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspaces</a>, <a href="/documentation/developers-and-admins/configuration/users/role-management/page-permission-management">page permissions</a>, <a href="/guides/configuration/work-with-users-and-roles/work-with-users/users-and-roles-overview">role permissions</a>, and content <a href="/guides/digital-marketing/work-with-workflows/workflows">workflows</a> in Xperience helps you enforce this structure.</p>
+<p>You can set up <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspaces</a> so each team only sees and edits the content they are responsible for. Combine <em>workflows</em> with granular <a href="/documentation/developers-and-admins/configuration/users/role-management#assign-permissions-to-roles">permissions</a> to ensure editors can access content they are supposed to work with without accidentally modifying it. Content <a href="/guides/digital-marketing/work-with-workflows/workflows">workflows</a> add an approval layer, ensuring changes are reviewed by the right people before they go live.</p>
+<p>Good governance ensures that <strong>editors don’t accidentally break the structure or duplicate data across</strong> the system. It keeps your content model clean and sustainable, enabling your teams to collaborate confidently while protecting the integrity of your reusable content.</p>
+<h2 id="know-the-challenges-before-you-start">Know the challenges before you start</h2>
+<p><em>Atomic models</em> are powerful but require more planning. This means that they work well for mostly experienced teams. Teams must cooperate during the <a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">content modeling sessions</a> to ensure the project’s success. They need to agree on many different things, from content composition to the content governance rules, up to a detailed understanding of the content lifecycle. Editors working with the atomic content model will also need detailed training on how to <em>compose larger content types from smaller linked items</em>.</p>
+
+<div>
+
+</div>
+<div>
+<p>If the project operates across several channels from the beginning, it is worth investing the time and other resources to define a reusable atomic content model upfront.</p>
+</div>
+
+<h3 id="manage-the-complexity-in-planning-and-modeling-sessions">Manage the complexity in planning and modeling sessions</h3>
+<p>Atomic content requires careful planning to define <em>reusable content types</em>, <em>naming conventions</em>, and <em>relationships</em> between them. The model can become confusing and slow to implement without an explicit agreement between business stakeholders, content managers, and developers. They need to agree on how they’ll compose different content types, which content needs to be reusable or one-off, and especially the content model handover workflows. Editors need to test if the way they’ll compose the content from atomic pieces using the suggested approach will work for them.</p>
+<p>Start by identifying high-value, obviously reusable content pieces, such as <a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">content types</a> described in <a href="https://schema.org" target="_blank">schema.org</a>. Then break down these large content types into smaller content types that still represent semantic units, for example, <em>benefits</em>, <em>features</em>, <em>author bios</em>, and <em>CTAs</em>, before breaking all content into <em>atomic pieces</em>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Workshop your content model with stakeholders to identify reusable elements early and map clear ownership before building the project.</p>
+</div>
+
+<p>Share a <em>test environment</em> with the stakeholders from the content teams during the initial implementation, where they can experiment with the suggested model. This will help teams gain experience with what working with reusable content looks like in Xperience and experience the benefits of reusing, not duplicating, content.</p>
+<h2 id="avoid-making-the-model-excessively-granular">Avoid making the model excessively granular</h2>
+<p>It is easy to overdo <em>atomic modeling</em>, create too many micro content types, and multiply the complexity of the content model without meaningful benefits. Each project differs, and you need to find a balance between reusability and practical editorial workflows.</p>
+<p>An easy way to test the complexity is to require your developers (and other solutions architects) to create and then adjust several content items to test the editing experience. Once they put themselves in the editor’s shoes, they’ll discover any friction in the suggested flow and identify where to optimize it.</p>
+<h3 id="manage-linked-dependencies-during-publishing">Manage linked dependencies during publishing</h3>
+<p>Atomic content creates dependencies between content items. If an editor updates a reusable <em>benefit</em>, it impacts all products using that benefit. Xperience supports <a href="/documentation/business-users/content-hub/content-items#cascade-publishing">cascade publishing</a>, which allows publishing all unpublished linked (or associated) items with the content item editors work with. Implement <em>review and approval processes</em> for shared content items, so updates to reusable elements are deliberate and vetted by the right stakeholders before they appear across channels. This protects consistency while supporting flexibility for updates.</p>
+<p>While <em>cascade publishing</em> helps ensure consistent content, editors might also accidentally publish unintended changes. This happens when teams don’t align on governance, and the project doesn’t have correctly set content management workflows and workspaces.</p>
+<h3 id="consider-potential-query-and-performance-issues">Consider potential query and performance issues</h3>
+<p>Composing content dynamically from multiple linked items at several levels will require additional <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#content-query-parameterization">query optimization</a> and <a href="/documentation/developers-and-admins/development/caching">caching strategies</a> during delivery, especially on high-traffic applications with complex content relationships.</p>
+<p>Your developers will need to ensure that they poll exactly the data they need to a specific level to avoid query performance hits. Work closely with developers to optimize queries and caching for your atomic content structures. Atomic models can lead to more complex queries, and planning performance strategies early ensures your site or app remains fast and scalable. If the content types share the same content properties, consider storing them in <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> to consolidate the content type’s complexity and improve querying.</p>
+<h3 id="define-safeguards-in-content-governance">Define safeguards in content governance</h3>
+<p>Atomic content modeling works best when teams have clear <em>roles</em> and governance responsibilities. Define <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspace</a> and permission configurations to avoid accidental content modifications.</p>
+<p>Collaborate with the <a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process#who-needs-to-be-involved">stakeholders</a> to define clear ownership and workflows for reusable content. Ensure each team knows which content they manage, who approves changes, and how updates flow across linked items. This reduces friction and prevents conflicts when editors reuse content across multiple channels.</p>
+<h3 id="address-the-editorial-learning-curve">Address the editorial learning curve</h3>
+<p>Composing pages or products from multiple linked items can initially feel fragmented, especially if the team is used to working with monolithic, <em>page-based content types</em>. Editor teams, not just the stakeholders on the content modeling team, will need training sessions and a sandbox environment to learn how to build content from smaller, linked content items instead of editing almost everything in one place.</p>
+<p>Make sure there’s enough time in the project timeline to <em>train editors and reviewers</em> on working with their content items. Editors need to understand how to assemble pages and other content artifacts using reusable content pieces and what the new workflow will look like. Use <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-react-input-components">explanation texts</a> or <em>tooltips</em> to provide editor guidance, context, and instructions to clarify what data and format they should input into different content types and what the output will look like once the content is displayed. And supply <em>extensive documentation</em> as part of the project deliverables.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>You’ve learned how the atomic content model helps you build a scalable and reusable content model for Xperience by Kentico applications. Your content model supports multi-channel delivery by breaking content into smaller, linked elements. It simplifies multilingual management, keeps content consistent across different digital experiences, and improves long-term governance.</p>
+<p>While atomic modeling is powerful for projects that require content reuse and flexibility, there are scenarios where a <em>page-based approach</em> may better fit the project’s needs, especially for straightforward <strong>website-driven projects</strong>. Next, let’s explore next how to design a <a href="/guides/architecture/content-modeling/content-modeling-guide/design-atomic-content-model">page-based content model</a> in Xperience by Kentico and learn when it makes sense.</p>
+
+</body>
+</html>

@@ -388,7 +388,7 @@ IEnumerable&lt;BaseViewModel&gt; pages =
   await contentRetriever.RetrievePagesOfContentTypes&lt;BaseViewModel&gt;(contentTypes);
 
 // Uses pattern matching to handle the specific type
-switch (allPages.FirstOrDefault())
+switch (pages.FirstOrDefault())
 {
   case ArticlePage article:
     // Specific logic for ArticlePage

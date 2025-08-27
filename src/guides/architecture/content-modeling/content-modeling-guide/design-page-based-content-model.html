@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Design page-based content models</title>
+</head>
+<body>
+<h2 id="about-this-guide">About this guide</h2>
+
+<div>
+<p>This page is a part of the <strong>Content modeling guide</strong> which you should follow sequentially from <a href="/guides/architecture/content-modeling/content-modeling-guide">beginning to end</a>. You can also follow this series in , which helps you keep track of your progress as you move through this sequential material.</p>
+</div>
+
+<p>From a marketing perspective, not all content will be distributed across multiple marketing channels. The <strong>page-based model</strong> works perfectly in situations when semantically defined content is displayed under one specific URL.</p>
+<p>In projects that embrace a <em>page-based content model</em>, editors save, structure, and manage content as <strong>individual pages within a website channel</strong>. They use the <strong>Page Builder</strong> to display content from the <strong>Content hub</strong> or add content directly to the page.</p>
+<h2 id="understand-how-editors-work-with-page-content-in-xperience">Understand how editors work with page content in Xperience</h2>
+<p>Compared to other CMS solutions where website pages and their storage capabilities are used for creating one-off, non-reusable content, storing content in Xperience <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">webpage content types</a> <strong>doesn’t mean that this content is available only when a user visits a specific page</strong>.</p>
+<p>If the webpage content is stored in <a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">structured format</a>, editors can use this <em>page-specific data</em> across the website channel where they create the page, refer to it from other website channels, or share it through emails.</p>
+<p>Typical Xperience projects built with the page-based approach contain pages with structured fields in <a href="/documentation/business-users/website-content#view-modes">Content</a> view mode and the <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a>.</p>
+<p>Editors capture data they want to reuse as <em>structured data</em> (in the <em>Content</em> view or as content items in the <em>Content hub</em>). They then use the <em>Page Builder’s</em> easy-to-work-with drag-n-drop interface and display this page data on the same page, across other website pages, or in emails. <em>Page Builder</em> widgets allow them to retrieve <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">reusable content items or content blocks</a> content from the <em>Content hub</em>, for example, a <a href="/guides/digital-marketing/work-with-reusable-content/reuse-content-with-the-hero-widget">Hero banner</a> or other <strong>content fragments</strong>, such as a collection of <em>questions</em> and <em>answers</em> for a QA page, in the <a href="/documentation/business-users/content-hub">Content hub</a>.</p>
+<p>Editors can compose layouts in a WYSIWYG manner, giving the content clear visual meaning and hierarchy. In the backend, the <em>Page Builder</em> components help editors communicate the content’s semantics and structure in a way that is understood by search engines, screen readers, and other systems.</p>
+<p>The following example shows a product page on the Kbank website. Though this website page is built using <a href="/guides/architecture/content-modeling/content-modeling-guide/design-atomic-content-model">atomic content model</a>, this page uses <em>structured data</em> and <em>Page Builder</em> to display it.</p>
+<p></p>
+<h2 id="learn-why-the-page-based-model-works-for-web-first-projects">Learn why the page-based model works for web-first projects</h2>
+<p>The <em>page-based content model</em> best fits projects with a dominant, single website channel, where editors plan to use this website content in emails or a few micro-channels.</p>
+<p>When an editor thinks, <em>“I’m creating and publishing a page that users can navigate to using a URL,”</em> their workflow can be much simpler. It feels natural, and looking at the page, the editor has all the necessary context. They have a clear picture of the content’s layout, they understand its structure and purpose within the website channels, especially if they come to Xperience from traditional CMS solutions.</p>
+<p>Consider also the following benefits:</p>
+<ul>
+<li>The <em>page-based content model</em> supports campaign workflows well. It is easy to create, clone, and manage landing pages, and editors can reference structured content in related newsletters or campaign emails as needed. This flexibility allows teams to react quickly when campaign requirements change.</li>
+<li>Curating existing media and other assets becomes simpler. Editors usually update their content from within the page context and refer to assets directly from the specific pages using the <em>Content</em> view mode or, more likely, the <em>Page Builder</em> widgets.</li>
+<li>A page-based workflow makes onboarding easier. Editors see their content in context, which reduces new users’ training time.</li>
+</ul>
+<p>Let’s discuss key aspects of defining a page-based content model.</p>
+<h2 id="always-focus-on-the-editor-workflow">Always focus on the editor workflow</h2>
+<p>Data in <em>page-based, web-centric projects</em> closely reflects the visual experience.</p>
+<p>When you define content types for a <em>page-based content model</em>, start by examining the website designs provided by your graphic design or UX teams. Consider how editors naturally want to assemble this page and aim to support their workflow without unnecessary friction.</p>
+<p>Ask: <em>If I were an editor, how would I want to put together this page? Which parts of this page do I want to use somewhere else? Which components do I need to build this page?</em></p>
+<p>Editors will create pages from the website channel. They first select the <em>content type</em>, then a <em>page template</em> that contains <em>editable areas</em> for <em>sections</em> with <em>widget zones</em> where they place <em>widgets</em>.</p>
+<p>Looking at the design from the editor’s workflow perspective will help you identify which content editors can add directly in the <em>Page Builder</em>, which should be added in the <em>Content</em> view, and which parts of the page need to become reusable <em>Content hub</em> items.</p>
+
+<div>
+
+</div>
+<div>
+<p>Your goal is to minimize how often editors need to switch between the <em>Content</em> tab and <em>Page Builder</em> while creating related content.</p>
+</div>
+
+<p>Then, look at the content pieces from a higher perspective and think:</p>
+<p><em>Which pieces of content will editors create before they build this page? What they need to have ready in advance before they start working on this page? Which data will they put together at once? What content will they likely work on after they finish this page?</em></p>
+<p>This helps ensure editors won’t need to switch between the <em>Content</em> view mode and <em>Page Builder</em> context to complete related tasks. Aim for a seamless workflow that keeps the editor in the context of one editing UI as long as possible.</p>
+
+<div>
+
+</div>
+<div>
+<p>When you decide which content will be stored in fields, define <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-visibility-conditions">visibility conditions</a> to improve editor workflow. This will allow hiding <em>advanced design</em> and introducing <em>configuration options</em> by default. Editors will work in a clean, focused editing interface that reduces potential errors and confusion.</p>
+</div>
+
+<h2 id="identify-reusable-data">Identify reusable data</h2>
+<p>When an editor stores data into the page, the content becomes “owned” by the page. It is always navigable under the page-specific URL, and in case of storing data in the <a href="/documentation/business-users/website-content/widgets-and-page-builder">Page Builder</a>, this data is not easy to reuse.</p>
+<p>At the same time, editors will want to share bits and pieces of their content strategically across their website, on additional microsites, or emails. They also want to ensure their website data adheres to the traditional <a href="https://developers.google.com/search/docs/appearance/structured-data/sd-policies" target="_blank">SEO requirements</a>.</p>
+<p>Identify data that needs to be <em>reusable across pages or channels</em>. Look for content structured by nature, such as <em>titles</em>, <em>summaries</em>, <em>addresses</em>, <em>opening hours</em>, <em>pricing tables</em>, or <em>product feature lists</em>. Check the examples of <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content#aim-for-semantic-content-types">semantic content types</a> that reflect real-life use cases.</p>
+<p>Determine what <a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content#benefits-of-structured-content">structured data</a> is needed to construct data for <a href="https://ahrefs.com/blog/semantic-seo/" target="_blank">semantic SEO</a>, which data will editors want to display in multiple places and make sure that this data is stored in a structured form in the <em>Content</em> view.</p>
+<p>Determine the <a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content#benefits-of-structured-content">structured data</a> needed to construct <a href="https://developers.google.com/custom-search/docs/structured_data" target="_blank">web page’s rich metadata</a>:</p>
+<ul>
+<li>
+<a href="https://developers.google.com/custom-search/docs/structured_data#jsonld" target="_blank">JSON-LD metadata</a> for traditional SEO,</li>
+<li>
+<a href="https://ogp.me/" target="_blank">OpenGraph metadata</a> for social media,</li>
+<li>newly proposed <a href="https://llmstxt.org/" target="_blank">LLMs-txt</a> standard,</li>
+<li>shared web page data editors want to display in multiple places, and ensure that this data is stored in a structured form in the <a href="/documentation/business-users/website-content#view-modes">Content</a> view.</li>
+</ul>
+<p>Website editors might want to overwrite the default, <em>core content values</em> stored in the website <a href="/documentation/developers-and-admins/development/content-types">data field</a>. Also plan for fields to <a href="/guides/architecture/content-modeling/model-website-content-types/model-an-article-page">override</a> <em>publishing dates</em> or other system-generated values to help editors’ needs. Editors can reuse this structured data across different channels or websites, so consider how it will be modeled to allow controlled reuse without disrupting the page-based workflow.</p>
+<p>Finally, identify data that may originate from external systems, such as pricing data or product specifications, and plan how to import or reference this data within your content types while maintaining consistency and reliability for editors working in the page-based model.</p>
+
+<div>
+
+</div>
+<div>
+<p>When deciding between reusable and channel-specific content, follow a simple rule of thumb:</p>
+<p>Can editors reuse this piece of content on a different channel in the future? If yes, make it reusable and store it either in the Content view mode or in the <em>Content hub</em>.</p>
+</div>
+
+<h2 id="manage-media-assets-from-the-content-hub">Manage media assets from the Content hub</h2>
+<p>We recommend using the <em>Content hub</em> to manage reusable images, videos, and other assets and organize them in folders and a workspace structure. In a page-based content model, editors should be able to manage all their content from their website channel. Images and other assets are no exception.</p>
+<p>Design the editing flow with built-in components so the editor can upload any new assets they need for a page from within the edited page. Your developers configure widgets and content fields, so that editors can upload or select their assets using dedicated Content hub <a href="/documentation/business-users/content-hub/content-hub-folders">folder</a> and <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspace</a>.</p>
+<p>To bulk-upload images, editors will use the <a href="/documentation/business-users/content-hub/content-item-assets#mass-asset-upload">mass upload feature</a> in <em>Content hub</em>.</p>
+<h2 id="extract-shared-data-to-a-reusable-schema">Extract shared data to a reusable schema</h2>
+<p>Multiple pages will likely repeat the same fields across different content types that you can store into <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>.</p>
+<p>This <strong>core content</strong> typically includes information, such as <em>title</em>, <em>summary</em>, <em>taxonomy</em>, or a <em>thumbnail image</em>. <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">Reusable field schema</a> reduce data duplication, simplify content type management, and improve the editor experience. Content types with reusable field schemas are transparent and predictable. The data is stored in one of the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-database-structure#content-items">core content item database tables</a>, which helps developers optimize the performance of retrieving this data.</p>
+<p>At the same time, <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#combined-content-selector">combined content selector</a> allows editors to select items that share the same <em>reusable field schemas</em>, which simplifies content management and might require fewer widgets to display this content.</p>
+<p>See <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content#store-core-content-into-reusable-field-schemas">core content schema</a> for a deeper explanation and best practices for how to store core content into <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>.</p>
+<h2 id="define-page-specific-one-off-content">Define page-specific one-off content</h2>
+<p>Not all content needs to be reusable. Content like personalized <em>call-to-action button labels</em> or <em>page headings</em> will likely be specific only to the website channel, and it doesn’t have to exist as <a href="/guides/architecture/content-modeling/content-modeling-guide/design-atomic-content-model">reusable content</a> in the <em>Content hub</em> or as structured data within pages. Editors will create these items directly for a specific website page and keep them there.</p>
+<p>Besides adding reference to reusable <em>structured data</em>, editors can <strong>input content into widgets</strong> in two ways: through <a href="/documentation/business-users/website-content/widgets-and-page-builder#edit-widgets">widget properties</a> that display in the side panel view or in a WYSIWYG manner using widget inline editing.</p>
+<h3 id="make-widgets-respect-content-hierarchy">Make widgets respect content hierarchy</h3>
+<p>Provide widgets for one-off page content that editors will can to add one-off content. Your widgets should reflect project needs and ensure that input data maintains its <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Headings_and_paragraphs#implementing_structural_hierarchy" target="_blank">structural hierarchy</a> and semantic clarity. These widgets should support content such as <strong>tables</strong>, <strong>visual journeys</strong>, or <strong>step-by-step instructions</strong>. These widgets should generate semantic HTML and enforce consistent formatting across all pages.</p>
+
+<div>
+<p>Design <strong>Page Builder</strong> components to guide editors in creating pages that output valid, semantic HTML with clear structures like heading hierarchy or correctly identified content sections. This ensures consistent, accessible, and SEO-friendly pages without requiring editors to manage technical details manually. Learn more about how to <a href="#optimize-for-seo-and-ai">prepare your content for SEO and AI readiness</a>.</p>
+</div>
+
+<h3 id="integrate-rich-text-editing-when-necessary">Integrate rich text editing when necessary</h3>
+<p>Sometimes, projects require almost free-form WYSIWYG text editing with advanced styling options like formatting text, adding tables on the fly, or even adjusting the HTML markup. This usually happens when the editor team is upgrading to Xperience from an older <a href="/k12sp/developing-websites">kentico Portal Engine</a> website where they used to work with <a href="/k12sp/developing-websites/developing-websites-using-portal-engine#the-page-in-editing-mode">editable text</a> or comes to Xperience from another CMS platform.</p>
+<p>You can use the built-in <a href="/documentation/business-users/rich-text-editor">rich text</a> to create the most flexible editing experience.</p>
+<p>At the same time, remember: the page <em>owns</em> the content in the <em>Rich text</em> widget. It’s hard to reuse elsewhere because it isn’t structured and can’t be easily queried or shared across channels. It exists on the <a href="/documentation/business-users/website-content/manage-page-urls">page’s URL</a>, which makes it non-reusable across different <a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">channels</a>.</p>
+<p>If editors use the HTML editing mode, the designs they introduce can be more complicated to update (e.g., the company updates its brand messaging). During the content modeling session, your team should discuss and agree on <a href="/documentation/business-users/rich-text-editor">rich text editor configuration</a> to only allow desirable <a href="/documentation/business-users/rich-text-editor#allowed-html-attributes-and-tags">HTML attributes and tags</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Remember, all content added directly to a Page Builder widget is stored in a single database field, which makes it difficult to reuse this content.</p>
+</div>
+
+<p>While editors are used to working with <strong>rich text editors</strong> and they will likely ask for it in project requirements, always consider its implications in the content modeling sessions. Allowing editors to input rich text data or update significantly impacts content reusability and the project’s longevity when, for example, the company changes its brand manual. There are situations where rich text is completely fine, and there are cases in which a dedicated, slightly more restrictive widget will help maintain content longevity and improve maintainability.</p>
+<p>For example, if the editor team knows how to keep the <a href="https://www.w3schools.com/whatis/whatis_htmldom.asp" target="_blank">document structure</a> intact to <a href="#optimize-for-seo-and-ai">help technical SEO</a>, they can safely use the <em>rich text</em> widget to add page headings. In other cases, it might be helpful to create, for example, a dedicated widget, as you can see in the Kbank demo site.</p>
+<p></p>
+<h4 id="consider-creating-a-custom-markdown-widget">Consider creating a custom markdown widget</h4>
+<p>In general, we recommend storing content that has to stay consistent and presentation agnostic in <a href="/guides/architecture/content-modeling/content-modeling-guide/structured-and-unstructured-content">structured format</a>, either in <em>Content</em> view mode or using the <em>Content hub</em>.</p>
+<p>If you need to create a WYSIWYG editing experience but have to withhold data structure when editors add it to the page (for example, to display it in external systems), consider creating a custom <em>Markdown</em> widget to keep page data in a highly portable format. Editors will gain a free-from-like editing UI, and developers will have a slightly easier way to query the data in their custom API. See the <a href="https://github.com/Kentico/community-portal/tree/b7b6d98c01cb2e6eeb9cf579f7e67aed908e51f8/src/Kentico.Community.Portal.Web/Components/PageBuilder/Widgets/Markdown" target="_blank">Markdown widget</a> in the <a href="https://community.kentico.com/" target="_blank">Kentico Community Portal</a>.</p>
+<p></p>
+<h3 id="restrict-access-to-widgets-in-page-templates">Restrict access to widgets in page templates</h3>
+<p>To support a page-based model, define <em>Page Builder</em> page templates that match your intended <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content#aim-for-semantic-content-types">semantic content types</a>. Each template should provide clear areas aligned with your design files, with widgets and section editors that users <a href="https://community.kentico.com/blog/defining-editable-area-restrictions" target="_blank">are allowed to use</a>. You can find different examples of widgets and other recommendations for <a href="/guides/architecture/content-modeling/content-modeling-guide/design-website-content">displaying content</a> on a dedicated page.</p>
+<h2 id="connect-webpages-with-content-hub-reusability">Connect webpages with Content hub reusability</h2>
+<p>Some projects may require setting up content filters to improve the editors’ workflows or <a href="/guides/development/advanced-content/deliver-content-dynamically-with-smart-folders">deliver content dynamically</a>, based on, for example, publishing date or <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomy</a>. The features that enable this, such as advanced filtering and smart folders, are not yet available for the website channels.</p>
+<p>To connect a web page with page-specific content with the reusable, channel-agnostic capabilities of the <em>Content hub</em>, we recommend creating a <strong>Page proxy</strong> content type. The <em>page proxy</em> represents a specific webpage within a website channel inside the <em>Content hub</em>. Thus, you’ll allow editors to take advantage of <em>Content hub</em> features that are not available to Xperience website channels.</p>
+<p></p>
+<p>The <em>page proxy</em> pattern helps in scenarios where specific page types need to participate in <em>Content hub</em> workflows, such as using smart folders for dynamic content delivery, creating content collections using <em>Content hub</em> folders for filtering, or reusing specific taxonomy tags across related content.</p>
+<p>Note that <em>Page proxies</em> are unnecessary for every page type and should be used only where the benefits of connecting with the <em>Content hub</em> are clear.</p>
+
+<div>
+
+</div>
+<div>
+<p>Developers can also custom-build a feature that automatically creates its <em>page proxy</em> when an editor makes a page in a website channel. This will improve the editor workflow and ensure the <em>page proxy</em> pattern remains in sync with the source page.</p>
+<p>You can inspect the <em>page proxy</em> pattern and its <a href="https://github.com/Kentico/community-portal/blob/b7b6d98c01cb2e6eeb9cf579f7e67aed908e51f8/src/Kentico.Community.Portal.Web/Features/Blog/Events/BlogPostContentAutoPopulateHandler.cs" target="_blank">implementation</a> on the <a href="https://community.kentico.com/" target="_blank">Kentico Community Portal</a>.</p>
+</div>
+
+<h2 id="address-challenges-in-a-page-based-model">Address challenges in a page-based model</h2>
+<p>When you build a <em>page-based content model</em>, you may run into challenges that limit flexibility, scalability, or content reuse. This section explores practical approaches to mitigate common issues, helping you maximize the use of Xperience’s capabilities while maintaining a clean, maintainable content structure.</p>
+
+<table>
+<thead>
+<tr>
+<td>
+<p>Challenge</p>
+</td>
+<td>
+<p>How to address</p>
+</td>
+</tr>
+</thead>
+<tr>
+<td>
+<p>Inconsistent structure</p>
+</td>
+<td>
+<p>Provide semantically structured widgets with enforced HTML tags and ARIA labels.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Limited cross-channel reuse</p>
+</td>
+<td>
+<p>Use <em>Content hub</em> for reusable, non-navigable content.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>SEO and AI readiness</p>
+</td>
+<td>
+<p>Use structured data fields (JSON-LD), validate with accessibility and SEO tools. (Use external tools until the Xperience <a href="/documentation/business-users/aira">AIRA</a> receives related features.)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Content fragmentation</p>
+</td>
+<td>
+<p>Use placeholder widgets to enable referencing structured content within pages.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Taxonomy underuse</p>
+</td>
+<td>
+<p>Plan taxonomy structures and enforce tagging during content creation.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Workflow friction</p>
+</td>
+<td>
+<p>Group related fields in the <em>Content</em> view mode to reduce context switching and UI information overload.</p>
+</td>
+</tr>
+</table>
+
+<h2 id="add-widget-properties-for-overriding-reusable-values">Add widget properties for overriding reusable values</h2>
+<p>Making content reusable doesn’t mean editors are limited to always displaying the core reusable values. They need a flexible editing experience. They need to tweak parts of the content when they display it on one page, and adjust different parts when they display it somewhere else.</p>
+<p>When you look at the</p>
+<p>Since you have <a href="#identify-reusable-data">reusable content</a> you have in <a href="#identify-reusable-data">identified</a>, ask yourself:</p>
+<p><em>Which of these reusable page structured data will editors want to overwrite, for example, in personalization variants? Which of this data will they want to move or style on the page?</em></p>
+<p>Improve the editing experience and define the <em>Page Builder</em> widget with properties that will allow editors to overwrite the core values without modifying the source data. For example, when an editor selects content to feature in a card, they will want to overwrite the core content <em>description</em> with a message that better fits their needs.</p>
+<p></p>
+<p>Use <a href="/guides/digital-marketing/work-with-taxonomies/taxonomies">taxonomies</a> to systematically categorize and surface related content while ensuring your content model supports filtering without additional complexity. Include structured metadata fields in the <em>Content tab</em> to handle SEO, Open Graph, and <a href="https://json-ld.org/" target="_blank">JSON-LD</a> requirements, maintaining consistency and machine-readability across all pages. Finally, while allowing rich text fields where flexibility is needed, consider Markdown or structured text fields for content requiring uniformity and easier reuse.</p>
+<h3 id="avoid-creating-channel-specific-content-from-linked-content-fragments">Avoid creating channel-specific content from linked content fragments</h3>
+<p>Building pages with the <em>Page Builder</em> is addictive which also creates a trap. You might be tempted to define one or two universal page templates with widgets and let editors assemble any content using <em>one-off</em> or <em>reusable data</em> from <em>Content hub</em>.</p>
+<p>This free-form approach works well for short-lived, campaign-style pages. Editors create content quickly and iterate quickly over the page’s layout and data.</p>
+<p>But <em>free-form pages</em> can become a liability for anything beyond a campaign page. When editors compose content from non-semantic content fragments (hero, text block, testimonial, FAQ), they’re assembling presentation but don’t create meaningful content item. The combination of individual fragments lives only within the page where they were placed.</p>
+<p>Editors create a <em>semantic content items</em> in the website channel. The <a href="/api/content-management">Xperience API</a> doesn’t offer methods that allow developers to reliably query this data, so editors won’t be able to reuse their content effectively.</p>
+<p>The result is channel-locked content that’s hard to adapt to mobile apps, emails, search, or API consumers. What starts as flexibility turns into fragmentation: editors need to double down on duplicated content, and when they miss anything, their messaging might not be consistent. Instead, prefer <em>Page Builder</em> for layout and campaign agility and introduce structured data to support consistent and reusable delivery.</p>
+<h2 id="leverage-built-in-taxonomies">Leverage built-in taxonomies</h2>
+<p>Building your entire digital experience within the website channel using page-based data can lead to under-utilizing Xperience’s <a href="/guides/digital-marketing/work-with-taxonomies/taxonomies">taxonomy</a> feature. If you’re coming from older Kentico products, you may be used to categorizing the content using the content tree hierarchy in the website content model. However, relying solely on the content tree for categorization can limit how effectively you use Xperience’s full capabilities.</p>
+<p>Instead, consider how you can leverage built-in taxonomies effectively. Review your content taxonomy to determine which categories should be structured within the content tree—such as business areas that align with your site’s navigation—and where tagging can enhance your global taxonomy, such as image categories, article categories, persona-specific content, or campaign data.</p>
+<p>This approach will help you integrate <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a> naturally into your editor workflow, and ensure that editors categorize content with identical tags during content creation. Using taxonomy tags, developers then leverage <a href="/documentation/developers-and-admins/configuration/taxonomies#retrieve-taxonomies-and-tagged-content">leverage taxonomy API</a> for more flexible retrieval, filtering, and organization.</p>
+<h2 id="optimize-for-seo-and-ai">Optimize for SEO and AI</h2>
+<p>The traditional SEO landscape is evolving fast thanks to the <a href="https://searchengineland.com/stay-grounded-inspired-ai-changes-search-seo-457918" target="_blank">AI-driven innovations</a>. Ignoring the new trends or forgetting about the traditional <a href="https://www.semrush.com/blog/technical-seo/" target="_blank">technical SEO</a> rules and practices can significantly influence the application’s discoverability.</p>
+<p>Ensure your content is ready for AI-driven discovery and SEO. You need to deliberately architect your page-based model to adhere to existing <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Using_the_Document_Object_Model" target="_blank">conventions</a>.</p>
+<p>Make sure that every page has a way to store necessary metadata. Use <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schema</a> in the <em>Content</em> view to provide fields for SEO, Open Graph, and other systems and frameworks that the project needs to support.</p>
+<p>Front-end designers need to orchestrate the Page Builder components so that the markup they provide returns correct semantic HTML elements such as <code>main</code>, <code>article</code>, or <code>section</code> elements and that the page’s content hierarchy follows <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Headings_and_paragraphs#implementing_structural_hierarchy" target="_blank">web standards</a>, making the content structure ready for search engines, accessibility tools and AI agents.</p>
+<p>Developers need to consistently apply <a href="https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data" target="_blank">structured metadata</a> to maintain a transparent, machine-readable data layer across all pages.</p>
+
+<div>
+<p>Since AIRA content capabilities <a href="https://roadmap.kentico.com/c/320-ai-content-auto-tagging" target="_blank">are evolving</a>, we recommend integrating a 3rd-party solution to validate your pages using SEO and accessibility tools as part of your publication workflow. Also, specialists should periodically review website content and markup to ensure editors follow structured data practices. They need to align the digital content with evolving search engine requirements and ensure your content remains discoverable within AI-driven search contexts.</p>
+</div>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>You’ve learned how to define a page-based content model to help editors understand and manage their content. They will store most of their data in website channel pages and put all reusable content, including images and other assets, in the <em>Content hub</em>. In the next section, you’ll learn about creating a highly reusable content experience using <a href="/guides/architecture/content-modeling/content-modeling-guide/design-atomic-content-model">atomic content model</a>. You’ll learn how to build a model that makes the core content independent of any presentation layer and allows strategic reuse across different systems.</p>
+
+</body>
+</html>

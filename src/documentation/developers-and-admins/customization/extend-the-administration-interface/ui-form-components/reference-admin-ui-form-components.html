@@ -35,7 +35,8 @@
 <li><a href="#code-editor">Code editor</a></li>
 <li><a href="#dropdown-selector">Dropdown selector</a></li>
 <li><a href="#date-input">Date input</a></li>
-<li><a href="#datetime-input">DateTime input</a></li>
+<li><a href="#date-and-time-input">Date and time input</a></li>
+<li><a href="#date-and-time-with-label">Date and time with label</a></li>
 <li><a href="#decimal-number-input">Decimal number input</a></li>
 <li><a href="#link">Link</a></li>
 <li><a href="#number-input">Number input</a></li>
@@ -65,6 +66,8 @@
 <a href="#CiSelectorCTName">ContentTypeName</a> – the code name of the content type. Scopes the selector to offer items of the given content type.</li>
 <li>
 <a href="#CiSelectorCTNameMultiple">ContentTypeNames[]</a> – an array of content type code names. Scopes the selector to offer items of the given content types.</li>
+<li>
+<a href="#CiSelectorCTFilter">IContentTypesFilter implementation</a> – an implementation of the <code>IContentTypesFilter</code> interface that scopes the offered items to those whose content type is allowed by the filter.</li>
 <li>
 <a href="#CiSelectorReusable">IReusableFieldSchemasFilter implementation</a> – an implementation of the <code>IReusableFieldSchemasFilter</code> interface that scopes the offered items to those whose content type uses one of the specified <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a>.</li>
 </ul>
@@ -226,7 +229,8 @@ public class ContentItemSelectorUsage : ViewComponent
                 LinkedItemsMaxLevel = 1 
             },
             query =&gt; query.Where(w =&gt; w.WhereIn("ContentItemGUID", productGuids)),
-            new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(Where)}|{nameof(WhereIn)}|ContentItemGUID")
+            new RetrievalCacheSettings(cacheItemNameSuffix:
+                $"{nameof(RetrieveContentOfContentTypesQueryParameters.Where)}|{nameof(WhereParameters.WhereIn)}|ContentItemGUID|productGuids")
         );
 
         // Iterates over selected items as typed objects
@@ -239,6 +243,119 @@ public class ContentItemSelectorUsage : ViewComponent
             if (item is Grinder grinder)
             {
                 // Handle grinder data
+            }
+        }
+
+        return View("...");
+    }
+}
+</code></pre>
+</div>
+
+<h4 id="content-type-based-scoping-and-retrieval-for-multiple-content-types-using-icontenttypesfilter">Content type-based scoping and retrieval for multiple content types using ‘IContentTypesFilter’ </h4>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Scope the selection using ‘IContentTypesFilter’</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Assigns the combined content selector as the property's editing component
+// Enables selection from content items whose content types are allowed by the filter
+[ContentItemSelectorComponent(typeof(GalleryFilter), Label = "Selected assets", Order = 1)]
+public IEnumerable&lt;ContentItemReference&gt; AssetsToDisplay { get; set; } = new List&lt;ContentItemReference&gt;();
+
+// Filters the set of content items available in the selector
+// to content types that have a field of the 'ContentItemAsset' type
+public class GalleryFilter : IContentTypesFilter
+{
+    public IEnumerable&lt;Guid&gt; AllowedContentTypeIdentifiers =&gt; DataClassInfoProvider
+        .GetClasses()
+        .WhereEquals(nameof(DataClassInfo.ClassType), ClassType.CONTENT_TYPE)
+        .WhereEquals(nameof(DataClassInfo.ClassContentTypeType), ClassContentTypeType.REUSABLE)
+        .GetEnumerableTypedResult()
+        .Where(x =&gt; FormHelper
+            .GetFormInfo(x.ClassName, false)
+            .GetFields(true, false, includeDummyFields: false)
+            .Any(y =&gt; y.DataType.Equals(FieldDataType.ContentItemAsset))
+            )
+        .Select(x =&gt; x.ClassGUID)
+        .ToList();
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Retrieve selection scoped to types allowed by ‘IContentTypesFilter’</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class ContentItemSelectorUsage : ViewComponent
+{
+    private readonly IContentRetriever contentRetriever;
+
+    public ContentItemSelectorUsage(IContentRetriever contentRetriever)
+    {
+        this.contentRetriever = contentRetriever;
+    }
+
+    public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
+    {
+        // Gets the GUIDs from the annotated property
+        var assetsToDisplayGuids = model?.Properties?.AssetsToDisplay.Select(i =&gt; i.Identifier).ToList();
+
+        // Gets the names of content types allowed by the filter
+        var filter = new GalleryFilter();
+        var contentTypeNames = DataClassInfoProvider
+                        .GetClasses()
+            .WhereIn(nameof(DataClassInfo.ClassGUID), filter.AllowedContentTypeIdentifiers)
+            .Select(x =&gt; x.ClassName)
+            .ToList();
+
+        // Retrieves data of the selected content items
+        var result = await contentRetriever.RetrieveContentOfContentTypes&lt;IContentItemFieldsSource&gt;(
+            contentTypeNames,
+            new RetrieveContentOfContentTypesParameters 
+            { 
+                LinkedItemsMaxLevel = 1 
+            },
+            query =&gt; query.Where(w =&gt; w.WhereIn("ContentItemGUID", assetsToDisplayGuids)),
+            new RetrievalCacheSettings(cacheItemNameSuffix: 
+                $"{nameof(RetrieveContentOfContentTypesQueryParameters.Where)}|{nameof(WhereParameters.WhereIn)}|ContentItemGUID|assetsToDisplayGuids")
+        );
+
+        // Iterates over selected items as typed objects. 'Image' and 'Video'
+        // are generated model classes representing content types that contain
+        // a content item asset field.
+        foreach (var item in result)
+        {
+            if (item is Image image)
+            {
+                // Handle image data
+            }
+            if (item is Video video)
+            {
+                // Handle video data
             }
         }
 
@@ -318,7 +435,8 @@ public class ContentItemSelectorUsage : ViewComponent
                 LinkedItemsMaxLevel = 1
             },
             query =&gt; query.Where(w =&gt; w.WhereIn("ContentItemGUID", selectedProductGuids)),
-            new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(Where)}|{nameof(WhereIn)}|ContentItemGUID")
+            new RetrievalCacheSettings(cacheItemNameSuffix: 
+                $"{nameof(RetrieveContentOfContentTypesQueryParameters.Where)}|{nameof(WhereParameters.WhereIn)}|ContentItemGUID|selectedProductGuids")
         );
 
          // Custom logic...
@@ -919,7 +1037,8 @@ public class SmartFolderSelectorUsage : ViewComponent
         IEnumerable&lt;Coffee&gt; result = await contentRetriever.RetrieveContent&lt;Coffee&gt;(
             RetrieveContentParameters.Default,
             query =&gt; query.InSmartFolder(selectedSmartFolderGuid),
-            new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(InSmartFolder)}|{selectedSmartFolderGuid}"));
+            new RetrievalCacheSettings(cacheItemNameSuffix:
+                $"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{selectedSmartFolderGuid}"));
 
         // Custom logic...
 
@@ -996,7 +1115,8 @@ public class SmartFolderSelectorUsage : ViewComponent
             new[] { IProductFields.REUSABLE_FIELD_SCHEMA_NAME },
             RetrieveContentOfReusableSchemasParameters.Default,
             query =&gt; query.InSmartFolder(selectedSmartFolderGuid),
-            new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(InSmartFolder)}|{selectedSmartFolderGuid}"));
+            new RetrievalCacheSettings(cacheItemNameSuffix:
+                $"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{selectedSmartFolderGuid}"));
 
         // Custom logic...
 
@@ -1444,7 +1564,7 @@ public DateTime? Date { get; set; } = null;
 </code></pre>
 </div>
 
-<h3 id="datetime-input">DateTime input</h3>
+<h3 id="date-and-time-input">Date and time input</h3>
 <p><strong>Field data type</strong>: Date and time<br>
 <strong>C# data type</strong>: System.DateTime? (nullable)<br>
 <strong>Form component attribute</strong>: DateTimeInputComponent</p>
@@ -1478,6 +1598,11 @@ public DateTime? DateAndTime { get; set; } = null;
 </code></pre>
 </div>
 
+<h3 id="date-and-time-with-label">Date and time with label</h3>
+<p><strong>Field data type</strong>: Date and time<br>
+<strong>C# data type</strong>: System.DateTime? (nullable)<br>
+<strong>Form component attribute</strong>: DateTimeStringComponent</p>
+<p>Displays a read-only <code>DateTime</code> value.</p>
 <h3 id="decimal-number-input">Decimal number input</h3>
 <p><strong>Field data type</strong>: Decimal number<br>
 <strong>C# data type</strong>: Decimal? (nullable)<br>

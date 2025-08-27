@@ -295,6 +295,7 @@ In the <code>pluginName</code> configuration value, replace <code>orgName</code>
 <p>Xperience’s customizations to the Froala editor (such as custom toolbar buttons and features) are not covered by Froala’s default localization. These strings are located inside <code>localization.client.en-US.resx</code> in the <a href="/documentation/developers-and-admins/customization/admin-ui-localization#export-system-localization-resources">exported resources</a> and must be translated as part of your localization efforts.</p>
 <h3 id="localizing-custom-configurations">Localizing custom configurations</h3>
 <p>For your own custom rich text editor configurations, you can use localization macros to translate custom options and display names.</p>
+<p>The corresponding resource strings must be registered in a <a href="/documentation/developers-and-admins/customization/integrate-custom-code#store-application-resources-in-resource-files">resource file</a> with <code>LocalizationTarget.Server</code>.</p>
 <h4 id="using-localization-macros-in-configurations">Using localization macros in configurations</h4>
 <p>Rich text editor <a href="/documentation/developers-and-admins/configuration/rich-text-editor-configuration">configurations</a> support localization <a href="/documentation/developers-and-admins/configuration/macro-expressions">macros</a> in the format <code>{$resource.key$}</code>. This allows you to reference registered resource strings for any option with a custom display name:</p>
 
