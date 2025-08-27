@@ -7,7 +7,7 @@
 <body>
 <p>Content synchronization allows you to easily transfer new and updated content from one “instance” of Xperience by Kentico to another. In this context, instances are Xperience applications hosting the same website or project, typically on another server and domain.</p>
 <p>The purpose of content sync is to help manage content when using multiple environments. For example, your project’s developers may have a local <strong>Development</strong> instance, from which initial content is sent to a hosted <strong>Staging</strong> instance. The staging instance is accessible only by editors and other staff, who use it to prepare content updates. The final content is then synchronized during regular releases to a public-facing <strong>Production</strong> instance.</p>
-<p><strong>Development → Staging → Production</strong></p>
+<p></p>
 
 <div>
 
@@ -18,7 +18,12 @@
 </div>
 
 <h2 id="supported-content">Supported content</h2>
-<p>Content sync is supported for <a href="/documentation/business-users/content-hub/content-items">reusable content items</a> and <a href="/documentation/business-users/website-content">website channel pages</a>.</p>
+<p>Content sync is supported for:</p>
+<ul>
+<li><a href="/documentation/business-users/content-hub/content-items">Reusable content items</a></li>
+<li><a href="/documentation/business-users/website-content">Website channel pages</a></li>
+<li><a href="/documentation/business-users/digital-marketing/forms">Forms</a></li>
+</ul>
 <p>The following data is automatically included when synchronizing content:</p>
 
 <table>
@@ -56,6 +61,13 @@
 <li>
 <a href="/documentation/business-users/website-content/manage-page-urls#manage-redirects-from-unpublished-pages">Page redirects from unpublished pages</a> (Former URLs)</li>
 <li>Folders in the page tree that contain synchronized pages</li>
+<li>
+<a href="/documentation/business-users/digital-marketing/forms">Forms</a> added to <a href="/documentation/business-users/website-content/widgets-and-page-builder">Page Builder content</a> via the <em>Form</em> widget
+<ul>
+<li>You do not always need to synchronize forms together with pages. Whenever you synchronize pages or content items, you can choose whether to <strong>Include forms</strong> (if you have sufficient permissions to synchronize forms).</li>
+<li>Forms that are <a href="/documentation/developers-and-admins/development/builders/page-builder/render-widgets-in-code">rendered</a> directly in the page code (not added in the Page Builder interface) are not synchronized together with pages. Such forms can be <a href="#forms">synchronized</a> separately from the <em>Forms</em> application.</li>
+</ul>
+</li>
 </ul>
 </td>
 </tr>
@@ -71,6 +83,7 @@
 <a href="/documentation/business-users/content-hub/content-items#link-content-items">Linked</a> content items and pages
 <ul>
 <li>Includes items/pages linked via content fields or <a href="/documentation/business-users/website-content/widgets-and-page-builder">Page Builder component</a> properties, and assets used in <a href="/documentation/business-users/rich-text-editor">rich text content</a> via the <em>Insert image</em> and <em>Insert link</em> options.</li>
+<li>Includes pages selected in the <strong>After form submission → Redirect to</strong> configuration of <a href="/documentation/business-users/digital-marketing/forms/display-forms-on-pages">Form widgets</a> in the Page Builder content of synchronized pages.</li>
 <li>The synchronization cascades if the linked items themselves link to other content items or pages.</li>
 </ul>
 </li>
@@ -115,12 +128,16 @@
 <a href="/documentation/business-users/website-content">Website channel pages</a>, including pages linked from content items, cannot be synchronized if all of their parent pages are not available for synchronization (i.e., if the parents are not translated in the selected language or have never been published).</li>
 </ul>
 </li>
+<li>Forms
+<ul>
+<li>
+<a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms">Form</a> synchronization does not include <a href="/documentation/business-users/digital-marketing/forms/manage-form-submissions">form submission data</a>, <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#autoresponders">autoresponder</a> settings, <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#automation-processes">automation processes</a> related to the form, <a href="/documentation/developers-and-admins/configuration/notifications#form-submission-notifications">form submission notifications</a>, or the <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#hide-featured-fields">visibility configuration</a> of featured form fields.</li>
+</ul>
+</li>
 <li>Unsupported data
 <ul>
 <li>
 <a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Smart folders</a> cannot be synchronized together with content items.</li>
-<li>
-<a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms">Forms</a> are currently not synchronized together with pages. Support for form synchronization is planned to be added in the future.</li>
 </ul>
 </li>
 </ul>
@@ -163,7 +180,7 @@
 <li>Review the content items that will be synchronized.
 <ul>
 <li>Any content items that cannot be synchronized are grayed out in the list. For example, this occurs if the synchronization selection includes items that are not translated to the current language or items that have never been published.</li>
-<li>Keep in mind that <a href="/documentation/business-users/content-hub/content-items#link-content-items">linked content items</a> and linked pages are not displayed in the list, but will also be synchronized.</li>
+<li>Keep in mind that <a href="/documentation/business-users/content-hub/content-items#link-content-items">linked content items</a>, linked pages and related forms are not displayed in the list, but will also be synchronized.</li>
 </ul>
 </li>
 <li>Select <strong>Sync</strong>.</li>
@@ -182,7 +199,7 @@
 <ul>
 <li>Pages can only be synchronized if you also select all parent pages or folders up to the first level of the page tree. Otherwise the synchronization would result in an invalid page tree on the target instance.</li>
 <li>Any pages that cannot be synchronized are grayed out in the list. For example, this occurs if the synchronization selection includes pages that are not translated to the current language or items that have never been published.</li>
-<li>Keep in mind that <a href="/documentation/business-users/content-hub/content-items#link-content-items">linked content items</a> and linked pages are not displayed in the list, but will also be synchronized.</li>
+<li>Keep in mind that <a href="/documentation/business-users/content-hub/content-items#link-content-items">linked content items</a>, linked pages and related forms are not displayed in the list, but will also be synchronized.</li>
 <li>Folders in the page tree can only be synchronized together with child pages. Folders cannot be synchronized alone if they do not contain any child pages in the selected language.</li>
 </ul>
 </li>
@@ -201,6 +218,34 @@
 <h4 id="sync-moved-or-reordered-pages">Sync moved or reordered pages</h4>
 <p>To correctly synchronize pages that were <a href="/documentation/business-users/website-content/edit-and-publish-pages#move-pages">moved</a> or reordered in the page tree, you need to sync <strong>all items on the same level</strong> of the page tree, for both the original and new location. This ensures that the correct order of all affected pages is synchronized.</p>
 <p>To simplify this process, we recommend synchronizing the original and new parents of the moved page together with all direct child pages. However, the root page of a website channel cannot be synchronized – transferring an entire website channel within a single content sync action is not supported.</p>
+<h3 id="forms">Forms</h3>
+
+<div>
+
+</div>
+<div>
+<p><strong>Impact of synchronizing forms</strong></p>
+<p>If you delete or replace a <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#add-fields">field</a> in a form and then synchronize the form to another environment (production), any data gathered through the field over the form’s lifetime will also be removed in the target environment.</p>
+</div>
+
+<h4 id="sync-forms-with-pages">Sync forms with pages</h4>
+<p>Forms can be synchronized together with pages that display them in their <a href="/documentation/business-users/website-content/widgets-and-page-builder">Page Builder content</a>. In this scenario, use the synchronization instructions described for <a href="#pages">Pages</a>, with the <strong>Include forms</strong> option enabled. This also applies when synchronizing <a href="#content-items">Content items</a>, where forms can be synchronized via linked pages.</p>
+<p></p>
+<p>Forms are not synchronized together with pages if they are <a href="/documentation/developers-and-admins/development/builders/page-builder/render-widgets-in-code">rendered</a> directly in the page code (not added in the Page Builder UI). Such forms can be <a href="#sync-forms-individually">synchronized separately</a> in the <em>Forms</em> application.</p>
+<h4 id="sync-forms-individually">Sync forms individually</h4>
+<p>You can synchronize individual forms separately, without pages or content items:</p>
+<ol type="1">
+<li>Open the <strong>Forms</strong> application.</li>
+<li>Use the <strong>Sync</strong> () action for the form you want to synchronize.<br>
+</li>
+<li>Choose <a href="#choose-the-restoration-time-for-synchronized-content">when you want the form to be restored</a> on the target instance.</li>
+<li>Select <strong>Sync</strong>.
+<ul>
+<li>Keep in mind that forms are synchronized <strong>without</strong> <a href="/documentation/business-users/digital-marketing/forms/manage-form-submissions">submission data</a>, <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#autoresponders">autoresponder</a> settings, related <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#automation-processes">automation processes</a>, <a href="/documentation/developers-and-admins/configuration/notifications#form-submission-notifications">form submission notifications</a>, and the <a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#hide-featured-fields">visibility configuration</a> of featured form fields.</li>
+</ul>
+</li>
+</ol>
+<p>The content sync dialog displays the progress of the synchronization and informs you about the result.</p>
 <h3 id="choose-the-restoration-time-for-synchronized-content">Choose the restoration time for synchronized content</h3>
 <p>Whenever you synchronize content, you can choose when the data will be restored on the target instance:</p>
 <ul>
@@ -217,7 +262,7 @@
 <div>
 <p><strong>Scheduling multiple synchronizations</strong></p>
 <p>If you are planning multiple scheduled synchronizations, make sure to set the restoration times according to the order in which you want the content to be created or updated. Leave appropriate time intervals for the restoration to finish for each synchronization (at least 15 minutes are recommended).</p>
-<p>If you schedule multiple synchronizations with updates for the same content items or pages, the last restored synchronization overwrites the previous ones.</p>
+<p>If you schedule multiple synchronizations with updates for the same content items, pages or forms, the last restored synchronization overwrites the previous ones.</p>
 </div>
 
 <h2 id="track-incoming-synchronizations">Track incoming synchronizations</h2>

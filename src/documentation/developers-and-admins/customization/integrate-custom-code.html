@@ -101,36 +101,19 @@
 <p>We recommended storing all custom resources required by your customizations, such as text strings, in <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/create-resource-files" target="_blank">resource files</a> (.resx). Resource files enable a clear separation between source code and text. By centralizing text resources, .resx files ensure consistency and make it easier to maintain, modify, and find text strings used by the application.</p>
 <p>Create and register resource files in Xperience:</p>
 <ol type="1">
-<li><p>Create a new .NET resource file. See <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/create-resource-files" target="_blank">Create resource files for .NET apps</a>.</p></li>
 <li>
-<p>Set the file as <strong>embedded resource</strong> via your project’s .csproj file. Embedded resources become part of the compiled assemmbly (.dll) file and can be loaded by Xperience.</p>
+<p>Create a new .NET resource file. See <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/create-resource-files" target="_blank">Create resource files for .NET apps</a>.</p>
 
 <div>
-<div>
-<div>
-<span>XML</span>
-</div>
-<strong>Set the file as embedded resource</strong>
+
 </div>
 <div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
- &lt;ItemGroup&gt;
-     &lt;EmbeddedResource Include="&lt;path/to/file.resx&gt;"&gt;
-         &lt;ExcludeFromManifest&gt;true&lt;/ExcludeFromManifest&gt;
-     &lt;/EmbeddedResource&gt;
- &lt;/ItemGroup&gt;
-</code></pre>
+Each resource class must be defined in its own separate .cs file. .NET localization resource conventions do not allow combining multiple resource classes into a single file.
 </div>
 </li>
 <li>
 <p>Register the resource file in the system using the <code>RegisterLocalizationResource</code> attribute. The registration requires the type encapsulating the resource file, the language for which to use the resource, and optionally the resource target.</p>
-<p><code>SystemContext.SYSTEM_CULTURE_NAME</code> contains the default language code for English and should be used when creating English resource files. For registering resources in other languages, see <a href="/documentation/developers-and-admins/customization/admin-ui-localization">Admin UI localization</a>.</p>
+<p><code>SystemContext.SYSTEM_CULTURE_NAME</code> contains the default language code for English and should be used when creating English resource files. For localizing the admin UI to other languages, see <a href="/documentation/developers-and-admins/customization/admin-ui-localization">Admin UI localization</a>.</p>
 <p>The available resource targets are:</p>
 <ul>
 <li>
@@ -146,7 +129,7 @@
 <div>
 <span>C#</span>
 </div>
-<strong>Example resource file registration</strong>
+<strong>Example resource file registration - ~/Resources/AdminResourcesServer.cs</strong>
 </div>
 <div>
 <button>
@@ -159,15 +142,16 @@
  using CMS.Base;
  using CMS.Localization;
 
- // Resource file registration with target specification
- [assembly: RegisterLocalizationResource(typeof(MyProjectResources), SystemContext.SYSTEM_CULTURE_NAME, LocalizationTarget.Client)]
- [assembly: RegisterLocalizationResource(typeof(MyProjectServerResources), SystemContext.SYSTEM_CULTURE_NAME, LocalizationTarget.Server)]
- [assembly: RegisterLocalizationResource(typeof(MyProjectBuilderResources), SystemContext.SYSTEM_CULTURE_NAME, LocalizationTarget.Builder)]
+ // Resource file registration for multiple languages
+ [assembly: RegisterLocalizationResource(typeof(AdminResourcesServer), LocalizationTarget.Server, SystemContext.SYSTEM_CULTURE_NAME)]
+ [assembly: RegisterLocalizationResource(typeof(AdminResourcesServer), LocalizationTarget.Server, "es-ES")]
+ [assembly: RegisterLocalizationResource(typeof(AdminResourcesServer), LocalizationTarget.Server, "de-DE")]
 
- // Classes encapsulating the resource files
- public class MyProjectResources {}
- public class MyProjectServerResources {}
- public class MyProjectBuilderResources {}
+ namespace MyProject.Resources;
+
+ // Class encapsulating the resource file
+ // Corresponding .resx files: AdminResourcesServer.resx, AdminResourcesServer.es-ES.resx, AdminResourcesServer.de-DE.resx
+ public class AdminResourcesServer { }
  </code></pre>
 </div>
 </li>

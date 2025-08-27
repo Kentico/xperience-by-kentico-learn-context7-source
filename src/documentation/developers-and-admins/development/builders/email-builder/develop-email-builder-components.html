@@ -113,7 +113,7 @@ builder.Services.AddMjmlForEmails();
 <h3 id="mjml-limitations">MJML limitations</h3>
 <ul>
 <li>The <a href="https://documentation.mjml.io/#mj-raw" target="_blank">&lt;mj-raw&gt;</a> MJML tag is only supported in the markup of <a href="#templates">email templates</a>, and may result in errors or work incorrectly in other components (sections or widgets).</li>
-<li>The <a href="https://documentation.mjml.io/#mj-attributes" target="_blank">&lt;mj-attributes&gt;</a> and <a href="https://documentation.mjml.io/#mj-style" target="_blank">&lt;mj-style inline=“inline”&gt;</a> MJML tags are not fully supported within Email Builder components, and we strongly recommend that you avoid using them.</li>
+<li>Using MJML tags to apply custom styling, for example <a href="https://documentation.mjml.io/#mj-attributes" target="_blank">&lt;mj-attributes&gt;</a>, <a href="https://documentation.mjml.io/#mj-html-attributes" target="_blank">&lt;mj-html-attributes&gt;</a>, <a href="https://documentation.mjml.io/#mj-style" target="_blank">&lt;mj-style inline=“inline”&gt;</a> or <a href="https://documentation.mjml.io/#mj-font" target="_blank">&lt;mj-font&gt;</a>, may lead to inconsistent appearance of the resulting component. Such components may be displayed slightly differently in <em>Email Builder</em> mode than in the final email content. To get an accurate reference for how recipients will see an email, use the <strong>Preview</strong> mode.</li>
 </ul>
 <h2 id="blazor-development-best-practices">Blazor development best practices</h2>
 <p>All Email Builder components must be developed as ASP.NET Razor components (Blazor). If you are new to Blazor development, start by familiarizing yourself with at least the following .NET documentation:</p>

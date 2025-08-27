@@ -68,53 +68,8 @@ Some features covered in the Training guides may not work in older versions.
 
 <h2 id="retrieve-content-from-smart-folder">Retrieve content from smart folder</h2>
 <p>Let’s start with implementing smart folder content retrieval in your project.</p>
-<p>You can <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-content-items-from-smart-folders">retrieve items from a smart folder</a> using <code>ContentItemQueryBuilder</code> and its <code>ForContentTypes</code> extension method with <code>InSmartFolder</code> parametrization.</p>
-<p>For composability, first, create a private method in the generic <code>ContentItemRetrieverService&lt;T&gt;</code> (located in <em>TrainingGuides.Web/Features/Shared/Services/</em>) that simply retrieves content items with the <code>ForContentTypes</code> method:</p>
-
-<div>
-<div>
-<div>
-<span>C#</span>
-</div>
-<strong>ContentItemRetrieverService.cs</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
-...
-public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
-{
-    ...
-    private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveContentItems(
-        Action&lt;ContentTypesQueryParameters&gt; contentTypesQueryParameters,
-        Action&lt;ContentQueryParameters&gt; contentQueryParameters)
-    {
-        var builder = new ContentItemQueryBuilder();
-
-        builder
-            .ForContentTypes(contentTypesQueryParameters)
-            .Parameters(contentQueryParameters)
-            .InLanguage(preferredLanguageRetriever.Get());
-
-        var queryExecutorOptions = new ContentQueryExecutionOptions
-        {
-            ForPreview = webSiteChannelContext.IsPreview
-        };
-
-        return await contentQueryExecutor.GetMappedResult&lt;T&gt;(builder, queryExecutorOptions);
-    }
-    ...
-}
-...
-</code></pre>
-</div>
-
-<p>Then, add a <code>RetrieveReusableContentItemsFromSmartFolder</code> method that utilizes this method and retrieves data from a smart folder identified by its <code>Guid</code>. Let’s also add other parameters to allow more data filtering and ordering - <code>orderBy</code>, <code>topN</code> and <code>depth</code>.</p>
+<p>You can <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-content-items-from-smart-folders">retrieve items from a smart folder</a> using <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a> and its <code>RetrieveContent</code> extension method with <code>InSmartFolder</code> parametrization.</p>
+<p>In the <code>ContentItemRetrieverService</code> (located in <em>TrainingGuides.Web/Features/Shared/Services/</em>), create a generic <code>RetrieveReusableContentItemsFromSmartFolder</code> method that utilizes this method and retrieves data from a smart folder identified by its <code>Guid</code>. Let’s also add other parameters to allow more data filtering and ordering - <code>orderBy</code>, <code>topN</code> and <code>depth</code>, and an optional parameter to specify language of the content.</p>
 
 <div>
 
@@ -140,7 +95,7 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
 <div>
 <pre><code>
 ...
-public interface IContentItemRetrieverService&lt;T&gt;
+public interface IContentItemRetrieverService
 {
     ...
     /// &lt;summary&gt;
@@ -150,13 +105,17 @@ public interface IContentItemRetrieverService&lt;T&gt;
     /// &lt;param name="smartFolderGuid"&gt;Guid of the smart folder to retrieve the content items from&lt;/param&gt;
     /// &lt;param name="orderBy"&gt;Order the returned items ascending/descending&lt;/param&gt;
     /// &lt;param name="topN"&gt;Number of items to return&lt;/param&gt;
-    /// &lt;returns&gt;&lt;/returns&gt;
-    Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveReusableContentItemsFromSmartFolder(
-        string contentTypeName,
+    /// &lt;param name="depth"&gt;The maximum level of recursively linked content items that should be included in the results. Default value is 1.&lt;/param&gt;
+    /// &lt;param name="includeSecuredItems"&gt;If true, secured items will be included in the results.&lt;/param&gt;
+    /// &lt;param name="languageName"&gt;The language to query. If null, the language will be inferred from the URL of the current request.&lt;/param&gt;
+    /// &lt;returns&gt;Enumerable collection of content items from the given smart folder&lt;/returns&gt;
+    Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveReusableContentItemsFromSmartFolder&lt;T&gt;(
         Guid smartFolderGuid,
         OrderByOption orderBy,
         int topN = 20,
-        int depth = 1);
+        int depth = 1,
+        string? languageName = null)
+        where T : IContentItemFieldsSource, new();
     ...
 }
 ...
@@ -178,47 +137,43 @@ public interface IContentItemRetrieverService&lt;T&gt;
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="27"><code>
 ...
-public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+public class ContentItemRetrieverService : IContentItemRetrieverService
 {
     ...
-    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveReusableContentItemsFromSmartFolder(
-            string contentTypeName,
-            Guid smartFolderGuid,
-            OrderByOption orderBy,
-            int topN = 20,
-            int depth = 1)
+    /// &lt;inheritdoc /&gt;
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveReusableContentItemsFromSmartFolder&lt;T&gt;(
+        Guid smartFolderGuid,
+        OrderByOption orderBy,
+        int topN = 20,
+        int depth = 1,
+        string? languageName = null)
+        where T : IContentItemFieldsSource, new()
     {
         const string LAST_PUBLISHED_COLUMN_NAME = "ContentItemCommonDataLastPublishedWhen";
 
-        Action&lt;ContentTypesQueryParameters&gt; contentTypesQueryParameters = parameters =&gt; parameters
-            .InSmartFolder(smartFolderGuid)
-            .OfContentType(contentTypeName)
-            .WithLinkedItems(depth)
-            .WithContentTypeFields();
+        var parameters = new RetrieveContentParameters
+        {
+            LinkedItemsMaxLevel = depth,
+            LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+            IsForPreview = webSiteChannelContext.IsPreview
+        };
 
-        Action&lt;ContentQueryParameters&gt; contentQueryParameters = parameters
-            =&gt; parameters
+        return await contentRetriever.RetrieveContent&lt;T&gt;(
+            parameters,
+            query =&gt; query
+                .InSmartFolder(smartFolderGuid)
                 .OrderBy(new OrderByColumn(
                     LAST_PUBLISHED_COLUMN_NAME,
                     orderBy.Equals(OrderByOption.NewestFirst) ? OrderDirection.Descending : OrderDirection.Ascending))
-                .TopN(topN);
-
-        return await RetrieveContentItems(contentTypesQueryParameters, contentQueryParameters);
+                .TopN(topN),
+            RetrievalCacheSettings.CacheDisabled);
     }
     ...
 }
 ...
 </code></pre>
-</div>
-
-
-<div>
-
-</div>
-<div>
-<p>In order to retrieve content type field values, we are utilizing the <code>WithContentTypeFields()</code> method call. Unlike <code>ForContentType()</code>, that returns all joined data columns automatically, the <em>ForContentType<strong>s</strong></em> method does NOT include content type field data by default and requires you to explicitly state you want the joined columns. See <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#withcontenttypefields">our documentation</a> for details.</p>
 </div>
 
 <h2 id="build-a-widget-with-smart-folder-selector">Build a widget with smart folder selector</h2>
@@ -471,11 +426,11 @@ public class GalleryWidgetViewComponent : ViewComponent
 {
     public const string IDENTIFIER = "TrainingGuides.GalleryWidget";
 
-    private readonly IContentItemRetrieverService&lt;GalleryImage&gt; galleryImageRetriever;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
 
-    public GalleryWidgetViewComponent(IContentItemRetrieverService&lt;GalleryImage&gt; galleryImageRetriever)
+    public GalleryWidgetViewComponent(IContentItemRetrieverService contentItemRetrieverService)
     {
-        this.galleryImageRetriever = galleryImageRetriever;
+        this.contentItemRetrieverService = contentItemRetrieverService;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(GalleryWidgetProperties properties)
@@ -505,8 +460,7 @@ public class GalleryWidgetViewComponent : ViewComponent
 
     // retrieves the content items from the smart folder
     private async Task&lt;IEnumerable&lt;GalleryImage&gt;&gt; RetrieveGalleryImages(Guid smartFolderGuid, OrderByOption orderBy, int topN) =&gt;
-        await galleryImageRetriever.RetrieveReusableContentItemsFromSmartFolder(
-            GalleryImage.CONTENT_TYPE_NAME,
+        await contentItemRetrieverService.RetrieveReusableContentItemsFromSmartFolder&lt;GalleryImage&gt;(
             smartFolderGuid,
             orderBy,
             topN);
@@ -515,7 +469,6 @@ public class GalleryWidgetViewComponent : ViewComponent
     private AssetViewModel GetGalleryImageViewModel(GalleryImage galleryImage) =&gt;
         AssetViewModel.GetViewModel(galleryImage.GalleryImageAsset.FirstOrDefault());
 }
-
 </code></pre>
 </div>
 

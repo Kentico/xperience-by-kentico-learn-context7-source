@@ -77,27 +77,13 @@ The <a href="/documentation/developers-and-admins/customization/extend-the-admin
 <p>If you are working in the training guides repository, we recommend placing the class inside <em>~/Features/Shared/OptionProviders</em> folder in the <em>TrainingGuides.Web</em> project.</p>
 </div>
 
-<p>Then implement the following methods:</p>
-<ul>
-<li>
-<code>GetOptionItems</code>
-<ul>
-<li>Tells Xperience how to map the enumeration members to dropdown items.</li>
-</ul>
-</li>
-<li>
-<code>Parse</code>
-<ul>
-<li>Casts a <code>string</code> value to the enumeration type. The value from the dropdown selector control comes back as <code>string</code> by definition, so the method will come in handy later in your code.</li>
-</ul>
-</li>
-</ul>
+<p>Then implement the required <code>GetOptionItems</code> method. This method tells Xperience how to map the enumeration members to dropdown items.</p>
 
 <div>
 
 </div>
 <div>
-<p>To work with enumerations, our samples use the <a href="https://www.nuget.org/packages/Enums.NET/" target="_blank">EnumsNET NuGet package</a>. The library allows you to access the enumeration attributes, like <em>Description</em>, which is handy, for example, to store UI labels for each dropdown option.</p>
+<p>To work with enumerations, our samples use the <a href="https://www.nuget.org/packages/Enums.NET/" target="_blank">Enums.NET NuGet package</a>. The library allows you to access the enumeration attributes, like <em>Description</em>, which is handy, for example, to store UI labels for each dropdown option.</p>
 </div>
 
 <p>Below is the complete code of a generic <code>DropdownEnumOptionProvider</code> class, for your reference:</p>
@@ -123,23 +109,14 @@ using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 namespace TrainingGuides.Web.Features.Shared.OptionProviders;
 
-public class DropdownEnumOptionProvider&lt;T&gt; : IDropDownOptionsProvider
-    where T : struct, Enum
+public class DropdownEnumOptionProvider&lt;T&gt; : IDropDownOptionsProvider where T : struct, Enum
 {
     public Task&lt;IEnumerable&lt;DropDownOptionItem&gt;&gt; GetOptionItems()
     {
-        // map enum members to DropDownOptionItem
         var results = Enums.GetMembers&lt;T&gt;(EnumMemberSelection.All)
             .Select(enumItem =&gt;
             {
-                // dropdown item label:
-                // if available, use Description attribute, otherwise use enum item name
-                string text = enumItem.Attributes
-                    .OfType&lt;DescriptionAttribute&gt;()
-                    .FirstOrDefault()?.Description
-                    ?? enumItem.Name;
-                
-                // dropdown item value 
+                string text = enumItem.Attributes.OfType&lt;DescriptionAttribute&gt;().FirstOrDefault()?.Description ?? enumItem.Name;
                 string value = enumItem.Value.ToString();
 
                 return new DropDownOptionItem { Value = value, Text = text };
@@ -147,12 +124,67 @@ public class DropdownEnumOptionProvider&lt;T&gt; : IDropDownOptionsProvider
 
         return Task.FromResult(results.AsEnumerable());
     }
- 
-    public virtual T Parse(string value, T defaultValue) =&gt;
+}
+</code></pre>
+</div>
+
+<h2 id="create-a-service-to-parse-enumeration-values-from-strings">Create a service to parse enumeration values from strings</h2>
+<p>With the provider in place, we need another element before we can start to use it.</p>
+<p>Although we feed the dropdown list with options from the enumeration, the value from the dropdown selector control comes back as <code>string</code> by definition. As a result, we need a generic service to parse <code>enum</code> values from <code>string</code> objects when we want to work with them <a href="/guides/development/page-builder/create-versatile-templates-part-1#style-the-template-based-on-properties">later in the Page Builder series</a>.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IEnumStringService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace TrainingGuides.Web.Features.Shared.OptionProviders;
+
+public interface IEnumStringService
+{
+    T Parse&lt;T&gt;(string value, T defaultValue) where T : struct, Enum;
+}
+</code></pre>
+</div>
+
+<p>Use functionality from <a href="https://www.nuget.org/packages/Enums.NET/" target="_blank">Enums.NET</a> to try parsing a value of the provided <code>enum</code> type, and return a default value if the parse operation fails.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>EnumStringService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using EnumsNET;
+
+namespace TrainingGuides.Web.Features.Shared.OptionProviders;
+
+public class EnumStringService : IEnumStringService
+{
+    public T Parse&lt;T&gt;(string value, T defaultValue) where T : struct, Enum =&gt;
         Enums.TryParse&lt;T&gt;(value, true, out var parsed)
             ? parsed
             : defaultValue;
 }
+
 </code></pre>
 </div>
 
@@ -249,7 +281,7 @@ Define the <code>LandingPageHeadingTypeOption</code> enumeration accordingly.
 <h3 id="map-the-enumeration-to-the-dropdown-component">Map the enumeration to the dropdown component</h3>
 <p>Assign the type of <code>DropdownEnumOptionProvider&lt;YOUR_ENUMERATION&gt;</code> to the <code>DataProviderType</code> property of the <code>DropDownComponent</code>.</p>
 <p>Next, remove the <code>Options</code> property, which is no longer needed.</p>
-See below for the complete new <em>LandingPageTemplateProperties.cs</em>, with the <code>LandingPageHeadingTypeOption</code> enumeration mapped to the <code>MessageType</code> dropdown property.
+<p>See below for the complete new <em>LandingPageTemplateProperties.cs</em>, with the <code>LandingPageHeadingTypeOption</code> enumeration mapped to the <code>MessageType</code> dropdown property.</p>
 
 <div>
 <div>

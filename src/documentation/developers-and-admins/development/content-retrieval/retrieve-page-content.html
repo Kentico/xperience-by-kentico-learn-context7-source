@@ -213,7 +213,8 @@ var pages = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
         PathMatch = PathMatch.Children("/Articles") 
     },
     query =&gt; query.WhereContainsTags("coffee", "processing"),
-    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(WhereContainsTags)}|coffee|processing"));
+    new RetrievalCacheSettings(cacheItemNameSuffix:
+                                    $"{nameof(WhereParameters.WhereContainsTags)}|coffee|processing"));
 
 </code></pre>
 </div>

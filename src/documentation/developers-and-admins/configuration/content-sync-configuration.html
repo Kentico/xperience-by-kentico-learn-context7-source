@@ -22,8 +22,10 @@
 <h2 id="supported-topologies">Supported topologies</h2>
 <p>Before you start <a href="#set-up-content-sync">setting up content sync</a>, it is important to understand which environment topologies are supported.</p>
 <p>The most basic usage of content sync consists of a connection between one <strong>source</strong> instance and one <strong>target</strong> instance. Such connections can be chained to additional instances – a target can be configured as the source for another instance. However, only strictly linear topologies are supported. For example:</p>
-<p><strong>Development → QA → Staging → Production</strong></p>
+<p></p>
+<h4 id="unsupported-topologies">Unsupported topologies</h4>
 <p>More complex topologies, for example with multiple branching target connections, loops, or bi-directional connections are not supported. The system does not strictly block content sync with unsupported topologies, but it may result in inconsistencies, errors or unintentionally overwritten content.</p>
+<p></p>
 <h2 id="set-up-content-sync">Set up content sync</h2>
 <h3 id="prerequisites">Prerequisites</h3>
 <ul>
@@ -80,7 +82,6 @@ if (builder.Environment.IsDevelopment())
 // Configures the production environment as the content sync target
 if (builder.Environment.IsProduction())
 {
-    
     builder.Services.Configure&lt;ContentSynchronizationOptions&gt;(options =&gt;
     {
         options.Target.Enabled = true;
@@ -167,6 +168,7 @@ if (builder.Environment.IsProduction())
 <ul>
 <li>To synchronize content items, users need to have a role with the <strong>Synchronize</strong> <a href="/documentation/developers-and-admins/configuration/users/role-management">permission</a> assigned for the <strong>Content hub</strong> application and the appropriate <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspaces</a>.</li>
 <li>To synchronize website channel pages, users need to have a role with the <strong>Synchronize</strong> <a href="/documentation/developers-and-admins/configuration/users/role-management/page-permission-management">permission for individual pages</a> or the <strong>Manage permissions</strong> permission for the website channel.</li>
+<li>To synchronize forms, users need to have a role with the <strong>Synchronize</strong> <a href="/documentation/developers-and-admins/configuration/users/role-management">permission</a> assigned for the <strong>Forms</strong> application.</li>
 </ul>
 </li>
 <li>
@@ -201,8 +203,8 @@ if (builder.Environment.IsProduction())
 
 </div>
 <div>
-<p><strong>Page synchronization requirements</strong></p>
-<p>To enable synchronization of <a href="/documentation/business-users/website-content">website channel pages</a>, you also need to use standard deployments to transfer all page-related code components. This includes page views, controllers, <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing">routing configuration</a>, <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder components</a> components, etc.</p>
+<p><strong>Project code compatibility requirements</strong></p>
+<p>To enable synchronization of <a href="/documentation/business-users/website-content">website channel pages</a> and <a href="/documentation/business-users/digital-marketing/forms">forms</a>, you also need to use standard deployments to transfer all code components related to pages and forms. This includes page views, controllers, <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing">routing configuration</a>, <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder components</a>, <a href="/documentation/developers-and-admins/development/builders/form-builder/form-components">Form Builder components</a>, etc.</p>
 </div>
 
 <h3 id="synchronization-of-linked-content">Synchronization of linked content</h3>

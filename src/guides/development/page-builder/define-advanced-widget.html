@@ -752,18 +752,17 @@ If your application does not have any reusable resources that apply, and the wid
 </div>
 <div>
 <pre><code>
+using CMS.Helpers;
+using Kentico.PageBuilder.Web.Mvc;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.IdentityModel.Tokens;
-using CMS.Helpers;
-using Kentico.Content.Web.Mvc;
-using Kentico.PageBuilder.Web.Mvc;
 using TrainingGuides.Web.Features.Products.Models;
 using TrainingGuides.Web.Features.Products.Services;
 using TrainingGuides.Web.Features.Products.Widgets.Product;
-using TrainingGuides.Web.Features.Shared.Services;
-using TrainingGuides.Web.Features.Shared.OptionProviders.CornerStyle;
 using TrainingGuides.Web.Features.Shared.Models;
+using TrainingGuides.Web.Features.Shared.OptionProviders.CornerStyle;
+using TrainingGuides.Web.Features.Shared.Services;
 
 // Register the widget
 [assembly: RegisterWidget(
@@ -785,21 +784,16 @@ public class ProductWidgetViewComponent : ViewComponent
     private const string BS_PADDING_CLASS_3 = "p-3";
     private const string BS_PADDING_CLASS_5 = "p-5";
 
-    private readonly IContentItemRetrieverService&lt;ProductPage&gt; productRetrieverService;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
     private readonly IComponentStyleEnumService componentStyleEnumService;
     private readonly IProductPageService productPageService;
-    private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
-
     public ProductWidgetViewComponent(
-        IContentItemRetrieverService&lt;ProductPage&gt; productRetrieverService,
+        IContentItemRetrieverService contentItemRetrieverService,
         IComponentStyleEnumService componentStyleEnumService,
-        IProductPageService productPageService,
-        IWebPageDataContextRetriever webPageDataContextRetriever)
-    {
-        this.productRetrieverService = productRetrieverService;
+        IProductPageService productPageService)    {
+        this.contentItemRetrieverService = contentItemRetrieverService;
         this.componentStyleEnumService = componentStyleEnumService;
         this.productPageService = productPageService;
-        this.webPageDataContextRetriever = webPageDataContextRetriever;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(ProductWidgetProperties properties)
@@ -842,10 +836,7 @@ public class ProductWidgetViewComponent : ViewComponent
 
         if (properties.Mode.Equals(ProductWidgetMode.CURRENT_PAGE))
         {
-            productPage = await productRetrieverService
-                .RetrieveWebPageById(webPageDataContextRetriever.Retrieve().WebPage.WebPageItemID,
-                    ProductPage.CONTENT_TYPE_NAME,
-                    3);
+            productPage = await contentItemRetrieverService.RetrieveCurrentPage&lt;ProductPage&gt;(3);             
         }
         else
         {
@@ -853,9 +844,8 @@ public class ProductWidgetViewComponent : ViewComponent
             var guid = properties.SelectedProductPage?.Select(webPage =&gt; webPage.Identifier).FirstOrDefault();
 
             productPage = guid.HasValue
-                ? await productRetrieverService.RetrieveWebPageByContentItemGuid(
+                ? await contentItemRetrieverService.RetrieveWebPageByContentItemGuid&lt;ProductPage&gt;(
                     (Guid)guid,
-                    ProductPage.CONTENT_TYPE_NAME,
                     4)
                 : null;
         }

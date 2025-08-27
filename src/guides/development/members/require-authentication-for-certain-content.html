@@ -572,41 +572,34 @@ public bool IsReusableArticleSecured(ArticlePage articlePage)
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="9,17-22"><code>
 using TrainingGuides.Web.Features.Membership.Services;
 ...
 public class ArticlePageController : Controller
 {
     // Use dependency injection to populate these
-    private readonly IWebPageDataContextRetriever webPageDataContextRetriever;
-    private readonly IContentItemRetrieverService&lt;ArticlePage&gt; articlePageRetrieverService;
+                                                                              
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
     private readonly IArticlePageService articlePageService;
-    // NEW DEPENDENCY
     private readonly IMembershipService membershipService;
-
+    
     ...
-
+    
     public async Task&lt;IActionResult&gt; Index()
     {
-        var context = webPageDataContextRetriever.Retrieve();
-        var articlePage = await articlePageRetrieverService.RetrieveWebPageById(
-            context.WebPage.WebPageItemID,
-            ArticlePage.CONTENT_TYPE_NAME,
-            2);
-
-        // NEW CODE
+        var articlePage = await contentItemRetrieverService.RetrieveCurrentPage&lt;ArticlePage&gt;(2);
+        
         if (articlePage is not null
             &amp;&amp; articlePageService.IsReusableArticleSecured(articlePage)
             &amp;&amp; !await membershipService.IsMemberAuthenticated())
         {
             return Forbid();
-        }
-        // END NEW CODE
+        }                      
 
-        var model = await articlePageService.GetArticlePageViewModel(articlePage);
+        var model = articlePageService.GetArticlePageViewModel(articlePage);
         return new TemplateResult(model);
     }
-    ...
+}
 </code></pre>
 </div>
 

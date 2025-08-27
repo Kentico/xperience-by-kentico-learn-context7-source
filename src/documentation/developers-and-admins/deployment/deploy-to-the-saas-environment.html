@@ -204,7 +204,7 @@ app.Run();
 <div>
 <p><strong>Notes</strong></p>
 <ul>
-<li>Currently, the <strong>maximum size of the deployment package is 2 GB</strong>. Binary files and media libraries are bundled in the deployment package. If you need to deploy a larger package (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), <a href="https://www.kentico.com/services/support" target="_blank">contact our support</a> for assistance. We plan to address the issue of transferring a large amount of content into SaaS in one of the upcoming <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">refreshes</a>.</li>
+<li>Currently, the <strong>maximum size of the deployment package is 2 GB</strong>. Binary files and media libraries are bundled in the deployment package. If you need to deploy more data (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), use <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#custom-restore">custom restore</a>.</li>
 <li>It is essential to consider what <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment">CD configuration</a> to be used with each deployment package. You can <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories">exclude objects</a> from the CD repository to limit what objects are restored in the SaaS environment. You can also specify a <a href="/documentation/developers-and-admins/ci-cd/continuous-deployment#cdrestoremode">CD restore mode</a> used to restore the CD repository.</li>
 <li>When deploying to a SaaS environment containing an existing deployment, the Xperience version that you deploy <strong>cannot be lower</strong> than the version in the target environment. You can only deploy the same or newer version.</li>
 <li>Non-production environments (<em>QA</em>, <em>UAT</em> or custom) only serve to test the functionality of your project. Any data or content edited in these environments <strong>will not</strong> be transferred during deployment to the <em>Production</em> environment.</li>
@@ -395,7 +395,7 @@ When performing this action in certain command line interfaces (e.g., PowerShell
 
 </div>
 <div>
-<p>The deployment package is currently limited by a <strong>maximum size of 2 GB</strong>. If you need to deploy a larger package (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), <a href="https://www.kentico.com/services/support" target="_blank">contact our support</a> for assistance.</p>
+<p>The deployment package is currently limited by a <strong>maximum size of 2 GB</strong>. If you need to deploy more data (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), use <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#custom-restore">custom restore</a>.</p>
 </div>
 
 <h4 id="upload-a-deployment-package-from-xperience-portal">Upload a deployment package from Xperience Portal</h4>
@@ -497,7 +497,7 @@ When performing this action in certain command line interfaces (e.g., PowerShell
 <li>All marketing assets, images, videos, large documents</li>
 </ul>
 </li>
-<li>If you need to deploy a package larger than 2 GB (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), <a href="https://www.kentico.com/services/support" target="_blank">contact our support</a> for assistance. We plan to address the issue of transferring a large amount of content into SaaS in one of the upcoming <a href="https://roadmap.kentico.com/tabs/4-planned" target="_blank">refreshes</a>.</li>
+<li>If your deployment package would exceed 2 GB (e.g., when <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico">upgrading</a> to Xperience by Kentico), use <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment/manage-saas-deployments#custom-restore">custom restore</a> to deploy the database and <a href="/documentation/developers-and-admins/api/files-api-and-cms-io/file-system-providers/azure-blob-storage">storage</a> assets.</li>
 <li>If you use Xperience by Kentico to manage content imported from external sources, it is recommended to import the content directly to the production or staging environment.</li>
 </ul>
 <p>The <a href="/documentation/developers-and-admins/configuration/content-sync-configuration">Content sync</a> feature allows you to set up content staging for SaaS environments. See <a href="/documentation/developers-and-admins/configuration/content-sync-configuration#content-staging-best-practices">Content staging best practices</a> to learn which environments are suitable for staging.</p>

@@ -267,16 +267,15 @@ new CacheSettings(cacheMinutes: 10, cacheItemNameParts: "cacheKeyName");
 </div>
 </div>
 <div>
-<pre data-line="3-9"><code>
-
+<pre data-line="3-8,14"><code>
 // Configure cache settings with a 30-minute expiration and sliding expiration enabled.
-var cacheSettings = new RetrievalCacheSettings
-{
+var cacheSettings = new RetrievalCacheSettings(
+    // Add a unique suffix to identify the cached data.
+    cacheItemNameSuffix: $"{nameof(ContentTypesQueryParameters.OfContentType)}|ArticleGenerated",
     // Cache entries will expire 30 minutes after their last access.
-    CacheExpiration = TimeSpan.FromMinutes(30),
+    cacheExpiration: TimeSpan.FromMinutes(30),
     // Resets the expiration timer on each access to keep frequently accessed items in the cache.
-    UseSlidingExpiration = true
-};
+    useSlidingExpiration: true);
 
 // Retrieve the current page of type 'ArticleGenerated' using the configured cache settings.
 var result = await contentRetriever.RetrieveCurrentPage&lt;ArticleGenerated&gt;(

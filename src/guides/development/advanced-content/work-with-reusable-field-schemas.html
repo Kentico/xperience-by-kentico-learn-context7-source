@@ -60,7 +60,7 @@ Some features covered in the Training guides may not work in older versions.
 <p>Let’s take a look under the hood to see how article pages are rendered.</p>
 <h3 id="check-the-controller">Check the controller</h3>
 <p>Visit <em>ArticlePageController.cs</em> in the <em>TrainingGuides.Web/Features/Articles</em> folder.</p>
-<p>You can see that the controller retrieves an <code>ArticlePage</code> object based on the current <em>web page data context</em>. To put this into perspective, open the <strong>Content types</strong> app in the Xperience administration. You’ll notice that the new content types, <em>Article (general)</em> and <em>Article (interview)</em> are both reusable types.</p>
+<p>You can see that the controller retrieves the current <code>ArticlePage</code> using the <code>RetrieveCurrentPage</code> method. Under the hood, this method gets the page based on the current <em>web page data context</em>. To put this into perspective, open the <strong>Content types</strong> app in the Xperience administration. You’ll notice that the new content types, <em>Article (general)</em> and <em>Article (interview)</em> are both reusable types.</p>
 <p></p>
 <p>The <em>Article page</em> content type contains two fields for selecting content items:</p>
 <ul>
@@ -97,14 +97,12 @@ Some features covered in the Training guides may not work in older versions.
 </div>
 <div>
 <pre><code>
-
 ...
-/// &lt;summary&gt;
 /// Creates a new instance of &lt;see cref="ArticlePageViewModel"/&gt;, setting the properties using ArticlePage given as a parameter.
 /// &lt;/summary&gt;
 /// &lt;param name="articlePage"&gt;Corresponding Article page object.&lt;/param&gt;
 /// &lt;returns&gt;New instance of ArticlePageViewModel.&lt;/returns&gt;
-public async Task&lt;ArticlePageViewModel&gt; GetArticlePageViewModel(ArticlePage? articlePage)
+public ArticlePageViewModel GetArticlePageViewModel(ArticlePage? articlePage)
 {
     if (articlePage == null)
     {
@@ -114,8 +112,7 @@ public async Task&lt;ArticlePageViewModel&gt; GetArticlePageViewModel(ArticlePag
     var article = articlePage.ArticlePageContent.FirstOrDefault();
     var articleTeaserImage = article?.ArticleTeaser.FirstOrDefault();
 
-    string language = preferredLanguageRetriever.Get();
-    string articleUrl = (await webPageUrlRetriever.Retrieve(articlePage, language)).RelativePath;
+    string articleUrl = articlePage.GetUrl().RelativePath;
 
     return new ArticlePageViewModel
     {
@@ -128,7 +125,6 @@ public async Task&lt;ArticlePageViewModel&gt; GetArticlePageViewModel(ArticlePag
     };
 }
 ...
-
 </code></pre>
 </div>
 
@@ -169,26 +165,21 @@ public async Task&lt;ArticlePageViewModel&gt; GetArticlePageViewModel(ArticlePag
 </div>
 </div>
 <div>
-<pre><code>
-
+<pre data-line="17-30"><code>
 ...
 /// &lt;summary&gt;
 /// Creates a new instance of &lt;see cref="ArticlePageViewModel"/&gt;, setting the properties using ArticlePage given as a parameter.
 /// &lt;/summary&gt;
 /// &lt;param name="articlePage"&gt;Corresponding Article page object.&lt;/param&gt;
 /// &lt;returns&gt;New instance of ArticlePageViewModel.&lt;/returns&gt;
-public async Task&lt;ArticlePageViewModel&gt; GetArticlePageViewModel(ArticlePage? articlePage)
+public ArticlePageViewModel GetArticlePageViewModel(ArticlePage? articlePage)
 {
     if (articlePage == null)
     {
         return new ArticlePageViewModel();
     }
 
-    // These lines were moved up
-    string language = preferredLanguageRetriever.Get();
-    string articleUrl = (await webPageUrlRetriever.Retrieve(articlePage, language)).RelativePath;
-
-    // New code
+    string articleUrl = articlePage.GetUrl().RelativePath;
     var articleSchema = articlePage.ArticlePageArticleContent.FirstOrDefault();
 
     if (articleSchema != null)
@@ -205,7 +196,6 @@ public async Task&lt;ArticlePageViewModel&gt; GetArticlePageViewModel(ArticlePag
             Url = articleUrl
         };
     }
-    //End new code
 
     var article = articlePage.ArticlePageContent.FirstOrDefault();
     var articleTeaserImage = article?.ArticleTeaser.FirstOrDefault();
@@ -221,7 +211,6 @@ public async Task&lt;ArticlePageViewModel&gt; GetArticlePageViewModel(ArticlePag
     };
 }
 ...
-
 </code></pre>
 </div>
 
@@ -290,7 +279,7 @@ public class IsInContactGroupConditionType : ConditionType
     Label = "Contact groups",
     Order = 0,
     MaximumItems = 0)]
-    public IEnumerable&lt;ObjectRelatedItem&gt; SelectedContactGroups { get; set; } = Enumerable.Empty&lt;ObjectRelatedItem&gt;();
+    public IEnumerable&lt;ObjectRelatedItem&gt; SelectedContactGroups { get; set; } = [];
 
     /// &lt;summary&gt;
     /// Evaluate condition type.

@@ -45,22 +45,91 @@
 <p>To enable AIRA globally again, change the value of <code>"CMSEnableAira"</code> to <code>"CMSEnableAira": true</code>.</p>
 </div>
 
-<h2 id="configure-aira">Configure AIRA</h2>
+<h2 id="configure-aira-content-generation">Configure AIRA content generation</h2>
 <p>You can adjust the behavior of specific AIRA features by configuring the following settings:</p>
 <ol type="1">
-<li>Open the <strong>Settings</strong> application.</li>
+<li>Open the <strong>AIRA</strong> application.</li>
+<li>Switch to the <strong>Content generation</strong> tab.</li>
 <li>Select the <strong>AIRA</strong> category and configure the settings:
 <ul>
 <li>
 <strong>Excluded content types</strong> – allows you to simplify the selection of content sources when <a href="/documentation/business-users/aira#generate-email-content">generating content for email fields</a>. Items of the specified content types (for reusable content) will not be offered. For example, we recommend excluding content types that only store image content without text.</li>
 <li>
-<strong>Tone of voice guidelines</strong> – allows you to describe your organization’s tone of voice guidelines (professional, simple, humorous, etc.). AIRA will use this tone when generating content for email fields. If not specified, AIRA uses a neutral tone.</li>
+<strong>Tone of voice guidelines</strong> – allows you to describe your organization’s tone of voice guidelines (professional, simple, humorous, etc.). AIRA will use this tone when generating content for email fields or when <a href="/documentation/business-users/aira#aira-translations">translating content</a>. If not specified, AIRA uses a neutral tone.</li>
 </ul>
 </li>
 <li>
 <strong>Save</strong> the settings.</li>
 </ol>
 <p>The settings apply globally for all content types and fields that support the AIRA features across the system.</p>
+<h2 id="configure-aira-translations">Configure AIRA translations</h2>
+<p>You can adjust the behavior of <a href="/documentation/business-users/aira#aira-translations">AIRA translations</a>, which is used for the <a href="/documentation/business-users/content-hub/content-items#translate-content-items">translation of content items</a> and <a href="/documentation/business-users/website-content/translate-pages">translation of pages</a>. To configure AIRA translations:</p>
+<ol type="1">
+<li>Open the <strong>AIRA</strong> application.</li>
+<li>Switch to the <strong>Translations</strong> tab.</li>
+<li>Select the data types allowed for translations.
+<ul>
+<li>Allows you to choose the field <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data types</a> you want translated (e.g., <em>Long text</em>, <em>Text</em>, <em>Rich text (HTML)</em>, etc.).</li>
+</ul>
+</li>
+<li>Specify instructions for translations.
+<ul>
+<li>Allows you to add custom instructions for how your content should be translated by AIRA, for example, brand terminology, formatting rules, words to leave untranslated, etc.<br>
+</li>
+</ul>
+</li>
+<li>Set whether to use tone-of-voice guidelines for translations.</li>
+<li>
+<strong>Save</strong> your changes.</li>
+</ol>
+<p>The AIRA translations are now configured.</p>
+<h3 id="configure-translation-of-specific-fields">Configure translation of specific fields</h3>
+<p>All content type fields of the data types allowed for translations are automatically enabled for translation. To specify which content type fields you want to translate:</p>
+<ol type="1">
+<li>Open the <strong>Content types</strong> application.</li>
+<li>Select a content type.</li>
+<li>On the <strong>Fields</strong> tab, select which <a href="/documentation/developers-and-admins/customization/field-editor">fields</a> you want to configure the translation for.</li>
+<li>Expand a field and scroll down to the <strong>AIRA features</strong> section.</li>
+<li>Select or clear the <strong>Include field in translation</strong> checkbox.
+<ul>
+<li>The checkbox is only available if the <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data type</a> of the field is <a href="#configure-aira-translations">allowed to be translated</a>.</li>
+</ul>
+</li>
+<li>
+<strong>Save</strong> your changes.</li>
+</ol>
+<p>You have successfully configured translation for a specific field.</p>
+<h3 id="configure-translation-of-page-builder-component-properties">Configure translation of Page Builder component properties</h3>
+<p>You can specify which properties of <a href="/documentation/developers-and-admins/development/builders/page-builder#page-builder-components">Page Builder components</a> (widget, section, etc.) you want to exclude from translation using the <code>ExcludeFromAiraTranslation</code> attribute.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Kentico.Xperience.Admin.Base;
+using Kentico.PageBuilder.Web.Mvc;
+
+public class TextWidgetProperties : IWidgetProperties
+{
+    [ExcludeFromAiraTranslation]
+    public string Text { get; set; } = string.Empty;
+}
+
+</code></pre>
+</div>
+
 <h2 id="add-aira-features-to-your-content-types">Add AIRA features to your content types</h2>
 <p>Some <a href="/documentation/business-users/aira">AIRA features</a> need to be manually enabled for individual fields of your <a href="/documentation/developers-and-admins/development/content-types">content types</a>:</p>
 <ol type="1">
@@ -86,7 +155,7 @@ AIRA features are currently not supported in <a href="/documentation/developers-
 <li><p><strong>Generate image description during mass upload</strong> – generates an SEO-friendly description of an image based on its content during <a href="/documentation/business-users/content-hub/content-item-assets#mass-asset-upload">mass upload</a>.</p></li>
 <li><p><strong>Automatically assign tags to images during mass upload</strong> – automatically assigns tags from the defined <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomy group</a> based on the image content during <a href="/documentation/business-users/content-hub/content-item-assets#mass-asset-upload">mass upload</a>.</p></li>
 <li>
-<p><strong>Generate email content</strong> – generates email content based on reusable content items stored in the <a href="/documentation/business-users/content-hub">Content hub</a>, external content specified by web URLs, or a custom description. You can globally <a href="#configure-aira">configure</a> which content types are available as content sources.</p>
+<p><strong>Generate email content</strong> – generates email content based on reusable content items stored in the <a href="/documentation/business-users/content-hub">Content hub</a>, external content specified by web URLs, or a custom description. You can globally <a href="#configure-aira-content-generation">configure</a> which content types are available as content sources.</p>
 
 <div>
 

@@ -1007,6 +1007,14 @@ public class HttpRequestService : IHttpRequestService
 <p>Add a new method to the membership service that <a href="/documentation/developers-and-admins/development/registration-and-authentication#retrieve-the-currently-authenticated-member">retrieves the current member</a>, then utilize it in a separate boolean method that returns <code>false</code> if no such member is found.</p>
 
 <div>
+
+</div>
+<div>
+<p>In some cases, it is useful for the editor to see restricted content in the administration even if no member is signed in. This is why our <code>IsMemberAuthenticated</code> method also returns <code>true</code> if running in Page Builder or Preview mode.</p>
+</div>
+
+
+<div>
 <div>
 <div>
 <span>C#</span>
@@ -1033,9 +1041,9 @@ public interface IMembershipService
     Task&lt;GuidesMember?&gt; GetCurrentMember();
 
     /// &lt;summary&gt;
-    /// Checks if the member is authenticated.
+    /// Checks if the member is authenticated or if the application is running in Page Builder or Preview mode.
     /// &lt;/summary&gt;
-    /// &lt;returns&gt;True if the member is authenticated; otherwise, false.&lt;/returns&gt;
+    /// &lt;returns&gt;True if the member is authenticated, or if running in Page Builder or Preview mode; otherwise, false.&lt;/returns&gt;
     Task&lt;bool&gt; IsMemberAuthenticated();
 }
 </code></pre>
@@ -1057,6 +1065,10 @@ public interface IMembershipService
 </div>
 <div>
 <pre><code>
+...
+using Kentico.Content.Web.Mvc;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Web.Mvc;
 using Microsoft.AspNetCore.Identity;
 ...
 public class MembershipService : IMembershipService
@@ -1066,7 +1078,8 @@ public class MembershipService : IMembershipService
     private readonly IHttpContextAccessor contextAccessor;
 
     ...
-    
+
+    /// &lt;inheritdoc /&gt;
     public async Task&lt;GuidesMember?&gt; GetCurrentMember()
     {
         var context = contextAccessor.HttpContext;
@@ -1078,10 +1091,22 @@ public class MembershipService : IMembershipService
         return await userManager.GetUserAsync(context.User);
     }
 
+    /// &lt;inheritdoc /&gt;
     public async Task&lt;bool&gt; IsMemberAuthenticated()
     {
-        var member = await GetCurrentMember();
-        return member is not null;
+        bool memberFound = await GetCurrentMember() is not null;
+        if (!memberFound)
+        {
+            var context = contextAccessor.HttpContext;
+            var mode = context?.Kentico().PageBuilder().GetMode() ?? PageBuilderMode.Off;
+
+            bool isPageBuilder = mode != PageBuilderMode.Off;
+            bool isPreview = context?.Kentico().Preview().Enabled ?? false;
+
+            return isPageBuilder || isPreview;
+        }
+
+        return memberFound;
     }
 }
 </code></pre>

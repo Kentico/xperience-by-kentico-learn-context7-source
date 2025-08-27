@@ -519,7 +519,13 @@ public override Task ConfigurePage()
 <li>
 <code>FormEditMode.ReadOnly</code> disables submission, but the contents can be read easily</li>
 </ul>
-<p>If some of the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components">form components</a> don’t implement the ReadOnly state, they will be displayed in the Disabled state.</p>
+<p>If some of the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components">form components</a> on the page don’t implement the ReadOnly state, they will be displayed in the Disabled state.</p>
+<p>When the <code>EditMode</code> value set for a <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components">form component</a> differs from the one set in <code>PageConfiguration</code>, the component is rendered according to the more restrictive of the two, following this order of precedence:</p>
+<ol type="1">
+<li><code>FormEditMode.Disabled</code></li>
+<li><code>FormEditMode.ReadOnly</code></li>
+<li><code>FormEditMode.Default</code></li>
+</ol>
 </td>
 </tr>
 <tr>
@@ -588,7 +594,7 @@ using Kentico.Xperience.Admin.Base;
 <strong>Submit</strong> – executed when the corresponding form is submitted from the client. The arguments the command sends to the server are represented by <code>FormSubmissionCommandArguments</code>. The response expected by the client is represented by <code>FormSubmissionResult</code>.</li>
 </ul>
 <h2 id="lifecycle-of-edit-and-create-ui-pages">Lifecycle of edit and create UI pages</h2>
-<p>The following diagram illustrates the lifecycle of edit and create pages, and their available customization points. Each step with a red border indicates a virtual member that can be overriden to customize the page’s behavior. </p>
+<p>The following diagram illustrates the lifecycle of edit and create pages, and their available customization points. Each step with a red border indicates a virtual member that can be overridden to customize the page’s behavior. </p>
 <p></p>
 <h3 id="configure-page">Configure page</h3>
 <p>The place to configure the behavior of the edit/create page. See the other topics on this page for details.</p>

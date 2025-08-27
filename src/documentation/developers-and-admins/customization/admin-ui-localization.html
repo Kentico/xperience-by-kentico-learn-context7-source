@@ -204,32 +204,6 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./lo
 <ol type="1">
 <li><p>Create a new .NET resource file in your <a href="/documentation/developers-and-admins/customization/integrate-custom-code">custom assembly</a>. See <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/create-resource-files" target="_blank">Create resource files for .NET apps</a>.</p></li>
 <li>
-<p>Set the file as <strong>embedded resource</strong> in your project’s <em>.csproj</em> file:</p>
-
-<div>
-<div>
-<div>
-<span>XML</span>
-</div>
-<strong>Set the file as embedded resource</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
- &lt;ItemGroup&gt;
-     &lt;EmbeddedResource Include="&lt;path/to/file.resx&gt;"&gt;
-         &lt;ExcludeFromManifest&gt;true&lt;/ExcludeFromManifest&gt;
-     &lt;/EmbeddedResource&gt;
- &lt;/ItemGroup&gt;
-</code></pre>
-</div>
-</li>
-<li>
 <p>Register the resource file using the <a href="/documentation/developers-and-admins/customization/integrate-custom-code#store-application-resources-in-resource-files">RegisterLocalizationResource</a> attribute:</p>
 
 <div>
@@ -249,24 +223,14 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./lo
 <pre><code>
  using CMS.Localization;
 
- using Acme.Web.Admin;
+ namespace Acme.Web.Admin;
 
  // Register resources for additional languages
- [assembly: RegisterLocalizationResource(typeof(LocalizationClientCS), "cs-CZ", LocalizationTarget.Client)]
- [assembly: RegisterLocalizationResource(typeof(LocalizationClientDE), "de-DE", LocalizationTarget.Client)]
+ [assembly: RegisterLocalizationResource(typeof(LocalizationClient), LocalizationTarget.Client, "cs-CZ")]
+ [assembly: RegisterLocalizationResource(typeof(LocalizationClient), LocalizationTarget.Client, "de-DE")]
 
- namespace Acme.Web.Admin
- {
-     // Class encapsulating the Czech resource file
-     public class LocalizationClientCS
-     {
-     }
-
-     // Class encapsulating the German resource file
-     public class LocalizationClientDE
-     {
-     }
- }
+ // Class encapsulating the localization resource files
+ public class LocalizationClient {}
  </code></pre>
 </div>
 
@@ -277,37 +241,6 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./lo
 <p>You can distribute your translations as NuGet packages. This approach allows other developers to easily include your translations.</p>
 <ol type="1">
 <li><p>Structure your project (typically a custom class library) to include the translated resource files and their <a href="#register-localized-resources">registration</a>.</p></li>
-<li>
-<p>Configure the <em>.csproj</em> file to include resource files as embedded resources:</p>
-
-<div>
-<div>
-<div>
-<span>XML</span>
-</div>
-<strong>.csproj configuration</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
- &lt;Project Sdk="Microsoft.NET.Sdk"&gt;
-
-     &lt;!-- ... --&gt;
-
-     &lt;ItemGroup&gt;
-     &lt;EmbeddedResource Include="Resources\*.resx"&gt;
-         &lt;ExcludeFromManifest&gt;true&lt;/ExcludeFromManifest&gt;
-     &lt;/EmbeddedResource&gt;
-     &lt;/ItemGroup&gt;
- &lt;/Project&gt;
- </code></pre>
-</div>
-</li>
 <li>
 <p>Package the translation using <code>dotnet pack</code>, and distribute:</p>
 
@@ -460,6 +393,43 @@ builder.Services.Configure&lt;AdminLocalizationOptions&gt;(options =&gt;
 <p>The display name shown to users in the language selector. If not provided, uses the culture’s native display name.</p>
 </td>
 </tr>
+<tr>
+<td>
+<p>UseDefaultSystemUICulture</p>
+</td>
+<td>
+<p><code>bool</code></p>
+</td>
+<td>
+<p>Indicates whether the default system UI culture provided by Kentico (en-US) will be used. This is used to set a different date format while preserving the default en-US translations provided by Kentico.</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>UseDefaultSystemUICulture example</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+new AdminCulture
+{
+    CultureCode = "de-DE",
+    DisplayName = "German date and time formatting",
+    // Uses English UI text with German formatting
+    UseDefaultSystemUICulture = true
+}
+</code></pre>
+</div>
+</div>
+</td>
+</tr>
 </table>
 
 <h2 id="access-localized-resources">Access localized resources</h2>
@@ -529,6 +499,90 @@ export const MyAdminComponent = () =&gt; {
 </div>
 
 <p>See the <a href="https://react.i18next.com/" target="_blank">i18n documentation</a> for a full usage guide and other resources.</p>
+<h4 id="accessing-globalization-context">Accessing globalization context</h4>
+<p>Use the <code>useGlobalization</code> hook to access the current admin UI culture information, including both resource string culture and datetime format culture.</p>
+<p>The <code>useGlobalization</code> hook provides:</p>
+<ul>
+<li>
+<code>uiLanguage</code> – The culture code used for resource string localization (matches admin UI language selection).</li>
+<li>
+<code>uiLocale</code> – The culture code used for datetime and number formatting (respects the <code>UseDefaultSystemUICulture</code> setting).</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>TSX</span>
+</div>
+<strong>useGlobalization example</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+import { useGlobalization } from '@kentico/xperience-admin-base';
+
+export const MyAdminComponent = () =&gt; {
+    const { uiLanguage, uiLocale } = useGlobalization();
+
+    return (
+        &lt;div&gt;
+            &lt;p&gt;Current UI language: {uiLanguage}&lt;/p&gt;
+            &lt;p&gt;Current UI locale: {uiLocale}&lt;/p&gt;
+        &lt;/div&gt;
+    );
+};
+</code></pre>
+</div>
+
+<p>This is particularly useful when you need to format dates, numbers, or other culture-specific content in your React components while maintaining consistency with the admin UI’s <a href="#configure-available-languages-for-users">localization settings</a>.</p>
+<h3 id="builder-components">Builder components</h3>
+<p>For <a href="/documentation/developers-and-admins/development/builders">builder</a> elements that are used exclusively within the administration interface (such as widget configuration dialogs, or Page Builder inline editors), use <code>IAdminBuildersLocalizationService</code>:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>Using IAdminBuildersLocalizationService in inline editors</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@using Kentico.PageBuilder.Web.Mvc
+@using Kentico.Web.Mvc
+@using Kentico.Builder.Web.Mvc
+
+@* Injects the localization service for admin UI components *@
+@inject IAdminBuildersLocalizationService localizationService
+
+@model LearningKitCore.Components.PageBuilder.InlineEditors.NumberEditor.NumberEditorModel
+
+@using (Html.Kentico().BeginInlineEditor("number-editor", Model.SelectedNumber))
+{
+    &lt;div style="position: absolute; top: 0px; right: 0px;"&gt;
+        &lt;button id="add-btn" type="button"&gt;
+            @* Gets the localized string using current admin UI culture *@
+            @localizationService.GetString("my.project.editors.numbereditor.add")
+        &lt;/button&gt;
+        &lt;button id="sub-btn" type="button"&gt;
+            @localizationService.GetString("my.project.editors.numbereditor.subtract")
+        &lt;/button&gt;
+    &lt;/div&gt;
+}
+</code></pre>
+</div>
+
+<p>For content that appears on the live site, use the framework’s <code>IHtmlLocalizer</code> API.</p>
 
 <div>
 

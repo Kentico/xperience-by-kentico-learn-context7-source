@@ -52,12 +52,13 @@ private async Task SampleRetrieval()
 {
     // Retrieves 3 banners with linked items
     var banners = await contentRetriever.RetrieveContent&lt;Banner&gt;(
-        new RetrieveContentParameters 
+        new RetrieveContentParameters
         { 
             LinkedItemsMaxLevel = 1
         },
         query =&gt; query.TopN(3),
-        new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(TopN)}|3"));
+        new RetrievalCacheSettings(cacheItemNameSuffix:
+                                    $"{nameof(RetrieveContentQueryParameters.TopN)}|3"));
 
     // Accesses the content item data
     foreach (Banner item in banners)
@@ -97,7 +98,8 @@ IEnumerable&lt;Guid&gt; tagIdentifiers;
 
 var banners = await contentRetriever.RetrieveContent&lt;Banner&gt;(
     query =&gt; query.WhereContainsTags("SomeTaxonomy", tagIdentifiers),
-    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(WhereContainsTags)}|SomeTaxonomy"));
+    new RetrievalCacheSettings(cacheItemNameSuffix:
+                                    $"{nameof(WhereParameters.WhereContainsTags)}|SomeTaxonomy|tagIdentifiers"));
 
 </code></pre>
 </div>
@@ -125,7 +127,8 @@ var tagCollection = await TagCollection.Create(tagIdentifiers);
 
 var articles = await contentRetriever.RetrieveContent&lt;ArticlePage&gt;(
     query =&gt; query.WhereContainsTags("SomeTaxonomy", tagCollection),
-    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(WhereContainsTags)}|SomeTaxonomy|Collection"));
+    new RetrievalCacheSettings(cacheItemNameSuffix:
+        $"{nameof(WhereParameters.WhereContainsTags)}|SomeTaxonomy|Collection"));
 
 </code></pre>
 </div>
@@ -222,7 +225,8 @@ var banners = await contentRetriever.RetrieveContent&lt;Banner&gt;(
              .And()
              .WhereContainsTags("SomeTaxonomy",
                     new List&lt;Guid&gt; { tagIdentifiers.ElementAt(1) })),
-    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(Where)}|MultipleTags"));
+    new RetrievalCacheSettings(cacheItemNameSuffix: 
+                                    $"{nameof(WhereParameters.Where)}|MultipleTags|tagIdentifiers"));
 
 </code></pre>
 </div>
@@ -280,7 +284,8 @@ var contentItems = await contentRetriever.RetrieveContentOfContentTypes&lt;ICont
     query =&gt; query.InSmartFolder(smartFolderGuid)
                    .OrderBy(new OrderByColumn("ContentItemCommonDataLastPublishedWhen", OrderDirection.Descending))
                    .TopN(5),
-    new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(InSmartFolder)}|{smartFolderGuid}|{nameof(OrderBy)}|{nameof(OrderByColumn)}|{nameof(TopN)}|5"));
+    new RetrievalCacheSettings(cacheItemNameSuffix:
+        $"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{smartFolderGuid}|{nameof(RetrieveContentOfContentTypesQueryParameters.OrderBy)}|{nameof(OrderByColumn)}|{nameof(RetrieveContentQueryParameters.TopN)}|5"));
 </code></pre>
 </div>
 
@@ -322,7 +327,7 @@ var articleItems = await contentRetriever.RetrieveContent&lt;ArticlePage&gt;(
     RetrieveContentParameters.Default,
     query =&gt; query.InSmartFolder(smartFolderGuid),
     new RetrievalCacheSettings(
-        cacheItemNameSuffix: $"{nameof(InSmartFolder)}|{smartFolderGuid}|{nameof(OfContentType)}|ArticlePage"));
+        cacheItemNameSuffix: $"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{smartFolderGuid}|{nameof(ContentTypesQueryParameters.OfContentType)}|ArticlePage"));
 </code></pre>
 </div>
 </div>
@@ -360,13 +365,10 @@ var articleItems = await contentRetriever.RetrieveContent&lt;ArticlePage&gt;(
 </div>
 <div>
 <pre><code>
-
 // IContentRetriever with custom cache settings
-var cacheSettings = new RetrievalCacheSettings
-{
-    CacheExpiration = TimeSpan.FromMinutes(5),
-    CacheItemNameSuffix = $"SmartFolder|{smartFolderGuid.ToString()}"
-};
+var cacheSettings = new RetrievalCacheSettings(
+    cacheItemNameSuffix: $"SmartFolder|{smartFolderGuid}",
+    cacheExpiration: TimeSpan.FromMinutes(5));
 
 var contentItems = await contentRetriever.RetrieveContentOfContentTypes&lt;IContentItemFieldsSource&gt;(
     new[] { "Sample.Type" },
@@ -378,7 +380,6 @@ var contentItems = await contentRetriever.RetrieveContentOfContentTypes&lt;ICont
                     .OrderBy(new OrderByColumn("ContentItemCommonDataLastPublishedWhen", OrderDirection.Descending))
                     .TopN(5),
     cacheSettings);
-
 </code></pre>
 </div>
 
@@ -523,7 +524,8 @@ private async Task SampleContentQuery()
             LinkedItemsMaxLevel = 1
         },
         query =&gt; query.TopN(3),
-        new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(TopN)}|3"));
+        new RetrievalCacheSettings(cacheItemNameSuffix:
+                                        $"{nameof(RetrieveContentQueryParameters.TopN)}|3"));
 
     // Accesses the content item data
     foreach (Banner item in banners)
@@ -590,7 +592,8 @@ private async Task SampleContentQuery()
             LinkedItemsMaxLevel = 1
         },
         query =&gt; query.TopN(3),
-        new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(TopN)}|3"));
+        new RetrievalCacheSettings(cacheItemNameSuffix:
+                                        $"{nameof(RetrieveContentQueryParameters.TopN)}|3"));
 
     // Accesses the content item data
     foreach (Banner item in banners)

@@ -93,7 +93,7 @@ public class ArticleListWidgetProperties : IWidgetProperties
         Label = "Select a parent page to pull articles from",
         MaximumItems = 1,
         Order = 10)]
-    public IEnumerable&lt;ContentItemReference&gt; ContentTreeSection { get; set; } = Enumerable.Empty&lt;ContentItemReference&gt;();
+    public IEnumerable&lt;ContentItemReference&gt; ContentTreeSection { get; set; } = [];
 
     // new property definition
     [TagSelectorComponent(
@@ -101,7 +101,7 @@ public class ArticleListWidgetProperties : IWidgetProperties
         Label = "Filter to categories",
         ExplanationText = "Select 0, 1 or more Article Type tags. Shows all if none are selected",
         Order = 15)]
-    public IEnumerable&lt;TagReference&gt; Tags { get; set; } = Enumerable.Empty&lt;TagReference&gt;();
+    public IEnumerable&lt;TagReference&gt; Tags { get; set; } = [];
     
     ...
 }
@@ -180,21 +180,20 @@ private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(Co
 {
     var selectedPageGuid = parentPageSelection.Identifier;
 
-    var selectedPage = await genericPageRetrieverService.RetrieveWebPageByContentItemGuid(selectedPageGuid);
+    var selectedPage = await contentItemRetrieverService.RetrieveWebPageByContentItemGuid(selectedPageGuid);
     var selectedPageWebPageGuid = selectedPage?.SystemFields.WebPageItemGUID;
     string selectedPageContentTypeName = await GetWebPageContentTypeName(selectedPageWebPageGuid);
     string selectedPagePath = selectedPage?.SystemFields.WebPageItemTreePath ?? string.Empty;
 
     if (string.IsNullOrEmpty(selectedPagePath))
     {
-        return Enumerable.Empty&lt;ArticlePage&gt;();
+        return [];
     }
 
     // if no tags are specified, retrieve the Article pages in the same way as before
     if (tags.IsNullOrEmpty())
     {
-        return await articlePageRetrieverService.RetrieveWebPageChildrenByPath(
-            selectedPageContentTypeName,
+        return await contentItemRetrieverService.RetrieveWebPageChildrenByPath&lt;ArticlePage&gt;(
             selectedPagePath,
             3);
     }
@@ -234,7 +233,7 @@ using CMS.ContentEngine;
 
 <p>Now there is one issue we need to solve:</p>
 <p>Our widget expects <strong>Article page</strong> content items to construct its view model. However, the property holding our taxonomy tags is on the reusable content item linked by the page.</p>
-<p>Because of the current limitations of the content query API, we will do this in two steps:</p>
+<p>Because of the current limitations of the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a>, we will do this in two steps:</p>
 <ol type="1">
 <li>Retrieve the IDs of all reusable content items that implement <strong>Article schema</strong> and contain the specified tags.</li>
 <li>Retrieve <strong>Article page</strong> content items on the specified path that link these reusable items.</li>
@@ -243,56 +242,17 @@ using CMS.ContentEngine;
 <h3 id="implement-the-service-methods">Implement the service methods</h3>
 <p>Let’s go implement these service methods in our <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">ContentItemRetrieverService.cs file</a> .</p>
 <h4 id="retrieve-reusable-content-items-by-schema-and-tags">Retrieve reusable content items by schema and tags</h4>
-<p>Our <code>ContentItemRetrieverService</code> class has an existing <code>RetrieveContentItems</code> method that calls the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">content query API</a>:</p>
-
-<div>
-<div>
-<div>
-<span>C#</span>
-</div>
-<strong>ContentItemRetrieverService.cs</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
-public class ContentItemRetrieverService : IContentItemRetrieverService
-{
-    ...
-    private async Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; RetrieveContentItems(Action&lt;ContentQueryParameters&gt; contentQueryParameters,
-        Action&lt;ContentTypesQueryParameters&gt; contentTypesQueryParameters)
-    {
-        var builder = new ContentItemQueryBuilder();
-
-        builder.ForContentTypes(contentTypesQueryParameters)
-            .Parameters(contentQueryParameters);
-
-        var queryExecutorOptions = new ContentQueryExecutionOptions
-        {
-            ForPreview = webSiteChannelContext.IsPreview,
-        };
-
-        return await contentQueryExecutor.GetMappedResult&lt;IContentItemFieldsSource&gt;(builder, queryExecutorOptions);
-    }
-    ...
-}
-</code></pre>
-</div>
-
+<p>The ContentRetriever API has a <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-retriever-api#retrieve-content-items-sharing-reusable-field-schema"><code>RetrieveContentOfReusableSchemas</code> extension method</a> that is exactly suited for our scenario.</p>
 <p>We will utilize it to retrieve the reusable content items that contain:</p>
 <ul>
+<li>Our <em>Article schema</em>, passing in the schema codename as a parameter (<code>schemaName</code>)</li>
 <li>GUIDs of specific tags, using the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#wherecontainstags">WhereContainsTags</a> extension method.</li>
-<li>our <em>Article schema</em>, using the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#ofreusableschema">OfReusableSchema</a> extension method.</li>
 </ul>
-<p>The data we need to perform this query will become method parameters:</p>
+<p>The data we need to perform this query will become additional method parameters:</p>
 <ul>
-<li>the code name of the reusable field schema</li>
-<li>the name of the database column where we expect to find the tags</li>
-<li>the GUIDs of the required tags</li>
+<li>the name of the database column where we expect to find the tags (<code>taxonomyColumnName</code>)</li>
+<li>the GUIDs of the required tags (<code>tagGuids</code>)</li>
+<li>the content’s language (<code>languageName</code>)</li>
 </ul>
 <p>Declare the method in the <code>IContentItemRetrieverService</code> interface and implement it in the <code>ContentItemRetrieverService</code> class.</p>
 
@@ -314,10 +274,11 @@ public class ContentItemRetrieverService : IContentItemRetrieverService
 public interface IContentItemRetrieverService
 {
     ...
-    public Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; RetrieveContentItemsBySchemaAndTags(
+    Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; RetrieveContentItemsBySchemaAndTags(
         string schemaName,
         string taxonomyColumnName,
-        IEnumerable&lt;Guid&gt; tagGuids);
+        IEnumerable&lt;Guid&gt; tagGuids,
+        string? languageName = null);
 }
 </code></pre>
 </div>
@@ -342,15 +303,25 @@ public interface IContentItemRetrieverService
 public class ContentItemRetrieverService : IContentItemRetrieverService
 {
     ...
-    public async Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; RetrieveContentItemsBySchemaAndTags(string schemaName, string taxonomyColumnName, IEnumerable&lt;Guid&gt; tagGuids)
+    /// &lt;inheritdoc /&gt;
+    public async Task&lt;IEnumerable&lt;IContentItemFieldsSource&gt;&gt; RetrieveContentItemsBySchemaAndTags(
+        string schemaName,
+        string taxonomyColumnName,
+        IEnumerable&lt;Guid&gt; tagGuids,
+        string? languageName = null)
     {
-        Action&lt;ContentQueryParameters&gt; contentQueryParameters = parameters
-            =&gt; parameters.Where(where =&gt; where.WhereContainsTags(taxonomyColumnName, tagGuids));
+        var parameters = new RetrieveContentOfReusableSchemasParameters
+        {
+            LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+            IsForPreview = webSiteChannelContext.IsPreview
+        };
 
-        Action&lt;ContentTypesQueryParameters&gt; contentTypesQueryParameters = parameters
-            =&gt; parameters.OfReusableSchema(schemaName);
-
-        return await RetrieveContentItems(contentQueryParameters, contentTypesQueryParameters);
+        return await contentRetriever.RetrieveContentOfReusableSchemas&lt;IContentItemFieldsSource&gt;(
+            [schemaName],
+            parameters,
+            query =&gt; query.Where(where =&gt; where.WhereContainsTags(taxonomyColumnName, tagGuids)),
+            RetrievalCacheSettings.CacheDisabled,
+            configureModel: null);
     }
     ...
 }
@@ -359,7 +330,7 @@ public class ContentItemRetrieverService : IContentItemRetrieverService
 
 <h4 id="retrieve-article-pages-by-path-and-reference">Retrieve Article pages by path and reference</h4>
 <p>Next, we need a method that will fetch all child Article pages on a specific path <strong>which also link any of specified reusable content items</strong>.</p>
-Our generic <code>ContentItemRetrieverService&lt;T&gt;</code> already has the <code>RetrieveWebPageChildrenByPath</code> method (which our widget currently uses).
+Our <code>ContentItemRetrieverService</code> already has the <code>RetrieveWebPageChildrenByPath</code> method (which our widget currently uses).
 
 <div>
 <div>
@@ -377,30 +348,24 @@ Our generic <code>ContentItemRetrieverService&lt;T&gt;</code> already has the <c
 <div>
 <pre><code>
 ...
-public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+public class ContentItemRetrieverService : IContentItemRetrieverService
 {
     ...
-    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
-        string parentPageContentTypeName,
-        string parentPagePath,
-        int depth = 1)
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath&lt;T&gt;(
+        string path,
+        int depth = 1,
+        string? languageName = null)
+        where T : IWebPageFieldsSource, new()
     {
-        var builder = new ContentItemQueryBuilder()
-                            .ForContentType(
-                                parentPageContentTypeName,
-                                config =&gt; config
-                                    .ForWebsite(webSiteChannelContext.WebsiteChannelName, [PathMatch.Children(parentPagePath)])
-                                    .WithLinkedItems(depth))
-                            .InLanguage(preferredLanguageRetriever.Get());
-
-        var queryExecutorOptions = new ContentQueryExecutionOptions
+        var parameters = new RetrievePagesParameters
         {
-            ForPreview = webSiteChannelContext.IsPreview
+            LinkedItemsMaxLevel = depth,
+            LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+            IsForPreview = webSiteChannelContext.IsPreview,
+            PathMatch = PathMatch.Children(path)
         };
 
-        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
-
-        return pages;
+        return await contentRetriever.RetrievePages&lt;T&gt;(parameters);
     }
     ...
 }
@@ -408,8 +373,8 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
 </code></pre>
 </div>
 
-<p>We can reuse the functionality – all we need is an additional method call in content query parameters to pass in the references.</p>
-<p>Add a new <strong>private</strong> overload of the <code>RetrieveWebPageChildrenByPath</code>, and a new nullable <code>customContentTypeQueryParameters</code> parameter to pass in an anonymous method.</p>
+<p>We can reuse the functionality – all we need is an additional query configuration in the ContentRetriever’s extension method parameters to pass in the references.</p>
+<p>Add a new <strong>private</strong> overload of the <code>RetrieveWebPageChildrenByPath</code>, and a new nullable <code>additionalQueryConfiguration</code> parameter to the method to pass in an anonymous method.</p>
 
 <div>
 <div>
@@ -427,22 +392,19 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
 <div>
 <pre><code>
 ...
-public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
-{
-    ...
-    private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
-        string parentPageContentTypeName,
-        string parentPagePath,
-        Action&lt;ContentTypeQueryParameters&gt;? customContentTypeQueryParameters,
-        int depth = 1) { }
-    ...
-}
+private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath&lt;T&gt;(
+        string path,
+        int depth = 1,
+        Action&lt;RetrievePagesQueryParameters&gt;? additionalQueryConfiguration = null,
+        string? languageName = null)
+        where T : IWebPageFieldsSource, new()
+    { }
+
 ...
 </code></pre>
 </div>
 
-<p>Extract all the code from the <strong>public</strong> <code>RetrieveWebPageChildrenByPath</code> method.</p>
-<p>Add a condition to construct the <code>contentQueryParameters</code> based on whether the caller did or did not pass in any <code>customContentTypeQueryParameters</code>.</p>
+<p>Extract all the code from the <strong>public</strong> <code>RetrieveWebPageChildrenByPath</code> method. Replace the the <code>RetrievePages</code> method call with an overload that takes <code>additionalQueryConfiguration</code> as a parameter.</p>
 
 <div>
 <div>
@@ -460,41 +422,28 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
 <div>
 <pre><code>
 ...
-public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+public class ContentItemRetrieverService : IContentItemRetrieverService
 {
     ...
-    private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
-        string parentPageContentTypeName,
-        string parentPagePath,
-        Action&lt;ContentTypeQueryParameters&gt;? customContentTypeQueryParameters,
-        int depth = 1)
+    private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath&lt;T&gt;(
+        string path,
+        int depth = 1,
+        Action&lt;RetrievePagesQueryParameters&gt;? additionalQueryConfiguration = null,
+        string? languageName = null)
+        where T : IWebPageFieldsSource, new()
     {
-        Action&lt;ContentTypeQueryParameters&gt; contentQueryParameters = customContentTypeQueryParameters != null
-            // if there are any custom parameters, add them to the contentQueryParameters
-            ? config =&gt; customContentTypeQueryParameters(config
-                .ForWebsite(webSiteChannelContext.WebsiteChannelName, [PathMatch.Children(parentPagePath)])
-                .WithLinkedItems(depth)
-            )
-            // otherwise, keep the contentQueryParameters as they were in the original method
-            : config =&gt; config
-                .ForWebsite(webSiteChannelContext.WebsiteChannelName, [PathMatch.Children(parentPagePath)])
-                .WithLinkedItems(depth);
-
-        var builder = new ContentItemQueryBuilder()
-                            .ForContentType(
-                                parentPageContentTypeName,
-                                contentQueryParameters
-                                )
-                            .InLanguage(preferredLanguageRetriever.Get());
-
-        var queryExecutorOptions = new ContentQueryExecutionOptions
+        var parameters = new RetrievePagesParameters
         {
-            ForPreview = webSiteChannelContext.IsPreview
+            LinkedItemsMaxLevel = depth,
+            LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+            IsForPreview = webSiteChannelContext.IsPreview,
+            PathMatch = PathMatch.Children(path)
         };
 
-        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
-
-        return pages;
+        return await contentRetriever.RetrievePages&lt;T&gt;(
+            parameters,
+            additionalQueryConfiguration: additionalQueryConfiguration,
+            cacheSettings: RetrievalCacheSettings.CacheDisabled);
     }
     ...
 }
@@ -517,28 +466,29 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="10-14"><code>
 ...
-public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+public class ContentItemRetrieverService : IContentItemRetrieverService
 {
     ...
-    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
-        string parentPageContentTypeName,
-        string parentPagePath,
-        int depth = 1) =&gt; // calling the new private method
-            await RetrieveWebPageChildrenByPath(
-            parentPageContentTypeName: parentPageContentTypeName,
-            parentPagePath: parentPagePath,
-            customContentTypeQueryParameters: null,
-            depth: depth);
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath&lt;T&gt;(
+        string path,
+        int depth = 1,
+        string? languageName = null)
+        where T : IWebPageFieldsSource, new()
+        =&gt; await RetrieveWebPageChildrenByPath&lt;T&gt;(
+            path,
+            depth,
+            null,
+            languageName);
     ...
 }
 ...
 </code></pre>
 </div>
 
-<p>Last but not least, implement a new public method that retrieves pages from a given path which link to the specified content items. As far as parameters go, in addition to page content type name, path and depth, it needs the <strong>IEnumerable of content item IDs</strong> and the <strong>code name of the reference field</strong>.</p>
-<p>Call our new <strong>private</strong> <code>RetrieveWebPageChildrenByPath</code> method and pass in custom content type query parameters - an anonymous function calling the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#linking">Linking</a> extension method.</p>
+<p>Last but not least, implement a new public method that retrieves pages from a given path which link to the specified content items. This method needs two new parameters beyond the existing path and depth: the <strong>code name of the reference field</strong> and the <strong>IEnumerable of content item IDs</strong>.</p>
+<p>Call our new <strong>private</strong> <code>RetrieveWebPageChildrenByPath</code> method and pass in custom query configuration - an anonymous function calling the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#linking">Linking</a> extension method.</p>
 
 <div>
 <div>
@@ -555,27 +505,28 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
 </div>
 <div>
 <pre><code>
-public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt;
+public class ContentItemRetrieverService : IContentItemRetrieverService
 {
     ...
-    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPathAndReference(
-        string parentPageContentTypeName,
+    public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPathAndReference&lt;T&gt;(
         string parentPagePath,
         string referenceFieldName,
         IEnumerable&lt;int&gt; referenceIds,
-        int depth = 1
-    ) =&gt; await RetrieveWebPageChildrenByPath(
-            parentPageContentTypeName: parentPageContentTypeName,
-            parentPagePath: parentPagePath,
-            customContentTypeQueryParameters: config =&gt; config.Linking(referenceFieldName, referenceIds),
-            depth: depth);
+        int depth = 1,
+        string? languageName = null)
+        where T : IWebPageFieldsSource, new()
+     =&gt; await RetrieveWebPageChildrenByPath&lt;T&gt;(
+            path: parentPagePath,
+            depth: depth,
+            additionalQueryConfiguration: config =&gt; config.Linking(referenceFieldName, referenceIds),
+            languageName: languageName);
     ...
 }
 ...
 </code></pre>
 </div>
 
-<p>Remember to also declare the new method in the generic <code>IContentItemRetrieverService</code> interface.</p>
+<p>Remember to also declare the new method in the <code>IContentItemRetrieverService</code> interface.</p>
 
 <div>
 <div>
@@ -593,16 +544,16 @@ public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService
 <div>
 <pre><code>
 ...
-public interface IContentItemRetrieverService&lt;T&gt;
+public interface IContentItemRetrieverService
 {
     ...
-    public Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPathAndReference(
-        string parentPageContentTypeName,
+    Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPathAndReference&lt;T&gt;(
         string parentPagePath,
         string referenceFieldName,
         IEnumerable&lt;int&gt; referenceIds,
-        int depth = 1
-    );
+        int depth = 1,
+        string? languageName = null)
+        where T : IWebPageFieldsSource, new();
     ...
 }
 ...
@@ -646,7 +597,7 @@ private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(Co
         // to specify the schema, use the REUSABLE_FIELD_SCHEMA_NAME constant from the generated IArticleSchema interface
         // pass in the name of the ArticleSchemaCategory field
         var taggedArticleIds = (
-            await genericPageRetrieverService.RetrieveContentItemsBySchemaAndTags(
+            await contentItemRetrieverService.RetrieveContentItemsBySchemaAndTags(
                 IArticleSchema.REUSABLE_FIELD_SCHEMA_NAME,
                 nameof(IArticleSchema.ArticleSchemaCategory),
                 tagGuids)
@@ -654,8 +605,7 @@ private async Task&lt;IEnumerable&lt;ArticlePage&gt;&gt; RetrieveArticlePages(Co
 
         // retrieve and return Article page content items on specified path that reference the reusable content items
         // pass in the name of the ArticlePageArticleContent field, which we use to link reusable article item to Article page
-        return await articlePageRetrieverService.RetrieveWebPageChildrenByPathAndReference(
-            selectedPageContentTypeName,
+        return await contentItemRetrieverService.RetrieveWebPageChildrenByPathAndReference&lt;ArticlePage&gt;(
             selectedPagePath,
             nameof(ArticlePage.ArticlePageArticleContent),
             taggedArticleIds,

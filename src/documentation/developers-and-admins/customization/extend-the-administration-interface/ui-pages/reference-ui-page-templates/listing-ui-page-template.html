@@ -315,12 +315,16 @@ public async Task&lt;ICommandResponse&lt;RowActionResult&gt;&gt; ActionWithFormC
 </div>
 <div>
 <pre><code>
-.AddDeleteAction(nameof(Delete), actionStateEvaluator: DisableDeleteForSpecificUsers);
+.AddDeleteAction(
+    new AddDeleteActionParameters(commandName: nameof(Delete))
+    {
+        ActionStateEvaluator = DisableDeleteForSpecificUsers,
+    });
 
 // ...
 
 // Disables the delete action for the default global administrator and public users
-private void DisableDeleteForSpecificUsers(ActionConfiguration actionConfiguration, IDataRecord rowData)
+private Task DisableDeleteForSpecificUsers(ActionConfiguration actionConfiguration, IDataContainer rowData, CancellationToken cancellationToken)
 {
     if (!actionConfiguration.Disabled)
     {
@@ -332,6 +336,7 @@ private void DisableDeleteForSpecificUsers(ActionConfiguration actionConfigurati
             actionConfiguration.Disabled = true;
         }
     }
+    return Task.CompletedTask;
 }
 </code></pre>
 </div>

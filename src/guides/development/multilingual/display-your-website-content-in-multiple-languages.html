@@ -154,16 +154,20 @@ public class MyClass
 </div>
 
 <h3 id="retrieve-localized-content-items">Retrieve localized content items</h3>
-<p>To retrieve a specific language variant of a content item (<a href="/documentation/business-users/website-content">website channel pages</a> or content items stored in <a href="/documentation/business-users/content-hub">content hub</a>), you simply use the <code>InLanguage</code> extension method of <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">ContentItemQueryBuilder</a>, passing it a language <strong>Code name</strong> (see picture above) as a parameter.</p>
+<p>Based on whether you are using the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a> or the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item query API</a>, to retrieve a specific language variant of a content item, you:</p>
+<ol type="a">
+<li>Pass the language <strong>Code name</strong> (see picture above) as the <code>languageName</code> parameter to the ContentRetriever’s extension method (ContentRetriever API).</li>
+<li>Call the <code>InLanguage</code> extension method of <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">ContentItemQueryBuilder</a>, passing it a language <strong>Code name</strong> as a parameter (Content item query API).</li>
+</ol>
 <p>By passing in the <a href="#retrieve-preferred-language">preferred language</a>, you will get your content item(s) in a language variant consistent with your current context.</p>
-<p>Take a look at the place in your code where you call the <code>ContentItemQueryBuilder</code>. If you have been working off <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/main" target="_blank">the main branch of our training guides repository</a> or are following along looking at <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">the finished branch</a>, one example is located in the <em>TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs</em>. </p>
+<p>Take a look at the place in your code where you call the <code>ContentRetriever</code> or the <code>ContentItemQueryBuilder</code>. If you have been working off <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/main" target="_blank">the main branch of our training guides repository</a> or are following along looking at <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">the finished branch</a>, one example is located in the <em>TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs</em>. </p>
 
 <div>
 <div>
 <div>
 <span>C#</span>
 </div>
-<strong>ContentItemRetrieverService.cs</strong>
+<strong>ContentItemRetrieverService.cs (main branch)</strong>
 </div>
 <div>
 <button>
@@ -172,34 +176,60 @@ public class MyClass
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="11,29"><code>
 ...
-public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageContentItems(
-        string contentTypeName,
-        Func&lt;ContentTypesQueryParameters, ContentTypesQueryParameters&gt; innerQueryFilter,
-        Action&lt;ContentQueryParameters&gt; outerParams,
+// retrieving content using ContentRetriever API
+public async Task&lt;T?&gt; RetrieveCurrentPage&lt;T&gt;(
+        int depth = 1,
         string? languageName = null)
+        where T : IWebPageFieldsSource, new()
+{
+    var parameters = new RetrieveCurrentPageParameters
     {
-        var builder = new ContentItemQueryBuilder()
-                            .ForContentTypes(
-                                config =&gt; innerQueryFilter(config)
-                                .OfContentType(contentTypeName)
-                                .WithWebPageData()
-                            )
-                            .Parameters(outerParams)
-                            .InLanguage(languageName ?? preferredLanguageRetriever.Get());
+        LinkedItemsMaxLevel = depth,
+        LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+        IsForPreview = webSiteChannelContext.IsPreview
+    };
 
-        var queryExecutorOptions = new ContentQueryExecutionOptions
-        {
-            ForPreview = webSiteChannelContext.IsPreview
-        };
-
-        var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
-
-        return pages;
-    }
+    return await contentRetriever.RetrieveCurrentPage&lt;T&gt;(parameters);
+}
 ...
+// retrieving content using Content item query API
+private async Task&lt;IEnumerable&lt;IWebPageFieldsSource&gt;&gt; RetrieveWebPages(
+    Action&lt;ContentQueryParameters&gt; parameters,
+    int depth,
+    string? languageName = null)
+{
+    var builder = new ContentItemQueryBuilder()
+        .ForContentTypes(query =&gt; query
+        .WithLinkedItems(depth, options =&gt; options.IncludeWebPageData(true))
+        .ForWebsite(webSiteChannelContext.WebsiteChannelName))
+    .Parameters(parameters)
+    .InLanguage(languageName ?? preferredLanguageRetriever.Get());
 
+    var queryExecutorOptions = new ContentQueryExecutionOptions
+    {
+        ForPreview = webSiteChannelContext.IsPreview
+    };
+
+    return await contentQueryExecutor.GetMappedResult&lt;IWebPageFieldsSource&gt;(builder, queryExecutorOptions);
+}
+
+public async Task&lt;IWebPageFieldsSource?&gt; RetrieveWebPageById(
+    int webPageItemId,
+    int depth = 2,
+    string? languageName = null)
+{
+    var pages = await RetrieveWebPages(parameters =&gt;
+        {
+            parameters.Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), webPageItemId));
+        },
+        depth,
+        languageName ?? preferredLanguageRetriever.Get());
+
+    return pages.FirstOrDefault();
+}
+...
 </code></pre>
 </div>
 
@@ -209,38 +239,7 @@ public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageContentItems(
 </div>
 <div>
 <p><strong>Referenced content items</strong></p>
-<p>In case you need to retrieve a deeper structure of content items (e.g., a page that references another content item, which also references another content item), call <code>WithLinkedItems</code> method as a part of your <code>queryFilter</code>.</p>
-<p>Here’s an example calling the <code>RetrieveWebPageContentItem</code> method from above:</p>
-<div>
-<div>
-<div>
-<div>
-<span>C#</span>
-</div>
-<strong>ContentItemRetrieverService.cs</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
-
-...
-var pages = await RetrieveWebPageContentItems(
-                contentTypeName,
-                config =&gt; config
-                    .Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemID), webPageItemId))
-                    .WithLinkedItems(depth));
-...
-
-</code></pre>
-</div>
-</div>
-<p>Because <code>RetrieveWebPageContentItem</code> is using the <code>InLanguage</code> extension method, this call will return the whole structure of content items localized.</p>
-<p>Read more about <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query#forcontenttype-parameterization"><code>WithLinkedItems</code> and other methods of <code>ContentItemBuilder.ForContentType</code></a></p>
+<p>When retrieving a deeper structure of content items (e.g., a page that references another content item, which also references another content item), the call will return the whole structure of content items localized.</p>
 </div>
 
 

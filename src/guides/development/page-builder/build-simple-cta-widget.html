@@ -135,7 +135,7 @@ public class SimpleCallToActionWidgetProperties : IWidgetProperties
     public string Text { get; set; } = string.Empty;
 
     public string TargetContent { get; set; } = nameof(TargetContentOption.Page);
-    public IEnumerable&lt;ContentItemReference&gt; TargetContentPage { get; set; } = Enumerable.Empty&lt;ContentItemReference&gt;();
+    public IEnumerable&lt;ContentItemReference&gt; TargetContentPage { get; set; } = [];
     public string TargetContentAbsoluteUrl { get; set; } = string.Empty;
     public bool OpenInNewTab { get; set; } = false;
 }
@@ -308,7 +308,7 @@ public string TargetContent { get; set; } = nameof(TargetContentOption.Page);
     MaximumItems = 1,
     Order = 30)]
 [VisibleIfEqualTo(nameof(TargetContent), nameof(TargetContentOption.Page), StringComparison.OrdinalIgnoreCase)]
-public IEnumerable&lt;ContentItemReference&gt; TargetContentPage { get; set; } = Enumerable.Empty&lt;ContentItemReference&gt;();
+public IEnumerable&lt;ContentItemReference&gt; TargetContentPage { get; set; } = [];
 </code></pre>
 </div>
 
@@ -422,7 +422,7 @@ public class SimpleCallToActionWidgetProperties : IWidgetProperties
         MaximumItems = 1,
         Order = 30)]
     [VisibleIfEqualTo(nameof(TargetContent), nameof(TargetContentOption.Page), StringComparison.OrdinalIgnoreCase)]
-    public IEnumerable&lt;ContentItemReference&gt; TargetContentPage { get; set; } = Enumerable.Empty&lt;ContentItemReference&gt;();
+    public IEnumerable&lt;ContentItemReference&gt; TargetContentPage { get; set; } = [];
 
     [TextInputComponent(
         Label = "Absolute URL",
@@ -697,16 +697,17 @@ namespace TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
 
 public class SimpleCallToActionWidgetViewComponent : ViewComponent
 {
-    private readonly IContentItemRetrieverService generalContentItemRetrieverService;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
 
     // use dependency injection to access content retrieval service
-    public SimpleCallToActionWidgetViewComponent(IContentItemRetrieverService generalContentItemRetrieverService)
+    public SimpleCallToActionWidgetViewComponent(IContentItemRetrieverService contentItemRetrieverService)
     {
-        this.generalContentItemRetrieverService = generalContentItemRetrieverService;
+        this.contentItemRetrieverService = contentItemRetrieverService;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(SimpleCallToActionWidgetProperties properties)
     {
+
         // figure out what the target URL should be
         // if the editor sets TargetContent to *Page*, retrieve the page URL, using the GetWebPageUrl function (defined below)
         // if the editor sets TargetContent to *AbsoluteUrl*, simply read it from the properties parameter
@@ -736,7 +737,7 @@ public class SimpleCallToActionWidgetViewComponent : ViewComponent
     {
         if (webPage is not null)
         {
-            var page = await generalContentItemRetrieverService.RetrieveWebPageByContentItemGuid(webPage.Identifier);
+            var page = await contentItemRetrieverService.RetrieveWebPageByContentItemGuid(webPage.Identifier);
             return page?.GetUrl()?.RelativePath ?? string.Empty;
         }
         return string.Empty;
@@ -754,15 +755,6 @@ public class SimpleCallToActionWidgetViewComponent : ViewComponent
 <p>When an editor selects a page using the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#combined-content-selector">combined content selector</a>, the value comes to the view component as a <code>ContentItemReference</code> object. Because the object doesn’t contain the page URL, we retrieve the page content item using the <code>RetrieveWebPageByContentItemGuid</code> method of our existing <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">ContentItemRetrieverService</a>.</p>
 <p>The method’s implementation uses the <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-page-content#access-current-preferred-language"><code>IPreferredLanguageRetriever</code></a> to ensure the content item data is accurate for the <a href="/guides/development/multilingual/display-your-website-content-in-multiple-languages">current site language</a>.</p>
 <p>Once we have the page, we can simply call its <code>GetUrl</code> extension method.</p>
-</div>
-
-
-<div>
-
-</div>
-<div>
-<p>The code here rely on a <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/TrainingGuidesWebPageUrlRetriever.cs" target="_blank">decorated version</a> of <code>IWebPageUrlRetriever</code> that includes exception handling.</p>
-<p>If you do not plan to use a similar customization, make sure to handle errors that the <code>Retrieve</code> method may throw when it cannot find a page.</p>
 </div>
 </li>
 </ol>
@@ -786,14 +778,12 @@ public class SimpleCallToActionWidgetViewComponent : ViewComponent
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="4"><code>
     ...
     public class SimpleCallToActionWidgetViewComponent : ViewComponent
     {
-        // new constant
         public const string IDENTIFIER = "TrainingGuides.SimpleCallToActionWidget";
-
-        private readonly IContentItemRetrieverService generalContentItemRetrieverService;
+        private readonly IContentItemRetrieverService contentItemRetrieverService;
         ...
     }
 </code></pre>
@@ -816,7 +806,7 @@ public class SimpleCallToActionWidgetViewComponent : ViewComponent
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="6-13"><code>
 ...
 using Kentico.PageBuilder.Web.Mvc;
 using TrainingGuides.Web.Features.LandingPages.Widgets.CallToAction;
@@ -868,7 +858,7 @@ using TrainingGuides.Web.Features.LandingPages.Widgets.CallToAction;
 using TrainingGuides.Web.Features.LandingPages.Widgets.SimpleCallToAction;
 using TrainingGuides.Web.Features.Shared.Services;
 
-// register Simple call to action widget
+// register Simple call to action widget                                        
 [assembly:
     RegisterWidget(
         identifier: SimpleCallToActionWidgetViewComponent.IDENTIFIER,
@@ -884,11 +874,11 @@ public class SimpleCallToActionWidgetViewComponent : ViewComponent
 {
     public const string IDENTIFIER = "TrainingGuides.SimpleCallToActionWidget";
 
-    private readonly IContentItemRetrieverService generalContentItemRetrieverService;
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
 
-    public SimpleCallToActionWidgetViewComponent(IContentItemRetrieverService generalContentItemRetrieverService)
+    public SimpleCallToActionWidgetViewComponent(IContentItemRetrieverService contentItemRetrieverService)
     {
-        this.generalContentItemRetrieverService = generalContentItemRetrieverService;
+        this.contentItemRetrieverService = contentItemRetrieverService;
     }
 
     public async Task&lt;ViewViewComponentResult&gt; InvokeAsync(SimpleCallToActionWidgetProperties properties)
@@ -915,7 +905,7 @@ public class SimpleCallToActionWidgetViewComponent : ViewComponent
     {
         if (webPage is not null)
         {
-            var page = await generalContentItemRetrieverService.RetrieveWebPageByContentItemGuid(webPage.Identifier);
+            var page = await contentItemRetrieverService.RetrieveWebPageByContentItemGuid(webPage.Identifier);
             return page?.GetUrl()?.RelativePath ?? string.Empty;
         }
         return string.Empty;
