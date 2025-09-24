@@ -826,14 +826,23 @@ public class PageSelectorUsage : ViewComponent
     public async Task&lt;IViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;CustomWidgetProperties&gt; model)
     {
         // Retrieves the GUIDs of the selected pages from the 'Pages' property
-        List&lt;Guid&gt; pageGuids = model?.Properties?.Pages?
+        List&lt;Guid&gt; webPageItemGuids = model?.Properties?.Pages?
                                                     .Select(i =&gt; i.WebPageGuid)
                                                     .ToList();
 
-        // Retrieves the data of the selected pages using a common page interface
-        // Use a specific type if you know the type of selected pages
-        IEnumerable&lt;IWebPageFieldsSource&gt; selectedPages = 
-                await contentRetriever.RetrievePagesByGuids&lt;IWebPageFieldsSource&gt;(pageGuids);
+        // Retrieves the data of the selected pages under a shared page interface.
+        // Uses the 'RetrieveAllPages' method to get pages from all content types and filter
+        // based on the GUIDs received from the selector.
+        IEnumerable&lt;IWebPageFieldsSource&gt; selectedPages =
+                await contentRetriever.RetrieveAllPages&lt;IWebPageFieldsSource&gt;(
+                    // Uses default parameters (current channel, language from context, etc.)
+                    parameters: RetrieveAllPagesParameters.Default,
+                    // Applies WHERE condition to filter only the pages with matching GUIDs
+                    additionalQueryConfiguration: query =&gt;
+                        query.Where(where =&gt; where
+                                .WhereIn(nameof(IWebPageFieldsSource.SystemFields.WebPageItemGUID), webPageItemGuids)),
+                    // Configures caching with a suffix that reflects the query modification (WhereIn filter by GUIDs)
+                    cacheSettings: new RetrievalCacheSettings($"{nameof(InvokeAsync)}|{nameof(RetrieveAllPagesQueryParameters.Where)}|ArticlesGUIDs"));
 
         // Custom logic...
 
@@ -850,7 +859,7 @@ public class PageSelectorUsage : ViewComponent
 <div>
 <span>C#</span>
 </div>
-<strong>ItemModiferType example</strong>
+<strong>ItemModifierType example</strong>
 </div>
 <div>
 <button>
@@ -1037,8 +1046,7 @@ public class SmartFolderSelectorUsage : ViewComponent
         IEnumerable&lt;Coffee&gt; result = await contentRetriever.RetrieveContent&lt;Coffee&gt;(
             RetrieveContentParameters.Default,
             query =&gt; query.InSmartFolder(selectedSmartFolderGuid),
-            new RetrievalCacheSettings(cacheItemNameSuffix:
-                $"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{selectedSmartFolderGuid}"));
+            new RetrievalCacheSettings($"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{selectedSmartFolderGuid}"));
 
         // Custom logic...
 
@@ -1569,7 +1577,7 @@ public DateTime? Date { get; set; } = null;
 <strong>C# data type</strong>: System.DateTime? (nullable)<br>
 <strong>Form component attribute</strong>: DateTimeInputComponent</p>
 <p>Date and time selector.</p>
-<p>Time values in the selector’s UI are automatically converted and displayed in the local time zone of each user, based on browser and environment settings. For example: <em>05/31/2024 01:30 PM (GMT+02:00)</em>. The value stored into the field is always in the time zone of the server where the application is running.</p>
+<p>Time values in the selector’s UI are automatically converted and displayed in the local time zone of each user, based on browser and environment settings. For example: <em>9/30/2025 12:00 PM GMT+2</em>. The value stored into the field is always in the time zone of the server where the application is running.</p>
 <h4 id="remarks-1">Remarks</h4>
 <p>Annotating a non-nullable property results in the input being prepopulated with the minimum selectable date. If you want to display an empty input instead, use the following construction.</p>
 

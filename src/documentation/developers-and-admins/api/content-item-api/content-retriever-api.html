@@ -608,6 +608,151 @@ var customViewModels =
 <li>
 <em>Approach:</em> Leverage the <code>configureModel</code> delegate extensively to build your target C# object with full control over the transformation process.</li>
 </ul>
+<h3 id="using-shared-types-for-bulk-content-retrieval">Using shared types for bulk content retrieval</h3>
+<p><a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#icontentitemfieldssource-interfaces">Generated model classes</a> implement shared interfaces that provide access to system properties:</p>
+<ul>
+<li>
+<a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">Page content type model classes</a> implement <code>IWebPageFieldsSource</code>
+</li>
+<li>
+<a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">Reusable content type model classes</a> implement <code>IContentItemFieldsSource</code>
+</li>
+</ul>
+<p>However, the way <code>IContentRetriever</code> methods work with these interfaces depends on how content types are identified and resolved during retrieval operations.</p>
+<p>The following <code>IContentRetriever</code> methods:</p>
+<ul>
+<li><code>RetrievePages</code></li>
+<li><code>RetrievePagesByGuids</code></li>
+<li><code>RetrieveContent</code></li>
+<li><code>RetrieveContentByGuids</code></li>
+</ul>
+<p>determine the target content type from the provided generic. This identification happens through the <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#registercontenttypemapping-attribute">RegisterContentTypeMappingAttribute</a> present on <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">generated model classes</a>.</p>
+<p>Since <code>IWebPageFieldsSource</code> and <code>IContentItemFieldsSource</code> are shared interfaces without specific content type mappings, using them directly as generic type parameters is not supported by these methods. The system cannot determine which specific content type to retrieve:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Unsupported approaches</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// These approaches are not supported - no content type can be determined
+var pages = await contentRetriever.RetrievePages&lt;IWebPageFieldsSource&gt;();
+var content = await contentRetriever.RetrieveContent&lt;IContentItemFieldsSource&gt;();
+</code></pre>
+</div>
+
+<h4 id="multi-content-type-page-retrieval-with-retrieveallpages">Multi-content type page retrieval with RetrieveAllPages</h4>
+<p>When you need to retrieve pages across multiple content types without knowing the specific types at compile time, use the <code>RetrieveAllPages</code> method. This method retrieves all web pages that match the specified <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-retriever-api#retrieve-all-pages">parameterization</a>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Retrieve all page content types</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="3"><code>
+// Retrieves all page content types matching the specified criteria
+IEnumerable&lt;IWebPageFieldsSource&gt; allPages =
+    await contentRetriever.RetrieveAllPages&lt;IWebPageFieldsSource&gt;(
+        new RetrieveAllPagesParameters 
+        {
+            LanguageName = "en-US",
+            PathMatch = PathMatch.Children("/articles")
+        }
+);
+</code></pre>
+</div>
+
+<h4 id="retrieving-pages-by-guids-across-content-types">Retrieving pages by GUIDs across content types</h4>
+<p>When you need to retrieve all pages of any content type by specific GUIDs, use the <code>RetrieveAllPages</code> method with <a href="#optional-query-configuration">additional query configuration</a>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Retrieve pages by GUIDs across all content types</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="7-9"><code>
+// A collection of page GUIDs (typically obtained from Page selector)
+var webPageItemGuids = new[] { guid1, guid2, guid3 };
+
+var pagesByGuids = await contentRetriever.RetrieveAllPages&lt;IWebPageFieldsSource&gt;(
+    RetrieveAllPagesParameters.Default,
+    query =&gt; query
+        .Where(where =&gt; where.WhereIn(
+            nameof(IWebPageFieldsSource.SystemFields.WebPageItemGUID), 
+            webPageItemGuids)),
+    new RetrievalCacheSettings($"{nameof(RetrieveAllPagesQueryParameters.Where)}|ByGUIDs")
+);
+</code></pre>
+</div>
+
+<h4 id="limitations-for-reusable-content-items">Limitations for reusable content items</h4>
+<p>The <code>RetrieveAllPages</code> approach is only available for page content types. For reusable content items, you must use one of the following approaches:</p>
+<ul>
+<li>Specify exact content types you want to retrieve.</li>
+<li>Use <a href="/documentation/developers-and-admins/development/content-types/reusable-field-schemas">reusable field schemas</a> to group related content types that share common properties.</li>
+</ul>
+<p>You can cast results to the shared <code>IContentItemFieldsSource</code> interface when retrieving across multiple reusable field schemas or content types:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Reusable content item retrieval requires specific content types</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Retrieve a specific reusable content type
+var testimonials = await contentRetriever.RetrieveContent&lt;TestimonialItem&gt;();
+
+// Retrieve multiple specific content types using reusable field schema
+var schemaNames = new[] { IMetadataFields.REUSABLE_FIELD_SCHEMA_NAME };
+IEnumerable&lt;IMetadataFields&gt; itemsWithSchema =
+  await contentRetriever.RetrieveContentOfReusableSchemas&lt;IMetadataFields&gt;(schemaNames);
+
+// Retrieve across multiple reusable schemas and cast to shared interface
+var schemaNames = new[] {
+    IMetadataFields.REUSABLE_FIELD_SCHEMA_NAME,
+    ISeoFields.REUSABLE_FIELD_SCHEMA_NAME
+};
+IEnumerable&lt;IContentItemFieldsSource&gt; itemsWithSchemas =
+  await contentRetriever.RetrieveContentOfReusableSchemas&lt;IContentItemFieldsSource&gt;(schemaNames);
+</code></pre>
+</div>
+
 <h2 id="method-reference">Method reference</h2>
 <p>See <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-retriever-api">Reference - ContentRetriever API</a> for a reference of all methods available on <code>IContentRetriever</code>.</p>
 

@@ -50,7 +50,7 @@
 <p>Before extend Xperience by Kentico’s built-in functionality you need to take the following steps:</p>
 <ol type="1">
 <li><p>Make sure that you’ve checked the <a href="#get-familiar-with-built-in-functionality">resources mentioned earlier</a> for other features that might accomplish what you need to do. This way, you can avoid “reinventing the wheel” and solving an already-solved problem.</p></li>
-<li><p>Research the available extensibility options of built-in functionality, being conscious of <a href="/documentation/developers-and-admins/customization">customization best practices</a> in the Xperience by Kentico documentation.</p></li>
+<li><p>Research the available extensibility options of built-in functionality, being conscious of <a href="/documentation/developers-and-admins/customization/stable-customization-guidelines">customization best practices</a> in the Xperience by Kentico documentation.</p></li>
 <li>
 <p>Compare extending Xperience by Kentico functionality versus building something completely custom. During the comparison, consider the viability of one versus the other with regard to:</p>
 <ul>
@@ -76,8 +76,16 @@
 <p>If you manage content in your solution this way, the developers must prepare the data structures and storage before the editors can enter the content.</p>
 <p>In live projects, we recommend creating content in a separate staging environment rather than directly editing in production. You can synchronize data to the production environment using Continuous Deployment.</p>
 <h4 id="creating-and-managing-content-outside-of-xperience-by-kentico">Creating and managing content outside of Xperience by Kentico</h4>
-<p>When you need to synchronize data between Xperience and an external system continuously, we recommend integrating scheduled task services like <a href="https://www.hangfire.io/" target="_blank">Hangfire</a> or <a href="https://www.quartz-scheduler.net/" target="_blank">Quartz.NET</a>. Instead of pulling data directly from the external system at runtime, we recommend storing it in your Xperience instance and working with it there if possible.</p>
-<p>If managing data in Xperience isn’t feasible, clearly define your “source of truth” (e.g., your ERP or another external system) and the process for content editors to manage each data type.</p>
+<p>When you need to synchronize data between Xperience and an external system continuously, we recommend using custom <a href="/documentation/developers-and-admins/customization/scheduled-tasks">scheduled tasks</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>If the built-in scheduled tasks do not meet your requirements, you can look into external services like <a href="https://www.hangfire.io/" target="_blank">Hangfire</a> or <a href="https://www.quartz-scheduler.net/" target="_blank">Quartz.NET</a>.</p>
+</div>
+
+<p>Instead of pulling data directly from the external system at runtime, we recommend storing it in your Xperience instance and working with it there if possible. If managing data in Xperience isn’t feasible, clearly define your “source of truth” (e.g., your ERP or another external system) and the process for content editors to manage each data type.</p>
 <p>For a one-way data migration from an external system, you can use our <a href="https://github.com/Kentico/xperience-by-kentico-universal-migration-tool/tree/main" target="_blank">Xperience by Kentico: Universal Migration Tool</a>.</p>
 <p>If you plan to migrate from an older Kentico product using the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Kentico Migration Tool</a>, take a look at our <a href="/guides/architecture/upgrade-from-kx13/plan-your-strategy-for-migrating-features">migration strategy guide</a> for information about important considerations.</p>
 <h3 id="design-organize-and-share-content">Design, organize, and share content</h3>

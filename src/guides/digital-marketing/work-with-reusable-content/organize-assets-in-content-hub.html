@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Organize assets in Content hub</title>
+</head>
+<body>
+<p>Every business works with different assets such as images, icons, infographics, videos or documents. Editors usually reuse and share these assets on websites, emails, and other digital marketing channels.</p>
+<p>Previous Kentico versions used <a href="/documentation/business-users/media-libraries">media libraries</a> where editors stored their data into a folder hierarchy. <em>Media libraries</em> have become <a href="/documentation/business-users/media-libraries">obsolete</a>, and editors should store all assets into <a href="/documentation/business-users/content-hub">Content hub</a>.</p>
+<p>Unlike <em>media libraries</em>, <em>Content hub</em> doesn’t use a hierarchical system. Instead, all reusable items exist in <strong>a single flat list</strong>.</p>
+<p>Piling all assets into <em>Content hub</em> without any structure may seem easy at first, but quickly becomes a problem, especially in larger editor teams. As the number of assets grows, editors will struggle to locate the correct file and waste time searching through <em>Content hub</em>. It can get even worse: if they don’t immediately find the image they had in mind, they might upload duplicates. This could lead to inconsistencies across channels and become a content curation nightmare.</p>
+<p>To manage large collections of assets, you can combine <strong>workspaces</strong> that separate content across the whole Xperience application and sort assets into <strong>folders</strong> within <em>Content hub</em>.</p>
+
+<div>
+
+</div>
+<div>
+<p>The following examples in this guide are recommendations and suggestions, not a prescription. You should discuss the kinds of assets you work with and how your teams collaborate during <a href="/guides/architecture/content-modeling/content-modeling-guide/content-modeling-process">content modeling sessions</a> with the stakeholders and adapt the system to your project’s needs.</p>
+</div>
+
+<h2 id="understand-how-content-folders-work">Understand how content folders work</h2>
+<p><em>Content hub</em> does not use a real folder hierarchy like a traditional file system. All assets represent <a href="/guides/digital-marketing/xperience-essentials/manage-content-hub-essentials">reusable content</a> that exists alongside other content items within a <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspace</a> in a single flat list.</p>
+<p><a href="/documentation/business-users/content-hub/content-hub-folders">Content folders</a> are a way to group and view content items inside <em>Content hub</em>. Adding an item, like an image to a <em>content folder</em> doesn’t move it anywhere or create duplicate copies. Instead, the folder creates a filter within <em>Content hub</em> that helps editors find their content.</p>
+
+<div>
+
+</div>
+<div>
+<p>Key points to remember:</p>
+<ul>
+<li>Content folders and smart folders are like filters over items in content hub; they don’t remove the item form the <em>Content hub</em>.</li>
+<li>Assets, like other content items, stay in the same <em>workspace</em>, even if you place them in a <em>folder</em>.</li>
+<li>Each asset can belong to only one <em>folder</em> at a time.</li>
+<li>You can create a folder structure with parent folders and subfolders to match your needs.</li>
+<li>The breadcrumb navigation at the top of the screen shows your location in the folder tree.</li>
+<li>The <em>Location</em> shows which content folder an item is assigned to.</li>
+</ul>
+</div>
+
+<p></p>
+<p>This approach keeps navigation simple. Instead of scrolling through hundreds of assets, editors can open the correct folder and immediately see what they need.</p>
+
+<p>For example, an insurance company can create folders for each product type it provides: <em>Car insurance</em>, <em>Home insurance</em>, <em>Travel insurance</em>, and <em>Life insurance</em>. When a campaign team needs graphics to promote new travel insurance, they find the approved images in the <em>Travel insurance</em> folder without digging through unrelated assets.</p>
+<h2 id="create-folder-hierarchy">Create folder hierarchy</h2>
+<p>A good folder hierarchy helps editors find and reuse assets. It doesn’t change where assets are stored in <em>Content hub</em>; they always remain in the same flat workspace. <em>Content folders</em> help you create a logical way for your team to navigate to them.</p>
+<p>You can create as many folders and nest them as deeply as you need.</p>
+<p>To create folders:</p>
+<ol type="1">
+<li>Open <em>Content hub</em> within the <strong>workspace</strong> where you want to organize assets.</li>
+<li>Create a <strong>parent folder</strong> for a major category of your assets.</li>
+<li>If needed, select this <em>parent folder</em> and create <strong>subfolders</strong> for more specific groupings.</li>
+<li>Repeat this process until you have a clear and simple structure.</li>
+</ol>
+<p>Let’s test it out in the Kbank demo site. Kbank runs personal and business banking websites. Editors need to manage product images for both sites, as well as campaign graphics. They want to create the following structure inside their <em>Kbank Global Media Assets</em> workspace:</p>
+<ul>
+<li>Top-level folders:
+<ul>
+<li>Accounts</li>
+<li>Cards</li>
+<li>Insurance</li>
+<li>Loans</li>
+</ul>
+</li>
+<li>Subfolders under <strong>Cards</strong>:
+<ul>
+<li>Balance transfer</li>
+<li>Rewards</li>
+<li>Premier</li>
+</ul>
+</li>
+<li>Temporary subfolders for campaigns:
+<ul>
+<li>Under <strong>Balance transfer</strong>, a <em>Fall 2025 campaign</em> subfolder to store campaign-specific banners and promotional graphics.</li>
+</ul>
+</li>
+</ul>
+<p>This structure helps editors find the right asset quickly without scrolling through unrelated files. The <strong>breadcrumb navigation</strong> shows them exactly where they are in the folder tree. Campaign teams know where to upload temporary images and can easily clean up the campaign subfolders once the promotion ends.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>Keep your folder structure simple. Two to three levels of folders will suffice for most projects that keep assets alongside other content within the <em>Content hub</em>. Editors find complex hierarchies harder to navigate and maintain.</p>
+</div>
+
+<h2 id="move-items-into-content-folders">Move items into content folders</h2>
+<p>Once you have a folder structure, you can organize your assets into the right folders. Remember, moving items doesn’t mean creating copies of files; moving just assigns these content items to a folder so they are easier to find.</p>
+<p>Let’s continue within the Kbank demo site.</p>
+<ol type="1">
+<li>Ensure you are in the <em>Kbank Global Media Assets</em> repository.</li>
+<li>Select the items you want to organize: <em>Balance transfer card</em> and <em>Female with credit card</em>.</li>
+<li>Use the <strong>Move</strong> action above the content items and choose the <strong>Cards</strong> &gt; <strong>Balance transfer</strong> subfolder in the folder tree.</li>
+<li>Use <strong>Move</strong> to confirm.</li>
+</ol>
+<p>Select the <em>Balance transfer</em> folder to confirm that your items appear correctly. Then, open the <strong>All items view</strong> to verify that the <em>Balance transfer card</em> asset is still available in the workspace in <em>Content hub</em> and its <em>Location</em> has been updated.</p>
+
+<h2 id="use-workspaces-to-manage-assets-apart-from-other-content">Use workspaces to manage assets apart from other content</h2>
+<p><a href="/documentation/business-users/media-libraries">Media libraries</a> kept all “files” separated from other content, which is not the case in <em>Content hub</em>.</p>
+<p>Depending on how your editors feel about it, you might want to create a dedicated <em>workspace</em> to store all files that different teams should access. You might also need to define what editors can or cannot do with the assets.</p>
+<p>Imagine that <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspaces</a> in Xperience are containers for content in the <em>Content hub</em>. Content in the <em>Content hub</em> always belongs to one specific workspace.</p>
+<p>Your <a href="/guides/digital-marketing/xperience-essentials/work-with-roles-essentials">administrator</a> assigns you access to the <em>workspaces</em> and other system parts. No matter which application you work in, whether the <em>Content hub</em> or a website channel, your <em>role</em> defines which resources you can access.</p>
+<p>This means:</p>
+<ul>
+<li>Your role determines which <em>workspaces</em> you can view and edit.</li>
+<li>You stay within that <em>workspace</em> when working in <em>Content hub</em>.</li>
+<li>You can switch between <em>workspaces</em> whenever you need.</li>
+</ul>
+
+<p>Depending on your role’s permissions, you’ll be allowed different <a href="/documentation/developers-and-admins/configuration/users/role-management">operations</a> within the workspace:</p>
+<ul>
+<li>
+<strong>View</strong> – Editors can use the assets in their work, but cannot change or delete them.</li>
+<li>
+<strong>Create</strong>, <strong>Update</strong> – Editors can reuse and change (update) assets.</li>
+<li>
+<strong>Delete</strong> – Editors can remove existing assets.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Your access to <em>website channels</em> is also based on the <em>role</em> (not workspace). This allows organizations to maintain <em>independent asset management</em> and <em>channel editing permissions</em>, so that teams get only the necessary access level.</p>
+</div>
+
+<p>From an organizational perspective, setting up a workspace to collect your company’s assets does more than group images in one place. It creates a shared space where:</p>
+<ul>
+<li>Content is organized consistently across the system.</li>
+<li>Permissions and access levels are applied reliably.</li>
+<li>Editors and teams can collaborate without stepping on each other’s work.</li>
+</ul>
+<p>Let’s take a look at an example. The Kbank demo site uses <em>three websites</em> managed in Xperience, and a <em>number of other channels</em>:</p>
+<ul>
+<li><em>Personal banking website</em></li>
+<li><em>Business banking website</em></li>
+<li><em>Mortgages website</em></li>
+<li><em>Email Marketing</em></li>
+<li><em>Headless app</em></li>
+</ul>
+<p>The Kbank teams organize their assets into these <em>workspaces</em>:</p>
+<ul>
+<li>
+<strong>Brand Assets</strong> workspace. This workspace contains official logos, icons, and approved images. Editors in all channels can reuse these, but only the design team can modify them.</li>
+<li>
+<strong>Kbank Global Media Assets</strong> workspace. This workspace holds images that all teams share, such as generic promotional graphics. Editors from any channel can add and update these items.</li>
+<li>
+<strong>Channel-specific workspaces</strong>. <em>Personal banking</em> and <em>Business Banking</em> website channels have their own workspace for content and assets used only on that website. <em>Access permissions</em>, such as <a href="/documentation/developers-and-admins/configuration/users/role-management/page-permission-management">page-level permissions</a>, are limited so editors from one channel cannot accidentally change content in another website that they are not allowed to change.</li>
+</ul>
+<p>This structure gives editors a consistent experience across Xperience applications while keeping each area organized and secure.</p>
+<p>[Image: Workspace list showing Brand assets, Global media assets, and channel-specific workspaces]</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>Plan your workspace structure early. If your teams or projects grow, you can add new workspaces or adjust permissions without disrupting the rest of the system.</p>
+</div>
+
+<h2 id="use-smart-folders-to-organize-and-filter-assets">Use smart folders to organize and filter assets</h2>
+<p><a href="/documentation/business-users/content-hub/content-hub-folders#smart-folders">Smart folders</a> let you create dynamic groups of assets in <em>Content hub</em>. Unlike regular folders, which hold specific items until you move them, smart folders automatically include items that match your defined filter. As assets change, for example, when AIRA applies taxonomy tags or <a href="/documentation/business-users/aira#automatically-generate-image-description">adds image description</a>or editors publish them, assets move in and out of the <em>smart folder</em> automatically.</p>
+<p>To quickly find content you are responsible for, you can create smart folders:</p>
+<ul>
+<li>Assets tagged with <em>Campaign 2025</em> to collect assets with relevant taxonomy <a href="/guides/digital-marketing/work-with-taxonomies/taxonomies">tag</a>.</li>
+<li>Images modified in the last 7 days.</li>
+<li>Images in <em>Draft</em> status waiting for review.</li>
+</ul>
+<p>Unlike <a href="#move-items-into-content-folders">folders</a>, a single asset can appear in multiple <em>smart folders</em>, which makes them helpful in managing different workflows without duplicating content. Because smart folders update automatically, you don’t need to remember to move items in and out. They stay accurate as the underlying assets change.</p>
+<h2 id="deliver-content-dynamically-with-smart-folders">Deliver content dynamically with smart folders</h2>
+<p>For projects where developers have <a href="/guides/development/advanced-content/deliver-content-dynamically-with-smart-folders">enabled dynamic content delivery</a>, <em>smart folders</em> can also control which assets are displayed on your website channels. You can manage which assets appear live by <a href="/documentation/business-users/content-hub/content-hub-folders#edit-smart-folders">editing the filter conditions</a> in <em>Content hub</em> without needing code changes.</p>
+<p>For example, your team could:</p>
+<ul>
+<li>Update a campaign smart folder filter to include new images; the website will automatically display them.</li>
+<li>Remove outdated assets from a smart folder, instantly updating what users see in the related channel.</li>
+</ul>
+<p>This makes smart folders especially powerful for teams managing campaigns or time-sensitive updates, as the filtering logic stays centralized in <em>Content hub</em>.</p>
+<h2 id="keep-your-assets-organized-with-these-best-practices">Keep your assets organized with these best practices</h2>
+<p>Organizing assets in <em>Content hub</em> takes more than creating folders, especially in large projects. You need to create a well-structured system to help editors keep their projects maintainable. The following best practices will help you build and maintain a structure that works for everyone.</p>
+<h3 id="use-workspaces-to-manage-access-and-scope">Use workspaces to manage access and scope</h3>
+<p>Workspaces are where you define who can use and edit assets. Use them to protect brand-critical assets and allow teams to share standardized resources across teams or only among themselves using dedicated workspaces. For example, limit editing rights in a <em>Brand assets</em> workspace to only the company’s graphic designers, but allow website editors to use those assets in their work.</p>
+<h3 id="use-folders-for-organization-not-permissions">Use folders for organization, not permissions</h3>
+<p>Folders are only for grouping assets to make them easier to find. They don’t control access or editing rights.</p>
+<h3 id="use-smart-folders-to-filter-relevant-content">Use smart folders to filter relevant content</h3>
+<p><em>Smart folders</em> let you group assets based on <em>filters</em>, such as <em>tags</em>, <em>status</em>, or <em>modification dates</em>. They update automatically as assets change, which is useful for tracking campaign materials, reviewing drafts, or managing recently uploaded files. Use them to create <em>views</em> over content that you are responsible for.</p>
+<h3 id="publish-catalogs-or-galleries-dynamically">Publish catalogs or galleries dynamically</h3>
+<p>Developers can use the <a href="/guides/development/advanced-content/deliver-content-dynamically-with-smart-folders">dynamic content delivery</a> in <em>smart folders</em> and feed <em>media catalogs</em> or <em>galleries</em> directly to your website channels. For example, you could maintain a <em>New products</em> smart folder or a <em>Featured campaign</em> folder, and the website or app will automatically display the right assets without manual updates.</p>
+<h3 id="keep-folder-names-clear-and-meaningful">Keep folder names clear and meaningful</h3>
+<p>Choose simple, descriptive folder names so anyone can understand where to find an asset, for example, use <em>Credit cards</em> instead of <em>CC2025_Materials</em>. Clear names save time and reduce mistakes.</p>
+<h3 id="avoid-deep-folder-structures">Avoid deep folder structures</h3>
+<p>Two or three levels of folders are enough for most projects. Complex hierarchies make navigation slower and harder to maintain, especially for new team members.</p>
+<h3 id="review-and-clean-up-folders-regularly">Review and clean up folders regularly</h3>
+<p>Embrace temporary folders, such as those for campaigns. At the same time, to prevent clutter, put a process in place to regularly review and clean up folders that are no longer needed.</p>
+<h2 id="wrap-up">Wrap up</h2>
+<p>We recommend using <em>Content hub</em> to store and manage all reusable assets, from images, icons, and videos to documents and campaign graphics. If you are working in a larger team and need to limit which teams have access to which assets, organize your assets into <em>workspaces</em>. Group items into <em>content folders</em> within the workspace. Improve flexibility by introducing <em>smart folders</em> and creating dynamic asset collections that update automatically as items change.</p>
+<p>A well-planned structure helps teams of any size work more efficiently, prevents duplication or accidental changes, and keeps assets consistent across websites, apps, and other channels. By combining clear workspace permissions, meaningful folder names, and smart folders for dynamic organization or delivery, your team can keep <em>Content hub</em> tidy and ready to support your projects as they grow.</p>
+
+</body>
+</html>

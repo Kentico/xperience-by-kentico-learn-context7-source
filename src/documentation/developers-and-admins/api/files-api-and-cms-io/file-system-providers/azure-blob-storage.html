@@ -309,46 +309,8 @@
 </li>
 </ol>
 </li>
-<li>
-<p>Specify the storage account name and primary access key in your application configuration file (<em>appsettings.json</em> by default).</p>
-<ol type="1">
-<li><p>Open the <a href="https://portal.azure.com" target="_blank">Azure Management Portal</a>.</p></li>
-<li><p>Open <strong>Storage accounts</strong>.</p></li>
-<li><p>Select your storage.</p></li>
-<li><p>Switch to the <strong>Access keys</strong> tab.</p></li>
-<li>
-<p>Use the <strong>Storage account name</strong> and one of the provided access key values.</p>
-
-<div>
-<div>
-<div>
-<span>JSON</span>
-</div>
-<strong>appsettings.json</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
-
- {
- ...
-
-     "CMSAzureAccountName": "StorageAccountName",
-     "CMSAzureSharedKey": "PrimaryAccessKey"
- }
-
- </code></pre>
-</div>
-</li>
-</ol>
-</li>
-<li><p>Open the Xperience project in Visual Studio.</p></li>
-<li><p><a href="/documentation/developers-and-admins/customization/integrate-custom-code">Add a custom Class Library project</a> and add the <strong>Kentico.Xperience.AzureStorage</strong> NuGet package as a dependency.</p></li>
+<li><p>Choose your authentication method. See <a href="#authentication-methods-for-azure-blob-storage">Authentication methods for Azure Blob storage</a> for detailed configuration options.</p></li>
+<li><p><a href="/documentation/developers-and-admins/customization/integrate-custom-code">Add a new Class Library</a> to your project and add the <strong>Kentico.Xperience.AzureStorage</strong> NuGet package as a dependency.</p></li>
 <li><p>Create a <a href="/documentation/developers-and-admins/customization/run-code-on-application-startup">custom module class</a> in the created library.</p></li>
 <li>
 <p>Override the module’s <code>OnInit</code> method and for each folder that you want to store in the blob storage:</p>
@@ -385,7 +347,7 @@ As some deployment environments don’t provide a persistent file system, we rec
 
  /* The following code snippet demonstrates the recommended mappings 
  for the ~/assets/ folder mentioned in the note above. 
- You can use the same approach to also map other folders from your project's file system.*/
+ You can use the same approach to also map other folders from your project's file system. */
 
  using CMS;
  using CMS.DataEngine;
@@ -507,7 +469,7 @@ As some deployment environments don’t provide a persistent file system, we rec
 <div>
 <pre><code>
 
- "CMSAzureCachePath": "C:\\AzureCache"
+"CMSAzureCachePath": "C:\\AzureCache"
 
 </code></pre>
 </div>
@@ -568,7 +530,7 @@ As some deployment environments don’t provide a persistent file system, we rec
 <div>
 <pre><code>
 
- "CMSAzurePublicContainer": true
+"CMSAzurePublicContainer": true
 
 </code></pre>
 </div>
@@ -608,6 +570,164 @@ As some deployment environments don’t provide a persistent file system, we rec
 </tr>
 </table>
 
+<h2 id="authentication-methods-for-azure-blob-storage">Authentication methods for Azure Blob storage</h2>
+<p>Xperience supports two authentication methods for Azure Blob storage connections:</p>
+<ul>
+<li>
+<strong>Shared key authentication</strong> – Uses the storage account name and access key.</li>
+<li>
+<strong>Managed identity authentication</strong> – Uses Microsoft Entra authentication with <a href="https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview" target="_blank">managed identities</a> . This is the recommended approach for enhanced security as it eliminates the need to store sensitive access keys in your application configuration.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Managed identity benefits</strong></p>
+<p>Managed identity authentication provides several security advantages:</p>
+<ul>
+<li>No need to store storage account keys in your application configuration</li>
+<li>Automatic credential rotation handled by Azure</li>
+<li>Fine-grained access control using Azure RBAC (Role-Based Access Control)</li>
+<li>Reduced risk of credential exposure</li>
+</ul>
+</div>
+
+<h3 id="shared-key-authentication">Shared key authentication</h3>
+<p>Specify the storage account name and primary access key in your application configuration file (<em>appsettings.json</em> by default).</p>
+<ol type="1">
+<li><p>Open the <a href="https://portal.azure.com" target="_blank">Azure Management Portal</a>.</p></li>
+<li><p>Open <strong>Storage accounts</strong>.</p></li>
+<li><p>Select your storage.</p></li>
+<li><p>Switch to the <strong>Access keys</strong> tab.</p></li>
+<li>
+<p>Use the <strong>Storage account name</strong> and one of the provided access key values.</p>
+
+<div>
+<div>
+<div>
+<span>JSON</span>
+</div>
+<strong>appsettings.json</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ {
+     "CMSAzureAccountName": "StorageAccountName",
+     "CMSAzureSharedKey": "PrimaryAccessKey"
+ }
+
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="managed-identity-authentication">Managed identity authentication</h3>
+<p>Configure managed identity authentication using Microsoft Entra ID. This method provides enhanced security by eliminating the need to store access keys.</p>
+<ol type="1">
+<li>
+<p>Set up managed identity in Azure:</p>
+<ol type="1">
+<li><p>Enable managed identity for your Azure resources. See the <a href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/" target="_blank">Azure managed identities documentation</a>.</p></li>
+<li>
+<p>Grant the managed identity appropriate roles and permissions to your storage account:</p>
+<ul>
+<li>Role: <strong>Storage Blob Data Owner</strong>
+</li>
+<li>This <a href="https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-owner" target="_blank">built-in role</a> includes all necessary permissions for Xperience Azure Storage operations.</li>
+<li><strong><em>—OR—</em></strong></li>
+<li>Role: <strong>Storage Blob Data Contributor</strong>
+</li>
+<li>With additional permissions:
+<ul>
+<li>
+<code>Microsoft.Storage/storageAccounts/blobServices/containers/getAcl/action</code> (<a href="https://learn.microsoft.com/en-us/rest/api/storageservices/get-container-acl" target="_blank">Get Container ACL</a>)</li>
+<li>
+<code>Microsoft.Storage/storageAccounts/blobServices/containers/setAcl/action</code> (<a href="https://learn.microsoft.com/en-us/rest/api/storageservices/set-container-acl" target="_blank">Set Container ACL</a>)</li>
+</ul>
+</li>
+<li>The <a href="https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-contributor" target="_blank">Storage Blob Data Contributor role</a> provides blob read/write access but requires additional container ACL permissions for full functionality. Use this configuration to enforce the principle of least privilege.</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>Configure storage account details in your application configuration:</p>
+
+<div>
+<div>
+<div>
+<span>JSON</span>
+</div>
+<strong>appsettings.json</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ {
+     "CMSAzureAccountName": "StorageAccountName"
+ }
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Configure managed identity authentication in your application startup:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+ using Azure.Identity;
+ using Kentico.Xperience.AzureStorage;
+
+ var builder = WebApplication.CreateBuilder(args);
+
+ // Configure managed identity for Azure Storage
+ builder.Services.AddAzureStorageCredential(serviceProvider =&gt;
+ {
+     // For user-assigned managed identity, specify the client ID
+     return new ManagedIdentityCredential("your-user-assigned-identity-client-id");
+
+     // For system-assigned managed identity, use default constructor.
+     // Note that for system-assigned identitites to work the connected
+     // application must be deployed in Azure as well.
+     return new ManagedIdentityCredential();
+
+     // For DEVELOPMENT environments, you can also return
+     // DefaultAzureCredential for automatic credential discovery.
+     // See the Azure documentation for details.
+     return new DefaultAzureCredential();
+ });
+
+ // ...
+
+ </code></pre>
+</div>
+</li>
+</ol>
 
 </body>
 </html>

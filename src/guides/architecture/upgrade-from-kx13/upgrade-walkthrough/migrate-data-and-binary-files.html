@@ -60,7 +60,7 @@
     "MigrationProtocolPath": "&lt;ABSOLUTE_PATH_TO_STORE_THE_-_LOG&gt;\\Migration.Toolkit.Protocol.log",
     "KxConnectionString": "Data Source=&lt;YOUR_DB_SERVER_NAME&gt;;Initial Catalog=&lt;SOURCE_KX13_DB_NAME&gt;;Integrated Security=True;Persist Security Info=False;Connect Timeout=60;Encrypt=False;Current Language=English;",
     "KxCmsDirPath": "&lt;ABSOLUTE_PATH_TO_YOUR_SOURCE_KX13_INSTANCE&gt;\\CMS",
-    "XbKDirPath": "&lt;ABSOLUTE_PATH_TO_YOUR_TARGET_XBYK_INSTANCE&gt;\\src",
+    "XbKDirPath": "&lt;ABSOLUTE_PATH_TO_YOUR_XbyK_REPO_FOLDER&gt;\\DancingGoat.Web",
     "XbyKApiSettings": {
       "ConnectionStrings": {
           "CMSConnectionString": "Data Source=&lt;YOUR_DB_SERVER_NAME&gt;;Initial Catalog=&lt;TARGET_XBYK_DB_NAME&gt;;Integrated Security=True;Persist Security Info=False;Connect Timeout=60;Encrypt=False;Current Language=English;"
@@ -150,6 +150,48 @@ app.UseEndpoints(endpoints =&gt;
 ...
 }
 ...
+</code></pre>
+</div>
+
+<h2 id="migration-commands">Migration commands</h2>
+<p>The migration commands we use in the video:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Sites only migration command</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+.\Migration.Tool.CLI.exe  migrate --sites
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Remaining data migration command</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+.\Migration.Tool.CLI.exe  migrate --custom-modules --users --settings-keys --page-types --pages --attachments --forms --bypass-dependency-check
 </code></pre>
 </div>
 

@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Work with image variants and focal point</title>
+</head>
+<body>
+<p>Images bring your content to life, but they don’t always fit neatly into every space across your website, emails, and other marketing channels. A photo that looks great in a wide hero banner might not work as well in a square thumbnail or a social media preview. Instead of uploading multiple versions of the same image yourself, <strong>Xperience by Kentico</strong> can generate <strong>image variants</strong> for you and even detect the best <strong>focal point</strong>.</p>
+<p>Let’s explore how to make the most of these features in <em>Xperience</em> so that your images are always sharp, relevant, and well-framed, no matter where they appear.</p>
+<h2 id="what-well-cover">What we’ll cover</h2>
+<ul>
+<li>What image variants and focal points are.<br>
+</li>
+<li>How Xperience automatically optimizes and crops your images.<br>
+</li>
+<li>How to adjust the focal point to direct attention to the important part of your image.<br>
+</li>
+<li>When and how to use manual cropping for more control.<br>
+</li>
+<li>How to share image variants outside of Xperience.</li>
+</ul>
+<p>By the end, you’ll know how to prepare <strong>professional and consistent images</strong>, no matter where your audience sees them.</p>
+<h2 id="understanding-image-variants">Understanding image variants</h2>
+<p>An <strong>image variant</strong> is a <strong>resized and cropped</strong> version of your original image that that follows your company’s graphic design guidelines. Your developers ensured that the image stays responsive and on brand across different marketing channels or in your marketing campaigns.</p>
+<p>For example:</p>
+<ul>
+<li>A wide <strong>hero banner</strong> might use a landscape variant.</li>
+<li>A <strong>thumbnail</strong> might use a square variant.<br>
+</li>
+<li>A <strong>social media card</strong> might need yet another size and ratio.</li>
+</ul>
+<p>You don’t need to create these versions yourself. Once configured, Xperience automatically generates them from the <strong>primary optimized image</strong> you upload into <a href="/guides/digital-marketing/xperience-essentials/manage-content-hub-essentials">Content hub</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p>Each project can have its own set of image variants, depending on the design and channel requirements. Your project’s UX and graphic designers work with developers to decide which aspect ratios and sizes are needed, and they set up the rules in advance.</p>
+<p>That means you don’t need to create multiple sizes of your images manually, or worry about compression settings under time pressure – you can leave the basic optimization to <a href="/documentation/business-users/aira">AIRA</a>. If you ever find a particular variant that isn’t currently available, you can ask your administrator or developer to create one for you. You’re not restricted in how many variants your project can support.</p>
+</div>
+
+<h2 id="why-image-variants-matter-and-what-they-do">Why image variants matter, and what they do</h2>
+<p>Image variants are more than just a matter of convenience. When you upload your image assets into Content hub, <em>AIRA</em> automatically transforms them, giving you several image variants to choose from. But what do you do with these variants once they’re ready?</p>
+<p>Image variants, in short, help you:</p>
+<ul>
+<li>Keep your images looking great across different contexts.<br>
+</li>
+<li>Avoid stretched, cut-off, or pixelated visuals.</li>
+<li>Ensure a consistent look across pages, devices, and channels.</li>
+<li>Save time by letting the system handle most of the resizing and cropping for you.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Currently, image variants are natively supported in the Kentico API <strong>only for the website channel</strong>.</p>
+</div>
+
+<h2 id="how-cropping-and-focal-points-work">How cropping and focal points work</h2>
+<p>When you upload an image to the <em>Content hub</em>, Xperience automatically <strong>optimizes</strong> it. This means a file variant is compressed to reduce its size, which helps your <strong>pages load faster</strong> while still keeping the <strong>image sharp and clear</strong>.</p>
+<p>At the same time, Xperience generates the predefined <em>image variants</em>. To decide how to crop them, the system uses an <strong>automatic focal point</strong>:</p>
+<ul>
+<li>By default, <em>AIRA</em> places the focal point in the center of the image, but if it recognizes some important area, it moves the focal point accordingly.</li>
+<li>The focal point tells the system which part of the image should remain visible when cropping.<br>
+</li>
+<li>If the subject doesn’t look right in a particular variant, you can move the focal point yourself.<br>
+</li>
+<li>All automatically generated variants update instantly when you adjust the focal point (except for those you’ve cropped manually).</li>
+</ul>
+<p>Behind the scenes, <em>AIRA</em> helps detect the <strong>most crucial area of the image</strong> when you upload it. This usually means people’s faces or central objects, so you won’t often need to change anything. But when you do, it only takes a few clicks.</p>
+<h2 id="adjusting-the-focal-point">Adjusting the focal point</h2>
+<p>You’ll want to change the focal point if:</p>
+<ul>
+<li>AIRA’s automatic detection doesn’t focus on the main subject.</li>
+<li>Certain image variants cut off a person or object you want to feature.</li>
+<li>The specific part of the image that <em>AIRA</em> selected as a focal point does not match your intentions.</li>
+</ul>
+<p>Think of the focal point as telling the system, <em>“This is the part of the image that must stay visible.”</em></p>
+<p>As an example, imagine that you’re working on an ad for a Kbank-sponsored sports club, where the most important person will be the player who scored several goals in a row.</p>
+<p>Some images you received include the whole team, but the star player is always standing at the far end of the group photo. Because AIRA automatically chooses the <strong>middle of the Primary image</strong> as the focal point, the star player is always <strong>cropped out in most image variants</strong>.</p>
+<p>What can you do about it? Since you can easily manually shift the focal point until you’re sure that the star player’s face is visible in all the cropped variants, AIRA’s automatic focal point detection still <strong>saves you time while giving you the flexibility to adjust the images to your needs</strong>.</p>
+<h2 id="manual-cropping">Manual cropping</h2>
+<p>Sometimes, adjusting the focal point isn’t enough. You may want more control over how a variant looks, for example, when a product needs to be perfectly centered in a thumbnail, or when you want to emphasize a specific detail – like our featured star player waving at the camera. In those cases, you can <strong>manually crop a specific variant</strong>.</p>
+<p>When cropping manually, keep in mind:</p>
+<ul>
+<li>You always keep the aspect ratio and dimensions set for the variant.<br>
+</li>
+<li>You can drag or resize the crop box to fine-tune what’s visible and what isn’t.<br>
+</li>
+<li>Once generated, manually cropped variants don’t change even if you adjust the global focal point later.</li>
+<li>They’re marked with a crop icon so you can tell them apart from the automatically optimized variants.</li>
+</ul>
+<p></p>
+
+<div>
+<p>You may have noticed that each of the variants in our example is named in a way that relates to how the variant behaves. A “wide” variant retains “wide” dimensions, and a “vertical” always remains “vertical”, no matter where you move the crop box. The developers set these dimensions and the variant names during the project implementation.</p>
+<p>While your project setting might look different from ours – your variants may have other dimensions and different names – one thing will always remain the same. An image variant will stay within the predefined limits of its dimensions.</p>
+</div>
+
+<h2 id="exercise-upload-and-adjust-an-image">Exercise: Upload and adjust an image</h2>
+<p>Let’s put the practices mentioned in the first section to the test by working with an image in the <em>Content hub</em>.</p>
+<p>Imagine you’re a content editor, working on an ad push for Kbank’s sponsorship of a celebrated English football club. The club’s marketing team wants to commemorate the occasion by holding a flash sale of the club’s jersey dresses, and they have provided you with a batch of images to work on.</p>
+<p>After selecting an image for the promo banners, you have to ensure that it will display correctly on all users’ devices and channels.</p>
+
+<div>
+
+</div>
+<div>
+<p>To follow along, download zipped sample images from the <a href="https://download.kentico.com/Training/sample_files_image_variants.zip" target="_blank">exercise resources</a>.</p>
+<p>The exercise we’re showing uses our <em>Kbank</em> demo website that lets you try out what it’s like working with <a href="https://www.kentico.com/platform" target="_blank">Xperience by Kentico</a> in a safe, sandbox environment.</p>
+<p>If you don’t have your demo site yet, request it through the <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">form at Kentico website</a> and request the <em>Xperience by Kentico – Business Tutorial Kbank</em> demo site. Once you approve the request, we will automatically send you a link to the demo site.</p>
+</div>
+
+<h3 id="upload-images-to-content-hub">1. Upload images to Content hub</h3>
+<ol type="1">
+<li>Open <strong>Content hub</strong>.</li>
+<li>
+<strong>Upload</strong> the sample image assets. Xperience automatically optimizes the files when uploading, and variants are generated based on your project’s predefined sizes.<br>
+</li>
+<li>Select the image you want to update, in our case, it’s <em>player-in-red-jersey.jpeg</em>.</li>
+</ol>
+<h3 id="check-image-optimization">2. Check image optimization</h3>
+<p>The <strong>Primary image</strong> is already resized and compressed by the system. This keeps your pages fast to load without making images look blurry.</p>
+<ol type="1">
+<li>Click the <strong>Adjust image</strong> icon to update the image variant.</li>
+<li>Now you can manually adjust:
+<ol type="1">
+<li>
+<strong>Format</strong> (for example, to WEBP or AVIF) – check the project documentation or check with your administrator to see which formats your project supports. In our case, we’ll change the <em>.jpeg</em> format to <em>.jpg</em>.</li>
+<li>
+<strong>Quality</strong> – to balance sharpness and file size, let’s change quality to <em>Medium 70%</em>. (Note that an option to adjust quality isn’t available for lossless formats like PNG.)</li>
+<li>
+<strong>Save</strong> your changes.</li>
+</ol>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>For more details on how to manunally adjust an image, see how to <a href="/documentation/business-users/content-hub/content-item-assets#optimize-image-assets">optimize image assets</a>.</p>
+</div>
+
+<h3 id="preview-variants">3. Preview variants</h3>
+<ol type="1">
+<li>Open the uploaded image asset in <em>Content hub</em>.<br>
+</li>
+<li>Switch between its <strong>variants</strong> (e.g., wide, vertical, narrow).</li>
+<li>Notice how the system has cropped the image. Is the player wearing the red jersey always fully visible in all variants?
+<ul>
+<li>If not, it’s time to adjust the focal point.</li>
+</ul>
+</li>
+</ol>
+<h3 id="adjust-the-focal-point">4. Adjust the focal point</h3>
+<ol type="1">
+<li>Open the <strong>Primary image</strong> in the asset.<br>
+</li>
+<li>Move the purple dot (the <strong>focal point</strong>) to the most important part of the image – in our case, the middle of the player’s back. We want to keep the red jersey the star of your ad.</li>
+<li>Preview how each image variant looks with the new focal point.</li>
+<li>
+<strong>Save</strong> changes.
+<ul>
+<li>All variants update automatically, except for those that you cropped manually.</li>
+</ul>
+</li>
+</ol>
+<h3 id="manually-crop-a-variant">5. Manually crop a variant</h3>
+<ol type="1">
+<li>Open the image asset.<br>
+</li>
+<li>Select the variant you want to adjust.<br>
+</li>
+<li>Drag the corners of the crop box to reposition it – make sure that the important part of the image is not cropped out.</li>
+<li>
+<strong>Save</strong> your changes. The variant is now fixed in place and won’t change if you adjust the focal point later.</li>
+<li>
+<strong>Publish</strong> the adjusted content item.</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>You cannot share the image variant via URL without publishing it, so <strong>always publish it when you’ve finished working</strong> on the asset and are ready to share it with the world.</p>
+</div>
+
+<h3 id="share-an-image-variant-via-url">6. Share an image variant via URL</h3>
+<p>You updated the focal point and manually adjusted the image variants to your liking. Satisfied with your work, you want to share the asset outside <em>Xperience</em>, for example, on social media.</p>
+<p>You can:</p>
+<ul>
+<li><p>Copy the <strong>URL of the primary image</strong>, which is already optimized for online use. </p></li>
+<li><p>Copy the <strong>URL of a specific variant</strong>, if you need a certain size or crop. </p></li>
+<li><p>Or copy the <strong>URL of the whole asset</strong>. </p></li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Downloading the original uploaded image asset isn’t available yet, but watch our <a href="https://roadmap.kentico.com/tabs/6-next-refreshes" target="_blank">roadmap</a> to stay updated on the latest refreshes.</p>
+</div>
+
+<h2 id="best-practices-for-using-image-variants">Best practices for using image variants</h2>
+<p>Here are a few best practices to keep in mind when working with image variants and focal points:</p>
+<ul>
+<li>Work with your administrators to ensure the right variant dimensions are in place before you begin your project.</li>
+<li>If there are any team/company-wide requirements, stick to them.</li>
+<li>Make use of AIRA’s automated focal point detection to keep the image cropping consistent and automated.<br>
+</li>
+<li>Rely on manual cropping only when you need precise control.<br>
+</li>
+<li>Always preview your image variants before publishing.<br>
+</li>
+<li>If you need an image that cannot be in any way adjusted, cropped or focused, e.g., for legal or copyright reasons, store it as a <a href="/guides/architecture/content-modeling/content-modeling-guide/store-files#restricted-image-content-type">restricted image content type</a>.</li>
+<li>Share optimized images and variants via URL in just a few clicks.</li>
+</ul>
+<h2 id="wrap-up">Wrap-up</h2>
+<p>You’ve seen that with image variants and focal points, you don’t need to manually create multiple versions of the same image. Instead, you can rely on Xperience’s intuitive automation to guide you to <strong>better pictures with far less effort</strong>. And if you still want some control over how your images look and display? Play with finding your own sweet spot between <strong>leveraging AIRA’s automated image optimization capabilities and manually adjusting image variants</strong> where necessary.</p>
+<p>The result? You’ll work faster, but your visuals will always look great, no matter where they appear on your website or beyond.</p>
+<h2 id="next-step">Next step</h2>
+<p>You’ve now learned the basics of working with image variants, focal point, and cropping. To further enhance your skills, explore additional resources on Xperience’s digital marketing capabilities in our <a href="/guides/digital-marketing/xperience-essentials/manage-content-essentials-next-steps">content management</a> guide.</p>
+
+</body>
+</html>

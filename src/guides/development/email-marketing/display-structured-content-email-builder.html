@@ -444,6 +444,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped&lt;IComponentModelMapper&lt;ProductWidgetModel&gt;, ProductEmailWidgetModelMapper&gt;();
         services.AddScoped&lt;IComponentModelMapper&lt;ArticleEmailWidgetModel&gt;, ArticleEmailWidgetModelMapper&gt;();
         services.AddScoped&lt;INatureSpotlightEmailService, NatureSpotlightEmailService&gt;();
+        services.AddScoped&lt;IEmailDataMapper, TrainingGuidesEmailDataMapper&gt;();
         ...
 </code></pre>
 </div>

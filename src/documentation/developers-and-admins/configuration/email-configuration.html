@@ -378,7 +378,7 @@ builder.Services.Configure&lt;SendGridClientOptions&gt;("AcmeEmailChannel", buil
 
 <p>The system now relays emails to the specified SendGrid instances. The system consider emails successfully sent when SendGrid accepts them. The actual delivery is not guaranteed by Xperience and relies on SendGrid.</p>
 <p>To learn how to set email <strong>sender addresses</strong> suitable for your SendGrid account, configure individual Xperience features that send emails – see <a href="#configurable-sender-email-addresses">Configurable sender email addresses</a>.</p>
-<p>You can now <a href="#test-email-sending">test the email server</a> configuration, and <a href="/documentation/business-users/email-queue">monitor emails</a> using the <strong>Email queue</strong> application in the Xperience administration.</p>
+<p>You can now <a href="#test-email-sending">test the email configuration</a>, and <a href="/documentation/business-users/email-queue">monitor emails</a> using the <strong>Email queue</strong> application in the Xperience administration.</p>
 <h2 id="configurable-sender-email-addresses">Configurable sender email addresses</h2>
 <h3 id="sender-email-address-for-private-cloud-environment">Sender email address for private cloud environment</h3>
 <p>The system allows you to configure the sender (From) email addresses used by various system features. See the following table for details:</p>
@@ -619,6 +619,7 @@ builder.Services.Configure&lt;EmailQueueOptions&gt;(options =&gt;
 
 <h2 id="test-email-sending">Test email sending</h2>
 <p>If you wish to test or debug email sending, we recommend setting up a local SMTP client, such as <a href="https://github.com/ChangemakerStudios/Papercut-SMTP" target="_blank">Papercut SMTP</a>. To verify that email sending from Xperience works correctly, send a test email.</p>
+<h3 id="system-emails">System emails</h3>
 <p>To test the email client configured for <strong>system emails</strong>:</p>
 <ol type="1">
 <li><p>Open the <strong>Email queue</strong> application in the Xperience administration.</p></li>
@@ -637,6 +638,7 @@ When using SendGrid, use a verified <strong>domain address</strong>.
 <li><p>Check the recipient’s mailbox (or your virtual email viewer).</p></li>
 </ol>
 <p>These test emails bypass the queue and are sent directly to the currently configured system email client.</p>
+<h3 id="channel-emails">Channel emails</h3>
 <p>To test the email client configured for individual <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channels</a>:</p>
 <ol type="1">
 <li>Open the email channel application in Xperience.</li>

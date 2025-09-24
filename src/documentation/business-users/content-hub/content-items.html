@@ -199,7 +199,7 @@
 <p>To publish multiple content items at once:</p>
 <ol type="1">
 <li>Open the <strong>Content hub</strong> application.</li>
-<li>Select the checkboxes on the left side of the list to choose the content items you want to publish.</li>
+<li>Select the content items you want to publish using the checkboxes on the left side of the list.</li>
 <li>Select <strong>Publish</strong> under the search bar.</li>
 </ol>
 <p>The <strong>Publish selected content items?</strong> confirmation dialog opens. Items can only be published if they fulfill the following requirements:</p>
@@ -294,15 +294,7 @@
 <li>
 <strong>Create empty content item</strong> allows you to create an empty content item with blank fields. Linked items need to be re-linked, and files need to be re-uploaded into the new language variant of the translated content item.</li>
 <li>
-<strong>Translate using AIRA</strong> allows you to translate the name and content of your item using <a href="/documentation/business-users/aira">AIRA</a> instead of manually translating content yourself. When using this option, subsequent steps are skipped and a new language variant is created directly in the <em>Draft</em> stage. The behavior of the translation can be <a href="/documentation/developers-and-admins/configuration/aira-configuration#configure-aira-translations">configured</a>, allowing you to specify, for example, formatting rules or brand terminology.
-
-<div>
-
-</div>
-<div>
-<a href="/documentation/business-users/aira#aira-translations">AIRA translations</a> currently do not support automatic translation of linked content items, pages, and <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a>. After translating your content item using AIRA, review your content, including links, to ensure they lead to the correct language variant.
-</div>
-
+<strong>Translate using AIRA</strong> see <a href="#translate-using-aira">Translate using AIRA</a> for more information.<br>
 </li>
 </ul>
 </li>
@@ -311,6 +303,49 @@
 <li><p><strong>Save</strong> the translated content item.</p></li>
 </ol>
 <p>You have now successfully translated the content item. Note that the particular language variant is now only a <em>Draft</em> and so won’t be accessible on the live site until you <a href="#publish-content-items">publish</a> it. Until you do so, the language variant in the fallback language will be displayed.</p>
+<h3 id="translate-using-aira">Translate using AIRA</h3>
+
+<div>
+
+</div>
+<div>
+<p><strong>AIRA license requirements</strong></p>
+<p><a href="/documentation/business-users/aira">AIRA</a> features require the Xperience by Kentico <strong>Advanced</strong> license tier.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Preview feature</strong></p>
+<p>AIRA is currently in preview mode. Expect AIRA features to be updated and modified in upcoming versions, including breaking changes.</p>
+<p>Feel free to try out the AIRA features, for example using the sample <em>Dancing Goat</em> <a href="/documentation/developers-and-admins/installation">project template</a> or other demo sites. You can share your feedback directly with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</p>
+</div>
+
+<p>When you choose <strong>Translate using AIRA</strong> and start the translation process, the name and content of your content item will be translated using <a href="/documentation/business-users/aira">AIRA</a>.</p>
+<p>The translation workflow changes depending on the number of items submitted for translation. For a single item, AIRA creates a new language variant of the content in the <em>Draft</em> state and immediately takes you to it.</p>
+<p>However, when translating multiple content items at once (for example, when translating content items along with their linked content), your content is sent to a <em>Translation queue</em>. This allows the translation to be processed in the background, freeing you up to continue your work. You can check on its progress in the <em>Translation queue</em> application. Once the translation of your content finishes, the related items are removed from the <em>Translation queue</em> application.</p>
+<p>The behavior of the translation can be <a href="/documentation/developers-and-admins/configuration/aira-configuration#configure-aira-translations">configured</a>, allowing you to specify, for example, formatting rules or brand terminology.</p>
+
+<div>
+
+</div>
+<div>
+<p>Existing text links to the translated content are not redirected to the new variant or translated automatically and need to be manually reviewed to ensure they lead to the correct content.</p>
+</div>
+
+<h4 id="mass-translating">Mass translating</h4>
+<p>To translate multiple content items at once using <a href="/documentation/business-users/aira">AIRA</a>:</p>
+<ol type="1">
+<li>Open the <strong>Content hub</strong> application.</li>
+<li>Select the content items you want to translate using the checkboxes on the left side of the list.</li>
+<li>Select <strong>Translate using AIRA</strong> under the search bar.</li>
+<li>Select which of the linked items you want to include in the translation.</li>
+<li>
+<strong>Translate item with selected items</strong>.</li>
+</ol>
+<p>You have successfully sent your items to be translated. The items will be placed in the “Translation queue” to be processed asynchronously. You can continue with your work or check the progress of the translation in the <em>Translation queue</em> application.</p>
 <h2 id="secure-content-items">Secure content items</h2>
 <p>Secured content items require that the consumer (e.g., a site visitor) is <a href="/documentation/business-users/members">signed in</a> before the content item is displayed.</p>
 <p>To secure content items:</p>
@@ -431,6 +466,7 @@
 <h3 id="advanced-scenarios">Advanced scenarios</h3>
 <p>This section looks at a couple of example scenarios and explains how they can be influenced by statuses.</p>
 <ul>
+<li><a href="#mass-translating">Mass translating</a></li>
 <li><a href="#content-item-with-linked-items">Content item with linked items</a></li>
 <li><a href="#creating-new-drafts-of-published-linked-content-items">Creating new drafts of published (linked) content items</a></li>
 <li><a href="#content-item-assets">Content item assets</a></li>

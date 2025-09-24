@@ -58,7 +58,16 @@ public class AccountController : Controller
 <li>Loose coupling – classes are not directly dependent on one another.</li>
 </ul>
 <h2 id="dependency-injection-providers">Dependency injection providers</h2>
-<p>ASP.NET Core Web applications come with a dependency injection provider developed by Microsoft. The provider is designed to serve the needs of the framework and most consumer applications. However, it can also be replaced with any third-party service container that conforms with the <a href="/documentation/developers-and-admins/installation/system-requirements">current system requirements</a>.</p>
+<p>ASP.NET Core Web applications come with a dependency injection provider developed by Microsoft. The provider is designed to serve the needs of the framework and most consumer applications. However, it can also be replaced with another third-party service container.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Service container requirements</strong></p>
+<p>To be compatible with Xperience, third-party service containers must support the features available in the minimum .NET version specified in the <a href="/documentation/developers-and-admins/installation/system-requirements">current system requirements</a>, including <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?#keyed-services" target="_blank">Keyed services</a>.</p>
+</div>
+
 <p>Xperience adds all of its services into the application’s <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.dependencyinjection.iservicecollection" target="_blank">IServiceCollection</a> during the <code>IServiceCollection.AddKentico()</code> call (see <a href="/documentation/developers-and-admins/development/website-development-basics/configure-new-projects">Configure new projects</a>). This approach is completely independent of the service provider used by the application.</p>
 <p>For example, to substitute the default Microsoft service container with <a href="https://autofac.org/" target="_blank">Autofac</a>:</p>
 <ol type="1">

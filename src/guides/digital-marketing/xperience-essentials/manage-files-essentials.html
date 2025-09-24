@@ -5,39 +5,339 @@
 <title>Manage files in Xperience</title>
 </head>
 <body>
-<p>You can manage all your digital files within Xperience by Kentico. This guide will teach you the basics of working with files in Xperience to make managing your digital files more straightforward and effective.</p>
-<p>In Xperience, you can store various file types, including images, videos, PDFs, presentations, documents, and other assets. All assets are stored within the <a href="/documentation/business-users/content-hub">Content hub</a>, your central repository for managing marketing content. The assets in the <em>Content hub</em> are based on a custom <a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">content type</a> <em>Asset</em> or <em>Media</em> and their names differ from project to project. For example, in the Kbank demo site, you’ll work with the <strong>Asset</strong> content type.</p>
+<p>Managing your project’s files doesn’t have to be a complicated chore. In <strong>Xperience by Kentico</strong>, you can keep all your important assets in one place, making it easier to find and update them. They can also be reused whenever you need. In Xperience, you can store various file types, including images, videos, PDFs, presentations, documents, and more. All assets are stored within the <a href="/documentation/business-users/content-hub">Content hub</a>, your central repository for reusable marketing content.</p>
+<p>The assets in the <em>Content hub</em> are based on a custom <a href="/guides/architecture/content-modeling/content-modeling-guide/what-is-a-content-type">content type</a>. Depending on your project <a href="/guides/architecture/content-modeling/content-modeling-guide/store-files#store-images-and-other-assets-in-the-content-hub">implementation</a>, you’ll be working with <em>Images</em>, <em>Media</em>, or <em>Assets</em>. For example, in the Kbank demo site, you’ll work with the <strong>Asset</strong> content type.</p>
 <p></p>
+
+<div>
+
+</div>
+<div>
+<p>Don’t have the demo Kbank website yet? You’ll need one to follow up on the exercises. If you don’t have your demo site set up, request the <strong>Xperience by Kentico – Business Tutorial Kbank demo site</strong> through a <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">form at Kentico website</a>.</p>
+</div>
+
+<p>We’ll show you the basics so you can easily store and manage your assets, and make your everyday marketing tasks a lot easier.</p>
 <h2 id="work-with-assets-in-content-hub">Work with assets in Content hub</h2>
-<p>Storing files in <em>Content hub</em> makes it reuse them in different digital marketing activities across your marketing <a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">channels</a>. Assets in the <em>Content hub</em> give provide you with helpful features that make managing large projects a breeze.</p>
-<p>You can switch the view mode in the <em>Content hub</em> to preview all content items based on the <em>Asset</em> content type.</p>
+<p>Storing files in <em>Content hub</em> means you can reuse them in different digital marketing activities across your marketing <a href="/guides/digital-marketing/work-with-channels/digital-marketing-channels">channels</a>. Assets in the <em>Content hub</em> provide you with helpful features that make managing large projects a breeze.</p>
+<p>You can preview all content items with images (in Kbank based on the <em>Asset</em> content type) and switch between view modes to suit your current <a href="/guides/digital-marketing/work-with-workflows/workflows">workflow</a>.</p>
 <p></p>
 <p>If you need to add multiple files to the <em>Content hub</em> at once, use the <strong>Upload files</strong> button.</p>
 <p></p>
-<p>To ensure no approved data is published live, you can apply different <a href="/documentation/developers-and-admins/configuration/workflows">content management workflows</a>. You can fully control who on your team and how they use assets through <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspace</a>.</p>
+<p>You can also upload an image <strong>directly from a widget</strong> while editing a page.</p>
+<p></p>
+<p>When you upload an image (whether through the <em>Content hub</em> or a widget), Xperience can automatically create <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">image variants</a> for different devices and applies <a href="/guides/digital-marketing/work-with-taxonomies/taxonomies#what-are-taxonomy-trees-tags-or-parent-child-relationships">taxonomy tags</a> to help categorize the images.</p>
+
+<div>
+
+</div>
+<div>
+<p>Automatic image tagging works only for mass image uploads. If you upload a single image into a content item, the auto-tagging process may not be triggered, so you’ll have to assign the tags manually.</p>
+<p>For more details on tags and taxonomy, check out our material on <a href="/guides/digital-marketing/work-with-taxonomies/work-with-taxonomies-in-kbank">working with taxonomies</a>.</p>
+</div>
+
+<p>The automatic taxonomy tags are generated using <a href="https://learn.microsoft.com/en-us/azure/ai-services/what-are-ai-services" target="_blank">Azure AI services</a>, which means results can vary. The same image may receive slightly different tags at different times, as the process is not standardized. You can, however, review and edit these tags as needed.</p>
+<p></p>
+<p>To ensure no unapproved data is published live, you can apply different <a href="/documentation/developers-and-admins/configuration/workflows">content management workflows</a>. You can also fully control who on your team uses the assets and how they use them through <a href="/documentation/developers-and-admins/configuration/users/role-management/workspaces">workspaces</a>.</p>
 <p>You can also create asset variants for different languages to ensure that your visitors receive properly <a href="/documentation/developers-and-admins/configuration/languages">localized content</a>, and use <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a> to categorize your images accordingly.</p>
-<p>Xperience also provides an out-of-the-box method to <em>restrict access</em> to the file, meaning only logged-in visitors can view or access it.</p>
+
+<div>
+
+</div>
+<div>
+<p>Note that assets in <em>Content hub</em> don’t support versioning. If you replace a file, only the latest version is available. To learn more, see the <a href="/documentation/business-users/content-versioning#assets">Content versioning</a> page.</p>
+</div>
+
+<p>Xperience also provides an out-of-the-box method to <strong>restrict access</strong> to a file, meaning only logged-in visitors can view or access it.</p>
 <p></p>
+<h2 id="exercise-1-upload-and-manage-multiple-images-in-content-hub">Exercise 1: Upload and manage multiple images in Content hub</h2>
+<p>Imagine that you’re running a flash promotional push to promote a new product – <em>Family Savings Account</em>. The promo push will involve a whole batch of images, but uploading them one by one would be slow and a bit frustrating.</p>
+<p>That’s why <em>Content hub</em> allows you to <strong>upload and prepare multiple images</strong> at the same time. With some help from <em>AIRA</em>, you’ll also ad the correct tags, and automatically generate image variants in different sizes. By the end, you’ll have a clean, <a href="/guides/digital-marketing/work-with-reusable-content/organize-assets-in-content-hub#create-folder-hierarchy">well-organized folder of assets</a> ready to be used across your promo push.</p>
+
+<div>
+
+</div>
+<div>
+<p>To follow along with the exercise, download a <a href="https://download.kentico.com/Training/sample+assets_multifile_upload.zip" target="_blank">zipped file of 11 images</a> we prepared for you.</p>
+</div>
+
+<ol type="1">
+<li>
+<p><strong>Download and prepare your images</strong></p>
+<ol type="1">
+<li>Download the sample images ZIP from the course resources and extract it to a local folder on your device.</li>
+<li>Review the file names and remove duplicates if necessary to keep the library clean.</li>
+</ol>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>If your team has a file-naming convention, rename files to ensure consistency with internal rules.</p>
+</div>
+
+<ol start="2" type="1">
+<li>
+<p><strong>Open Content hub and choose your target folder</strong></p>
+<ol type="1">
+<li>In Xperience, go to <strong>Content management</strong> and open <strong>Content hub</strong>.<br>
+</li>
+<li>Ensure you are working in the <strong>Personal Banking</strong> workspace.</li>
+<li>Navigate the <strong>Folders</strong> tab and locate or create the folder where your campaign images should live.<br>
+</li>
+<li>Let’s also create a subfolder like <em>Family Savings Campaign</em> to keep assets easy to find later.</li>
+</ol>
+</li>
+</ol>
+<p></p>
+
+<div>
+
+</div>
+<div>
+<p>Why does it matter? A logical <a href="/guides/digital-marketing/work-with-reusable-content/organize-assets-in-content-hub">folder hierarchy</a> makes browsing and permissions simpler for everyone.</p>
+</div>
+
+<ol start="3" type="1">
+<li>
+<p><strong>Start a bulk upload</strong></p>
+<ol type="1">
+<li>Next to the <strong>New content item</strong> button, use the arrow to open dropdown menu and select <strong>Upload files</strong>. </li>
+<li>Select the files you want to upload from your source folder in the upload dialog.<br>
+</li>
+<li>Use <strong>Open</strong> to confirm selected files and begin the upload.</li>
+<li>Once the files are successfully uploaded, you can <strong>Close</strong> the upload dialog. </li>
+<li>The <em>Assets</em> are now in the <em>Draft (Initial)</em> status, and you can check them and make further adjustments before you publish the assets.</li>
+</ol>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p>During the upload, AIRA automatically tags and optimizes the images. You can then start adjusting them manually.</p>
+</div>
+
+<ol start="4" type="1">
+<li>
+<p><strong>Check and adjust images</strong></p>
+<ol type="1">
+<li>Open the image with the original filename <em>AdobeStock_445562436.jpeg</em> and adjust:
+<ul>
+<li>
+<strong>Description</strong>: <em>Image of a smiling woman with a credit card and laptop.</em>
+</li>
+<li>
+<strong>Alt text</strong>: <em>Smiling woman holding a credit card, looking into an open laptop computer.</em>
+</li>
+<li>Click the <strong>Adjust image</strong> icon to update the image variant. </li>
+<li>
+<strong>Primary Image</strong> changes to make:
+<ul>
+<li>
+<strong>Image format</strong>: Change from <em>JPEG</em> to <em>JPG</em>.</li>
+<li>
+<strong>Quality</strong>: adjust the quality to <em>Medium 80%</em>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<strong>Save</strong> the changes.</li>
+<li>Manually adjust the <strong>focal point</strong> of the <em>Primary image</em>. </li>
+<li>Check and adjust the crop in <strong>Image variants</strong> if needed. </li>
+<li>
+<strong>Save</strong> your latest updates.</li>
+</ol>
+</li>
+</ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Variant notes</strong>:</p>
+<p>Follow any team internal rules you might have on the image quality settings or where the focal point should typically go, such as “don’t lower the quality of the image below 50%” and “keep the focal point on people’s faces.”</p>
+</div>
+
+<ol start="5" type="1">
+<li><strong>Manually adjust predefined tags:</strong></li>
+</ol>
+<ul>
+<li>Use the tag selector to add relevant tags from your project’s predefined list, such as <em>Young people</em> and <em>Family setting</em>.</li>
+<li>
+<strong>Save</strong> your changes to apply tags.<br>
+</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>Currently, you can only choose from predefined tags configured by your developer. You cannot create new tags in the <em>Content hub</em> at the moment. However, it is still beneficial to follow a few best practices when it comes to tagging.</p>
+<ul>
+<li>Prefer specific tags over vague labels like <em>misc</em> or <em>general</em>.</li>
+<li>Reuse existing tags rather than inventing near-duplicates (for example, choose <em>Buildings</em> over adding a new tag <em>House</em>).<br>
+</li>
+<li>Keep it focused: aim for 3 to 6 precise tags per asset to improve search accuracy.<br>
+</li>
+<li>Follow team conventions for consistency.</li>
+</ul>
+</div>
+
+<ol type="1">
+<li>
+<p><strong>Inspect another image to verify results</strong></p>
+<ol type="1">
+<li>Open newly uploaded image.<br>
+</li>
+<li>Confirm it has the expected tags and a clear description.<br>
+</li>
+<li>Make minor edits if needed, then <strong>Save</strong>. </li>
+</ol>
+</li>
+<li>
+<p><strong>Final tidy-up and quality check</strong></p>
+<ol type="1">
+<li>Ensure all images reside in the <strong>correct folder</strong> with the proper naming and tags.<br>
+</li>
+<li>Use <strong>Filters</strong> in the folder, for example, filter by <strong>Content type</strong> (<em>Asset</em>), or by <strong>Taxonomy</strong> tags you just applied (to confirm your tagging works as expected).</li>
+<li>If an image does not fit this campaign, move it to a more suitable folder, or make any last adjustments now.<br>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>Publish your assets</strong></p>
+<ol type="1">
+<li>Select all assets in the folder by checking off the <strong>Content item name</strong> checkbox, or one by one if you want to select only some.</li>
+<li>
+<strong>Publish</strong> all selected items in bulk. </li>
+<li>If unsure about the result, verify that the status of the selected assets has changed from <em>Draft (Initial)</em> to <em>Published</em>. </li>
+</ol>
+</li>
+</ol>
+<p>Nice work! You’ve just uploaded and organized a larger set of images in one smooth process. By using bulk upload, AIRA-assisted tagging and adding alt description, and creating manually updated variants, you’ve built a tidy, reusable library that will save you and your team time later.</p>
+<h2 id="exercise-2-add-an-image-to-the-premier-credit-card-image-widget">Exercise 2: Add an image to the Premier credit card image widget</h2>
+<p>Now that you know the basics of working with assets in Xperience, let’s add an image to a page that only your editor team will be able to manage. Follow these steps to <strong>add an image to the empty image widget</strong> on the website channel’s <strong>Premier credit card</strong> page.</p>
+
+<div>
+
+</div>
+<div>
+<p>To follow along with the exercise, download a <a href="https://download.kentico.com/Training/exercise-sample-manage-files-man-holding-credit-card.png" target="_blank">sample image file</a> we prepared for you.</p>
+</div>
+
+<ol type="1">
+<li>
+<p><strong>Open the page for editing</strong></p>
+<ul>
+<li>In the <strong>Personal Banking</strong> channel, navigate to the <strong>Cards</strong> section.</li>
+<li>Open the <em>Premier credit card</em> page and <strong>Edit page</strong>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Select the empty Image widget</strong></p>
+<ul>
+<li>The empty image widget needs setup.</li>
+<li>Open the widget properties to insert the sample image you downloaded. </li>
+</ul>
+</li>
+<li>
+<p><strong>Create a new image</strong></p>
+<ul>
+<li>In the image properties dialogue, choose <em>Content hub asset</em>.</li>
+<li>To add a new picture, select <strong>Create new</strong>, and choose the following in the <strong>Create new item</strong> dialogue:
+<ol type="1">
+<li>
+<strong>Content item name</strong> – Enter a clear, descriptive name, like <em>Premier credit card holder</em>.</li>
+<li>
+<strong>Workspace</strong> – Select the <em>Personal Banking</em> workspace.</li>
+<li>
+<strong>Location</strong> – Leave the default <em>Uncategorized (no folder)</em>.</li>
+<li>
+<strong>Content type</strong> – Select <em>Asset</em> and <strong>Continue</strong>.</li>
+<li>
+<strong>Description</strong> – Add a meaningful description to help your team understand where and how to use the picture. Like: <em>Image of a young man holding a credit card, to be used as a Premier credit card product image.</em>
+</li>
+<li>
+<strong>Alt text</strong> – description of image content to enhance usability. In this case: <em>Smiling man holding a credit card.</em>
+</li>
+<li>
+<strong>File</strong> – Upload the <em>exercise-sample-manage-files-man-holding-credit-card.png</em> file.</li>
+<li>
+<strong>Tags</strong> – Select one or more tags that best describes what’s in the image, like <em>Young people</em>. Consistent tagging helps with search and asset reuse later.</li>
+</ol>
+</li>
+<li>
+<strong>Save and Close</strong> your newly created content item. This step will return you to the <strong>Image properties</strong> dialogue, where you can finish setting up your image widget.</li>
+</ul>
+<p></p>
+</li>
+<li><p><strong>Adjust widget display settings</strong></p></li>
+</ol>
+<ul>
+<li><p>After inserting the image, you can adjust how it appears on the page before you save the image properties.</p></li>
+<li>
+<p>You can, for example, display the image as <em>Large</em> to make it less limited in height.</p>
+
+<div>
+
+</div>
+<div>
+<p>The available options depend on your project’s configuration, so the options in your project may differ from our example.</p>
+</div>
+</li>
+</ul>
+<ol start="5" type="1">
+<li><strong>Save your changes</strong></li>
+</ol>
+<ul>
+<li>
+<strong>Apply</strong> the changes you just made, and <strong>Save</strong> the page to <strong>Preview</strong> your updates.</li>
+<li>If you’re happy with the newly created image, return to the <strong>Page Builder</strong> view and <strong>Publish</strong> the new version of the <em>Premier credit card</em> page.</li>
+</ul>
+<p>The page should look something like the following image: </p>
 <h2 id="image-ai-features">Image AI features</h2>
-<p>Xperience <a href="/documentation/developers-and-admins/configuration/aira-configuration">AIRA</a> provides additional features when it comes to images stored in the <em>Content hub</em>. It can adjust images when you upload them automatically. For example, it creates different versions of the same image for desktops and mobile phones. This ensures that your audience sees the best version of your image, no matter what device they are using. You can even adjust your image or set up a focal point to crop the image appropriately.</p>
-<p>You will learn more about Xperience’s digital marketing capabilities on another page of this tutorial. And see how developers define the <a href="/documentation/developers-and-admins/development/content-types">content type assets</a> and <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">retrieve their content</a> to the website.</p>
-<h2 id="media-library-files">Media library files</h2>
-
-<div>
-
-</div>
-<div>
-<p><strong>Media libraries sunset</strong></p>
-<p>Media libraries have been officially sunset, and their related API members have been marked as obsolete. Support for media libraries will continue for one more year (until July 24, 2026), after which the feature and all associated APIs will be completely removed.</p>
-<p>See <a href="/guides/architecture/media-libraries-migration-guidance">Media library migration</a> for instructions on how to migrate your media library files to <a href="/documentation/business-users/content-hub">Content hub</a>.</p>
-</div>
-
-<p>Second, a less convenient and somewhat legacy approach to storing files in Xperience is to keep them as <em>media library files</em>. <strong>Media libraries</strong> application was used in previous Kentico versions because they didn’t have the <em>Content hub</em> application. Similarly to <em>Content hub</em>, you can store different file types such as images, sound files, videos, or package files.</p>
+<p>Xperience <a href="/documentation/developers-and-admins/configuration/aira-configuration">AIRA</a> provides additional features when it comes to images stored in the <em>Content hub</em>. It can automatically adjust images when you upload them by, for example, <strong>automatically selecting the image focal point</strong> and creating <strong>different image variants for desktops and mobile devices</strong>. This ensures your audience sees the best version of your image, no matter their device.</p>
+<p>If you want more control over how the final image looks, you can <strong>manually adjust the focal point</strong> to crop the image appropriately before saving the new content item.</p>
 <p></p>
-<p>Similarly to assets in the <em>Content hub</em>, you can use files stored in a media library on your website pages. For example, you can create a <em>Campaign assets</em> library, keep all the campaign-related content within, and reuse it on campaign landing pages or personalized widgets.</p>
-<p>Unlike assets, media library files have only a predefined set of fields, and customizing them will require substantial developer resources. Also, unlike assets, you cannot secure access to media library files. These files will always be accessible at their direct URL by their GUID (e.g., <em>example.com/getmedia/4ff39fec-c55a-4456-8733-f89c8e79b652/family-in-mountains-valey_1.jpg</em>)</p>
+<p>You can test this for yourself and instantly see how changing the focal point also <strong>adjusts the cropped variants</strong> of the image to be in line with the newly selected focal point.</p>
+<p></p>
+<p>Learn more about how AIRA <a href="/documentation/business-users/aira#image-processing">processes and adjusts</a> your images to improve performance and visual quality.</p>
+<h2 id="media-libraries-sunset">Media libraries sunset</h2>
+
+<div>
+
+</div>
+<div>
+<p><strong>Media libraries are a legacy feature</strong> and have been officially sunset. Their related API members are marked as obsolete, and support will end on <strong>July 24, 2026</strong>, after which the feature and all associated APIs will be removed. If your project still uses media libraries, discuss <a href="/guides/architecture/media-libraries-migration-guidance">our migration guide</a> and the migration of media library files to <a href="/documentation/business-users/content-hub">Content hub</a> with your developers.</p>
+</div>
+
+<p>In previous versions of Kentico, media libraries stored file types such as images, videos, and audio files for use on websites. While they worked similarly to assets in the <em>Content hub</em>, they offered fewer customization options, only had a predefined set of fields, and could not be secured (meaning that anyone with the direct file URL could access them).</p>
+<p></p>
+<p>For all of the above reasons, the clear way forward is to organize, optimize, and safeguard your assets in the <em>Content hub</em>.</p>
+<h2 id="wrap-up">Wrap up</h2>
+<p>By now, you’ve seen how Xperience helps you keep files organized and easy to reuse. You also practiced uploading and working with image assets directly from a widget. These skills make it easier to handle your daily tasks with less manual effort and much faster than before.</p>
+<p>Use <em>Content hub</em> to:</p>
+<ul>
+<li>Store and reuse assets across different channels.<br>
+</li>
+<li>Upload files directly in the <em>Content hub</em> or from within an image widget.</li>
+<li>Use multi-file upload to speed up and simplify your asset management.</li>
+<li>Benefit from automatic image variants and taxonomy tags.<br>
+</li>
+<li>Use AIRA to process and optimize images for better performance automatically.<br>
+</li>
+<li>Add and configure images in widgets to control how they display on your site and on different devices.<br>
+</li>
+<li>Improve working with assets when compared to <em>Media libraries</em>.</li>
+</ul>
 <h2 id="next-step">Next step</h2>
-<p>You’ve now learned the basics of managing your files in Xperience. To further enhance your skills, you can explore additional resources on <a href="/guides/digital-marketing/xperience-essentials/manage-content-essentials-next-steps">content management</a>.</p>
+<p>You’ve now learned the basics of managing your files in Xperience. You’re in a great position to take a deep dive look at how <a href="/guides/digital-marketing/xperience-essentials/work-with-image-variants-and-focal-point">working with image variants and focal point</a> can make your daily image-related chores a walk in the park.</p>
+<p>If you’re curious about content management, you can also learn more about how developers define the <a href="/documentation/developers-and-admins/development/content-types">content type assets</a> and <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">retrieve their content</a> to the website.</p>
 
 </body>
 </html>

@@ -205,13 +205,26 @@
 </div>
 
 <h3 id="configure-image-variants">Configure image variants</h3>
-<p>Image variants are cropped and resized versions of an image, each defined by a specific aspect ratio and pixel dimensions. Variants allow marketers to control how images appear across different contexts, such as hero banners, social media posts, or thumbnails, and help developers address the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Responsive_images#art_direction" target="_blank">art direction problem</a>. Marketers can fine-tune image variants by <a href="/documentation/business-users/content-hub/content-item-assets#change-image-focal-point">selecting a focal point</a> to guide automatic cropping or by <a href="/documentation/business-users/content-hub/content-item-assets#crop-variants-manually">adjusting the crop manually</a>. To ensure the image meets the specified dimensions, the system may upscale or downscale the final variant as needed.</p>
+<p>Image variants are cropped and resized versions of an image, each defined by a specific aspect ratio and pixel dimensions. Variants allow marketers to control how images appear across different contexts, such as hero banners, social media posts, or thumbnails, and help developers address the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Responsive_images#art_direction" target="_blank">art direction</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images#how_do_you_create_responsive_images" target="_blank">resolution switching</a> problem.</p>
+<p>You can add two types of image variant definitions:</p>
+<ul>
+<li>
+<strong>Scaled variant</strong> – Image dimensions are resized based on input while maintaining the original aspect ratio. If one dimension is set to 0, the system automatically calculates that dimension proportionally to preserve the aspect ratio. For example:
+<ul>
+<li>If you define a variant with the size of <strong>0 px × 200 px</strong> and upload an image with the dimensions <strong>600 px × 400 px</strong>, the resulting image will have the dimensions <strong>300 px × 200 px</strong>, with the width calculated automatically to preserve the aspect ratio.</li>
+<li>If you define a variant with the size of <strong>1000 px × 100 px</strong> and upload an image with the dimensions <strong>500 px × 500 px</strong>, the resulting image will have the dimensions <strong>100 px × 100 px</strong>, proportionally downscaled so that neither dimension exceeds the defined limits.</li>
+<li>If you define a variant with the size of <strong>1000 px × 800 px</strong> and upload an image with the dimensions <strong>500 px × 500 px</strong>, the resulting image will have the dimensions <strong>800 px × 800 px</strong>, proportionally upscaled so that neither dimension exceeds the defined limits.</li>
+</ul>
+</li>
+<li>
+<strong>Smart crop variant</strong> – Images are cropped based on the focal point. Marketers can fine-tune the smart crop variants by <a href="/documentation/business-users/content-hub/content-item-assets#change-image-focal-point">selecting a focal point</a> to guide automatic cropping or by <a href="/documentation/business-users/content-hub/content-item-assets#crop-variants-manually">adjusting the crop manually</a>. To ensure the image meets the specified dimensions, the system may upscale or downscale the final variant as needed.</li>
+</ul>
 
 <div>
 
 </div>
 <div>
-<p>The maximum supported number of image variants is 16. Exceeding this limit may result in unexpected behavior.</p>
+<p>The maximum supported number of image variant definitions is 63. Exceeding this limit may result in unexpected behavior.</p>
 </div>
 
 <p>To define a new variant for images in the system:</p>
@@ -219,7 +232,7 @@
 <li>In the <strong>Content types</strong> application, open the <strong>Asset configurations → Image variants</strong> tab.</li>
 <li>
 <strong>Add new variant</strong> definition.</li>
-<li>Fill in the variant’s properties.</li>
+<li>Select the variant type and fill in the variant’s properties.</li>
 <li>
 <strong>Save</strong> the changes.</li>
 </ol>

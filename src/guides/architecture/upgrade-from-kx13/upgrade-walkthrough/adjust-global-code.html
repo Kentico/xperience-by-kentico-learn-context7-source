@@ -148,8 +148,42 @@ dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location 
 <p>In your own project, consider what other types of objects you need to regenerate files for. See details about the command parameters in <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects#generate-code-files">our documentation</a>.</p>
 </div>
 
+<h2 id="configure-the-projects">Configure the projects</h2>
+<p>In the .csproj files for <em>DancingGoat.Web</em> and <em>DancingGoat.Entities</em>, configure each project to use <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a> and <a href="https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references#nullable-context" target="_blank">enable nullables</a>.</p>
+
+<div>
+<div>
+<div>
+<span>XML</span>
+</div>
+<strong>DancingGoat.Entities.csproj, DancingGoat.Web.csproj</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+&lt;Project Sdk="Microsoft.NET.Sdk"&gt;
+
+  &lt;PropertyGroup&gt;
+    ...
+
+    &lt;ImplicitUsings&gt;enable&lt;/ImplicitUsings&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+    ...
+</code></pre>
+</div>
+
 <h2 id="copy-relevant-global-code-from-source">Copy relevant global code from source</h2>
 <p>Copy-paste the following files from the source instance’s <em>DancingGoatCore</em> folder into the target instance’s <em>DancingGoat.Web</em> project:</p>
+<h3 id="localization">Localization</h3>
+<ul>
+<li>
+<em>./Resources</em> - copy the entire folder with the <code>SharedResources</code> class and string translations</li>
+</ul>
 <h3 id="shared-views">Shared views</h3>
 <ul>
 <li>
@@ -191,6 +225,7 @@ dotnet run --no-build -- --kxp-codegen --type "ReusableContentTypes" --location 
 <em>./Views/Shared/_Layout.cshtml</em>
 <ul>
 <li>Copy the file into the matching location within the <em>DancingGoat.Web</em> project.</li>
+<li>Comment out the line that injects an IHtmlLocalizer. You can rely on the service from the *_ViewImports* file.</li>
 <li>Rename occurrences of the <code>HtmlLocalizer</code> service to <code>localizer</code>.</li>
 <li>Comment out any code that causes compiler errors.
 
@@ -208,11 +243,6 @@ In real-world upgrades, make sure to more carefully comb through the layout view
 <ul>
 <li>
 <em>./wwwroot/Content</em> and <em>./wwwroot/Scripts</em> folders</li>
-</ul>
-<h3 id="localization">Localization</h3>
-<ul>
-<li>
-<em>./Resources</em> - copy the entire folder with the <code>SharedResources</code> class and string translations</li>
 </ul>
 <h3 id="identifiers">Identifiers</h3>
 <ul>
@@ -319,7 +349,7 @@ app.MapGet("/", () =&gt; "The DancingGoat.Web site has not been configured yet."
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="7,9"><code>
 using Kentico.Content.Web.Mvc.Routing;
 using Kentico.PageBuilder.Web.Mvc;
 ...
@@ -337,7 +367,7 @@ builder.Services.AddKentico(features =&gt;
 </div>
 
 <h3 id="add-future-custom-service-registrations-and-localization">Add future custom service registrations and localization</h3>
-<p>Add <code>using DancingGoat</code> directive and call the <code>AddDancingGoatServices</code> method from <em>ServiceCollectionExtensions.cs</em> above in the <em>Program.cs</em>.</p>
+<p>Add <code>using DancingGoat</code> directive and call the <code>AddDancingGoatServices</code> method from <em>ServiceCollectionExtensions.cs</em> above, along with <code>AddLocalization</code> in the <em>Program.cs</em>.</p>
 
 <div>
 <div>
@@ -353,17 +383,15 @@ builder.Services.AddKentico(features =&gt;
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="7-8"><code>
 using DancingGoat;
 
 ...
 builder.Services.AddAuthentication();
 // builder.Services.AddAuthorization();
 
-// new code
 builder.Services.AddDancingGoatServices();
 builder.Services.AddLocalization();
-//end new code
 
 builder.Services.AddControllersWithViews();
 

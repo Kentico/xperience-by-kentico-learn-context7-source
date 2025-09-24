@@ -139,8 +139,10 @@
 
   @addTagHelper Kentico.Content.Web.Mvc.ContentItemAssetImageTagHelper, Kentico.Content.Web.Mvc.ContentItemAssetPictureSourceTagHelper, Kentico.Content.Web.Mvc
 
+  @* Can be used for both scaled variants and smart crops *@
   &lt;img kxp-img="@Model.ContentItemAsset" kxp-img-dimensions kxp-img-variant="variantCodeName" ... /&gt;
 
+  @* Better suited to use for art-direction scenarios *@
   &lt;picture&gt;
       &lt;source media="(min-width: 1024px)" kxp-img="@Model.ContentItemAsset" kxp-img-dimensions kxp-img-variant="variantCodeName1" ... /&gt;
       &lt;source media="(min-width: 600px)" kxp-img="@Model.ContentItemAsset" kxp-img-dimensions kxp-img-variant="variantCodeName2" ... /&gt;
@@ -152,6 +154,14 @@
 </ul>
 </li>
 </ul>
+
+<div>
+
+</div>
+<div>
+<p>Currently, generating an <code>img srcset</code> for scaled <a href="/documentation/business-users/content-hub/content-item-assets#image-variants">variants</a> is not supported by any Tag Helper in the Xperience API. To achieve this, you must either construct the <code>srcset</code> attribute manually or implement a custom Tag Helper in your project.</p>
+</div>
+
 <h2 id="tag-helpers-page-builder">Tag Helpers – Page Builder</h2>
 <h3 id="page-builder-scripts">Page Builder scripts</h3>
 <p><strong>Fully qualified name:</strong> Kentico.Content.Web.Mvc.PageBuilderScriptsTagHelper</p>

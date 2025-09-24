@@ -32,11 +32,11 @@
 <li>
 <strong>Enabled</strong> – whether the shipping method is enabled for use.</li>
 <li>
-<strong>Shipping price</strong> – the cost of using this shipping method. The exact in which this price is included in the order total price depends on your implementation.</li>
+<strong>Shipping price</strong> – the cost of using this shipping method. The exact way in which this price is included in the order total price depends on your implementation.</li>
 </ul>
 </li>
 </ol>
-<p>You can view all shipping methods in the <strong>Shipping methods</strong> listing.</p>
+<p>You can view all shipping methods in the <strong>Shipping methods</strong> listing and <a href="#display-shipping-and-payment-methods">display</a> them on your storefront.</p>
 <h3 id="retrieve-shipping-methods-in-code">Retrieve shipping methods in code</h3>
 <p>To retrieve shipping methods in your application, create a repository service that uses the <code>IInfoProvider&lt;ShippingMethodInfo&gt;</code> to query enabled shipping methods:</p>
 
@@ -81,7 +81,7 @@ var shippingMethods = await shippingMethodInfoProvider.Get()
 </ul>
 </li>
 </ol>
-<p>You can view all payment methods in the <strong>Payment methods</strong> listing.</p>
+<p>You can view all payment methods in the <strong>Payment methods</strong> listing and <a href="#display-shipping-and-payment-methods">display</a> them on your storefront.</p>
 <h3 id="retrieve-payment-methods-in-code">Retrieve payment methods in code</h3>
 <p>To retrieve payment methods in your application, create a repository service that uses the <code>IInfoProvider&lt;PaymentMethodInfo&gt;</code> to query enabled payment methods:</p>
 
@@ -110,8 +110,8 @@ var paymentMethods = await paymentMethodInfoProvider.Get()
 </div>
 
 <h2 id="display-shipping-and-payment-methods">Display shipping and payment methods</h2>
-<p>The system objects for shipping and payment methods can be <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extended</a> to store internal business logic and configuration data, such as countries where a certain shipping method is available, processing timeframes, or integration settings with third-party providers.</p>
-<p>However, to display shipping and payment methods on the storefront, you need to create dedicated <a href="/documentation/developers-and-admins/development/content-types">content types</a> - one for shipping methods and one for payment methods. This separation ensures that you can localize the presentation data for different markets and languages, while keeping the internal business logic separate from the customer-facing content.</p>
+<p>The system objects for <a href="#configure-shipping-methods">shipping</a> and <a href="#configure-payment-methods">payment</a> methods can be <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extended</a> to store internal business logic and configuration data, such as countries where a certain shipping method is available, processing timeframes, or integration settings with third-party providers.</p>
+<p>However, to display shipping and payment methods on the storefront, you need to create dedicated <a href="/documentation/developers-and-admins/development/content-types">content types</a>, one for shipping methods and one for payment methods. This separation ensures that you can localize the presentation data for different markets and languages, while keeping the internal business logic separate from the customer-facing content.</p>
 <p>The content types can have the following fields:</p>
 <ul>
 <li>
@@ -125,7 +125,7 @@ var paymentMethods = await paymentMethodInfoProvider.Get()
 </ul>
 <p>When displaying shipping and payment methods, you can use the <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items">ContentRetriever API</a> to retrieve and display the relevant content items.</p>
 <h2 id="implement-shipping-and-payment-methods">Implement shipping and payment methods</h2>
-<p>After you create the objects representing shipping and payment methods, you need to implement the business logic. This may include:</p>
+<p>After you create the objects representing <a href="#configure-shipping-methods">shipping</a> and <a href="#configure-payment-methods">payment</a> methods, you need to implement the business logic. This may include:</p>
 <ul>
 <li>Validating the selected shipping and payment methods during the checkout process. Availability of shipping methods may differ based on the selected shipping address.</li>
 <li>Calculating shipping costs based on the selected shipping method and the customer’s location. You need to handle different pricing rules and conditions, for example, free shipping for orders over a certain amount.</li>
