@@ -93,9 +93,11 @@ if (builder.Environment.IsQa() ||
 <p>Enabling the Application Insights integration is also helpful if you ever need to debug or monitor your application with the Kentico support team.</p>
 <h4 id="enable-microsoft-application-insights-integration">Enable Microsoft Application Insights integration</h4>
 <ol type="1">
-<li><p>Open your Xperience project in Visual Studio and edit the <strong>Program.cs</strong> file.</p></li>
-<li>
-<p>Call <code>WebApplicationBuilder.Services.AddXperienceCloudApplicationInsights</code> when building the web application.</p>
+<li>Open your Xperience project in Visual Studio and edit the <strong>Program.cs</strong> file.</li>
+<li>Call <code>WebApplicationBuilder.Services.AddXperienceCloudApplicationInsights</code> when building the web application.
+<ul>
+<li>See <a href="/documentation/developers-and-admins/development/website-development-basics/configure-new-projects">Configure new projects</a> for the recommended middleware order.</li>
+</ul>
 
 <div>
 <div>
@@ -115,7 +117,7 @@ if (builder.Environment.IsQa() ||
 
  using Kentico.Xperience.Cloud;
 
- ... 
+ ...
 
  WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -134,8 +136,8 @@ if (builder.Environment.IsQa() ||
 <p>Refer to Microsoft’s documentation on how to use <a href="https://docs.microsoft.com/en-us/azure/azure-monitor/app/visual-studio" target="_blank">Application Insights in Visual Studio in a development environment</a>.</p>
 </div>
 </li>
-<li><p>(<em>Optional</em>) <a href="https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core#enable-client-side-telemetry-for-web-applications" target="_blank">Enable client-side telemetry</a>.</p></li>
-<li><p>Rebuild the solution.</p></li>
+<li>(<em>Optional</em>) <a href="https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core#enable-client-side-telemetry-for-web-applications" target="_blank">Enable client-side telemetry</a>.</li>
+<li>Rebuild the solution.</li>
 </ol>
 <h3 id="cloudflare-cdn">Cloudflare CDN</h3>
 <p>The SaaS environment integrates <a href="https://www.cloudflare.com/learning/cdn/what-is-a-cdn/" target="_blank">Cloudflare CDN</a> to ensure better application performance and availability by distributing the network load across the CDN data centers and by caching website resources.</p>

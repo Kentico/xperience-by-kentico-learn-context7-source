@@ -74,9 +74,9 @@
 <pre><code>
 
 @* Adds the Tag Helper to the view *@
-@addTagHelper  Kentico.Web.Mvc.Caching.CacheDependencyTagHelper, Kentico.Web.Mvc 
+@addTagHelper Kentico.Web.Mvc.Caching.CacheDependencyTagHelper, Kentico.Web.Mvc
 
-@{ 
+@{
     // Creates cache dummy keys targeting all member objects in the system
     var cacheKeys = new[] { "cms.member|all" };
 }
@@ -117,11 +117,11 @@ using CMS.Websites.Routing
     // Adds a cache dependency on all pages of the my.article content type that exist on 'mysite'
     var articlesCacheKeys = new[] { "webpageitem|bychannel|mychannel|bycontenttype|my.article|all" };
 
-    // Checks whether the page is accessed in preview mode (via the Pages application)
+    // Checks whether the page is accessed in preview mode (in a website channel application in the admin UI)
     var cacheEnabled = !WebsiteChannelContext.IsPreview;
 }
 
-@* Enables or disables the cache and cache dependencies based on the context of the current request (caching in preview mode is disabled) *@
+@* Enables or disables the cache and cache dependencies based on a dynamic condition (caching is disabled for preview mode in this case) *@
 &lt;cache enabled="@cacheEnabled"&gt;
     &lt;cache-dependency cache-keys="@articlesCacheKeys" enabled="@cacheEnabled" /&gt;
     @* Custom logic (e.g., render all articles) *@
@@ -480,7 +480,7 @@ public async Task&lt;IViewComponentResult&gt; InvokeAsync(ComponentViewModel&lt;
 <pre><code>
 
 endpoints.MapControllerRoute( name: "default", 
-                               pattern: "{controller=Home}/{action=Index}/{Make?}/{Model?}");
+                              pattern: "{controller=Home}/{action=Index}/{Make?}/{Model?}");
 
 </code></pre>
 </div>

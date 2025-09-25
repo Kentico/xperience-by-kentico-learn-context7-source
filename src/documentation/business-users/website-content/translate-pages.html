@@ -39,15 +39,7 @@
 <li>
 <strong>Create empty page</strong> allows you to create an empty page with blank fields. Linked items need to be re-linked into the new language variant of the translated page.</li>
 <li>
-<strong>Translate using AIRA</strong> allows you to translate the name and content of your page using <a href="/documentation/business-users/aira">AIRA</a> instead of manually translating content yourself, this also includes <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> content. When using this option, subsequent steps are skipped and a new language variant is created directly in the <em>Draft</em> stage. The behavior of the translation can be <a href="/documentation/developers-and-admins/configuration/aira-configuration#configure-aira-translations">configured</a>, allowing you to specify, for example, formatting rules or brand terminology.
-
-<div>
-
-</div>
-<div>
-<a href="/documentation/business-users/aira#aira-translations">AIRA translations</a> currently do not support automatic translation of linked content items, pages, and <a href="/documentation/developers-and-admins/configuration/taxonomies">taxonomies</a>. After translating your page using AIRA, review your content, including links, to ensure they lead to the correct language variant.
-</div>
-
+<strong>Translate using AIRA</strong> see <a href="#translate-using-aira">Translate using AIRA</a> for more information.<br>
 </li>
 </ul>
 </li>
@@ -62,6 +54,38 @@
 </div>
 <div>
 <p>Translated content items on untranslated pages are loaded in the fallback language. However, there is an exception in case the content items are injected into the page via code. In that case, content items are loaded in the language variant according to the requested language. For more information on language fallbacks, see <a href="/documentation/developers-and-admins/configuration/languages">Languages</a>.</p>
+</div>
+
+<h3 id="translate-using-aira">Translate using AIRA</h3>
+
+<div>
+
+</div>
+<div>
+<p><strong>AIRA license requirements</strong></p>
+<p><a href="/documentation/business-users/aira">AIRA</a> features require the Xperience by Kentico <strong>Advanced</strong> license tier.</p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Preview feature</strong></p>
+<p>AIRA is currently in preview mode. Expect AIRA features to be updated and modified in upcoming versions, including breaking changes.</p>
+<p>Feel free to try out the AIRA features, for example using the sample <em>Dancing Goat</em> <a href="/documentation/developers-and-admins/installation">project template</a> or other demo sites. You can share your feedback directly with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</p>
+</div>
+
+<p>When you choose <strong>Translate using AIRA</strong> and start the translation process, the name and content of your page, including <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> content, will be translated using <a href="/documentation/business-users/aira">AIRA</a>.</p>
+<p>The translation workflow changes depending on the number of items submitted for translation. For a single item, AIRA creates a new language variant of the content in the <em>Draft</em> state and immediately takes you to it.</p>
+<p>However, when translating multiple pages at once (for example, when translating pages along with their linked content), your content is sent to a <em>Translation queue</em>. This allows the translation to be processed in the background, freeing you up to continue your work. You can check on its progress in the <em>Translation queue</em> application. Once the translation of your content finishes, the related items are removed from the <em>Translation queue</em> application.</p>
+<p>The behavior of the translation can be <a href="/documentation/developers-and-admins/configuration/aira-configuration#configure-aira-translations">configured</a>, allowing you to specify, for example, formatting rules or brand terminology.</p>
+
+<div>
+
+</div>
+<div>
+<p>Existing text links to the translated content are not redirected to the new variant or translated automatically and need to be manually reviewed to ensure they lead to the correct content.</p>
 </div>
 
 

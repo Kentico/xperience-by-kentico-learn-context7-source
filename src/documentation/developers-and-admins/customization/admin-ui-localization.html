@@ -113,15 +113,17 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./sy
 <pre><code>
 
 {export-path}/
-└── en-US/
-    ├── system/
-    │   ├── localization.client.en-US.resx
-    │   ├── localization.server.en-US.resx
-    │   └── localization.builder.en-US.resx
-    └── custom/
-        ├── localization.client.en-US.resx
-        ├── localization.server.en-US.resx
-        └── localization.builder.en-US.resx
+├── en-US/
+│   ├── system/
+│   │   ├── localization.client.en-US.resx
+│   │   ├── localization.server.en-US.resx
+│   │   └── localization.builder.en-US.resx
+│   └── custom/
+│       ├── localization.client.en-US.resx
+│       ├── localization.server.en-US.resx
+│       └── localization.builder.en-US.resx
+└── {language}
+    └───
 
 </code></pre>
 </div>
@@ -142,7 +144,7 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./sy
 <p>To create a general-purpose localization package for the admin UI:</p>
 <ol type="1">
 <li>
-<p>Export system resources using <code>--system-only</code> to get Xperience’s English strings:</p>
+<p><a href="#export-system-localization-resources">Export</a> system resources using <code>--system-only</code> to get Xperience’s English strings:</p>
 
 <div>
 <div>
@@ -159,11 +161,11 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./sy
 </div>
 <div>
 <pre><code>
-dotnet run --no-build -- --kxp-export-localization-resources --export-path "./system-resources" --system-only
-</code></pre>
+ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./system-resources" --system-only
+ </code></pre>
 </div>
 </li>
-<li><p>Translate to your target language.</p></li>
+<li><p>Translate the resources to your target language.</p></li>
 <li><p>Package and distribute the translations as a <a href="#distribute-localization-files">NuGet package</a> for others to use.</p></li>
 </ol>
 <p>This approach creates a focused translation package containing only the default resources, making it suitable for sharing and reuse across different projects.</p>
@@ -171,7 +173,7 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./sy
 <p>If your goal is to fully localize your specific application, including all custom resources:</p>
 <ol type="1">
 <li>
-<p>Export all resources to get a complete picture of your application’s localization needs:</p>
+<p><a href="#export-system-localization-resources">Export</a> all resources to obtain all strings that need to be localized:</p>
 
 <div>
 <div>
@@ -188,19 +190,18 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./sy
 </div>
 <div>
 <pre><code>
-dotnet run --no-build -- --kxp-export-localization-resources --export-path "./localization-export"
-</code></pre>
+ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./localization-export"
+ </code></pre>
 </div>
 </li>
-<li><p>Translate both system and custom .resx files to your target language(s), covering all admin UI text in your application.</p></li>
-<li><p>Translate <a href="/documentation/developers-and-admins/configuration/rich-text-editor-configuration/rich-text-editor-customization#rich-text-editor-localization">custom Froala logic</a>.</p></li>
+<li><p>Translate both system and custom .resx files to your target language, covering all admin UI text in your application.</p></li>
+<li><p>Translate <a href="#froala-rich-text-editor">custom Froala logic</a>.</p></li>
 <li><p>Register the translated resources in your application using the <a href="#register-localized-resources">registration API</a>, including both system and custom translations.</p></li>
 <li><p>Configure the new languages in <a href="#configure-available-languages-for-users">AdminLocalizationOptions</a>.</p></li>
 </ol>
 <p>This approach ensures complete localization coverage for your specific application, including any custom components or extensions you’ve developed.</p>
 <h2 id="register-localized-resources">Register localized resources</h2>
 <p>To add custom localization resources for your admin UI translations, create and register <em>.resx</em> resource files using the <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/create-resource-files" target="_blank">conventional .NET approach</a>.</p>
-<h3 id="create-resource-files">Create resource files</h3>
 <ol type="1">
 <li><p>Create a new .NET resource file in your <a href="/documentation/developers-and-admins/customization/integrate-custom-code">custom assembly</a>. See <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/create-resource-files" target="_blank">Create resource files for .NET apps</a>.</p></li>
 <li>
@@ -223,11 +224,11 @@ dotnet run --no-build -- --kxp-export-localization-resources --export-path "./lo
 <pre><code>
  using CMS.Localization;
 
- namespace Acme.Web.Admin;
-
  // Register resources for additional languages
  [assembly: RegisterLocalizationResource(typeof(LocalizationClient), LocalizationTarget.Client, "cs-CZ")]
  [assembly: RegisterLocalizationResource(typeof(LocalizationClient), LocalizationTarget.Client, "de-DE")]
+
+ namespace Acme.Web.Admin;
 
  // Class encapsulating the localization resource files
  public class LocalizationClient {}
@@ -592,10 +593,62 @@ export const MyAdminComponent = () =&gt; {
 <p>Use the same resource keys in both your <em>.resx</em> files and client-side code. The admin UI automatically loads client-side resources (registered with <code>LocalizationTarget.Client</code>) and makes them available to the i18n library.</p>
 </div>
 
+<h3 id="admin-ui-fields">Admin UI fields</h3>
+<p>Fields in the admin UI support localization expression in the format: <code>{$ resource.key $}</code></p>
+<p>These expression automatically resolve to a matching string based on the language currently selected by the user. If the localization is not found in the target language, the expression resolves according to <a href="#resource-string-resolution-and-fallbacks">Resource string resolution and fallbacks</a>.</p>
+<p>For example, the following screenshot demonstrates the localization of field metadata via the <a href="/documentation/developers-and-admins/customization/field-editor">field editor</a> (label, explanation text, etc.).</p>
+<p></p>
+<p>In the editing interface of the corresponding object, the expression resolves to the underlying string.</p>
+<p></p>
+<h3 id="froala-rich-text-editor">Froala rich text editor</h3>
+<p>The <a href="/documentation/business-users/rich-text-editor">Froala rich text editor</a> supports localization to match the user’s <a href="/documentation/developers-and-admins/customization/admin-ui-localization">preferred admin UI language</a>. The localization system works on multiple levels to ensure both system and custom elements are properly translated.</p>
+<h4 id="default-editor-localization">Default editor localization</h4>
+<p>By default, the editor automatically localizes its interface based on the user’s culture provided from the backend. The editor supports multiple languages out of the box, as documented in the <a href="https://froala.com/wysiwyg-editor/languages/" target="_blank">Froala languages documentation</a>.</p>
+<p>The editor automatically applies the appropriate language pack when all of the following conditions are met:</p>
+<ul>
+<li>The user has set a preferred admin UI language in their profile</li>
+<li>The language is supported by Froala’s default language packs</li>
+</ul>
+<p>If the language is not supported by Froala, the editor defaults to English (<code>en-US</code>).</p>
+<h4 id="localize-system-customizations">Localize system customizations</h4>
+<p>Xperience’s customizations to the Froala editor (such as custom toolbar buttons and features) are not covered by Froala’s default localization. These strings are located inside <code>localization.client.en-US.resx</code> in the <a href="/documentation/developers-and-admins/customization/admin-ui-localization#export-system-localization-resources">exported resources</a> and must be translated as part of your localization efforts.</p>
+<h4 id="localize-custom-configurations">Localize custom configurations</h4>
+<p>For <a href="/documentation/developers-and-admins/configuration/rich-text-editor-configuration/rich-text-editor-customization">custom rich text editor configurations</a> , you can use localization macros to translate custom options and display names.</p>
+<p>The corresponding resource strings must be registered in a <a href="/documentation/developers-and-admins/customization/integrate-custom-code#store-application-resources-in-resource-files">resource file</a> with <code>LocalizationTarget.Server</code>.</p>
+<p>Rich text editor configurations support localization macros in the format <code>{$resource.key$}</code>. This allows you to reference registered resource strings for any option with a custom display name. For example, when localizing text for <a href="https://froala.com/wysiwyg-editor/examples/inline-styles/" target="_blank">inline styles</a>, you can use the macros like so:</p>
+
+<div>
+<div>
+<div>
+<span>JSON</span>
+</div>
+<strong>Example - Localized custom configuration</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+{
+  "toolbarButtons": [
+    "bold", "italic", "underline", "|", "inlineStyle", "customButton"
+  ],
+  "inlineStyles": {
+    "{$mycompany.editor.redBoldText$}": "font-size: 16px; font-weight: bold; color: red;",
+    "{$mycompany.editor.blueItalicText$}": "font-style: italic; color: blue;",
+    "{$mycompany.editor.highlightText$}": "background-color: yellow; padding: 2px;"
+  }
+}
+</code></pre>
+</div>
+
 <h2 id="resource-string-resolution-and-fallbacks">Resource string resolution and fallbacks</h2>
 <p>The localization logic uses a multi-step fallback process to resolve resource strings when a specific localized string is not available:</p>
 <ol type="1">
-<li><p><strong>User preferred culture</strong> – The system first attempts to load the resource string using the user’s preferred admin UI language (if set in their profile). If no user preference is set, the system uses the <code>DefaultCultureCode</code> specified in <code>AdminLocalizationOptions</code>.</p></li>
+<li><p><strong>User preferred culture</strong> – The system first attempts to load the resource string using the user’s preferred admin UI language (if set in their profile). If no user preference is set, the system uses the <code>DefaultCultureCode</code> specified in <a href="#adminlocalizationoptions-properties">AdminLocalizationOptions</a>.</p></li>
 <li><p><strong>English fallback (en-US)</strong> – If the resource string is not found in the selected culture, the system falls back to English (<code>en-US</code>).</p></li>
 <li><p><strong>Resource key display</strong> – If no localized string is found in English, the system displays the resource key itself as a last resort.</p></li>
 </ol>

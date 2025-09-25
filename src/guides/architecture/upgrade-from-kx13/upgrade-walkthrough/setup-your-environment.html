@@ -49,9 +49,36 @@ E.g., Kentico Migration Tool version 3.0.0 is compatible with Xperience by Kenti
 </ul>
 <h2 id="install-the-target-instance">Install the target instance</h2>
 <ul>
-<li>Install a <strong>migration tool-compatible version</strong> of Xperience by Kentico, using the <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico"><em>kentico-xperience-mvc</em> template</a>.</li>
+<li>
+<a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico">Install</a> a <strong>migration tool-compatible version</strong> of Xperience by Kentico, using the <a href="/guides/development/get-started/install-a-specific-version-of-xperience-by-kentico"><em>kentico-xperience-mvc</em> template</a>.
+<ul>
+<li>Install your main project in a folder named <strong>DancingGoat.Web</strong>, which has at least one parent folder specific to this migration. We recommend a structure like <em>YOUR_REPOSITORIES/DancingGoatMigration/src/DancingGoat.Web</em>.</li>
+<li>Name the project <em>DancingGoat.Web</em>:
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>installation</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+  dotnet new kentico-xperience-mvc -n DancingGoat.Web
+  </code></pre>
+</div>
+</li>
+<li>Remember to <a href="/documentation/developers-and-admins/installation#create-the-project-database">install the database</a> using the <code>kentico-xperience-dbmanager</code> tool from the .NET CLI.</li>
+</ul>
+</li>
 <li>Run your new target instance.</li>
-<li>Make sure you can view the live site and log into the administration.</li>
+<li>Make sure you can view the live site and sign into the administration.</li>
 </ul>
 <h2 id="watch-a-video-overview">Watch a video overview</h2>
 <p>Check out this video overview of the initial setup to verify your environment is correctly configured:</p>

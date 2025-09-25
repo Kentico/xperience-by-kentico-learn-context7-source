@@ -237,7 +237,48 @@ builder.Services.Configure&lt;SecurityStampValidatorOptions&gt;(options =&gt; op
 <li>When viewing pages in <strong>Preview</strong> mode.</li>
 <li>When editing pages via <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a>.</li>
 </ul>
-<p>The preview URLs the system generates for pages consist of additional information, such as a hash for validating the URL. The live site application validates and processes the preview URL and displays the page using the conventional <a href="/documentation/developers-and-admins/development/routing">routing process</a>.</p>
+<p>The preview URLs the system generates for pages consist of virtual context, which is additional information, such as a hash for validating the URL against the client’s authentication cookie, context about the current <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a>, view mode (e.g., Read-only), etc. The live site application validates and processes the preview URL and displays the page using the conventional <a href="/documentation/developers-and-admins/development/routing">routing process</a>.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>IVirtualContextDecorationArbiter</strong></p>
+<p>You can implement the <code>IVirtualContextDecorationArbiter</code> interface to control whether links in previewed content should consist of virtual context. Note that you can’t change the actual preview URLs or use the interface to disable authentication of previewed content.</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+[assembly: RegisterImplementation(typeof(IVirtualContextDecorationArbiter), typeof(CustomVirtualContextDecorationArbiter))]
+
+public class CustomVirtualContextDecorationArbiter : IVirtualContextDecorationArbiter
+{
+    private const string ARTICLES_PREFIX = "~/articles/";
+
+    public virtual bool PathRequiresDecoration(string path)
+    {
+
+        // Do not decorate scripts or article pages
+        return !(path.StartsWith(ARTICLES_PREFIX, StringComparison.OrdinalIgnoreCase));
+    }
+}
+</code></pre>
+</div>
+</div>
+</div>
+
 <h4 id="mvc-authorization-flows-and-preview-mode">MVC authorization flows and preview mode</h4>
 <p>The preview mode functionality runs on a dedicated internal authentication scheme. As a result, pages <a href="https://learn.microsoft.com/en-us/aspnet/core/security/authorization/simple" target="_blank">secured behind authorization</a> that checks for a specific authentication scheme are not previewable.</p>
 

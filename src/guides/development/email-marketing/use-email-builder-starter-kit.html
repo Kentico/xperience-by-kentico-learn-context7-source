@@ -5,8 +5,8 @@
 <title>Use the Email Builder Starter Kit in your project</title>
 </head>
 <body>
-<p><a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a> in Xperience by Kentico empowers non-technical users to define the appearance of emails with a friendly drag-and-drop interface. Through <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#templates">Templates</a>, <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#sections">Sections</a>, and <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#widgets">Widgets</a>, marketers have more flexibility than standard <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">email templates</a> to control the structure, visual design, and content of emails.</p>
-<p>The <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit" target="_blank">Email Builder Starter Kit</a> provides a pre-made set of Email Builder components that you can use in your project, saving time that you can spend on additional custom components or other areas of the project.</p>
+<p><a href="/documentation/developers-and-admins/development/builders/email-builder">Email Builder</a> in Xperience by Kentico empowers non-technical users to define the appearance of emails with a friendly drag-and-drop interface. Through <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#templates">Templates</a>, <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#sections">Sections</a>, and <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#widgets">Widgets</a>, marketers have more flexibility than standard <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">email templates</a> in controlling email structure, visual design, and content.</p>
+<p>The <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit" target="_blank">Email Builder Starter Kit</a> provides a pre-made set of Email Builder components that you can use in your project, saving you time to spend on additional custom components or other areas of the project.</p>
 <p>Let’s look into the process of integrating the Starter Kit into an existing project, using the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">Training guides repository</a> as an example.</p>
 <h2 id="before-you-start">Before you start</h2>
 <p>This guide requires the following:</p>
@@ -25,14 +25,14 @@ Some features covered in the Training guides may not work in older versions.
 
 <div>
 <p><strong>Code samples</strong></p>
-<p>You can find a project with completed, working versions of code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
+<p>You can find a project with completed, working code samples from this guide and others in the <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/tree/finished" target="_blank">finished branch</a> of the <em>Training guides</em> repository.</p>
 <p>The <a href="https://github.com/Kentico/xperience-by-kentico-training-guides" target="_blank">main branch</a> of the repository provides a starting point to code along with the guides.</p>
 <p>The code samples in this guide have only been tested in <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview" target="_blank">.NET 8</a>.</p>
-<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add additional <code>using</code> directives to your code if your project does not use this feature.</p>
+<p>They come from a project that uses <a href="https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview#implicit-using-directives" target="_blank">implicit using directives</a>. You may need to add extra <code>using</code> directives to your code if your project does not use this feature.</p>
 </div>
 
 <h2 id="prepare-your-solution-for-email-builder">Prepare your solution for Email Builder</h2>
-<p>To begin, install the <strong>Kentico.Xperience.Mjml</strong> and <strong>Microsoft.AspNetCore.Components.Web</strong> NuGet packages to your solution.</p>
+<p>To begin, install the <strong>Kentico.Xperience.Mjml</strong> and <strong>Microsoft.AspNetCore.Components.Web</strong> NuGet packages in your solution.</p>
 
 <div>
 
@@ -41,7 +41,7 @@ Some features covered in the Training guides may not work in older versions.
 <p>Make sure to install the version of <strong>Kentico.Xperience.Mjml</strong> that matches your other Kentico NuGet packages (30.6.2 in this example).</p>
 </div>
 
-<p>The process may vary depending on your approach, but in the <em>Training guides</em> repository, you can simply edit the <strong>Directory.Packages.props</strong> file.</p>
+<p>The process may vary depending on your approach. In the <em>Training guides</em> repository, you can simply edit the <strong>Directory.Packages.props</strong> file.</p>
 
 <div>
 <div>
@@ -71,7 +71,7 @@ Some features covered in the Training guides may not work in older versions.
 
 <h2 id="copy-the-starter-kit-to-your-solution">Copy the Starter Kit to your solution</h2>
 <p>Clone or download the <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit" target="_blank">Email Builder Starter Kit repository</a> from GitHub.</p>
-<p>Copy the entire <strong>Kentico.Xperience.Mjml.StarterKit.Rcl</strong> directory from the <strong>src</strong> folder of the <em>Email Builder Starter Kit</em> repository to your project, for example, into the <strong>src</strong> folder of the <em>Training guides</em> repository. Remember to include the Starter Kit’s project, <strong>Kentico.Xperience.Mjml.StarterKit.Rcl.csproj</strong>, in your solution. Your development environment likely has a way to do this in the UI, and it is also possible through the .NET CLI:</p>
+<p>Copy the entire <strong>Kentico.Xperience.Mjml.StarterKit.Rcl</strong> directory from the <strong>src</strong> folder of the <em>Email Builder Starter Kit</em> repository to your project, for example, into the <strong>src</strong> folder of the <em>Training guides</em> repository. Remember to include the Starter Kit’s project, <strong>Kentico.Xperience.Mjml.StarterKit.Rcl.csproj</strong>, in your solution. Your development environment likely has a way to do this in the UI, but it is also possible through the .NET CLI:</p>
 
 <div>
 <div>
@@ -97,7 +97,7 @@ dotnet sln TrainingGuides.sln add Kentico.Xperience.Mjml.StarterKit.Rcl\Kentico.
 
 </div>
 <div>
-<p>Depending on the configuration of your project and environment, you may need to modify the Starter Kit’s project file. For the <em>Training guides</em> solution, we need to disable default embedded resources to avoid build errors</p>
+<p>Depending on the configuration of your project and environment, you may need to modify the Starter Kit’s project file. For the <em>Training guides</em> solution, we need to disable default embedded resources to avoid build errors.</p>
 <div>
 <div>
 <div>
@@ -136,10 +136,11 @@ dotnet sln TrainingGuides.sln add Kentico.Xperience.Mjml.StarterKit.Rcl\Kentico.
 <p>The Starter Kit repository contains <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit/tree/main/examples/DancingGoat/Samples/EmailComponents" target="_blank">example mappers for the Dancing Goat project</a> for reference.</p>
 </div>
 
+<p>The Starter Kit also includes an email template that utilizes the <em>subject</em> and <em>preview text</em> of the email to which it applies, regardless of the email’s content type. Since these fields are not part of a shared interface, we need to create a <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit/blob/50d7b172c44c283644b04896abfbb028d6a46e73/docs/Usage-Guide.md#multiple-email-content-types" target="_blank">data mapper</a> to extract them from each possible content type.</p>
 <h3 id="implement-the-model-mappers">Implement the model mappers</h3>
-<p>In order to use the <em>Image</em> and <em>Product</em> widgets, we need to implement the <code>IComponentModelMapper&lt;TModel&gt;</code> interface for the <code>ImageWidgetModel</code> and <code>ProductWidgetModel</code> types. These implementations tell the Starter Kit how to populate the widget models from our content types.</p>
+<p>To use the <em>Image</em> and <em>Product</em> widgets, we need to implement the <code>IComponentModelMapper&lt;TModel&gt;</code> interface for the <code>ImageWidgetModel</code> and <code>ProductWidgetModel</code> types. These implementations tell the Starter Kit how to populate the widget models from our content types.</p>
 <p>In case we need to update and overwrite the Email Builder Starter Kit files in the future, let’s minimize any changes to that project. Otherwise, we might lose them when overwriting or replacing the folder.</p>
-<p>In the <em>TrainingGuides.Web</em> project, create a <em>~/Features/Shared/EmailBuilder/ModelMappers</em> folder to hold our implementations.</p>
+<p>In the <em>TrainingGuides.Web</em> project, create a <em>~/Features/Shared/EmailBuilder/Mappers</em> folder to hold our implementations.</p>
 <h4 id="image-model-mapper-simple-content-type">Image model mapper (simple content type)</h4>
 <p>The <em>Training guides</em> repo has two reusable content types that primarily represent images: <strong>Asset</strong> and <strong>Gallery image</strong>.</p>
 <p>However, the <em>Gallery image</em> type simply wraps the <em>Asset</em> type with additional properties. The image file associated with a <em>Gallery image</em> always belongs to the <em>Asset</em> it links, so we don’t need to worry about handling gallery images here.</p>
@@ -171,7 +172,7 @@ using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
 using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
 using TrainingGuides.Web.Features.Shared.Services;
 
-namespace TrainingGuides.Web.Features.Shared.EmailBuilder.ModelMappers;
+namespace TrainingGuides.Web.Features.Shared.EmailBuilder.Mappers;
 
 public class ImageEmailWidgetModelMapper : IComponentModelMapper&lt;ImageWidgetModel&gt;
 {
@@ -231,7 +232,7 @@ using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
 using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
 using TrainingGuides.Web.Features.Shared.Services;
 
-namespace TrainingGuides.Web.Features.Shared.EmailBuilder.ModelMappers;
+namespace TrainingGuides.Web.Features.Shared.EmailBuilder.Mappers;
 
 public class ProductEmailWidgetModelMapper : IComponentModelMapper&lt;ProductWidgetModel&gt;
 {
@@ -255,7 +256,7 @@ public class ProductEmailWidgetModelMapper : IComponentModelMapper&lt;ProductWid
 
         var product = page?.ProductPageProduct.FirstOrDefault();
 
-        // If the product or page is null, return an empty model. Note the product will always be null if the page is null.
+    // If the product or page is null, return an empty model. Note that the product will always be null if the page is null.
         if (product is null)
         {
             return new ProductWidgetModel();
@@ -279,6 +280,129 @@ public class ProductEmailWidgetModelMapper : IComponentModelMapper&lt;ProductWid
 </code></pre>
 </div>
 
+<h3 id="create-the-data-mapper">Create the data mapper</h3>
+<p>Next, we can move on to the data mapper.</p>
+<p>First, define the class as an implementation of <code>IEmailDataMapper</code>, and define default values for the <em>subject</em> and <em>preview text</em>.</p>
+<p>Then, set up a private method for each email content type in the project, and call the appropriate one based on the content type name in the email context.</p>
+<p>The methods can share logic that falls back to the appropriate default value if a value is <code>null</code>.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you have more type-specific requirements for the fallbacks, provide more tailored values in the methods for each type.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrainingGuidesEmailDataMapper.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Kentico.EmailBuilder.Web.Mvc;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Contracts;
+using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
+
+namespace TrainingGuides.Web.Features.Shared.EmailBuilder.Mappers;
+
+public class TrainingGuidesEmailDataMapper : IEmailDataMapper
+{
+    private const string DEFAULT_SUBJECT = "Training Guides";
+    private const string DEFAULT_PREVIEW_TEXT = "The latest communication from Training Guides.";
+    private readonly IEmailContextAccessor emailContextAccessor;
+
+    public TrainingGuidesEmailDataMapper(IEmailContextAccessor emailContextAccessor)
+    {
+        this.emailContextAccessor = emailContextAccessor;
+    }
+
+    public async Task&lt;IEmailData&gt; Map()
+    {
+        var emailContext = emailContextAccessor.GetContext();
+
+        return emailContext.ContentTypeName switch
+        {
+            // Newsletter email content type
+            BasicEmail.CONTENT_TYPE_NAME =&gt; await MapBasicEmail(emailContext),
+
+            // Promotional email content type
+            NatureSpotlightEmail.CONTENT_TYPE_NAME =&gt; await MapNatureSpotlightEmail(emailContext),
+
+            // Subscription confirmation email content type
+            SubscriptionConfirmationEmail.CONTENT_TYPE_NAME =&gt; await MapSubscriptionConfirmationEmail(emailContext),
+
+            // Default fallback for unknown content types
+            _ =&gt; GetEmailData(DEFAULT_SUBJECT, DEFAULT_PREVIEW_TEXT)
+        };
+    }
+
+    /// &lt;summary&gt;
+    /// Maps a BasicEmail content item to an EmailData object, using its subject and preview text.
+    /// &lt;/summary&gt;
+    /// &lt;param name="emailContext"&gt;The email context containing the BasicEmail item.&lt;/param&gt;
+    /// &lt;returns&gt;EmailData with subject and preview text from the BasicEmail item, or default values if null.&lt;/returns&gt;
+    private async Task&lt;EmailData&gt; MapBasicEmail(EmailContext emailContext)
+    {
+        var email = await emailContext.GetEmail&lt;BasicEmail&gt;();
+
+        return GetEmailData(email?.EmailSubject, email?.EmailPreviewText);
+    }
+
+    /// &lt;summary&gt;
+    /// Maps a NatureSpotlightEmail content item to an EmailData object, using its subject and preview text.
+    /// &lt;/summary&gt;
+    /// &lt;param name="emailContext"&gt;The email context containing the NatureSpotlightEmail item.&lt;/param&gt;
+    /// &lt;returns&gt;EmailData with subject and preview text from the NatureSpotlightEmail item, or default values if null.&lt;/returns&gt;
+    private async Task&lt;EmailData&gt; MapNatureSpotlightEmail(EmailContext emailContext)
+    {
+        var email = await emailContext.GetEmail&lt;NatureSpotlightEmail&gt;();
+
+        return GetEmailData(email?.EmailSubject, email?.EmailPreviewText);
+    }
+
+    /// &lt;summary&gt;
+    /// Maps a SubscriptionConfirmationEmail content item to an EmailData object, using its subject and preview text.
+    /// &lt;/summary&gt;
+    /// &lt;param name="emailContext"&gt;The email context containing the SubscriptionConfirmationEmail item.&lt;/param&gt;
+    /// &lt;returns&gt;EmailData with subject and preview text from the SubscriptionConfirmationEmail item, or default values if null.&lt;/returns&gt;
+    private async Task&lt;EmailData&gt; MapSubscriptionConfirmationEmail(EmailContext emailContext)
+    {
+        var email = await emailContext.GetEmail&lt;SubscriptionConfirmationEmail&gt;();
+
+        return GetEmailData(email?.EmailSubject, email?.EmailPreviewText);
+    }
+
+    /// &lt;summary&gt;
+    /// Returns EmailData with the provided subject and preview text values, reverting to default values if they are not passed or null.
+    /// &lt;/summary&gt;
+    /// &lt;param name="subject"&gt;The subject of the email&lt;/param&gt;
+    /// &lt;param name="previewText"&gt;The preview text of the email&lt;/param&gt;
+    /// &lt;returns&gt;EmailData using the provided subject and preview text&lt;/returns&gt;
+    private EmailData GetEmailData(string? subject = null, string? previewText = null) =&gt;
+        new(subject ?? DEFAULT_SUBJECT, previewText ?? DEFAULT_PREVIEW_TEXT);
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>We recommend handling <strong>all of the available email content types</strong>, even if they aren’t currently allowed by any templates that use a data mapper.</p>
+<p>It is possible to call an <code>IEmailDataMapper</code> implementation from several different places in code, so it’s best to be prepared for potential future changes.</p>
+</div>
+
 <h3 id="register-the-mappers">Register the mappers</h3>
 <p>Now that the mappers are ready, let’s register them with the dependency injection container.</p>
 <p>In our example, we can simply add them to the <code>AddTrainingGuidesServices</code> method of the <code>ServiceCollectionExtensions</code> class.</p>
@@ -300,7 +424,7 @@ public class ProductEmailWidgetModelMapper : IComponentModelMapper&lt;ProductWid
 <pre><code>
 using Kentico.Xperience.Mjml.StarterKit.Rcl.Mapping;
 using Kentico.Xperience.Mjml.StarterKit.Rcl.Widgets;
-using TrainingGuides.Web.Features.Shared.EmailBuilder.ModelMappers;
+using TrainingGuides.Web.Features.Shared.EmailBuilder.Mappers;
 ...
 namespace TrainingGuides.Web;
 
@@ -311,6 +435,7 @@ public static class ServiceCollectionExtensions
         ...
         services.AddScoped&lt;IComponentModelMapper&lt;ImageWidgetModel&gt;, ImageEmailWidgetModelMapper&gt;();
         services.AddScoped&lt;IComponentModelMapper&lt;ProductWidgetModel&gt;, ProductEmailWidgetModelMapper&gt;();
+        services.AddScoped&lt;IEmailDataMapper, TrainingGuidesEmailDataMapper&gt;();
         ...
     }
     ...
@@ -319,10 +444,10 @@ public static class ServiceCollectionExtensions
 </code></pre>
 </div>
 
-<p>The <strong>Program.cs</strong> file calls this method on startup, so the application will register both mappers.</p>
+<p>The <strong>Program.cs</strong> file calls this method on startup, registering all of the mappers.</p>
 <h2 id="set-up-the-starter-kit-and-email-builder">Set up the Starter Kit and Email Builder</h2>
 <h3 id="register-the-mjml-starter-kit-template">Register the MJML Starter Kit template</h3>
-<p>By default, the Starter Kit does not register its included page template. This gives you the opportunity to specify which of your content types should have access to it, or easily leave it out.</p>
+<p>By default, the Starter Kit does not register its included page template. This allows you to specify which of your content types should have access to it, or easily leave it out.</p>
 <p>Create a new file in the <em>~/Features/Shared/EmailBuilder</em> folder of the <em>TrainingGuides.Web</em> project called <strong>StarterKitComponentRegister.cs</strong></p>
 
 <div>
@@ -353,9 +478,18 @@ using TrainingGuides;
 </code></pre>
 </div>
 
+
+<div>
+
+</div>
+<div>
+<p>The <em>Training guides</em> project includes other email content types, but for this example, we’ll only enable the <code>BasicEmail</code> type.</p>
+<p>In your own projects, you can include as many content types as you want in the <code>ContentTypeNames</code> collection.</p>
+</div>
+
 <h3 id="enable-email-builder">Enable Email Builder</h3>
-<p>If you run your project now, you’ll notice that you can’t use the <strong>MJML Starter Kit template</strong> for emails even though you just registered it. This is because you haven’t yet enabled Email Builder.</p>
-<p>During startup, we need to enable Email Builder and configure its options. You need to specify which content types should use Email Builder at startup. You can also override the default section used in <em>Editable areas</em> on email templates.</p>
+<p>If you run your project now, you’ll notice that you can’t use the <strong>MJML Starter Kit template</strong> for emails, even though you just registered it. This is because you haven’t yet enabled Email Builder.</p>
+<p>During startup, we need to enable Email Builder and configure its options. We must specify which content types should use Email Builder at startup. You can also override the default section used in <em>Editable areas</em> on email templates.</p>
 <p>Let’s enable Email marketing and Email Builder for the <strong>Basic email</strong> content type and set the default section to the <strong>Full-width section</strong> from the Starter Kit.</p>
 
 <div>
@@ -401,13 +535,13 @@ builder.Services.AddMjmlForEmails();
 <h3 id="configure-the-starter-kit">Configure the Starter Kit</h3>
 <p>Similar to the Email Builder configuration, you also need to configure the Starter Kit when the application starts.</p>
 <p>The available options allow you to define the path to a stylesheet that Email Builder will use, and the allowed content types to restrict the selections of the <em>Image</em> and <em>Product</em> widgets.</p>
-<p>For our example, let’s use styles from the example included in the Starter Kit, and restrict the widget selectors to the content types we <a href="#implement-the-model-mappers">already mapped</a> to the widget models.</p>
+<p>For our example, let’s use styles from the Starter Kit, and restrict the widget selectors to the content types we <a href="#implement-the-model-mappers">already mapped</a> to the widget models.</p>
 <h4 id="copy-the-stylesheet">Copy the stylesheet</h4>
 <p>Since email CSS is beyond the scope of this example, let’s just copy the Dancing Goat stylesheet for Email Builder from the Starter Kit repository.</p>
 <p>In the Starter Kit repo, find the <a href="https://github.com/Kentico/xperience-by-kentico-email-builder-starter-kit/blob/main/examples/DancingGoat/wwwroot/EmailBuilder.css" target="_blank"><strong>EmailBuilder.css</strong></a> file under the <em>examples/DancingGoat/wwwroot</em> folder and copy it to the <em>wwwroot</em> folder of your <em>TrainingGuides.Web</em> project.</p>
 <p>Now, you can reference this file in the Starter Kit configuration.</p>
 <h4 id="configure-the-starter-kit-1">Configure the Starter Kit</h4>
-<p>Returning to the <em>Program.cs file</em>, use the <code>AddKenticoMjmlStarterKit</code> method to configure the Starter Kit’s options. You need to tell it where to find your Email Builder CSS and which content types the Image and Product selectors can use.</p>
+<p>Returning to the <em>Program.cs</em> file, use the <code>AddKenticoMjmlStarterKit</code> method to configure the Starter Kit’s options. You need to tell it where to find your Email Builder CSS and which content types the Image and Product selectors can use.</p>
 
 <div>
 <div>
@@ -450,14 +584,14 @@ builder.Services.AddKenticoMjmlStarterKit(options =&gt;
 </div>
 
 <h2 id="see-the-results">See the results</h2>
-<p>Now the Starter Kit is integrated into your project.</p>
+<p>The Starter Kit is now integrated into your project.</p>
 <p>If you’ve been following along with the Training guides example, you can see the results by creating a new email in the <em>Training guides emails</em> channel.</p>
 
 <h2 id="explore-further">Explore further</h2>
 <p>To see more examples of Email Builder components in action, we recommend checking out those used on the <a href="https://github.com/Kentico/community-portal/tree/v30.5.1.6/src/Kentico.Community.Portal.Web/Components/EmailBuilder" target="_blank">Community Portal</a>.</p>
-<p>Here, you can see the code that makes up <a href="https://community.kentico.com/" target="_blank">community.kentico.com</a>, our site for the Xperience by Kentico community that features many helpful resources.</p>
+<p>Here, you can see the code that makes up <a href="https://community.kentico.com/" target="_blank">community.kentico.com</a>, our site for the Xperience by Kentico community, which features many helpful resources.</p>
 <h2 id="whats-next">What’s next</h2>
-<p>Continue on to the <a href="/guides/development/email-marketing/create-an-email-widget-for-articles">next guide in this series</a>, to walk through the construction of a custom <em>Article</em> widget in line with the examples from the Starter Kit.</p>
+<p>Continue to the <a href="/guides/development/email-marketing/create-an-email-widget-for-articles">next guide in this series</a> to walk through the construction of a custom <em>Article</em> widget in line with the examples from the Starter Kit.</p>
 
 </body>
 </html>

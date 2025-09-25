@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Transfer parent-child page hierarchy to the content hub</title>
+</head>
+<body>
+<p>When you upgrade from Kentico Xperience 13 (KX13) to Xperience by Kentico (XbyK), you’ll likely want to take advantage of the new features it offers, such as the <a href="/documentation/business-users/content-hub">content hub</a>: a central repository in XbyK for managing reusable content across multiple channels.</p>
+<p>However, the parent-child relationships of your pages in the content tree might be important for your use case.</p>
+<p>Let’s configure the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Kentico migration tool</a> to automatically preserve parent-child relationships when moving certain pages to the content hub.</p>
+<p>For this example, we’ll use the KX13 <em>Dancing Goat</em> sample site, transferring the <em>Store</em> section of the content tree to the content hub in XbyK.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>To follow along with the example in this guide, we recommend you have the following:</p>
+<ul>
+<li>Familiarity with <a href="https://learn.microsoft.com/en-us/dotnet/csharp/" target="_blank">C#</a> and <a href="https://learn.microsoft.com/en-us/dotnet/" target="_blank">.NET Core</a>.</li>
+<li>A running instance of Xperience by Kentico, installed with the <code>kentico-xperience-mvc</code> template, preferably version <a href="/documentation/changelog">30.8.0</a>.</li>
+<li>A running instance of Kentico Xperience 13 with the <em>Dancing Goat</em> sample site, running on <a href="/13/installation/hotfix-instructions-xperience-13">Refresh 5</a> or higher.</li>
+<li>A local copy of the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Kentico migration tool</a>, version <strong>3.12.0</strong>, connected to each instance.</li>
+</ul>
+<h2 id="choose-which-page-types-to-convert">Choose which page types to convert</h2>
+<p>Start by gathering information about the pages you wish to convert.</p>
+<p>Since we want to work with all of the content types under the <em>Store</em> page, we can query the KX13 database based on that node alias path:</p>
+
+<div>
+<div>
+<div>
+<span>SQL</span>
+</div>
+<strong>Class information query</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+SELECT ClassID, ClassName, ClassDisplayName
+FROM CMS_Class
+WHERE ClassID IN 
+    (SELECT NodeClassID 
+     FROM CMS_Tree 
+     WHERE 
+     NodeAliasPath LIKE '/Store%')
+</code></pre>
+</div>
+
+<p>This query lists all content types used in the <em>Store</em> subtree, helping you identify which classes to migrate.</p>
+<p></p>
+<p>Now that we know which page types we want to use, we need to tell the migration tool to convert them to <em>reusable</em> content types.</p>
+<p>Switch to the <strong>Migration.Tool.CLI</strong> project and open its <strong>appsettings.json</strong> file. Here, you’ll find a <code>System</code> object, containing a <code>ConvertClassesToContentHub</code> property where you can add the code names of the classes you want to migrate. Let’s include all of them, except <strong>Hot tips</strong>.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Hot tips</strong> requires a field migration, which is outside the scope of this example. We’ll cover it in the future.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>JSON</span>
+</div>
+<strong>appsettings.json</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+{
+  ...
+
+  "Settings": {
+    
+    ...
+
+    "ConvertClassesToContentHub": "DancingGoatCore.StoreSection, DancingGoatCore.ProductSection, DancingGoatCore.Tableware, DancingGoatCore.ManualGrinder, DancingGoatCore.ElectricGrinder, DancingGoatCore.FilterPack, DancingGoatCore.Brewer, DancingGoatCore.Coffee",
+
+    ...
+  }
+}
+</code></pre>
+</div>
+
+<h2 id="examine-page-type-relationships">Examine page type relationships</h2>
+<p>So far, we’ve retrieved a list of page types from the <em>Store</em> section and configured the migration tool to convert them to <em>reusable content types</em>. Now, let’s think about the conversion process.</p>
+<p>For every page type whose pages may have children, we will need to tell the tool how to handle those children. First, let’s investigate where different types occur in the hierarchy.</p>
+
+<div>
+
+</div>
+<div>
+<p>To see which page types are used where, you can query the <code>CMS_Tree</code> table of the KX13 database, or simply look at the <strong>Properties &gt; General</strong> tab of pages in the KX13 <strong>Pages</strong> application.</p>
+</div>
+
+<p>In the Dancing Goat example, you’ll find the following:</p>
+<ul>
+<li>The <em>Store</em> page is of the <strong>Store section</strong> type.</li>
+<li>The direct children of the <em>Store</em> page are of the <strong>Product section</strong> and <strong>Hot tips</strong>.</li>
+<li>The remaining page types (<strong>Tableware</strong>, <strong>Manual grinder</strong>, <strong>Electric grinder</strong>, <strong>Filter pack</strong>, <strong>Brewer</strong>, and <strong>Coffee</strong>) belong to children of <strong>Product section</strong> pages.</li>
+</ul>
+<h2 id="create-a-director-class">Create a director class</h2>
+<p>Next, let’s create a class to instruct the migration tool on handling items of these types.</p>
+<p>In the <strong>Migration.Tool.Extensions</strong> project, create a new folder called <strong>ContentItemDirectors</strong>. Then, define a new class called <code>TrainingGuidesContentItemDirector</code> that inherits from <code>ContentItemDirectorBase</code>.</p>
+<p>Override the <code>Direct</code> method, using the <code>LinkChildren</code> method of the provided <code>options</code> parameter to define a new content type field for holding children.</p>
+<p>For the <strong>Store section</strong> page type, define a dedicated field for <strong>Product section</strong> children, and a catchall field for other children. Similarly, for <strong>Product section</strong> pages, create a “Products” field to hold the product page types we found earlier, and a catchall field for other children.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TrainingGuidesContentItemDirector.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using Migration.Tool.Source.Mappers.ContentItemMapperDirectives;
+
+namespace Migration.Tool.Extensions.ContentItemDirectors;
+
+public class TrainingGuidesContentItemDirector : ContentItemDirectorBase
+{
+    public override void Direct(ContentItemSource source, IContentItemActionProvider options)
+    {
+        if (source.SourceClassName == "DancingGoatCore.StoreSection")
+        {
+            // Class ID of the product section class
+            int productSectionClassId = 5508;
+
+            options.LinkChildren("ProductSections", source.ChildNodes!.Where(x =&gt; x.NodeClassID == productSectionClassId));
+            options.LinkChildren("Children", source.ChildNodes!.Where(x =&gt; x.NodeClassID != productSectionClassId));
+        }
+        if (source.SourceClassName == "DancingGoatCore.ProductSection")
+        {
+            // Class IDs of the product classes that appear in the store hierarchy
+            int[] productClassIDs = {
+                5503, // Tableware
+                5516, // Manual grinder
+                5521, // Electric grinder
+                5522, // Filter pack
+                5526, // Brewer
+                5529 // Coffee
+            };
+
+            options.LinkChildren("Products", source.ChildNodes!.Where(x =&gt; productClassIDs.Contains(x.NodeClassID)));
+            options.LinkChildren("Children", source.ChildNodes!.Where(x =&gt; !productClassIDs.Contains(x.NodeClassID)));
+        }
+    }
+}
+
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Examine other filtering options</strong></p>
+<p>In this simple example, we handled pages based on their page type, but you also have other options:</p>
+<ul>
+<li><p>The <code>Direct</code> method provides access to many fields, such as the <code>SourceNode.NodeAliasPath</code>, allowing you to address pages based on their subtree or on an individual level. See the available fields in the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/5dcac65439f1ad9a7227b313f913a199f667a564/KVA/Migration.Tool.Source/Model/CmsTree.cs" target="_blank">ICmsTree interface</a>.</p></li>
+<li><p>You can also sort the child items in a more granular way, based on the same <code>ICmsTree</code> fields.</p></li>
+<li><p>Here, we sorted the children into mutually exclusive fields, but this is not necessary; you can reference the same child from multiple fields.</p></li>
+</ul>
+</div>
+
+<h2 id="see-the-results">See the results</h2>
+<p>Run a migration that <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migrate-command-parameters" target="_blank">includes pages</a> on the KX13 Dancing Goat site to observe the results.</p>
+<p>Here is the command for full migration, for example:</p>
+
+<div>
+<div>
+<div>
+<span>CMD</span>
+</div>
+<strong>Full migration command</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+.\Migration.Tool.CLI.exe  migrate --sites --custom-modules --users --settings-keys --page-types --pages --attachments --contact-management --forms --media-libraries --data-protection --countries --custom-tables --members --categories
+</code></pre>
+</div>
+
+<h2 id="combine-with-other-migration-features">Combine with other migration features</h2>
+<p>The director approach described in this example is compatible with the custom class mapping approach we’ve used in earlier upgrade deep dives. When you migrate your content tree hierarchy to the content hub, you can still restructure the affected types with custom class mappings.</p>
+<p>For example, let’s revisit the <a href="/guides/development/upgrade-deep-dives/remodel-page-types-as-reusable-field-schemas">grinder class mapping example</a> from earlier in the upgrade deep dives. We simply need to change the <code>ClassContentTypeType</code> for each content type, and the other code can remain the same.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>GrinderClassMapping.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="10,26"><code>
+private static MultiClassMapping BuildElectricGrinderMapping()
+{
+    // Migrate electric grinders
+    var mappingElectric = new MultiClassMapping(Target_ClassName_Electric, target =&gt;
+    {
+        target.ClassName = Target_ClassName_Electric;
+        target.ClassTableName = Target_TableName_Electric;
+        target.ClassDisplayName = Target_DisplayName_Electric;
+        target.ClassType = ClassType.CONTENT_TYPE;
+        target.ClassContentTypeType = ClassContentTypeType.REUSABLE;
+        target.ClassGUID = new Guid(Target_ClassGuid_Electric);
+    });
+    
+    ...
+}
+
+private static MultiClassMapping BuildManualGrinderMapping()
+{
+    // Migrate manual grinders
+    var mappingManual = new MultiClassMapping(Target_ClassName_Manual, target =&gt;
+    {
+        target.ClassName = Target_ClassName_Manual;
+        target.ClassTableName = Target_TableName_Manual;
+        target.ClassDisplayName = Target_DisplayName_Manual;
+        target.ClassType = ClassType.CONTENT_TYPE;
+        target.ClassContentTypeType = ClassContentTypeType.REUSABLE;
+        target.ClassGUID = new Guid(Target_ClassGuid_Manual);
+    });
+
+    ...
+}
+
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Class mappings and ConvertClassesToContentHub</strong></p>
+<p>If you set a content type to <code>ClassContentTypeType.REUSABLE</code> in a custom class mapping, the migration tool will put its items in the content hub regardless of whether or not the KX13 page type appears in the <code>ConvertClassesToContentHub</code> value in <strong>appsettings.json</strong>.</p>
+<p>However, if you map a KX13 page type to a content type with <code>ClassContentTypeType.WEBSITE</code> in a custom class mapping, you <strong>must not</strong> include its codename in the <code>ConvertClassesToContentHub</code> value in <strong>appsettings.json</strong> if you want the migration tool to create web page items in XbyK.</p>
+</div>
+
+<h2 id="review-the-scenario">Review the scenario</h2>
+<p>Let’s review the key points from this example:</p>
+
+<div>
+
+</div>
+<div>
+<ul>
+<li>Query the database to quickly find the classes located in a certain subtree, or use the <strong>Properties → General</strong> tab in the Pages app.</li>
+<li>Specify which page types to migrate to content hub in <strong>appsettings.json</strong> with <code>ConvertClassesToContentHub</code>.</li>
+<li>Create a class that inherits from <code>ContentItemDirectorBase</code> to specify where child item references should go.</li>
+<li>Filter both parent and child items by various attributes, like class name and tree location, to fully control the process.</li>
+<li>Use <code>MultiClassMapping</code> objects in combination with the director to remodel classes as needed.</li>
+</ul>
+</div>
+
+<p>If you have any questions or upgrade scenarios you’d like us to cover in the future, please let us know with the “Send us feedback” button at the bottom of this page.</p>
+
+</body>
+</html>

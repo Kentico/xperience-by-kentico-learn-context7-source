@@ -13,7 +13,7 @@
 <p>This page describes user management specific to Xperience by Kentico projects. For management of users within Xperience Portal projects, see <a href="/documentation/developers-and-admins/saas/xperience-portal#users">Xperience Portal</a>.</p>
 </div>
 
-<p>User accounts are required to access the Xperience administration. After signing in, users can work with the available features – <a href="/documentation/business-users/website-content">manage website content</a>, set up <a href="/documentation/business-users/digital-marketing">digital marketing</a> and <a href="/documentation/developers-and-admins/data-protection">data protection</a> functionality, design <a href="/documentation/business-users/digital-marketing/forms">forms</a>.</p>
+<p>User accounts are required to access the Xperience administration. After signing in, users can work with the available features – <a href="/documentation/business-users/website-content">manage website content</a>, set up <a href="/documentation/business-users/digital-marketing">digital marketing</a> and <a href="/documentation/developers-and-admins/data-protection">data protection</a> functionality, design <a href="/documentation/business-users/digital-marketing/forms">forms</a>, etc.</p>
 <p>Table of contents:</p>
 <ul>
 <li><a href="#default-user-accounts">Default user accounts</a></li>
@@ -34,7 +34,7 @@
 <p>Users are classified into two groups:</p>
 <ul>
 <li>
-<strong>Live site users</strong> – regular visitors that register on a live site managed by Xperience. See <a href="/documentation/developers-and-admins/development/registration-and-authentication">Registration and authentication</a> to learn how to work with these users.</li>
+<strong>Live site users (members)</strong> – regular visitors that register on a live site managed by Xperience. See <a href="/documentation/developers-and-admins/development/registration-and-authentication">Registration and authentication</a> to learn how to work with these users.</li>
 <li>
 <strong>Admin UI users</strong> – users that have access to the administration UI and directly interface with Xperience (e.g., content creators, administrators, marketers).</li>
 </ul>
@@ -72,6 +72,10 @@
 <li>
 <strong>Enabled</strong> – indicates if the user account is active, allowing the user to sign in.</li>
 </ul>
+<h3 id="import-users">Import users</h3>
+<p>If you wish to import or migrate users from another system or external source, developers can leverage the <a href="/api/configuration/users">user API</a>.</p>
+<p>When creating users, be sure to set the <code>UserInfo.UserAdministrationAccess</code> property to <code>true</code>, which is required for users to access the administration interface and be displayed in the <em>Users</em> application.</p>
+<p>To transfer users from an older version of Xperience, you can use the <a href="/documentation/developers-and-admins/upgrade-to-xperience-by-kentico/migration-toolkit#kentico-migration-tool">Kentico Migration Tool</a>.</p>
 <h2 id="user-passwords">User passwords</h2>
 <p>Passwords are a critical part of any authentication process. Users must set their password when they finalize their registration into the system.</p>
 <h3 id="password-policy">Password policy</h3>

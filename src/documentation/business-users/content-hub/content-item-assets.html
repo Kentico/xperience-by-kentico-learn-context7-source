@@ -95,8 +95,15 @@ If you notice undesired <a href="https://en.wikipedia.org/wiki/Compression_artif
 </div>
 
 <h2 id="image-variants">Image variants</h2>
-<p>Image variants are cropped and resized versions of an image, defined by a specific aspect ratio and pixel dimensions <a href="/documentation/developers-and-admins/development/content-types#configure-image-variants">configured</a> by your project administrator. They allow you to control how images appear in different contexts, such as hero banners, social media posts, or thumbnails. For example, you can adjust which part of an image is displayed in each scenario to ensure optimal visual presentation. Image variants also help with <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Responsive_images" target="_blank">art direction</a>, allowing you to display different versions of the image on various layouts.</p>
+<p>Image variants are cropped or resized versions of an image, defined by a specific aspect ratio and pixel dimensions <a href="/documentation/developers-and-admins/development/content-types#configure-image-variants">configured</a> by your project administrator. They allow you to control how images appear in different contexts, such as hero banners, social media posts, or thumbnails. For example, you can adjust which part of an image is displayed in each scenario to ensure optimal visual presentation. Image variants also help with <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Responsive_images" target="_blank">art direction</a> or <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images#how_do_you_create_responsive_images" target="_blank">resolution switching</a>, allowing you to display different versions of the image on various layouts.</p>
 <p>Image variants are generated from the primary <a href="#optimize-image-assets">optimized image</a>, taking into account its format and quality. The <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-content-items#retrieve-image-variants">usage</a> of image variants is currently supported only for <a href="/documentation/business-users/website-content">website channel applications</a>.</p>
+<p>There are two types of image variants available:</p>
+<ul>
+<li>
+<strong>Scaled variant</strong> – Image dimensions are resized based on input while maintaining the original aspect ratio.</li>
+<li>
+<strong>Smart crop variant</strong> – Images are cropped based on the focal point.</li>
+</ul>
 <p>To see how your image will look like in various variants:</p>
 <ol type="1">
 <li>

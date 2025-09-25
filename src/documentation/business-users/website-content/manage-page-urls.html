@@ -264,7 +264,7 @@
 <p>The system can automatically keep track of page URL changes by storing old URLs and handling redirects to the current URLs. You can see and manage these redirects in the <strong>URLs</strong> application on the <strong>Former URLs</strong> tab. Redirects created by unpublishing or deleting pages are stored and handled by default. You can additionally configure the system to create former URLs when a URL is edited and to redirect to the current URLs.</p>
 <p>When a redirect target of a former URL is changed, all redirects that target the corresponding page are also automatically adjusted.</p>
 <h3 id="automatically-store-edited-urls-as-former-urls">Automatically store edited URLs as former URLs</h3>
-<p>To configure the system to automatically store edited URLs as former URLs and handle redirects to current URLs:</p>
+<p>To configure the system to automatically store edited URLs as former URLs:</p>
 <ol type="1">
 <li>Open the <strong>Channel management</strong> application.</li>
 <li>Select the website channel for which you want to configure Former URLs to store and handle edited URLs.</li>
@@ -274,6 +274,7 @@
 <strong>Save</strong> the changes.</li>
 </ol>
 <p>Former URLs are now created when URLs are edited in the given website channel. Every time a former URL is requested, the system returns a “301 Moved Permanently” response and redirects to the new URL of the page.</p>
+<p>If the setting is disabled later, former URLs created up to that point will continue redirecting visitors to current URLs unless the former URLs are <a href="#remove-former-urls-created-by-editing-urls">removed</a>.</p>
 <p>To access a list of all stored old URLs for the website, together with the current URL paths to which they are redirected, open the <strong>Former URLs</strong> tab in the <strong>URLs</strong> application.</p>
 <p></p>
 <h3 id="former-urls-scenarios">Former URLs scenarios</h3>

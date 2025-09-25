@@ -139,91 +139,34 @@ public IEnumerable&lt;Cafe&gt; GetCompanyCafes(string nodeAliasPath, int count =
 </div>
 <div>
 <pre><code>
-using CMS.ContentEngine;
 using CMS.Helpers;
 using CMS.Websites;
 using CMS.Websites.Routing;
+using Kentico.Content.Web.Mvc;
 using Kentico.Content.Web.Mvc.Routing;
 
 namespace DancingGoat.Web.Services.Shared;
 
-public class ContentItemRetrieverService&lt;T&gt; : IContentItemRetrieverService&lt;T&gt; where T : IContentItemFieldsSource
+public class ContentItemRetrieverService : IContentItemRetrieverService
 {
-    // Use Dependency Injection to populate these services.
-    private readonly IContentQueryExecutor contentQueryExecutor;
+    // Use dependency injection to populate these services
     private readonly IWebsiteChannelContext webSiteChannelContext;
     private readonly IPreferredLanguageRetriever preferredLanguageRetriever;
+    private readonly IContentRetriever contentRetriever;
 
+    ...
 }
 </code></pre>
-</div>
-
-<p>Then, add a private method that we can reuse among the services members, which constructs and executes a <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">Content item query</a> for web page items.</p>
-
-<div>
-<div>
-<div>
-<span>C#</span>
-</div>
-<strong>ContentItemRetrieverService.cs</strong>
-</div>
-<div>
-<button>
-<span></span><span></span> <span>Copy</span>
-</button>
-</div>
-</div>
-<div>
-<pre><code>
-...
-//// &lt;summary&gt;
-/// Retrieves web page content items of a specified content type and applies a query filter.
-/// &lt;/summary&gt;
-/// &lt;typeparam name="T"&gt;The type of the content items to retrieve.&lt;/typeparam&gt;
-/// &lt;param name="contentTypeName"&gt;The name of the content type to retrieve.&lt;/param&gt;
-/// &lt;param name="queryFilter"&gt;A function to apply additional query parameters to filter the content items.&lt;/param&gt;
-/// &lt;returns&gt;A task that represents the asynchronous operation. The task result contains an enumerable of content items of type &lt;typeparamref name="T"/&gt;.&lt;/returns&gt;
-private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageContentItems(
-    string contentTypeName,
-    Func&lt;ContentTypeQueryParameters,ContentTypeQueryParameters&gt; queryFilter)
-{
-    var builder = new ContentItemQueryBuilder()
-                        .ForContentType(
-                            contentTypeName,
-                            config =&gt; queryFilter(config)
-                            .ForWebsite(webSiteChannelContext.WebsiteChannelName)
-                        )
-                        .InLanguage(preferredLanguageRetriever.Get());
-
-    var queryExecutorOptions = new ContentQueryExecutionOptions
-    {
-        ForPreview = webSiteChannelContext.IsPreview
-    };
-
-    var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
-
-    return pages;
-}
-...
-</code></pre>
-</div>
-
-
-<div>
-
-</div>
-<div>
-<p>Find more details about how to use the <code>queryFilter</code> parameter in the <a href="/documentation/developers-and-admins/api/content-item-api/reference-content-item-query">Content item query reference</a>.</p>
 </div>
 
 <h4 id="query-the-first-web-page-item-of-a-given-type">Query the first web page item of a given type</h4>
-<p><code>RetrieveWebPageContentItems</code> is fairly non-specific, but we can use it to create more specialized methods, such as one that retrieves the first item of a specified content type, achieving the <em>Contact</em> scenario mentioned above.</p>
+<p>With these services, we can implement specialized querying scenarios, such as one that retrieves the first item of a specified content type, achieving the <em>Contact</em> scenario mentioned above.</p>
 
 <div>
 
 </div>
 <div>
-<p>It won’t be used in the <em>Contacts</em> page, but you can optionally add a method that retrieves a web page item based on a provided <code>Guid</code>. This will come in handy for future reference if you ever need to retrieve the current page with <code>IWebPageDataContextRetriever</code>.</p>
+<p>Although it’s not necessary for the <em>Contacts</em> page, retrieving the current page is one of the most common scenarios we see for content retrieval. We’ll include it in the code samples for reference.</p>
 </div>
 
 
@@ -243,32 +186,55 @@ private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageContentItems(
 <div>
 <pre><code>
 ...
-private async Task&lt;T?&gt; RetrieveFirstWebPageOfType(
-    string contentTypeName,
-    int depth = 1)
+public async Task&lt;T?&gt; RetrieveFirstWebPageOfType&lt;T&gt;(
+    int depth = 1,
+    Action&lt;RetrievePagesQueryParameters&gt;? queryParameters = null,
+    bool includeSecuredItems = true,
+    string? languageName = null)
+    where T : IWebPageFieldsSource, new()
 {
-    var pages = await RetrieveWebPageContentItems(
-            contentTypeName,
-            config =&gt; config
-                .TopN(1)
-                .WithLinkedItems(depth));
+    var parameters = new RetrievePagesParameters
+    {
+        LinkedItemsMaxLevel = depth,
+        LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+        IsForPreview = webSiteChannelContext.IsPreview,
+        IncludeSecuredItems = includeSecuredItems,
+    };
+    
+    Action&lt;RetrievePagesQueryParameters&gt; combinedQueryParameters = config =&gt;
+    {
+        queryParameters?.Invoke(config);
+        config.TopN(1);
+    };
 
+    var pages = await contentRetriever.RetrievePages&lt;T&gt;(
+        parameters: parameters,
+        additionalQueryConfiguration: combinedQueryParameters,
+        cacheSettings: null);
     return pages.FirstOrDefault();
 }
 
-// Optional method for reference, not used for the Contacts page.
-private async Task&lt;T?&gt; RetrieveWebPageByGuid(
-    Guid webPageItemGuid,
-    string contentTypeName,
-    int depth = 1)
+public async Task&lt;T?&gt; RetrieveCurrentPage&lt;T&gt;(
+    int depth = 1,
+    Action&lt;RetrieveCurrentPageQueryParameters&gt;? queryParameters = null,
+    bool includeSecuredItems = true,
+    string? languageName = null)
+    where T : IWebPageFieldsSource, new()
 {
-    var pages = await RetrieveWebPageContentItems(
-            contentTypeName,
-            config =&gt; config
-                .TopN(1)
-                .Where(where =&gt; where.WhereEquals(nameof(WebPageFields.WebPageItemGUID), webPageItemGuid))
-                .WithLinkedItems(depth));
-    return pages.FirstOrDefault();
+    var parameters = new RetrieveCurrentPageParameters
+    {
+        LinkedItemsMaxLevel = depth,
+        LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+        IsForPreview = webSiteChannelContext.IsPreview,
+        IncludeSecuredItems = includeSecuredItems
+    };
+
+    queryParameters ??= RetrieveCurrentPageQueryParameters.Default;
+
+    return await contentRetriever.RetrieveCurrentPage&lt;T&gt;(
+        parameters: parameters,
+        additionalQueryConfiguration: queryParameters,
+        cacheSettings: null);
 }
 ...
 </code></pre>
@@ -294,36 +260,27 @@ private async Task&lt;T?&gt; RetrieveWebPageByGuid(
 <div>
 <pre><code>
 ...
-private async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
-        string parentPageContentTypeName,
-        string parentPagePath,
-        Action&lt;ContentTypeQueryParameters&gt;? customContentTypeQueryParameters,
-        int depth = 1)
+public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath&lt;T&gt;(
+    string path,
+    int depth = 1,
+    bool includeSecuredItems = true,
+    Action&lt;RetrievePagesQueryParameters&gt;? queryParameters = null,
+    string? languageName = null)
+    where T : IWebPageFieldsSource, new()
 {
-    Action&lt;ContentTypeQueryParameters&gt; contentQueryParameters = customContentTypeQueryParameters is not null
-        ? config =&gt; customContentTypeQueryParameters(config
-            .ForWebsite(webSiteChannelContext.WebsiteChannelName, [PathMatch.Children(parentPagePath)])
-            .WithLinkedItems(depth)
-        )
-        : config =&gt; config
-            .ForWebsite(webSiteChannelContext.WebsiteChannelName, [PathMatch.Children(parentPagePath)])
-            .WithLinkedItems(depth);
-
-    var builder = new ContentItemQueryBuilder()
-                        .ForContentType(
-                            parentPageContentTypeName,
-                            contentQueryParameters
-                            )
-                        .InLanguage(preferredLanguageRetriever.Get());
-
-    var queryExecutorOptions = new ContentQueryExecutionOptions
+    var parameters = new RetrievePagesParameters
     {
-        ForPreview = webSiteChannelContext.IsPreview
+        LinkedItemsMaxLevel = depth,
+        LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+        IsForPreview = webSiteChannelContext.IsPreview,
+        PathMatch = PathMatch.Children(path),
+        IncludeSecuredItems = includeSecuredItems
     };
 
-    var pages = await contentQueryExecutor.GetMappedWebPageResult&lt;T&gt;(builder, queryExecutorOptions);
-
-    return pages;
+    return await contentRetriever.RetrievePages&lt;T&gt;(
+        parameters: parameters,
+        additionalQueryConfiguration: queryParameters,
+        cacheSettings: null);
 }
 ...
 </code></pre>
@@ -361,12 +318,19 @@ public IEnumerable&lt;Cafe&gt; GetCompanyCafes(string nodeAliasPath, int count =
 </code></pre>
 </div>
 
-<p>Lets find a way to include this functionality in our <code>ContentItemRetrieverService</code> class.</p>
-<p>Taking a look at the <a href="/documentation/developers-and-admins/development/caching/data-caching">data caching documentation</a> for XbyK, we can see that the format differs somewhat from the <code>IPageRetriever</code> in KX13.</p>
+<p>Our <code>ContentItemRetrieverService</code> class uses the <a href="/documentation/developers-and-admins/api/content-item-api/content-retriever-api">ContentRetriever API</a>, which has implicit caching functionality.</p>
+<p>Taking a look at the <a href="/documentation/developers-and-admins/development/caching/data-caching">data caching documentation</a> for XbyK, we can see that the formats for caching differ somewhat from the <code>IPageRetriever</code> in KX13.</p>
+<p>Lets implement this functionality, including reusable utilities we can use across the service.</p>
+
+<div>
+
+</div>
+<div>
+<p>If you query data using an API other than <code>ContentRetriever</code>, or require more advanced caching options, you can use <code>IProgressiveCache</code> for data caching. <a href="/documentation/developers-and-admins/development/caching/data-caching#cache-general-objects">data caching</a></p>
+</div>
+
 <h4 id="add-caching-utility-methods">Add caching utility methods</h4>
-<p>Copy the <code>IsCacheEnabled</code> example from the data caching link above.</p>
-<p>Then, create a method similar to the <code>GetDependencyCacheKeys</code> example on the same page, using <code>IWebPageFieldsSource</code> instead of a specific content type. Expand the method to optionally create a cache dependency on all siblings of the provided pages.</p>
-<p>Finally, add new methods that allow you to combine additional dependency keys with those returned by <code>GetDependencyCacheKeys</code>.</p>
+<p>Copy the <code>IsCacheEnabled</code> example from the <a href="/documentation/developers-and-admins/development/caching/data-caching#preview-mode-and-caching">data caching</a> documentation.</p>
 
 <div>
 <div>
@@ -385,91 +349,24 @@ public IEnumerable&lt;Cafe&gt; GetCompanyCafes(string nodeAliasPath, int count =
 <pre><code>
 ...
 private bool IsCacheEnabled()
-    {
-        return !webSiteChannelContext.IsPreview;
-    }
-
-    private async Task&lt;ISet&lt;string&gt;&gt; GetDependencyCacheKeysForWebPages(IEnumerable&lt;IWebPageFieldsSource?&gt; webPages, int maxLevel, bool includeParentPathDependency = false)
-    {
-        var webPageItems = webPages.Where(item =&gt; item is not null);
-
-        if (webPageItems.Count() == 0)
-            return new HashSet&lt;string&gt;();
-
-        HashSet&lt;string&gt; dependencyCacheKeys;
-        try
-        {
-            dependencyCacheKeys = (await linkedItemsDependencyRetriever.Get(webPageItems.Select(item =&gt; item!.SystemFields.WebPageItemID), maxLevel: maxLevel)).ToHashSet(StringComparer.InvariantCultureIgnoreCase);
-        }
-        catch
-        {
-            dependencyCacheKeys = new HashSet&lt;string&gt;();
-        }
-
-        List&lt;string&gt; parentPaths = new();
-
-        foreach (IWebPageFieldsSource webPageItem in webPageItems)
-        {
-            dependencyCacheKeys.Add(CacheHelper.BuildCacheItemName(new[] { "webpageitem",
-                                                                    "byid",
-                                                                    webPageItem!.SystemFields.WebPageItemID.ToString() },
-                                                                    lowerCase: false));
-
-            dependencyCacheKeys.Add(CacheHelper.BuildCacheItemName(new[] { "webpageitem",
-                                                                    "bychannel",
-                                                                    webSiteChannelContext.WebsiteChannelName,
-                                                                    "bypath",
-                                                                    webPageItem.SystemFields.WebPageItemTreePath },
-                                                                    lowerCase: false));
-
-            if (includeParentPathDependency)
-            {
-                var pathElements = webPageItem.SystemFields.WebPageItemTreePath
-                    .Split('/');
-
-                parentPaths.Add(
-                    pathElements.Take(pathElements.Length - 1)
-                        .Join("/")
-                    );
-            }
-        }
-
-        if (includeParentPathDependency)
-        {
-            var distinctParentPaths = parentPaths.Distinct();
-            
-            foreach (string parentPath in distinctParentPaths)
-            {
-                dependencyCacheKeys.Add(CacheHelper.BuildCacheItemName(new[] { "webpageitem",
-                                                                    "bychannel",
-                                                                    webSiteChannelContext.WebsiteChannelName,
-                                                                    "childrenofpath",
-                                                                    $"/{parentPath}" },
-                                                                    lowerCase: false));
-            } 
-        }
-
-        return dependencyCacheKeys;
-    }
-
-    private async Task&lt;CMSCacheDependency&gt; GetCacheDependencyForWebPages(IEnumerable&lt;T&gt; webPages, int depth, IEnumerable&lt;string&gt;? extraDependencyKeys = null, bool includeParentPathDependency = false)
-    {
-        var dependencyCacheKeys = await GetDependencyCacheKeysForWebPages(webPages.Select(item =&gt; item as IWebPageFieldsSource), depth, includeParentPathDependency);
-
-        if (extraDependencyKeys is not null)
-            dependencyCacheKeys.UnionWith(extraDependencyKeys);
-
-        return CacheHelper.GetCacheDependency(dependencyCacheKeys);
-    }
-
-    private async Task&lt;CMSCacheDependency&gt; GetCacheDependencyForWebPage(T webPage, int depth, IEnumerable&lt;string&gt;? extraDependencyKeys = null) =&gt;
-        await GetCacheDependencyForWebPages([webPage], depth, extraDependencyKeys);
+{
+    return !webSiteChannelContext.IsPreview;
+}
 ...
 </code></pre>
 </div>
 
 <h4 id="create-a-class-to-configure-caching-in-methods">Create a class to configure caching in methods</h4>
 <p>Before we add caching to the data retrieval methods, let’s create a DTO class that we can reuse for configuring caching across the service. We can include a parameter of this new type, rather than typing out the same group of separate parameters each time.</p>
+
+<div>
+
+</div>
+<div>
+<p>Xperience’s API includes a <code>RetrievalCacheSettings</code> class out of box. However, this class’s properties are internal, and can’t be edited after instantiation, which makes combining configurations from multiple sources difficult.</p>
+<p>By using our DTO, you can fall back to values from multiple sources when configuring cache, before constructing a <code>RetrievalCacheSettings</code> object.</p>
+</div>
+
 <p>Based on the caching documentation, we can configure <strong>the time interval for which data is cached</strong>, and <strong>whether it uses a sliding expiration window</strong>. Include corresponding properties in the class.</p>
 <p>You can also configure the dependencies that specify <strong>when to purge the cache</strong> (dependencies), and <strong>the name of the cache entry</strong>. For these, we can include appropriate defaults in each method, but we should allow callers to specify additional dependencies and a custom name.</p>
 
@@ -494,12 +391,12 @@ public class ContentItemRetrieverServiceCacheConfig
     /// &lt;summary&gt;
     /// The number of minutes the cache should be stored.
     /// &lt;/summary&gt;
-    public int CacheMinutes { get; set; } = 10;
+    public int? CacheExpiration { get; set; } = null;
 
     /// &lt;summary&gt;
     /// Determines whether the cache should use a sliding expiration, resetting the timer if accessed within the cache duration.
     /// &lt;/summary&gt;
-    public bool UseSlidingExpiration { get; set; } = true;
+    public bool? UseSlidingExpiration { get; set; } = null;
 
     /// &lt;summary&gt;
     /// Additional cache keys to depend on.
@@ -507,9 +404,9 @@ public class ContentItemRetrieverServiceCacheConfig
     public IEnumerable&lt;string&gt;? ExtraDependencyKeys { get; set; } = null;
 
     /// &lt;summary&gt;
-    /// Custom cache name parts that should be combined with the web channel name and language.
+    /// Custom cache name parts to add to the cache item name suffix.
     /// &lt;/summary&gt;
-    public IEnumerable&lt;string&gt;? CustomCacheNameParts { get; set; } = null;
+    public IEnumerable&lt;string&gt;? ExtraCacheNameParts { get; set; } = null;
 }
 </code></pre>
 </div>
@@ -519,12 +416,16 @@ public class ContentItemRetrieverServiceCacheConfig
 
 </div>
 <div>
-<p>For the simplicity of this example, include this new class in the same file as the <code>ContentItemRetrieverService&lt;T&gt;</code>.</p>
+<p>For the simplicity of this example, we included this new class in the same file as the <code>ContentItemRetrieverService</code>.</p>
 </div>
 
-<h4 id="cache-your-queries">Cache your queries</h4>
-<p>Now you can wrap each of the private data retrieval methods from earlier with public counterparts that include a <code>ContentItemRetrieverServiceCacheConfig</code> parameter.</p>
-<p>Make sure to include default name parts that are unique for distinct method calls, and include the <em>web channel</em> and <em>language</em> no matter what, like the KX13 caching functionality does.</p>
+<h4 id="create-a-method-to-construct-cache-settings">Create a method to construct cache settings</h4>
+<p>So far, we’ve planned to add a <code>ContentItemRetrieverServiceCacheConfig</code> parameter to each of our retrieval methods. We can use this parameter to add extra cache configuration each time we call one of our retrieval methods. Let’s assume that each method will add its own baseline parts to the cache item name, aside from the optional name parts in the <code>ContentItemRetrieverServiceCacheConfig</code> object.</p>
+<p>Create a method that constructs a <code>RetrievalCacheSettings</code> object based two parameters:</p>
+<ul>
+<li>Cache name parts provided directly by each content retrieval method</li>
+<li>A <code>ContentItemRetrieverServiceCacheConfig</code> object, optionally supplied as a parameter to a specific call of a content retrieval method</li>
+</ul>
 
 <div>
 <div>
@@ -542,104 +443,157 @@ public class ContentItemRetrieverServiceCacheConfig
 <div>
 <pre><code>
 ...
-private string[] GetStartingNameParts() =&gt;
-    [webSiteChannelContext.WebsiteChannelName, preferredLanguageRetriever.Get()];
+private RetrievalCacheSettings CreateCacheSettings(
+    string[] cacheNameParts,
+    ContentItemRetrieverServiceCacheConfig? cacheConfig)
+{
+    return IsCacheEnabled()
+        ? new RetrievalCacheSettings(
+            cacheItemNameSuffix: cacheNameParts
+                .Concat(cacheConfig?.ExtraCacheNameParts?.ToArray() ?? [])
+                .Join("|"),
+            cacheExpiration: TimeSpan.FromMinutes(cacheConfig?.CacheExpiration ?? 15),
+            cacheOnlyResultingItems: false,
+            useSlidingExpiration: cacheConfig?.UseSlidingExpiration ?? true,
+            additionalCacheDependencies: new CMSCacheDependency { CacheKeys = cacheConfig?.ExtraDependencyKeys?.ToArray() ?? [] }
+        )
+        : RetrievalCacheSettings.CacheDisabled;
+}
 ...
+</code></pre>
+</div>
 
-/// &lt;inheritdoc/&gt;
-public async Task&lt;T?&gt; RetrieveFirstWebPageOfType(
-    string contentTypeName,
+<h4 id="cache-your-queries">Cache your queries</h4>
+<p>Now you can use this method to create cache settings for your <code>ContentRetriever</code> settings.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContentItemRetrieverService.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="7,24-34,39,48,59-69,76,85,97-108,113"><code>
+...
+public async Task&lt;T?&gt; RetrieveFirstWebPageOfType&lt;T&gt;(
     int depth = 1,
-    ContentItemRetrieverServiceCacheConfig? contentItemRetrieverCacheConfig = null)
+    Action&lt;RetrievePagesQueryParameters&gt;? queryParameters = null,
+    bool includeSecuredItems = true,
+    string? languageName = null,
+    ContentItemRetrieverServiceCacheConfig? cacheConfig = null)
+    where T : IWebPageFieldsSource, new()
 {
-    var retrieverCacheConfig = contentItemRetrieverCacheConfig ?? new ContentItemRetrieverServiceCacheConfig();
+    var parameters = new RetrievePagesParameters
+    {
+        LinkedItemsMaxLevel = depth,
+        LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+        IsForPreview = webSiteChannelContext.IsPreview,
+        IncludeSecuredItems = includeSecuredItems,
+    };
+    
+    Action&lt;RetrievePagesQueryParameters&gt; combinedQueryParameters = config =&gt;
+    {
+        queryParameters?.Invoke(config);
+        config.TopN(1);
+    };
+    
+    string[] cacheNameParts = [
+            nameof(ContentItemRetrieverService),
+            nameof(RetrieveFirstWebPageOfType),
+            typeof(T).Name,
+            $"depth|{depth}",
+            $"lang|{parameters.LanguageName}",
+            $"preview|{parameters.IsForPreview}",
+            $"secured|{parameters.IncludeSecuredItems}"
+        ];
 
-    string[] defaultNameParts = [nameof(RetrieveFirstWebPageOfType), contentTypeName, depth.ToString()];
-    var startingNameParts = GetStartingNameParts();
+    var cacheSettings = CreateCacheSettings(cacheNameParts, cacheConfig);
 
-    var cacheItemNameParts = retrieverCacheConfig.CustomCacheNameParts is not null
-        ? startingNameParts.Concat(retrieverCacheConfig.CustomCacheNameParts).ToArray()
-        : startingNameParts.Concat(defaultNameParts).ToArray();
-
-    return await progressiveCache.LoadAsync(async (cacheSettings) =&gt;
-        {
-            cacheSettings.Cached = IsCacheEnabled();
-            var webPage = await RetrieveFirstWebPageOfType(contentTypeName, depth);
-
-            if (webPage is not null)
-                cacheSettings.CacheDependency = await GetCacheDependencyForWebPage(webPage, depth, retrieverCacheConfig.ExtraDependencyKeys);
-
-            return webPage;
-        },
-        new CacheSettings(cacheMinutes: retrieverCacheConfig.CacheMinutes,
-                        useSlidingExpiration: retrieverCacheConfig.UseSlidingExpiration,
-                        cacheItemNameParts: cacheItemNameParts));
+    var pages = await contentRetriever.RetrievePages&lt;T&gt;(
+        parameters: parameters,
+        additionalQueryConfiguration: combinedQueryParameters,
+        cacheSettings: cacheSettings);
+    return pages.FirstOrDefault();
 }
 
-// Optional method for reference, not used for the Contacts page.
-/// &lt;inheritdoc/&gt;
-public async Task&lt;T?&gt; RetrieveWebPageByGuid(
-    Guid webPageItemGuid,
-    string contentTypeName,
+public async Task&lt;T?&gt; RetrieveCurrentPage&lt;T&gt;(
     int depth = 1,
-    ContentItemRetrieverServiceCacheConfig? contentItemRetrieverCacheConfig = null)
+    Action&lt;RetrieveCurrentPageQueryParameters&gt;? queryParameters = null,
+    bool includeSecuredItems = true,
+    string? languageName = null,
+    ContentItemRetrieverServiceCacheConfig? cacheConfig = null)
+    where T : IWebPageFieldsSource, new()
 {
-    var retrieverCacheConfig = contentItemRetrieverCacheConfig ?? new ContentItemRetrieverServiceCacheConfig();
+    var parameters = new RetrieveCurrentPageParameters
+    {
+        LinkedItemsMaxLevel = depth,
+        LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+        IsForPreview = webSiteChannelContext.IsPreview,
+        IncludeSecuredItems = includeSecuredItems
+    };
 
-    string[] defaultNameParts = [nameof(RetrieveWebPageByGuid), contentTypeName, webPageItemGuid.ToString(), depth.ToString()];
-    var startingNameParts = GetStartingNameParts();
+    string[] cacheNameParts = [
+            nameof(ContentItemRetrieverService),
+            nameof(RetrieveCurrentPage),
+            typeof(T).Name,
+            $"depth|{depth}",
+            $"lang|{parameters.LanguageName}",
+            $"preview|{parameters.IsForPreview}",
+            $"secured|{parameters.IncludeSecuredItems}"
+        ];
 
-    var cacheItemNameParts = retrieverCacheConfig.CustomCacheNameParts is not null
-        ? startingNameParts.Concat(retrieverCacheConfig.CustomCacheNameParts).ToArray()
-        : startingNameParts.Concat(defaultNameParts).ToArray();
+    var cacheSettings = CreateCacheSettings(cacheNameParts, cacheConfig);
 
-    return await progressiveCache.LoadAsync(async (cacheSettings) =&gt;
-        {
-            cacheSettings.Cached = IsCacheEnabled();
+    queryParameters ??= RetrieveCurrentPageQueryParameters.Default;
 
-            var webPage = await RetrieveWebPageByGuid(webPageItemGuid, contentTypeName, depth);
-
-            if (webPage is not null)
-                cacheSettings.CacheDependency = await GetCacheDependencyForWebPage(webPage, depth, retrieverCacheConfig.ExtraDependencyKeys);
-
-            return webPage;
-        },
-        new CacheSettings(cacheMinutes: retrieverCacheConfig.CacheMinutes,
-                        useSlidingExpiration: retrieverCacheConfig.UseSlidingExpiration,
-                        cacheItemNameParts: cacheItemNameParts));
+    return await contentRetriever.RetrieveCurrentPage&lt;T&gt;(
+        parameters: parameters,
+        additionalQueryConfiguration: queryParameters,
+        cacheSettings: cacheSettings);
 }
 
-/// &lt;inheritdoc/&gt;
-public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
-    string parentPageContentTypeName,
-    string parentPagePath,
-    Action&lt;ContentTypeQueryParameters&gt;? customContentTypeQueryParameters,
+public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath&lt;T&gt;(
+    string path,
     int depth = 1,
-    ContentItemRetrieverServiceCacheConfig? contentItemRetrieverCacheConfig = null)
+    bool includeSecuredItems = true,
+    Action&lt;RetrievePagesQueryParameters&gt;? queryParameters = null,
+    string? languageName = null,
+    ContentItemRetrieverServiceCacheConfig? cacheConfig = null)
+    where T : IWebPageFieldsSource, new()
 {
-    var retrieverCacheConfig = contentItemRetrieverCacheConfig ?? new ContentItemRetrieverServiceCacheConfig();
+    var parameters = new RetrievePagesParameters
+    {
+        LinkedItemsMaxLevel = depth,
+        LanguageName = languageName ?? preferredLanguageRetriever.Get(),
+        IsForPreview = webSiteChannelContext.IsPreview,
+        PathMatch = PathMatch.Children(path),
+        IncludeSecuredItems = includeSecuredItems
+    };
 
-    string[] defaultNameParts = [nameof(RetrieveWebPageChildrenByPath), parentPageContentTypeName, parentPagePath, depth.ToString()];
-    var startingNameParts = GetStartingNameParts();
+    string[] cacheNameParts = [
+            nameof(ContentItemRetrieverService),
+            nameof(RetrieveWebPageChildrenByPath),
+            typeof(T).Name,
+            $"path|{path}",
+            $"depth|{depth}",
+            $"lang|{parameters.LanguageName}",
+            $"preview|{parameters.IsForPreview}",
+            $"secured|{parameters.IncludeSecuredItems}"
+        ];
 
-    var cacheItemNameParts = retrieverCacheConfig.CustomCacheNameParts is not null
-        ? startingNameParts.Concat(retrieverCacheConfig.CustomCacheNameParts).ToArray()
-        : startingNameParts.Concat(defaultNameParts).ToArray();
+    var cacheSettings = CreateCacheSettings(cacheNameParts, cacheConfig);
 
-    return await progressiveCache.LoadAsync(async (cacheSettings) =&gt;
-        {
-            cacheSettings.Cached = IsCacheEnabled();
-
-            var webPages = await RetrieveWebPageChildrenByPath(parentPageContentTypeName, parentPagePath, customContentTypeQueryParameters, depth);
-
-            if (webPages.Count() &gt; 0)
-                cacheSettings.CacheDependency = await GetCacheDependencyForWebPages(webPages, depth, retrieverCacheConfig.ExtraDependencyKeys, true);
-
-            return webPages;
-        },
-        new CacheSettings(cacheMinutes: retrieverCacheConfig.CacheMinutes,
-                        useSlidingExpiration: retrieverCacheConfig.UseSlidingExpiration,
-                        cacheItemNameParts: cacheItemNameParts));
+    return await contentRetriever.RetrievePages&lt;T&gt;(
+        parameters: parameters,
+        additionalQueryConfiguration: queryParameters,
+        cacheSettings: cacheSettings);
 }
 ...
 </code></pre>
@@ -656,7 +610,7 @@ public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
 <div>
 <span>C#</span>
 </div>
-<strong>ContentItemRetrieverService.cs</strong>
+<strong>IContentItemRetrieverService.cs</strong>
 </div>
 <div>
 <button>
@@ -666,57 +620,70 @@ public async Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
 </div>
 <div>
 <pre><code>
-using CMS.ContentEngine;
+using CMS.Websites;
+using Kentico.Content.Web.Mvc;
 
 namespace DancingGoat.Web.Services.Shared;
 
-public interface IContentItemRetrieverService&lt;T&gt; where T : IContentItemFieldsSource
+public interface IContentItemRetrieverService
 {
     /// &lt;summary&gt;
     /// Retrieves the first web page item of the provided type.
     /// &lt;/summary&gt;
-    /// &lt;param name="contentTypeName"Content type name of the Web page.&gt;&lt;/param&gt;
     /// &lt;param name="depth"&gt;The maximum level of recursively linked content items that should be included in the results. Default value is 1.&lt;/param&gt;
-    /// &lt;param name="contentItemRetrieverServiceCacheSettings"&gt;Settings to determine how the page data is cached.&lt;/param&gt;
-    /// &lt;returns&gt;&lt;/returns&gt;
-    public Task&lt;T?&gt; RetrieveFirstWebPageOfType(
-        string contentTypeName,
+    /// &lt;param name="queryParameters"&gt;Optional parameters to customize the query.&lt;/param&gt;
+    /// &lt;param name="includeSecuredItems"&gt;If true, secured items will be included in the results. Default is true.&lt;/param&gt;
+    /// &lt;param name="languageName"&gt;The language to query. If null, the language will be inferred from the URL of the current request.&lt;/param&gt;
+    /// &lt;param name="cacheConfig"&gt;Settings to determine how the page data is cached.&lt;/param&gt;
+    /// &lt;returns&gt;The first web page content item of the specified type, or null if not found.&lt;/returns&gt;
+    Task&lt;T?&gt; RetrieveFirstWebPageOfType&lt;T&gt;(
         int depth = 1,
-        ContentItemRetrieverServiceCacheConfig? contentItemRetrieverServiceCacheSettings = null);
+        Action&lt;RetrievePagesQueryParameters&gt;? queryParameters = null,
+        bool includeSecuredItems = true,
+        string? languageName = null,
+        ContentItemRetrieverServiceCacheConfig? cacheConfig = null)
+        where T : IWebPageFieldsSource, new(); 
 
     /// &lt;summary&gt;
-    /// Retrieves a web page item based on the provided Guid.
+    /// Retrieves the current page using ContentRetriever API
     /// &lt;/summary&gt;
-    /// &lt;param name="webPageItemGuid"&gt;The Guid of the Web page content item.&lt;/param&gt;
-    /// &lt;param name="contentTypeName"&gt;Content type name of the Web page.&lt;/param&gt;
     /// &lt;param name="depth"&gt;The maximum level of recursively linked content items that should be included in the results. Default value is 1.&lt;/param&gt;
-    /// &lt;param name="contentItemRetrieverServiceCacheSettings"&gt;Settings to determine how the page data is cached.&lt;/param&gt;
-    /// &lt;returns&gt;A Web page content item of specified type, with the specified Id&lt;/returns&gt;
-    public Task&lt;T?&gt; RetrieveWebPageByGuid(Guid webPageItemGuid,
-        string contentTypeName,
+    /// &lt;param name="queryParameters"&gt;Optional parameters to customize the query.&lt;/param&gt;
+    /// &lt;param name="includeSecuredItems"&gt;If true, secured items will be included in the results. Default is true.&lt;/param&gt;
+    /// &lt;param name="languageName"&gt;The language to query. If null, the language will be inferred from the URL of the current request.&lt;/param&gt;
+    /// &lt;param name="cacheConfig"&gt;Settings to determine how the page data is cached.&lt;/param&gt;
+    /// &lt;returns&gt;The current web page content item of the specified type, or null if not found.&lt;/returns&gt;
+    Task&lt;T?&gt; RetrieveCurrentPage&lt;T&gt;(
         int depth = 1,
-        ContentItemRetrieverServiceCacheConfig? contentItemRetrieverServiceCacheSettings = null);
+        Action&lt;RetrieveCurrentPageQueryParameters&gt;? queryParameters = null,
+        bool includeSecuredItems = true,
+        string? languageName = null,
+        ContentItemRetrieverServiceCacheConfig? cacheConfig = null)
+        where T : IWebPageFieldsSource, new();
 
     /// &lt;summary&gt;
     /// Retrieves the child pages of a given web page tree path.
     /// &lt;/summary&gt;
-    /// &lt;param name="parentPageContentTypeName"&gt;Content type name of the parent page.&lt;/param&gt;
-    /// &lt;param name="parentPagePath"&gt;Path of the parent page.&lt;/param&gt;
-    /// &lt;param name="customContentTypeQueryParameters"&gt;Parameters to further filter the query.&lt;/param&gt;
+    /// &lt;param name="path"&gt;Path of the parent page whose children should be retrieved.&lt;/param&gt;
     /// &lt;param name="depth"&gt;The maximum level of recursively linked content items that should be included in the results. Default value is 1.&lt;/param&gt;
-    /// &lt;param name="contentItemRetrieverServiceCacheSettings"&gt;Settings to determine how the page data is cached.&lt;/param&gt;
-    /// &lt;returns&gt;&lt;/returns&gt;   
-    public Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath(
-        string parentPageContentTypeName,
-        string parentPagePath,
-        Action&lt;ContentTypeQueryParameters&gt;? customContentTypeQueryParameters,
+    /// &lt;param name="includeSecuredItems"&gt;If true, secured items will be included in the results. Default is true.&lt;/param&gt;
+    /// &lt;param name="additionalQueryConfiguration"&gt;Optional parameters to further customize the query.&lt;/param&gt;
+    /// &lt;param name="languageName"&gt;The language to query. If null, the language will be inferred from the URL of the current request.&lt;/param&gt;
+    /// &lt;param name="cacheConfig"&gt;Settings to determine how the page data is cached.&lt;/param&gt;
+    /// &lt;returns&gt;An enumerable collection of child web page content items of the specified type.&lt;/returns&gt;   
+    public Task&lt;IEnumerable&lt;T&gt;&gt; RetrieveWebPageChildrenByPath&lt;T&gt;(
+        string path,
         int depth = 1,
-        ContentItemRetrieverServiceCacheConfig? contentItemRetrieverServiceCacheSettings = null);
+        bool includeSecuredItems = true,
+        Action&lt;RetrievePagesQueryParameters&gt;? queryParameters = null,
+        string? languageName = null,
+        ContentItemRetrieverServiceCacheConfig? cacheConfig = null)
+        where T : IWebPageFieldsSource, new();
 }
 </code></pre>
 </div>
 
-<p>Now, register the <code>ContentItemRetrieverService&lt;T&gt;</code> class as the implementation of this interface with the DI container in the <code>ServiceCollectionExtensions</code> class.</p>
+<p>Now, register the <code>ContentItemRetrieverService</code> class as the implementation of this interface with the DI container in the <code>ServiceCollectionExtensions</code> class.</p>
 
 <div>
 <div>
@@ -743,7 +710,7 @@ namespace DancingGoat
         public static void AddDancingGoatServices(this IServiceCollection services)
         {
             ...
-            services.AddTransient(typeof(IContentItemRetrieverService&lt;&gt;), typeof(ContentItemRetrieverService&lt;&gt;));
+            services.AddTransient&lt;IContentItemRetrieverService, ContentItemRetrieverService&gt;();
             ...
         }
         ...
@@ -773,7 +740,7 @@ namespace DancingGoat
 <div>
 <pre><code>
 ...
-// Populated with Dependency Injection
+// Populated with dependency injection
 private readonly IPageRetriever pageRetriever;
 ...
 /// &lt;summary&gt;
@@ -792,7 +759,8 @@ public Contact GetCompanyContact()
 </code></pre>
 </div>
 
-<p>With the <code>RetrieveFirstWebPageOfType</code> method, we can replicate this functionality here. Add a new file located at <em>~/Models/Contacts/</em> in the <em>DancingGoat.Web</em> project, or copy and modify the repository from KX13.</p>
+<p>With the <code>RetrieveFirstWebPageOfType</code> method, we can replicate this functionality here. Add a new file located at <em>~/Models/Contacts/</em> in the <em>DancingGoat.Web</em> project, or copy and modify the repository file from KX13.</p>
+<p>Extend the existing cache suffix with the name of the method and the repository.</p>
 
 <div>
 <div>
@@ -809,24 +777,29 @@ public Contact GetCompanyContact()
 </div>
 <div>
 <pre><code>
-...
-// Use dependency injection to populate this.
-private readonly IContentItemRetrieverService&lt;Contact&gt; contentItemRetriever;
-...
-/// &lt;summary&gt;
-/// Returns company's contact information.
-/// &lt;/summary&gt;
-public async Task&lt;Contact?&gt; GetCompanyContact()
+using DancingGoat.Web.Services.Shared;
+using DancingGoatCore;
+
+namespace DancingGoat.Models;
+
+public class ContactRepository
 {
-    return await contentItemRetriever.RetrieveFirstWebPageOfType(
-        Contact.CONTENT_TYPE_NAME,
-        contentItemRetrieverServiceCacheSettings: new()
-        {
-            CustomCacheNameParts = [nameof(ContactRepository), nameof(GetCompanyContact)]
-        }
-    );
+    // Use dependency injection to populate this service
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
+
+    ...
+
+    public async Task&lt;Contact?&gt; GetCompanyContact()
+    {
+        return await contentItemRetrieverService.RetrieveFirstWebPageOfType&lt;Contact&gt;(
+            cacheConfig: new()
+            {
+                CacheExpiration = 30,
+                ExtraCacheNameParts = [nameof(ContactRepository), nameof(GetCompanyContact)]
+            }
+        );
+    }
 }
-...
 </code></pre>
 </div>
 
@@ -849,7 +822,7 @@ public async Task&lt;Contact?&gt; GetCompanyContact()
 <div>
 <pre><code>
 ...
-// Use Dependency Injection to populate this.
+// Use dependency injection to populate this.
 private readonly IPageRetriever pageRetriever;
 
 ...
@@ -894,41 +867,39 @@ public IEnumerable&lt;Cafe&gt; GetCompanyCafes(string nodeAliasPath, int count =
 <pre><code>
 using DancingGoat.Web.Services.Shared;
 using DancingGoatCore;
+using Kentico.Content.Web.Mvc;
 
-namespace DancingGoat.Models
+namespace DancingGoat.Models;
+
+public partial class CafeRepository
 {
-    /// &lt;summary&gt;
-    /// Represents a collection of cafes.
-    /// &lt;/summary&gt;
-    public partial class CafeRepository
+    // Use dependency injection to populate this service
+    private readonly IContentItemRetrieverService contentItemRetrieverService;
+
+    ...
+
+    public async Task&lt;IEnumerable&lt;Cafe&gt;&gt; GetCompanyCafes(string parentPagePath, int count = 0)
     {
-        // Use Dependency Injection to populate this.
-        private readonly IContentItemRetrieverService&lt;Cafe&gt; cafeRetrieverService;
+        Action&lt;RetrievePagesQueryParameters&gt; queryConfig = count &gt; 0
+            ? config =&gt; config
+                .TopN(count)
+                .Where(where =&gt; where.WhereTrue(nameof(Cafe.CafeIsCompanyCafe)))
+                .OrderBy(nameof(Cafe.SystemFields.WebPageItemOrder))
+            : config =&gt; config
+                .Where(where =&gt; where.WhereTrue(nameof(Cafe.CafeIsCompanyCafe)))
+                .OrderBy(nameof(Cafe.SystemFields.WebPageItemOrder));
 
-        ...
-
-        /// &lt;summary&gt;
-        /// Returns an enumerable collection of company cafes ordered by a position in the content tree.
-        /// &lt;/summary&gt;
-        /// &lt;param name="parentPagePath"&gt;The node alias path of the articles section in the content tree.&lt;/param&gt;
-        /// &lt;param name="count"&gt;The number of cafes to return. Use 0 as value to return all records.&lt;/param&gt;
-        public async Task&lt;IEnumerable&lt;Cafe&gt;&gt; GetCompanyCafes(string parentPagePath, int count = 0)
-        {
-            return await cafeRetrieverService.RetrieveWebPageChildrenByPath(
-                Cafe.CONTENT_TYPE_NAME,
-                parentPagePath,
-                config =&gt; config
-                        .TopN(count)
-                        .Where(where =&gt; where.WhereTrue(nameof(Cafe.CafeIsCompanyCafe)))
-                        .WithLinkedItems(3)
-                        .OrderBy(nameof(Cafe.SystemFields.WebPageItemOrder)),
-                1,
-                new()
-                {
-                    CustomCacheNameParts = [nameof(CafeRepository), nameof(GetCompanyCafes), parentPagePath, count.ToString()],
-                }
-            );
-        }
+        var pages = await contentItemRetrieverService.RetrieveWebPageChildrenByPath&lt;Cafe&gt;(
+            parentPagePath,
+            depth: 3,
+            queryParameters: queryConfig,
+            cacheConfig: new()
+            {
+                CacheExpiration = 30,
+                ExtraCacheNameParts = [nameof(CafeRepository), nameof(GetCompanyCafes), $"count|{count}"],
+            }
+        );
+        return pages;
     }
 }
 </code></pre>
@@ -961,7 +932,7 @@ namespace DancingGoat.Models
 <div>
 <pre><code>
 ...
-// Populated with Dependency Injection.
+// Populated with dependency injection.
 private readonly ICountryInfoProvider countryInfoProvider;
 private readonly IStateInfoProvider stateInfoProvider;
 private readonly RepositoryCacheHelper repositoryCacheHelper;
@@ -998,7 +969,7 @@ public StateInfo GetState(string stateName)
 </div>
 
 <p>With Xperience by Kentico’s new generic-typed info provider, we can make these data retrieval methods asynchronous.</p>
-<p>For the sake of brevity, we’ll add object caching directly in the repository code instead of recreating the <code>RepositoryCacheHelper</code> class from KX13.</p>
+<p>For the sake of brevity, we’ll add object caching directly in the repository code instead of recreating the <code>RepositoryCacheHelper</code> class from KX13. In your real-world projects, consider using a dedicated class.</p>
 <p>Add a new <em>CountryRepository.cs</em> file located at <em>~/Models/Contacts/</em> in the <em>DancingGoat.Web</em> project, or copy and modify the repository from KX13.</p>
 
 <div>
@@ -1016,60 +987,53 @@ public StateInfo GetState(string stateName)
 </div>
 <div>
 <pre><code>
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using CMS.DataEngine;
-
 using CMS.Globalization;
 using CMS.Helpers;
 
-// using DancingGoat.Infrastructure;
+namespace DancingGoat.Models;
 
-namespace DancingGoat.Models
+/// &lt;summary&gt;
+/// Represents a collection of countries and states.
+/// &lt;/summary&gt;
+public class CountryRepository
 {
+    // Use dependency injection to populate these services
+    private readonly IInfoProvider&lt;CountryInfo&gt; countryInfoProvider;
+    private readonly IInfoProvider&lt;StateInfo&gt; stateInfoProvider;
+    private readonly IProgressiveCache progressiveCache;
+
+    ...
+
     /// &lt;summary&gt;
-    /// Represents a collection of countries and states.
+    /// Returns the country with the specified code name.
     /// &lt;/summary&gt;
-    public class CountryRepository
-    {
+    /// &lt;param name="countryName"&gt;The code name of the country.&lt;/param&gt;
+    /// &lt;returns&gt;The country with the specified code name, if found; otherwise, null.&lt;/returns&gt;
+    public async Task&lt;CountryInfo?&gt; GetCountry(string countryName) =&gt;
+        await progressiveCache.LoadAsync(async cacheSettings =&gt;
+        {
+            var result = await countryInfoProvider.GetAsync(countryName);
 
-        // Use Dependency Injection to populate these.
-        private readonly IInfoProvider&lt;CountryInfo&gt; countryInfoProvider;
-        private readonly IInfoProvider&lt;StateInfo&gt; stateInfoProvider;
-        private readonly IProgressiveCache progressiveCache;
+            cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"cms.country|byid|{result?.CountryID ?? 0}");
 
-        ...
+            return result;
+        }, new CacheSettings(10, true, [nameof(CountryRepository), nameof(GetCountry), countryName]));
 
-        /// &lt;summary&gt;
-        /// Returns the country with the specified code name.
-        /// &lt;/summary&gt;
-        /// &lt;param name="countryName"&gt;The code name of the country.&lt;/param&gt;
-        /// &lt;returns&gt;The country with the specified code name, if found; otherwise, null.&lt;/returns&gt;
-        public async Task&lt;CountryInfo?&gt; GetCountry(string countryName)=&gt; 
-            await progressiveCache.LoadAsync(async cacheSettings =&gt;
-            {
-                var result = await countryInfoProvider.GetAsync(countryName);
+    /// &lt;summary&gt;
+    /// Returns the state with the specified code name.
+    /// &lt;/summary&gt;
+    /// &lt;param name="stateName"&gt;The code name of the state.&lt;/param&gt;
+    /// &lt;returns&gt;The state with the specified code name, if found; otherwise, null.&lt;/returns&gt;
+    public async Task&lt;StateInfo?&gt; GetState(string stateName) =&gt;
+        await progressiveCache.LoadAsync(async cacheSettings =&gt;
+        {
+            var result = await stateInfoProvider.GetAsync(stateName);
 
-                cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"cms.country|byid|{result?.CountryID ?? 0}");
+            cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"cms.state|byid|{result?.StateID ?? 0}");
 
-                return result;
-            }, new CacheSettings(10, true, [nameof(CountryRepository), nameof(GetCountry), countryName]));
-
-        /// &lt;summary&gt;
-        /// Returns the state with the specified code name.
-        /// &lt;/summary&gt;
-        /// &lt;param name="stateName"&gt;The code name of the state.&lt;/param&gt;
-        /// &lt;returns&gt;The state with the specified code name, if found; otherwise, null.&lt;/returns&gt;
-        public async Task&lt;StateInfo?&gt; GetState(string stateName) =&gt;
-            await progressiveCache.LoadAsync(async cacheSettings =&gt;
-            {
-                var result = await stateInfoProvider.GetAsync(stateName);
-
-                cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"cms.state|byid|{result?.StateID ?? 0}");
-
-                return result;
-            }, new CacheSettings(10, true, [nameof(CountryRepository), nameof(GetState), stateName]));
-    }
+            return result;
+        }, new CacheSettings(10, true, [nameof(CountryRepository), nameof(GetState), stateName]));
 }
 </code></pre>
 </div>
@@ -1091,7 +1055,7 @@ namespace DancingGoat.Models
 </div>
 </div>
 <div>
-<pre><code>
+<pre data-line="4-6"><code>
 ...
 private static void AddRepositories(IServiceCollection services)
 {
@@ -1107,7 +1071,7 @@ private static void AddRepositories(IServiceCollection services)
 <h2 id="display-the-page">Display the page</h2>
 <p>Now that we’ve handled data retrieval, let’s make sure the page displays.</p>
 <h3 id="view-models">View models</h3>
-<p>The view models in the Dancing Goat KX13 project are more than just DTOs; they contain static methods to construct the view model based on Xperience objects. Let’s bring over the view models we need for displaying the <em>Contacts</em> page.</p>
+<p>Many of the view models in the Dancing Goat KX13 project are more than just DTOs; they contain static methods to construct the view model based on Xperience objects. Let’s bring over the view models we need for displaying the <em>Contacts</em> page.</p>
 <h4 id="contact-view-model">Contact view model</h4>
 
 <div>
@@ -1117,7 +1081,7 @@ private static void AddRepositories(IServiceCollection services)
 <p>The KX13 version of Dancing Goat customizes the generated classes for <code>Contact</code> and <code>Cafe</code> so that they both implement an interface called <code>IContact</code>. This is still possible in Xperience by Kentico, but will be left out of this example for the sake of brevity.</p>
 </div>
 
-<p>In the <em>~/Models/Contacts/</em> folder of the <em>DancingGoat.Web</em> project, create a new file for the Contact view model.</p>
+<p>In the <em>~/Models/Contacts/</em> folder of the <em>DancingGoat.Web</em> project, create a new file for the Contact view model and copy the <em>CountryStateName.cs</em> file from KX13.</p>
 <p>Copy the contents of the <code>ContactViewModel</code> from the corresponding file in KX13, providing default values for the properties and changing the <code>GetViewModel</code> class to take a <code>Contact</code> parameter instead of <code>IContact</code>.</p>
 
 <div>
@@ -1197,9 +1161,9 @@ public class ContactViewModel
 </div>
 
 <h4 id="cafe-view-model">Cafe view model</h4>
-<p>In the <em>~/Models/Cafes/</em> folder of <em>DancingGoat.Web</em>, create a new file for the Cafe view model.</p>
-<p>Copy over the contents of the corresponding file from KX13, and replace the <code>ContactViewModel</code> property with direct address properties. This change is necessary due to the absence of <code>IContact</code> discussed earlier.</p>
-<p>Then set default values for all the properties and adjust the <code>GetViewModel</code> method to populate the new properties.</p>
+<p>In the <em>~/Models/Cafes/</em> folder of <em>DancingGoat.Web</em>, copy <em>CafeViewModel.cs</em> files from KX13.</p>
+<p>In the cafe view model, replace the <code>ContactViewModel</code> property with direct address properties. This change is necessary due to the absence of <code>IContact</code> discussed earlier.</p>
+<p>Then set default values for all the properties and adjust the <code>GetViewModel</code> method to populate the new properties based on the XbyK content types.</p>
 
 <div>
 <div>
@@ -1257,7 +1221,7 @@ public class CafeViewModel
 
         return new CafeViewModel
         {
-            PhotoPath = photo?.Asset.Url ?? string.Empty,
+            PhotoPath = photo?.LegacyAttachmentAsset?.Url ?? string.Empty,
             Note = cafe.CafeAdditionalNotes,
             City = cafe.CafeCity,
             Name = cafe.CafeName,
@@ -1286,11 +1250,42 @@ public class CafeViewModel
 <p>The other is to remove <em>Legacy media file</em> as an allowed content type in the Xperience UI and <strong>re-generate code files</strong>. Then, the property will be strongly-typed and will not need casting. This option is more robust, but requires extra steps, so we opted for the quicker alternative in this walkthrough.</p>
 </div>
 
+<h4 id="contact-index-view-model">Contact index view model</h4>
+<p>The contact index view model aggregates the company’s contact info with a list of cafes, and does not have any special logic. You can copy <em>ContactsIndexViewModel.cs</em> from KX13 and add default values for its properties.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ContactsIndexViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace DancingGoat.Models
+{
+    public class ContactsIndexViewModel
+    {
+        public ContactViewModel CompanyContact { get; set; } = new();
+
+        public List&lt;CafeViewModel&gt; CompanyCafes { get; set; } = [];
+    }
+}
+</code></pre>
+</div>
+
 <h3 id="views">Views</h3>
 <p>The Contacts page in the KX13 Dancing Goat is rendered by the <em>~/Views/Contacts/Index.cshtml</em> view.</p>
 <h4 id="contacts-view">Contacts view</h4>
 <p>Copy this view into the same location within the <em>DancingGoat.Web</em> project in your Xperience by Kentico solution.</p>
-<p>Thanks to the <em>ViewStart</em> and <em>ViewImports</em> files we set up in <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough/adjust-global-code#shared-views">the global code guide</a>, very little change is necessary. Simply rename the <code>HtmlLocalizer</code> service to <code>localizer</code>, as specified in the <em>ViewImports</em> file.</p>
+<p>Then copy *~/Views/Shared/_GoogleMaps.cshtml* from KX13 into the corresponding folder in XbyK’s <em>DancingGoat.Web</em> project. This partial view is rendered by the Index view, and can be left unaltered.</p>
+<p>As for the Index view, thanks to the <em>ViewStart</em> and <em>ViewImports</em> files we set up in <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough/adjust-global-code#shared-views">the global code guide</a>, only small changes are necessary. Simply rename the <code>HtmlLocalizer</code> service to <code>localizer</code>, as specified in the <em>ViewImports</em> file.</p>
 
 <div>
 <div>
@@ -1413,63 +1408,61 @@ using Microsoft.Extensions.Localization;
     Contacts.CONTENT_TYPE_NAME,
     typeof(ContactsController))]
 
-namespace DancingGoat.Controllers
+namespace DancingGoat.Controllers;
+public class ContactsController : Controller
 {
-    public class ContactsController : Controller
+    private readonly ContactRepository contactRepository;
+    private readonly CountryRepository countryRepository;
+    private readonly CafeRepository cafeRepository;
+    private readonly IStringLocalizer&lt;SharedResources&gt; localizer;
+
+    public ContactsController(ContactRepository contactRepository, 
+        CountryRepository countryRepository,
+        CafeRepository cafeRepository,
+        IStringLocalizer&lt;SharedResources&gt; localizer)
     {
-        private readonly ContactRepository contactRepository;
-        private readonly CountryRepository countryRepository;
-        private readonly CafeRepository cafeRepository;
-        private readonly IStringLocalizer&lt;SharedResources&gt; localizer;
+        this.countryRepository = countryRepository;
+        this.contactRepository = contactRepository;
+        this.cafeRepository = cafeRepository;
+        this.localizer = localizer;
+    }
 
-        public ContactsController(ContactRepository contactRepository, 
-            CountryRepository countryRepository,
-            CafeRepository cafeRepository,
-            IStringLocalizer&lt;SharedResources&gt; localizer)
+    public async Task&lt;IActionResult&gt; Index()
+    {
+        var model = await GetIndexViewModel();
+
+        return View(model);
+    }
+
+    private async Task&lt;ContactsIndexViewModel&gt; GetIndexViewModel()
+    {
+        var cafes = await cafeRepository.GetCompanyCafes(ContentItemIdentifiers.CAFES, 5);
+
+        return new ContactsIndexViewModel
         {
-            this.countryRepository = countryRepository;
-            this.contactRepository = contactRepository;
-            this.cafeRepository = cafeRepository;
-            this.localizer = localizer;
+            CompanyContact = await GetCompanyContactModel(),
+            CompanyCafes = await GetCompanyCafesModel(cafes)
+        };
+    }
+
+    private async Task&lt;ContactViewModel&gt; GetCompanyContactModel()
+    {
+        var contact = await contactRepository.GetCompanyContact();
+        return contact is not null 
+            ? await ContactViewModel.GetViewModel(contact, countryRepository, localizer)
+            : new ContactViewModel();
+    }
+
+    private async Task&lt;List&lt;CafeViewModel&gt;&gt; GetCompanyCafesModel(IEnumerable&lt;Cafe&gt; cafes)
+    {
+        List&lt;CafeViewModel&gt; cafeModels = new();
+
+        foreach (Cafe cafe in cafes)
+        {
+            cafeModels.Add(await CafeViewModel.GetViewModel(cafe, countryRepository, localizer));
         }
 
-        public async Task&lt;IActionResult&gt; Index()
-        {
-            var model = await GetIndexViewModel();
-
-            return View(model);
-        }
-
-        private async Task&lt;ContactsIndexViewModel&gt; GetIndexViewModel()
-        {
-            var cafes = await cafeRepository.GetCompanyCafes(ContentItemIdentifiers.CAFES, 4);
-
-            return new ContactsIndexViewModel
-            {
-                CompanyContact = await GetCompanyContactModel(),
-                CompanyCafes = await GetCompanyCafesModel(cafes)
-            };
-        }
-
-        private async Task&lt;ContactViewModel&gt; GetCompanyContactModel()
-        {
-            var contact = await contactRepository.GetCompanyContact();
-            return contact is not null 
-                ? await ContactViewModel.GetViewModel(contact, countryRepository, localizer)
-                : new ContactViewModel();
-        }
-
-        private async Task&lt;List&lt;CafeViewModel&gt;&gt; GetCompanyCafesModel(IEnumerable&lt;Cafe&gt; cafes)
-        {
-            List&lt;CafeViewModel&gt; cafeModels = new();
-
-            foreach (Cafe cafe in cafes)
-            {
-                cafeModels.Add(await CafeViewModel.GetViewModel(cafe, countryRepository, localizer));
-            }
-
-            return cafeModels;
-        }
+        return cafeModels;
     }
 }
 </code></pre>
@@ -1555,8 +1548,8 @@ namespace DancingGoat.Sections
 </code></pre>
 </div>
 
-<p>Now, copy <em>ComponentIdentifiers.cs</em> and <em>PageBuilderComponentRegister.cs</em> from the <em>~/Components/</em> folder in KX13 into the corresponding folder in XbyK.</p>
-<p>In each file, comment out or remove everything except for the line referencing the single column section.</p>
+<p>Now, in the <em>ComponentIdentifiers.cs</em> file that you <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough/adjust-global-code#identifiers">copied earlier</a>, un-comment the <code>SINGLE_COLUMN_SECTION</code> constant.</p>
+<p>Then copy <em>PageBuilderComponentRegister.cs</em> from the <em>~/Components/</em> folder in KX13 into the corresponding folder in XbyK, and comment out everything except for the <code>RegisterSection</code> attribute that registers the single column section.</p>
 
 <div>
 <div>
@@ -1609,6 +1602,46 @@ using Kentico.PageBuilder.Web.Mvc;
 
 // Sections
 [assembly: RegisterSection(ComponentIdentifiers.SINGLE_COLUMN_SECTION, "Single column", typeof(ThemeSectionProperties), "~/Components/Sections/_DancingGoat_SingleColumnSection.cshtml", Description = "Single-column section with one zone.", IconClass = "icon-square")]
+</code></pre>
+</div>
+
+<h3 id="page-builder-registration">Page builder registration</h3>
+<p>Finally, for our page builder section to work, we need to enable Page Builder for the <em>contacts</em> content type.</p>
+<p>Use the <code>UserPageBuilder</code> extension within the <code>IFeaturesBuilder</code> action of the <code>UseKentico</code> service collection extension method.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using DancingGoat;
+using DancingGoatCore;
+using Kentico.Content.Web.Mvc.Routing;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Web.Mvc;
+
+...
+builder.Services.AddKentico(features =&gt;
+{
+    features.UsePageBuilder(new PageBuilderOptions {
+        ContentTypeNames = new[] {
+            Contacts.CONTENT_TYPE_NAME,
+        }
+    });
+
+    ...
+});
+...
 </code></pre>
 </div>
 

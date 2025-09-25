@@ -649,6 +649,7 @@ ContentItemAsset asset = myAsset.ImageFile;
 if (asset.Metadata.Variants.ContainsKey("Hero")){
     int variantWidth = asset.Metadata.Variants["Hero"].Width;
     int variantHeight = asset.Metadata.Variants["Hero"].Height;
+    string variantType = asset.metadata.Variants["Hero"].TransformationType;
     string variantUrl = asset.VariantUrls["Hero"];
 }
 

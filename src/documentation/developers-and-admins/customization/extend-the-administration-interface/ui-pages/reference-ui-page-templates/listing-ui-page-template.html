@@ -181,21 +181,25 @@ public override Task ConfigurePage()
 </div>
 </div>
 <div>
-<pre data-line="12-13"><code>
+<pre data-line="15-16"><code>
 public override Task ConfigurePage()
 {
     PageConfiguration
         .TableActions
             .AddCommandWithConfirmation
                 (
-                    label: "Title",
-                    command: nameof(DoSomething),
-                    icon: Icons.ArrowsCrooked,
-                    // Providing these properties raises a confirmation dialog
-                    // when a user invokes the corresponding action
-                    confirmation: "Are you sure you want to do this?",
-                    confirmationButton: "Yes, please"
-                );
+                    new AddCommandParameters(commandName: nameof(DoSomething), label: "Title")
+                    {
+                        Icon = Icons.ArrowsCrooked,
+                        Title = "Text of the tooltip.",
+                        // Providing these properties raises a confirmation dialog
+                        // when a user invokes the corresponding action
+                        ConfirmationParameters = new ConfirmationWithContentParameters
+                        {
+                            Confirmation = "What do you want to do?",
+                            ConfirmationButton = "This, please",
+                        }
+                    });
 }
 </code></pre>
 </div>
@@ -248,23 +252,27 @@ public class ConfirmationDialogFormModel
 </div>
 </div>
 <div>
-<pre data-line="15"><code>
+<pre data-line="18"><code>
 public override Task ConfigurePage()
 {
     PageConfiguration
         .TableActions
             .AddCommandWithConfirmation
                 (
-                    label: "Title",
-                    command: nameof(DoSomething),
-                    icon: Icons.ArrowsCrooked,
-                    // Providing these properties raises a confirmation dialog
-                    // when a user invokes the corresponding action
-                    confirmation: "What do you want to do?",
-                    confirmationButton: "This, please",
-                    // Setting the confirmation model displays a dialog with form
-                    confirmationModel: typeof(ConfirmationDialogFormModel)
-                );
+                    new AddCommandParameters(commandName: nameof(DoSomething), label: "Title")
+                    {
+                        Icon = Icons.ArrowsCrooked,
+                        Title = "Text of the tooltip.",
+                        // Providing these properties raises a confirmation dialog
+                        // when a user invokes the corresponding action
+                        ConfirmationParameters = new ConfirmationWithContentParameters
+                        {
+                            Confirmation = "What do you want to do?",
+                            ConfirmationButton = "This, please",
+                            // Setting the confirmation model displays a dialog with form
+                            confirmationModel: typeof(ConfirmationDialogFormModel)
+                        }
+                    });
 }
 </code></pre>
 </div>
@@ -624,11 +632,22 @@ private async Task&lt;bool&gt; UserHasUpdatePermission()
 <p>The listing template supports loading React components inside dedicated columns within the grid via the <code>AddComponentColumn</code> extension method of the <code>PageConfiguration.ColumnConfigurations</code> object.</p>
 <p>The method takes identical parameters as <a href="#format-displayed-data">AddColumn</a>, with the following additions:</p>
 <ul>
-<li><p><strong>string componentKey</strong> – the name of the React component to be displayed. Provide a full name in the <em>{orgName}/{projectName}/component</em> format, as specified when you <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/prepare-your-environment-for-admin-development">set up your custom admin JS module</a>. Make sure the component is exported (visible to other modules). For example: <em>@acme/web-admin-custom/MyComponent</em><br>
-When loading the component, the client application suffixes the provided value with <code>TableCellComponent</code>. For the provided example, the client React component must be named <code>MyComponentTableCellComponent</code>.</p></li>
-<li><p><strong>bool loadedExternally</strong> – indicates whether data present in the column is loaded externally (not a property of the <em>*Info</em> object being listed). For example, via a separate <a href="/documentation/developers-and-admins/api/objectquery-api">ObjectQuery call</a> from a different object.</p></li>
 <li>
-<p><strong>Func&lt;object, IDataContainer, object&gt; modelRetriever</strong> – a function that provides the props for the front-end component to be displayed. The component props data must be wrapped in a dedicated class (for serialization and transfer to the client admin application).</p>
+<strong>string componentKey</strong> – the name of the React component to be displayed. Provide a full name in the <em>{orgName}/{projectName}/component</em> format, as specified when you <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/prepare-your-environment-for-admin-development">set up your custom admin JS module</a>. Make sure the component is exported (visible to other modules). For example: <em>@acme/web-admin-custom/MyComponent</em>.<br>
+
+
+<div>
+
+</div>
+<div>
+<p><strong>Component naming</strong></p>
+When loading the component, the client application suffixes the provided value with <code>TableCellComponent</code>. For the provided example, the client React component must be named <code>MyComponentTableCellComponent</code>.
+</div>
+</li>
+<li>
+<strong>bool loadedExternally</strong> – indicates whether data present in the column is loaded externally (not a property of the <em>*Info</em> object being listed). For example, via a separate <a href="/documentation/developers-and-admins/api/objectquery-api">ObjectQuery call</a> from a different object.</li>
+<li>
+<strong>Func&lt;object, IDataContainer, object&gt; modelRetriever</strong> – a function that provides the props for the front-end component to be displayed. The component props data must be wrapped in a dedicated class (for serialization and transfer to the client admin application).
 <ul>
 <li>
 <strong>object</strong> – the localized (if localizable) and formatted (if a formatter was provided) value of the column to be listed. Empty if the <code>loadedExternally</code> flag is <code>true</code>.</li>

@@ -25,6 +25,17 @@
 <h4 id="global-event-handlers">Global event handlers</h4>
 <p><a href="/documentation/developers-and-admins/customization/handle-global-events">Global event handlers</a> execute whenever Xperience raises the events to which they are registered. Typically, this happens when Xperience inserts, updates, or deletes <a href="/documentation/developers-and-admins/customization/handle-global-events/handle-object-events">an object of a given type</a>. Xperience also raises events for other scenarios, like <a href="/documentation/developers-and-admins/customization/handle-global-events/reference-global-system-events#workflow-events">when a page changes workflow steps</a> or <a href="/documentation/developers-and-admins/customization/handle-global-events/reference-global-system-events#dataprotectionevents">when a contact revokes consent</a>.</p>
 <p>These events allow you to react to things that happen in Xperience that are relevant to your integration. For a small-scale example, you could integrate with an SMS service that sends a text message to a user whenever an important field on their account is updated. For a larger-scale example, you could synchronize records with a custom CRM whenever the corresponding object in Xperience changes.</p>
+<h4 id="custom-scheduled-tasks">Custom scheduled tasks</h4>
+<p><a href="/documentation/developers-and-admins/customization/scheduled-tasks">Scheduled tasks</a> allow you to execute custom code at regular intervals. This is ideal for tasks like processing data in bulk, or synchronizing Xperience with external systems.</p>
+<p>In integration scenarios, we recommend storing data in your Xperience instance and working with it there, synchronizing changes to the external system. If managing data in Xperience isn’t feasible, clearly define your “source of truth” (e.g., your ERP or another external system) and the process for content editors to manage each data type.</p>
+
+<div>
+
+</div>
+<div>
+<p>If the built-in scheduled tasks do not meet your requirements, you can look into external services like <a href="https://www.hangfire.io/" target="_blank">Hangfire</a> or <a href="https://www.quartz-scheduler.net/" target="_blank">Quartz.NET</a>.</p>
+</div>
+
 <h3 id="custom-module-classes">Custom module classes</h3>
 <p><a href="/documentation/developers-and-admins/customization/object-types">Custom module classes</a> are a vital part of most integrations. They store structured data that doesn’t work as content items in the database. Xperience’s <a href="/documentation/developers-and-admins/api/generate-code-files-for-system-objects">code generation functionality</a> makes them easy to work with in code and opens many possibilities for using them with features.</p>
 <p>For example, you could create a custom module class to mirror an object type from an external system, bind identifiers from that external system to Xperience objects, or represent a queue of Xperience objects that need to be synchronized.</p>
@@ -57,7 +68,7 @@
 <h4 id="graphql">GraphQL</h4>
 <p>If your integration involves an external application that needs to access data stored as headless content items in Xperience, then the built-in <a href="/documentation/developers-and-admins/configuration/headless-channel-management#graphql-api-endpoints">GraphQL API</a> may provide exactly what you need. It allows you to query headless content items and the linked reusable content they reference using GraphQL syntax.</p>
 <h2 id="examine-the-lucene-integration">Examine the Lucene integration</h2>
-<p>Let’s take a look at the requirements of the Lucene integration. For a proper search experience, it needs to do the following:</p>
+<p>Let’s examine an existing integration and consider how it uses these tools to meet each of its requirements. For a proper search experience, the Lucene integration needs to do the following:</p>
 <ol type="1">
 <li>Save information about what data to include in search indexes.</li>
 <li>Empower editors to define indexes with these specifications.</li>
@@ -80,8 +91,9 @@
 <p>Since search queries require input from the visitor, a controller action that handles POST requests best fits this scenario.</p>
 <p>The <em>examples</em> folder of the Lucene integration’s repository demonstrates this, with the <code>SearchController</code> class resolving services that use the integration’s code to query the indexes.</p>
 <h2 id="whats-next">What’s next?</h2>
-<p>Now that we’ve walked through the ways that the Lucene integration connects to Xperience by Kentico, you can treview the requirements of your next integration and consider whether the choices here make sense for you as well.</p>
+<p>Now that we’ve walked through the ways that the Lucene integration connects to Xperience by Kentico, you can review the requirements of your next integration and consider whether the choices here make sense for you as well.</p>
 <p>In the meantime, you can also check out the <a href="https://github.com/Kentico/xperience-by-kentico-lucene" target="_blank">Lucene integration’s repository</a> to see how its code ticks under the hood and read about how to use it in your project.</p>
+<p>If you haven’t already, we highly recommend looking over our <a href="/documentation/developers-and-admins/customization/stable-customization-guidelines">guidelines for stable customization</a>, to ensure that your implementations are smooth and reliable.</p>
 
 </body>
 </html>

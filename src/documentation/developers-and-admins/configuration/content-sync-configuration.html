@@ -104,8 +104,9 @@ if (builder.Environment.IsProduction())
 </div>
 
 <h3 id="content-staging-best-practices">Content staging best practices</h3>
-<p>You can use content sync with non-production environments (local development, QA, UAT) to transfer content during development. However, this is not recommended for stable, long-term editing and staging of content. Non-production environments do not have sufficient performance, availability, backup policies, etc.</p>
-<p>To set up a proper content staging environment, add the optional <strong>Staging</strong> (STG) deployment environment to your <a href="/documentation/developers-and-admins/saas/saas-service-plans">service plan</a>. The <em>Staging</em> environment provides a platform where editors and other staff can prepare content, and then transfer it to the production environment using content sync. Staging environments are designed to be nearly identical to production environments in most aspects, such as performance, availability, backup policies, and the option to set <a href="/documentation/developers-and-admins/configuration/website-channel-management#manage-channel-domains-in-xperience-portal">custom domains</a>.</p>
+<p>You can use the content sync feature to transfer content from all types of environments, including non-production ones (local development, QA, UAT). This is a viable approach during development and for small projects. However, non-production environments do not provide sufficient performance, availability, and backup policies for projects with larger content editing teams.</p>
+<p>To set up a stable and robust environment for long-term editing and staging of content, add the optional <strong>Staging</strong> (STG) deployment environment to your <a href="/documentation/developers-and-admins/saas/saas-service-plans">service plan</a>.</p>
+<p>The <em>Staging</em> environment provides a platform where editors and other staff can prepare content, and then transfer it to the production environment using content sync. Staging environments are designed to be nearly identical to production environments in most aspects, such as performance, availability, backup policies, and the option to set <a href="/documentation/developers-and-admins/configuration/website-channel-management#manage-channel-domains-in-xperience-portal">custom domains</a>.</p>
 <h4 id="set-up-a-staging-environment">Set up a Staging environment</h4>
 <p>Use the following process to initialize a <em>Staging</em> deployment environment for an existing project:</p>
 <ol type="1">
@@ -204,7 +205,8 @@ if (builder.Environment.IsProduction())
 </div>
 <div>
 <p><strong>Project code compatibility requirements</strong></p>
-<p>To enable synchronization of <a href="/documentation/business-users/website-content">website channel pages</a> and <a href="/documentation/business-users/digital-marketing/forms">forms</a>, you also need to use standard deployments to transfer all code components related to pages and forms. This includes page views, controllers, <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing">routing configuration</a>, <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder components</a>, <a href="/documentation/developers-and-admins/development/builders/form-builder/form-components">Form Builder components</a>, etc.</p>
+<p>To enable synchronization of <a href="/documentation/business-users/website-content">website channel pages</a> and <a href="/documentation/business-users/digital-marketing/forms">forms</a>, you also need to use standard deployments to transfer all code components related to pages and forms.</p>
+<p>This includes page views, controllers, <a href="/documentation/developers-and-admins/development/routing/content-tree-based-routing/set-up-content-tree-based-routing">routing configuration</a>, <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder components</a>, Form Builder <a href="/documentation/developers-and-admins/development/builders/form-builder/form-components">components</a> and <a href="/documentation/developers-and-admins/development/builders/form-builder/form-sections">sections</a>, etc.</p>
 </div>
 
 <h3 id="synchronization-of-linked-content">Synchronization of linked content</h3>
