@@ -998,7 +998,7 @@ Failure</p>
 
 <h2 id="eventlogevents">EventLogEvents</h2>
 <p><strong>Namespace</strong>: CMS.EventLog</p>
-<p>Contains events that occur when logging records into the system’s <a href="/documentation/developers-and-admins/configuration/event-log">event log</a>.</p>
+<p>Contains events that occur when writing <a href="/documentation/developers-and-admins/development/logging">logged events</a> into the system’s <a href="/documentation/developers-and-admins/configuration/event-log">event log</a>.</p>
 
 <table>
 <thead>
@@ -1034,8 +1034,9 @@ Failure</p>
 </ul>
 </td>
 <td>
-<p>Occurs when the system logs a record into the event log. You can use the <em>Before</em> event to customize the data logged for events or cancel logging for certain types of events. The <em>After</em> event allows you to perform custom actions after events are successfully logged.</p>
-<p><strong>See also</strong>: <a href="/documentation/developers-and-admins/configuration/event-log/customize-event-logging">Customize event logging</a></p>
+<p>Occurs when the system writes a record into the event log. Only affects events in the built-in Xperience event log, not log entries created via <code>ILogger</code> in general.</p>
+<p>You can use the <em>Before</em> event to customize the data logged for events or cancel logging for certain types of events. The <em>After</em> event allows you to perform custom actions after events are successfully logged.</p>
+<p><strong>See also</strong>: <a href="/documentation/developers-and-admins/development/logging#customize-event-logging">Customize event logging</a></p>
 </td>
 </tr>
 </table>

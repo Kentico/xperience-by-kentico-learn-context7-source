@@ -330,6 +330,14 @@
 
 <h2 id="register-custom-data-types">Register custom data types</h2>
 <p>The default set of data types can be extended, which allows you to register additional data types into the system. To ensure that your data types are available in all scenarios, registration must be done <a href="/documentation/developers-and-admins/customization/run-code-on-application-startup">during application startup</a> in the <code>OnPreInit</code> method of a module class.</p>
+
+<div>
+
+</div>
+<div>
+<p>Custom data types registered in the system are not supported by the GraphQL API for <a href="/documentation/developers-and-admins/configuration/headless-channel-management">headless channels</a>. Only built-in scalar types can be used in content types available through the API. For more information, see <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-headless-content">Retrieve headless content</a>.</p>
+</div>
+
 <p>To register a custom data type, call the <code>RegisterDataTypes(params DataType[])</code> method of the <code>DataTypeManager</code> class.</p>
 <p>The <code>DataType&lt;T&gt;</code> class provides multiple constructors suitable depending on the complexity of the type being registered.</p>
 <p>For primitive types and simple objects that can be directly serialized to the database, use</p>

@@ -17,7 +17,8 @@
 <p>The Xperience ASP.NET Core integration requires specific service and middleware components to function. You need to configure your application’s startup with the following requirements in mind.</p>
 <p>Add the following services to the application’s service collection:</p>
 <ul>
-<li>(<em>Optional</em>) Xperience SaaS services – added to the service collection for projects deployed to the Xperience <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">SaaS environment</a>.
+<li>
+<p>(<em>Optional</em>) Xperience SaaS services – added to the service collection for projects deployed to the Xperience <a href="/documentation/developers-and-admins/deployment/deploy-to-the-saas-environment">SaaS environment</a>.</p>
 <ul>
 <li>
 <code>AddKenticoCloud</code> – configures basic SaaS infrastructure.</li>
@@ -27,14 +28,13 @@
 <code>AddXperienceCloudSendGrid</code> – configures the <a href="/documentation/developers-and-admins/configuration/email-configuration#managed-sendgrid-integration">managed SendGrid integration</a>.</li>
 <li>
 <code>AddXperienceCloudDataProtection</code> – configures the ASP.NET <a href="https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/introduction?view=aspnetcore-9.0" target="_blank">DataProtection</a> API required for Xperience administration interface authentication.</li>
+<li>
+<code>AddXperienceCloudChannelRequirements</code> – configures channel code name validation to enforce the same character restrictions when creating a new channel (e.g., website, email) in the administration interface as in the <a href="/documentation/developers-and-admins/saas/xperience-portal">Xperience Portal</a>.</li>
 </ul>
 </li>
-<li>Xperience services – added via <code>IServiceCollection.AddKentico</code>.
-<ul>
-<li>The <code>AddKentico</code> call also adds a logging provider with the <code>KenticoEventLog</code> alias. The logging provider is built using conventional <a href="https://docs.microsoft.com/aspnet/core/fundamentals/logging/" target="_blank">ASP.NET Core logging API</a> and by default logs all application errors to the <a href="/documentation/developers-and-admins/configuration/event-log">Xperience event log</a>. The logging severity and verbosity can be configured via <a href="https://learn.microsoft.com/aspnet/core/fundamentals/logging#configure-logging" target="_blank">application settings</a>.</li>
-</ul>
-</li>
-<li>Framework support for the MVC architecture – added via <code>IServiceCollection.AddControllersWithViews</code>.
+<li><p>Xperience services – added via <code>IServiceCollection.AddKentico</code>.</p></li>
+<li>
+<p>Framework support for the MVC architecture – added via <code>IServiceCollection.AddControllersWithViews</code>.</p>
 
 <div>
 
@@ -47,7 +47,12 @@
 </ul>
 <p>The project’s <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/" target="_blank">middleware pipeline</a> must contain the following middleware <strong>in the listed order</strong> (see the code snippet below):</p>
 <ul>
-<li>System initialization (<code>InitKentico</code>) – bootstraps the Xperience by Kentico integration. Must be called <strong>first</strong> in the middleware pipeline.</li>
+<li>System initialization (<code>InitKentico</code>) – bootstraps the Xperience by Kentico integration. Must be called <strong>first</strong> in the middleware pipeline.
+<ul>
+<li>
+<code>InitKentico</code> also adds a logging provider with the <code>XperienceEventLog</code> alias. The logging provider is built using conventional <a href="https://docs.microsoft.com/aspnet/core/fundamentals/logging/" target="_blank">ASP.NET logging API</a> and writes log entries to the <a href="/documentation/developers-and-admins/configuration/event-log">Xperience event log</a>. By default, this provider includes all application warnings and errors, as well as information-level events originating from the Xperience libraries (<code>CMS</code> and <code>Kentico</code> event categories). To learn more, see <a href="/documentation/developers-and-admins/development/logging">Logging</a>.</li>
+</ul>
+</li>
 <li>
 <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/static-files/" target="_blank">Static files</a> (<code>UseStaticFiles</code>) – used by Xperience to serve files required by the <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> and <a href="/documentation/developers-and-admins/development/builders/form-builder">Form Builder</a> features, <a href="/documentation/business-users/content-hub/content-item-assets">content item assets</a>, etc.</li>
 <li>Cookie policy (<code>UseCookiePolicy</code>) – required for the system’s <a href="/documentation/developers-and-admins/data-protection/cookies">cookie support</a>.</li>

@@ -61,6 +61,16 @@ private readonly IInfoProvider&lt;ShippingMethodInfo&gt; shippingMethodInfoProvi
 var shippingMethods = await shippingMethodInfoProvider.Get()
         .WhereTrue(nameof(ShippingMethodInfo.ShippingMethodEnabled))
         .GetEnumerableTypedResultAsync(cancellationToken: cancellationToken);
+        
+// Access properties of each shipping method
+foreach (ShippingMethodInfo shippingMethod in shippingMethods)
+{
+    // You can access all properties of the ShippingMethodInfo object
+    string name = shippingMethod.ShippingMethodName;
+    string description = shippingMethod.ShippingMethodDescription;
+    decimal price = shippingMethod.ShippingMethodPrice;
+    bool enabled = shippingMethod.ShippingMethodEnabled;
+}
 </code></pre>
 </div>
 
@@ -106,12 +116,21 @@ private readonly IInfoProvider&lt;PaymentMethodInfo&gt; paymentMethodInfoProvide
 var paymentMethods = await paymentMethodInfoProvider.Get()
         .WhereTrue(nameof(PaymentMethodInfo.PaymentMethodEnabled))
         .GetEnumerableTypedResultAsync(cancellationToken: cancellationToken);
+        
+// Access properties of each payment method
+foreach (PaymentMethodInfo paymentMethod in paymentMethods)
+{
+    // You can access all properties of the PaymentMethodInfo object
+    string name = paymentMethod.PaymentMethodName;
+    string description = paymentMethod.PaymentMethodDescription;
+    bool enabled = paymentMethod.PaymentMethodEnabled;
+}
 </code></pre>
 </div>
 
 <h2 id="display-shipping-and-payment-methods">Display shipping and payment methods</h2>
 <p>The system objects for <a href="#configure-shipping-methods">shipping</a> and <a href="#configure-payment-methods">payment</a> methods can be <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extended</a> to store internal business logic and configuration data, such as countries where a certain shipping method is available, processing timeframes, or integration settings with third-party providers.</p>
-<p>However, to display shipping and payment methods on the storefront, you need to create dedicated <a href="/documentation/developers-and-admins/development/content-types">content types</a>, one for shipping methods and one for payment methods. This separation ensures that you can localize the presentation data for different markets and languages, while keeping the internal business logic separate from the customer-facing content.</p>
+<p>However, to display shipping and payment methods on your storefront, you need to create dedicated <a href="/documentation/developers-and-admins/development/content-types">content types</a>, one for shipping methods and one for payment methods. This separation ensures that you can localize the presentation data for different markets and languages, while keeping the internal business logic separate from the customer-facing content.</p>
 <p>The content types can have the following fields:</p>
 <ul>
 <li>

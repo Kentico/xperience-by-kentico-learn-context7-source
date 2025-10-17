@@ -5,14 +5,14 @@
 <title>Migrate widget data as reusable content</title>
 </head>
 <body>
-<p>In this technical deep dive, we will show you how to migrate widget data from Kentico Xperience 13 (KX13) into reusable content items when upgrading to Xperience by Kentico (XbyK). You will learn how to use the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Xperience by Kentico: Kentico migration tool</a> together with <strong>custom widget migrations</strong> to transform widget data into reusable content items in content hub, and reference those items from your migrated widgets in XbyK.</p>
+<p>In this technical deep dive, we will show you how to migrate widget data from Kentico Xperience 13 (KX13) into reusable content items when upgrading to Xperience by Kentico (XbyK). You will learn how to use the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Xperience by Kentico: Kentico migration tool</a> together with <strong>custom widget migrations</strong> to transform widget data into reusable content items in Content hub, and reference those items from your migrated widgets in XbyK.</p>
 <p>This material focuses on practical widget data migration and code adjustments, exploring the approach that combines Source item API discovery with targeted adjustments we talked about in our <a href="/guides/development/upgrade-deep-dives/upgrade-widgets-introduction">Upgrade widgets from Kentico Xperience 13</a>.</p>
 <h2 id="before-you-start">Before you start</h2>
 <p>This guide assumes you have:</p>
 <ul>
 <li>Basic knowledge of C# and .NET framework concepts</li>
 <li>Familiarity with the basics of <a href="/documentation/developers-and-admins/development/builders/page-builder"><em>Page Builder</em></a> in Xperience by Kentico</li>
-<li>Understanding and sme experience with basic upgrade to XbyK using the Kentico Migration tool.</li>
+<li>Understanding and some experience with basic upgrade to XbyK using the Kentico Migration tool.</li>
 </ul>
 
 <div>
@@ -263,7 +263,6 @@ namespace DancingGoatCore
 </div>
 
 <h2 id="implement-custom-migration">Implement custom migration</h2>
-<h3 id="define-custom-widget-migration-logic">Define custom widget migration logic</h3>
 <p>Now comes the exciting part—let’s build the custom migration logic that will transform your widget data.</p>
 <p>Before writing the code, it’s crucial to understand the widget data structure you’re working with. In KX13, widget configurations are stored as JSON in the <code>CMS_Document.DocumentPageBuilderWidgets</code> column. The migration tool provides the data as a <code>JToken</code> parameter in your migration method.</p>
 <p>Examine the JSON structure by querying your KX13 database:</p>
@@ -289,6 +288,7 @@ SELECT DocumentPageBuilderWidgets FROM CMS_Document
 </div>
 
 <p>This way, you can see the exact JSON format, including how properties are nested within widget variants, which you’ll need to parse correctly in your migration code.</p>
+<h3 id="define-custom-widget-migration-logic">Define custom widget migration logic</h3>
 <p>Next, in your forked or cloned migration tool repository, create a new file called <em>HeroImageWidgetMigration.cs</em> in the <em>Migration.Tool.Extensions</em> project under the <em>CustomWidgetMigrations</em> folder.</p>
 <p>This class will extract the text content from your KX13 widgets and create new Hero content items, while preserving the visual properties in the widget itself.</p>
 
@@ -480,7 +480,7 @@ public static class ServiceCollectionExtensions
 </div>
 <div>
 <pre><code>
-.\Migration.Tool.CLI.exe  migrate --page-types --pages --attachments --contact-management --forms --media-libraries --data-protection --countries --custom-tables --members --categories --bypass-dependency-check
+.\Migration.Tool.CLI.exe  migrate --page-types --pages --contact-management --forms --media-libraries --data-protection --custom-tables --members --categories --bypass-dependency-check
 </code></pre>
 </div>
 
@@ -879,7 +879,8 @@ namespace DancingGoat
 
 <p>Congratulations! You’ve successfully migrated your <em>Hero image</em> widget data from KX13 to XbyK while modernizing your content architecture. You’ve transformed widget-specific content into reusable Content hub items that can be shared across pages, while maintaining visual control through widget properties.</p>
 <h2 id="whats-next">What’s next?</h2>
-<p>We’re preparing additional widget-related technical deep dives to help you tackle more advanced migration scenarios and Page Builder customizations during your upgrade to XbyK. Stay tuned for upcoming guides on complex widget transformations, multilingual content migrations, and advanced Page Builder architectures.</p>
+<p>This guide focused on custom widget migrations for transforming widget data into reusable content items. For guidance on migrating widget properties and UI controls, check out our <a href="/guides/development/upgrade-deep-dives/transform-widget-properties">Transform widget properties</a> page.</p>
+<p>You can find more advanced upgrade and data migration use cases in our other <a href="/guides/development/upgrade-deep-dives">Upgrade deep dive guides</a>.</p>
 <p>If you encounter any challenging scenarios during your own widget migrations, or if you have ideas for subjects we haven’t covered, don’t hesitate to reach out to us through the <strong>Send us feedback</strong> button at the bottom of this page.</p>
 
 </body>

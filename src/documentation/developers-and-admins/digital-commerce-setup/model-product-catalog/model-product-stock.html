@@ -7,29 +7,572 @@
 <body>
 <p>Product stock management is a critical component of any commerce system. This page covers key considerations for implementing a product stock model in Xperience by Kentico.</p>
 <p>The product stock model manages the relationship between products and their available quantities. It provides functionality to track, update, and display stock levels while handling various business scenarios such as purchases, returns, and restocking. We recommend that you implement the product stock model as a custom module to ensure flexibility and maintainability.</p>
-
-<div>
-
-</div>
-<div>
-<p>This page provides basic requirements for implementing stock management. While the current text focuses on the basic architecture and design patterns, we’re working on expanding this documentation with code samples and more detailed scenarios.</p>
-</div>
-
+<p>To create a custom product stock management module, follow these main steps:</p>
+<ol type="1">
+<li>Create the core <a href="#product-stock-module">custom module</a> with database structure and object dependencies.</li>
+<li>Build <a href="#management-interfaces">administration interfaces</a> for listing and editing product stock records.</li>
+<li>Implement automatic or manual <a href="#product-stock-creation">stock record creation processes</a>.</li>
+<li>Handle <a href="#business-logic-implementation">business logic</a> of stock updates for purchases, returns, and reservations.</li>
+<li>Implement <a href="#validation-and-business-rules">validation and business rules</a> to ensure data integrity and implement business constraints.</li>
+<li>
+<a href="#display-product-stock">Display product stock</a> information to customers on your storefront.</li>
+</ol>
 <h2 id="product-stock-module">Product stock module</h2>
-<p>Create a <a href="/documentation/developers-and-admins/customization/object-types">custom module</a> to handle product stock information. The module should include the following fields:</p>
+<p>Create a <a href="/documentation/developers-and-admins/customization/object-types">custom module</a> to handle product stock management. Within the module, create a class with the necessary fields. Each record of this class represents the stock level for a specific product. The fields typically include:</p>
 <ul>
-<li>Product SKU – unique identifier linking to the product</li>
-<li>Product stock value – current quantity available for purchase</li>
+<li>Content item ID – unique identifier linking to the product’s content item.
+<ul>
+<li>You need to manually set the reference to the content item object in the initializer of the <code>TYPEINFO</code> member of the generated <code>*Info</code> class. This ensures that the stock information is always associated with a product and that the when the product is deleted, the stock information is also removed.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - ProductStockInfo</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="5-8"><code>
+  public class ProductStockInfo
+  {
+  public static readonly ObjectTypeInfo TYPEINFO = new ObjectTypeInfo(...)
+  {
+      DependsOn =
+      [
+          new ObjectDependency(nameof(ProductStockContentItemID), "cms.contentitem", ObjectDependencyEnum.Required)
+      ],
+  };
+  }
+  </code></pre>
+</div>
+</li>
 </ul>
-<p>Depending on your requirements, you may use a simple implementation with just product SKU and product stock value, or a more complex model that also includes fields such as reserved stock for pending orders and minimum threshold value.</p>
+</li>
+<li>Product stock value – current quantity available for purchase.</li>
+</ul>
+<p>Depending on your requirements, you may use a simple implementation with just content item ID and product stock value, or a more complex model that also includes fields such as reserved stock for pending orders and minimum threshold value.</p>
 <h2 id="management-interfaces">Management interfaces</h2>
-<p><a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">Create</a> the following UI pages to manage product stock:</p>
+<p>The management interface consists of several interconnected components that work together to provide a complete administration experience for product stock records. <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface">Create the following UI pages</a> to manage product stock.</p>
 <ul>
 <li>
-<a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/listing-ui-page-template">Listing page</a> – create a listing interface to display product stock information: product name, SKU, and current stock levels</li>
+<a href="#create-the-application-entry-point">Create the application entry point</a> – Register the stock management app in the admin interface</li>
 <li>
-<a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template">Edit page</a> – provide an interface for administrators to manage stock records</li>
+<a href="#create-the-listing-page">Create the listing page</a> – Display all stock records with product information</li>
+<li>
+<a href="#create-the-edit-section">Create the edit section</a> – Handle URL routing for individual record editing</li>
+<li>
+<a href="#create-the-edit-page">Create the edit page</a> – Provide the actual editing form interface</li>
+<li>
+<a href="#create-the-product-metadata-retriever">Create the product metadata retriever</a> – Service to retrieve product display names</li>
+<li>
+<a href="#register-dependencies">Register dependencies</a> – Configure dependency injection for all services</li>
 </ul>
+<h3 id="create-the-application-entry-point">Create the application entry point</h3>
+<p>First, create an application class to register your product stock management interface in the administration:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductStockApplication.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.Membership;
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.DigitalCommerce.UIPages;
+
+// Registers the application in the admin interface
+[assembly: UIApplication(ProductStockApplication.IDENTIFIER, typeof(ProductStockApplication), "productstock", "Product stock", DigitalCommerceApplicationCategories.DIGITAL_COMMERCE, Icons.MoneyBill, TemplateNames.SECTION_LAYOUT)]
+
+namespace YourProject.AdminComponents
+{
+    // Sets permissions required to access the application
+    // Create and delete permissions are not needed if stock records are created and deleted automatically with products
+    [UIPermission(SystemPermissions.VIEW, "{$base.roles.permissions.view$}")]
+    [UIPermission(SystemPermissions.UPDATE, "{$base.roles.permissions.update}")]
+    public sealed class ProductStockApplication : ApplicationPage
+    {
+        public const string IDENTIFIER = "YourProject.Application.ProductStock";
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="create-the-listing-page">Create the listing page</h3>
+<p>The listing page displays all product stock records with product names, SKUs, and stock levels. <strong>Important</strong>: To display product information, you must join the <code>CMS_ContentItemLanguageMetadata</code> and <code>CMS_ContentItemCommonData</code> tables to obtain the product display name and product SKU.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductStockList.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.Base;
+using CMS.Commerce;
+using CMS.DataEngine;
+using Kentico.Xperience.Admin.Base;
+
+// Registers this page as the main listing page for the ProductStock application
+[assembly: UIPage(typeof(ProductStockApplication), "list", typeof(ProductStockList), "List of product stock", TemplateNames.LISTING, UIPageOrder.First)]
+
+namespace YourProject.AdminComponents
+{
+    // Product stock listing page that displays all stock records with product information
+    public sealed class ProductStockList : ListingPage
+    {
+        private readonly DefaultContentLanguageRetriever defaultContentLanguageRetriever;
+        private readonly IProductQuantityFormatter productQuantityFormatter;
+
+        public ProductStockList(DefaultContentLanguageRetriever defaultContentLanguageRetriever, IProductQuantityFormatter productQuantityFormatter)
+        {
+            this.defaultContentLanguageRetriever = defaultContentLanguageRetriever;
+            this.productQuantityFormatter = productQuantityFormatter;
+        }
+
+        // Specifies which object type this listing page manages
+        protected override string ObjectType =&gt; ProductStockInfo.OBJECT_TYPE;
+
+        public override async Task ConfigurePage()
+        {
+            // Gets the default language to ensure consistent data retrieval across multilingual content
+            var defaultContentLanguage = await defaultContentLanguageRetriever.Get();
+
+            // Adds edit action for each row in the listing
+            PageConfiguration.AddEditRowAction&lt;ProductStockEditSection&gt;();
+
+            // Configures the columns that will be displayed in the listing grid
+            PageConfiguration.ColumnConfigurations
+                            // Product name comes from ContentItemLanguageMetadata table
+                            .AddColumn("ContentItemLanguageMetadataDisplayName", "Product name", searchable: true)
+                            // SKU comes from reusable field schema stored in CMS_ContentItemCommonData
+                            .AddColumn("ProductSKUCode", "SKU", searchable: true)
+                            // Stock value from the ProductStockInfo table with custom formatting
+                            .AddColumn(nameof(ProductStockInfo.ProductStockValue), "Stock", formatter: StockFormatter);
+
+            // Joins necessary tables to retrieve product information
+            // This is required because ProductStockInfo only contains ContentItemID, not product details
+            PageConfiguration.QueryModifiers.AddModifier(query =&gt;
+                query.Source(
+                    s =&gt; s
+                        // Joins with ContentItemLanguageMetadata to get product display names
+                        .Join(
+                            "CMS_ContentItemLanguageMetadata",
+                            new WhereCondition($"[CMS_ContentItemLanguageMetadata].[ContentItemLanguageMetadataContentItemID] = [{ProductStockInfo.TYPEINFO.ClassStructureInfo.TableName}].[{nameof(ProductStockInfo.ProductStockContentItemID)}]")
+                                // Filters by default language to avoid duplicate rows in multilingual setups
+                                .And(new WhereCondition().WhereEquals("ContentItemLanguageMetadataContentLanguageID", defaultContentLanguage.ContentLanguageID))
+                        )
+                        // Joins with ContentItemCommonData to get reusable field schema data (like SKU)
+                        .Join(
+                            "CMS_ContentItemCommonData",
+                            new WhereCondition($"[CMS_ContentItemCommonData].[ContentItemCommonDataContentItemID] = [{ProductStockInfo.TYPEINFO.ClassStructureInfo.TableName}].[{nameof(ProductStockInfo.ProductStockContentItemID)}]")
+                                // Filters by default language for consistency
+                                .And(new WhereCondition().WhereEquals("ContentItemCommonDataContentLanguageID", defaultContentLanguage.ContentLanguageID))
+                        )
+                )
+            );
+
+            await base.ConfigurePage();
+        }
+
+        // Formats the stock value for display using the commerce quantity formatter
+        private string StockFormatter(object value, IDataContainer dataContainer)
+        {
+            return productQuantityFormatter.Format((decimal)value, new ProductQuantityFormatContext());
+        }
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="create-the-edit-section">Create the edit section</h3>
+<p>The edit section defines URL parameterization and routing for editing specific product stock records. It acts as a container or entry point for the edit operation:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductStockEditSection.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.DataEngine;
+using Kentico.Xperience.Admin.Base;
+
+// Registers this as a parameterized edit section that handles routing for individual stock records
+[assembly: UIPage(typeof(ProductStockList), PageParameterConstants.PARAMETERIZED_SLUG, typeof(ProductStockEditSection), "Product stock section caption", TemplateNames.SECTION_LAYOUT, UIPageOrder.NoOrder)]
+
+namespace YourProject.AdminComponents
+{
+    // Edit section that handles URL parameterization and routing for editing specific product stock records.
+    // Acts as a container/entry point for the edit operation.
+    public sealed class ProductStockEditSection : EditSectionPage&lt;ProductStockInfo&gt;
+    {
+        private readonly ProductMetadataRetriever productMetadataRetriever;
+
+        public ProductStockEditSection(ProductMetadataRetriever productMetadataRetriever)
+        {
+            this.productMetadataRetriever = productMetadataRetriever;
+        }
+        
+        // Gets the display name for the object being edited (used in breadcrumbs and page titles)
+        protected override async Task&lt;string&gt; GetObjectDisplayName(BaseInfo infoObject)
+        {
+            // Retrieves the product name for display in the edit section header
+            // This ensures the page shows "Edit Product Stock - [Product Name]" instead of just an ID
+            var product = await productMetadataRetriever.GetProductMetadata(infoObject as ProductStockInfo);
+            return product.DisplayName;
+        }
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="create-the-edit-page">Create the edit page</h3>
+<p>Create a <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types#Extendsystemobjecttypes-UIForms">UI form</a> for editing product stock records:</p>
+<ol type="1">
+<li><p>Navigate to the <strong>Modules</strong> application → select your stock management module → <strong>Classes</strong> tab → select your product stock class → <strong>UI forms</strong> tab.</p></li>
+<li><p>Create a <strong>New UI form</strong> with the name <em>ProductStockEdit</em> (code name).</p></li>
+<li>
+<p>Switch to the <strong>Fields</strong> tab and add the fields you want to display on the form:</p>
+<ul>
+<li>Product stock value field
+<ul>
+<li>
+<strong>Database column</strong>: <em>The field of the product stock class that stores the stock value</em>
+</li>
+<li>
+<strong>Field caption</strong>: Available stock value</li>
+<li>
+<strong>Enabled</strong>: <em>Yes, selected</em>
+</li>
+<li>
+<strong>Form component</strong>: Decimal number input</li>
+</ul>
+</li>
+<li>
+<em>(Optional)</em> Product name field (for context, typically read-only)
+<ul>
+<li>
+<strong>Database column</strong>: New field without database column</li>
+<li>
+<strong>Field name</strong>: ProductStockProductName</li>
+<li>
+<strong>Data type</strong>: Text</li>
+<li>
+<strong>Field caption</strong>: Product name</li>
+<li>
+<strong>Enabled</strong>: <em>No, not selected (this makes the field read-only)</em>
+</li>
+<li>
+<strong>Form component</strong>: Text input</li>
+<li>You need to ensure that the product name field is populated programmatically in the edit page code since it does not have a database column.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>The edit page then renders the actual editing form where users interact with the product stock data:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductStockEdit.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using CMS.ContentEngine;
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.Base.Forms;
+
+// Registers this as the main edit page within the ProductStockEditSection
+[assembly: UIPage(typeof(ProductStockEditSection), "general", typeof(ProductStockEdit), "General", TemplateNames.EDIT, UIPageOrder.First)]
+
+namespace YourProject.AdminComponents
+{
+    // The actual edit page where the editing form is rendered and user interaction happens.
+    // Inherits from InfoEditPage&amp;lt;ProductStockInfo&amp;gt; to provide standard CRUD functionality.
+    public sealed class ProductStockEdit : InfoEditPage&lt;ProductStockInfo&gt;
+    {
+        // Name of the UI form definition created in the admin interface
+        private const string UI_FORM_COMPONENT_NAME = "ProductStockEdit";
+        // Name of the field used to display the product name
+        private const string PRODUCT_NAME_COMPONENT_NAME = "ProductStockProductName";
+        
+        private readonly ProductMetadataRetriever productMetadataRetriever;
+
+        // Object ID parameter from the URL route (e.g., /edit/123)
+        [PageParameter(typeof(IntPageModelBinder))]
+        public override int ObjectId { get; set; }
+
+        public ProductStockEdit(IFormComponentMapper formComponentMapper, IFormDataBinder formDataBinder,
+            ProductMetadataRetriever productMetadataRetriever)
+            : base(formComponentMapper, formDataBinder)
+        {
+            this.productMetadataRetriever = productMetadataRetriever;
+        }
+
+        public override async Task ConfigurePage()
+        {
+            // Specifies which UI form definition to use
+            PageConfiguration.UIFormName = UI_FORM_COMPONENT_NAME;
+            PageConfiguration.Headline = "Edit product stock";
+
+            await base.ConfigurePage();
+        }
+
+        // Retrieves and modifies form items before they are displayed to the user
+        // &lt;/summary&gt;
+        protected override async Task&lt;ICollection&lt;IFormItem&gt;&gt; GetFormItems()
+        {
+            var formItems = await base.GetFormItems();
+            
+            // Sets up the product name component to show which product this stock record belongs to
+            await SetupProductNameComponent(formItems);
+            
+            return formItems;
+        }
+
+        // Sets up the product name component to display the associated product's name
+        // This provides context to administrators about which product they're editing stock for 
+        private async Task SetupProductNameComponent(ICollection&lt;IFormItem&gt; formItems)
+        {
+            // Gets the current product stock record being edited
+            var productStockInfo = await GetInfoObject();
+            
+            // Retrieves the product metadata to get the display name
+            ContentItemLanguageMetadata productMetadata = await productMetadataRetriever.GetProductMetadata(productStockInfo);
+
+            // Finds the product name form component and sets its value
+            var productNameComponent = formItems.OfType&lt;IFormComponent&gt;()
+                .FirstOrDefault(f =&gt; f.Name.Equals(PRODUCT_NAME_COMPONENT_NAME, StringComparison.OrdinalIgnoreCase));
+            
+            // Sets the product name (this is typically a read-only field for context)
+            productNameComponent?.SetObjectValue(productMetadata.DisplayName);
+        }
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="create-the-product-metadata-retriever">Create the product metadata retriever</h3>
+<p>The <code>ProductMetadataRetriever</code> must be implemented to retrieve product display names and other metadata. This service is essential for displaying correct product information in the management interface:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ProductMetadataRetriever.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.Threading.Tasks;
+using CMS.ContentEngine;
+using Kentico.Xperience.Admin.Base.Authentication;
+using Kentico.Xperience.Admin.Base.Forms;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace YourProject.AdminComponents
+{
+    // Service responsible for retrieving product metadata (display names, etc.) from content items.
+    // This is essential for displaying meaningful product information in the admin interface.
+    public sealed class ProductMetadataRetriever
+    {
+        private readonly IContentItemManagerFactory contentItemManagerFactory;
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly DefaultContentLanguageRetriever defaultContentLanguageRetriever;
+
+        public ProductMetadataRetriever(IContentItemManagerFactory contentItemManagerFactory, 
+            IHttpContextAccessor httpContextAccessor, DefaultContentLanguageRetriever defaultContentLanguageRetriever)
+        {
+            this.contentItemManagerFactory = contentItemManagerFactory;
+            this.httpContextAccessor = httpContextAccessor;
+            this.defaultContentLanguageRetriever = defaultContentLanguageRetriever;
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves product metadata for a given product stock record
+        /// &lt;/summary&gt;
+        /// &lt;param name="productStockInfo"&gt;The product stock record&lt;/param&gt;
+        /// &lt;returns&gt;Content item language metadata containing the product's display name and other properties&lt;/returns&gt;
+        public async Task&lt;ContentItemLanguageMetadata&gt; GetProductMetadata(ProductStockInfo productStockInfo)
+        {
+            // Uses the default language to ensure consistent metadata retrieval
+            var defaultContentLanguage = await defaultContentLanguageRetriever.Get();
+            
+            // Gets the current authenticated user for content manager context
+            var currentUser = await httpContextAccessor.HttpContext.RequestServices
+                .GetRequiredService&lt;IAuthenticatedUserAccessor&gt;().Get();
+            
+            // Creates content manager with proper user context for security
+            var contentItemManager = contentItemManagerFactory.Create(currentUser.UserID);
+            
+            // Retrieves the product metadata using the content item ID stored in the stock record
+            // This gets the product name and other language-specific metadata
+            var productMetadata = await contentItemManager.GetContentItemLanguageMetadata(
+                productStockInfo.ProductStockContentItemID, 
+                defaultContentLanguage.ContentLanguageName);
+                
+            return productMetadata;
+        }
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="create-the-default-content-language-retriever">Create the default content language retriever</h3>
+<p>Create a service to retrieve the default content language, which is needed for consistent data retrieval:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>DefaultContentLanguageRetriever.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using CMS.ContentEngine;
+using CMS.DataEngine;
+using CMS.Helpers;
+
+namespace YourProject.AdminComponents
+{
+    // Service for retrieving the default content language.
+    // This ensures consistent data retrieval across multilingual content scenarios.
+    public sealed class DefaultContentLanguageRetriever
+    {
+        // Cache duration in minutes (24 hours)
+        private const int ONE_DAY = 24 * 60;
+        
+        private readonly IInfoProvider&lt;ContentLanguageInfo&gt; contentLanguageInfoProvider;
+        private readonly IProgressiveCache progressiveCache;
+        private readonly ICacheDependencyBuilderFactory cacheDependencyBuilderFactory;
+
+        public DefaultContentLanguageRetriever(IInfoProvider&lt;ContentLanguageInfo&gt; contentLanguageInfoProvider, IProgressiveCache progressiveCache, ICacheDependencyBuilderFactory cacheDependencyBuilderFactory)
+        {
+            this.contentLanguageInfoProvider = contentLanguageInfoProvider;
+            this.progressiveCache = progressiveCache;
+            this.cacheDependencyBuilderFactory = cacheDependencyBuilderFactory;
+        }
+
+        /// &lt;summary&gt;
+        /// Retrieves the default content language with caching for performance
+        /// &lt;/summary&gt;
+        /// &lt;param name="cancellationToken"&gt;Cancellation token&lt;/param&gt;
+        /// &lt;returns&gt;The default ContentLanguageInfo&lt;/returns&gt;
+        public async Task&lt;ContentLanguageInfo&gt; Get(CancellationToken cancellationToken = default)
+        {
+            // Uses progressive cache to avoid repeated database queries
+            return await progressiveCache.LoadAsync(async (cacheSettings, token) =&gt;
+            {
+                // Sets up cache dependency to invalidate when languages change
+                var cacheDependencyBuilder = cacheDependencyBuilderFactory.Create();
+                cacheSettings.CacheDependency = cacheDependencyBuilder
+                    .ForInfoObjects&lt;ContentLanguageInfo&gt;()
+                        .All()
+                        .Builder()
+                    .Build();
+
+                // Queries for the default language (marked as default in the system)
+                var result = await contentLanguageInfoProvider.Get()
+                   .WhereTrue(nameof(ContentLanguageInfo.ContentLanguageIsDefault))
+                   .TopN(1)
+                   .GetEnumerableTypedResultAsync(cancellationToken: cancellationToken);
+
+                return result.FirstOrDefault();
+            },
+            // Caches for one day with automatic invalidation when content languages change
+            new CacheSettings(ONE_DAY, true, nameof(DefaultContentLanguageRetriever), nameof(Get)), cancellationToken);
+        }
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="register-dependencies">Register dependencies</h3>
+<p>Finally, you need to register the dependencies in your dependency injection container:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Add these services to your Program.cs or service registration
+// These are required for the product stock management interface to function properly
+builder.Services.AddTransient&lt;ProductMetadataRetriever&gt;();
+builder.Services.AddTransient&lt;DefaultContentLanguageRetriever&gt;();
+</code></pre>
+</div>
+
 <h2 id="product-stock-creation">Product stock creation</h2>
 <h3 id="automatic-stock-creation">Automatic stock creation</h3>
 <p>Consider implementing automatic stock creation when new products are added:</p>
@@ -38,15 +581,231 @@
 <li>Initialize default stock values based on business rules</li>
 <li>Ensure proper data consistency between products and stock</li>
 </ul>
+<p>The following code snippet demonstrates a simple event handler for automatic stock creation using the modern object event handling pattern.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Automatic stock creation</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using CMS.ContentEngine;
+using CMS.DataEngine;
+
+namespace Acme.Commerce;
+
+// Event handler triggered after a new content item is created
+// Automatically creates a stock record for product content items
+public class ProductStockCreationHandler : IInfoObjectEventHandler&lt;InfoObjectAfterInsertEvent&lt;ContentItemInfo&gt;&gt;
+{
+    // An instance of the product stock info provider, obtained via dependency injection
+    private readonly IInfoProvider&lt;ProductStockInfo&gt; productStockInfoProvider;
+
+    public ProductStockCreationHandler(IInfoProvider&lt;ProductStockInfo&gt; productStockInfoProvider)
+    {
+        this.productStockInfoProvider = productStockInfoProvider;
+    }
+
+    // Invoked by the synchronous Set operation
+    public void Handle(InfoObjectAfterInsertEvent&lt;ContentItemInfo&gt; infoObjectEvent)
+    {
+        ContentItemInfo contentItem = infoObjectEvent.InfoObject;
+        
+        // Only handle product content items
+        if (IsProductContentItem(contentItem))
+        {
+            CreateProductStockRecord(contentItem.ContentItemID);
+        }
+    }
+
+    // Invoked by the asynchronous SetAsync operation
+    public async Task HandleAsync(InfoObjectAfterInsertEvent&lt;ContentItemInfo&gt; infoObjectEvent, CancellationToken cancellationToken)
+    {
+        ContentItemInfo contentItem = infoObjectEvent.InfoObject;
+        
+        // Only handle product content items
+        if (IsProductContentItem(contentItem))
+        {
+            await CreateProductStockRecordAsync(contentItem.ContentItemID, cancellationToken);
+        }
+    }
+
+    // Checks if the content item is a product
+    private static bool IsProductContentItem(ContentItemInfo contentItem)
+    {
+        // Replace "YourProject.Product" with your actual product content type name
+        return contentItem.ContentTypeName.Equals("YourProject.Product", System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    // Creates a product stock record synchronously
+    private void CreateProductStockRecord(int contentItemId)
+    {
+        // Checks if stock record already exists
+        var existingProductStock = productStockInfoProvider.Get()
+                                                           .WhereEquals(nameof(ProductStockInfo.ProductStockContentItemID), contentItemId)
+                                                           .GetEnumerableTypedResult()
+                                                           .FirstOrDefault();
+
+        if (existingProductStock == null)
+        {
+            // Creates a new product stock record
+            productStockInfoProvider.Set(new ProductStockInfo
+            {
+                ProductStockContentItemID = contentItemId,
+                ProductStockValue = 0, // Sets the initial stock value to 0
+            });
+        }
+    }
+
+    // Creates a product stock record asynchronously
+    private async Task CreateProductStockRecordAsync(int contentItemId, CancellationToken cancellationToken)
+    {
+        // Checks if stock record already exists
+        var existingProductStock = await productStockInfoProvider.Get()
+                                                                  .WhereEquals(nameof(ProductStockInfo.ProductStockContentItemID), contentItemId)
+                                                                  .GetEnumerableTypedResultAsync(cancellationToken: cancellationToken);
+
+        if (!existingProductStock.Any())
+        {
+            // Creates a new product stock record
+            await productStockInfoProvider.SetAsync(new ProductStockInfo
+            {
+                ProductStockContentItemID = contentItemId,
+                ProductStockValue = 0, // Sets the initial stock value to 0
+            }, cancellationToken);
+        }
+    }
+}
+</code></pre>
+</div>
+
+<p>To use this event handler, you must register it in your application’s service collection. Create a <a href="/documentation/developers-and-admins/customization/run-code-on-application-startup">custom module</a> and override the <code>OnPreInit</code> method:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Register the event handler</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS;
+using CMS.Core;
+using CMS.ContentEngine;
+using CMS.DataEngine;
+
+[assembly: RegisterModule(typeof(ProductStockModule))]
+
+public class ProductStockModule : Module
+{
+    public ProductStockModule() : base(nameof(ProductStockModule))
+    {
+    }
+
+    // OnPreInit allows you to access IServiceCollection via ModulePreInitParameters
+    protected override void OnPreInit(ModulePreInitParameters parameters)
+    {
+        base.OnPreInit(parameters);
+
+        // Registers the product stock creation event handler
+        parameters.Services.AddInfoObjectEventHandler&lt;InfoObjectAfterInsertEvent&lt;ContentItemInfo&gt;, ProductStockCreationHandler&gt;();
+    }    
+}
+</code></pre>
+</div>
+
 <h3 id="manual-stock-creation">Manual stock creation</h3>
 <p>Provide administration interface for manual stock creation and management:</p>
 <ul>
-<li>Create an interface where administrators can create new stock records</li>
+<li>Create an <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/reference-ui-page-templates/edit-ui-page-template">editing interface</a> where administrators can create new stock records</li>
 <li>Consider adding bulk operations for mass stock updates</li>
 </ul>
 <h2 id="business-logic-implementation">Business logic implementation</h2>
 <h3 id="purchase-transactions">Purchase transactions</h3>
-<p>Handle stock reduction when products are purchased.</p>
+<p>Handle stock reduction when products are purchased. The following example shows very simple stock management logic. In your project, you need handle any <a href="#validation-and-business-rules">edge cases and business rules</a> specific to your requirements.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Order service</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Contains an instance of the product stock info provider, obtained via dependency injection
+private readonly IInfoProvider&lt;ProductStockInfo&gt; productStockInfoProvider;
+
+public async Task&lt;string&gt; CreateOrder(ShoppingCartDataModel shoppingCartData)
+{
+    // Contains IDs of products and their ordered quantities
+    Dictionary&lt;int /* ContentItemID */, decimal /* ItemQuantity */&gt; orderedItems = [];
+
+    foreach (var item in shoppingCartData.Items)
+    {
+        // ...
+
+        // Collects ordered items and their quantities
+        orderedItems.Add((product as IContentItemFieldsSource).SystemFields.ContentItemID, orderItem.OrderItemQuantity);
+    }
+
+    try
+    {
+        foreach (var orderedItem in orderedItems)
+        {
+            // Retrieves the product stock information for the ordered item
+            var productStockInfo = (await productStockInfoProvider
+                .Get()
+                .WhereEquals(nameof(ProductStockInfo.ProductStockContentItemID), orderedItem.Key)
+                .GetEnumerableTypedResultAsync())
+                .FirstOrDefault();
+
+            // Digital products may not have any associated stock
+            if (productStockInfo != null)
+            {
+                // Decreases the stock value by the ordered quantity
+                productStockInfo.ProductStockValue -= orderedItem.Value;
+
+                // Updates the product stock record
+                await productStockInfoProvider.SetAsync(productStockInfo);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, $"Failed to decrease product stock for order {order.OrderNumber}");
+    }
+}
+</code></pre>
+</div>
+
 <h3 id="returns-and-restocking">Returns and restocking</h3>
 <p>Implement logic for increasing stock levels when products are returned or restocked:</p>
 <ul>
@@ -69,7 +828,7 @@
 <li>Data integrity checks – validate relationships between products and stock records</li>
 </ul>
 <h2 id="display-product-stock">Display product stock</h2>
-<p>Display product stock information to customers on the live site:</p>
+<p>Display product stock information to customers on your storefront:</p>
 <ul>
 <li>In-stock indicators – display indication whether a product is available for purchase</li>
 <li>Quantity selectors – prevent customers from selecting more items than are in stock</li>

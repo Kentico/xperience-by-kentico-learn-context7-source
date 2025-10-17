@@ -287,6 +287,8 @@ public class CustomFileSystemMappingModule : Module
 </div>
 <div>
 <pre><code>
+using Microsoft.Extensions.Logging;
+
 using CMS.Base;
 using CMS.Core;
 using CMS.DataEngine;
@@ -295,7 +297,7 @@ using CMS.Membership;
 // ...
 
 // Instances of  services obtained using dependency injection
-private readonly IEventLogService eventLogService;
+private readonly ILogger&lt;ExternalAppClass&gt; logger;
 private readonly IUserInfoProvider userInfoProvider;
 
 // ...
@@ -306,8 +308,8 @@ UserInfo user = userInfoProvider.Get("Andy");
 // Sets the context of the user
 using (new CMSActionContext(user))
 {
-    // Logs an information event into the Xperience event log, with "Andy" as the user who caused the event
-    eventLogService.LogInformation("External Application", "Event_Code", "Details");
+    // Logs a warning event into the Xperience event log, with "Andy" as the user who caused the event
+    logger.LogWarning(new EventId(0, "Event_Code"), "Detailed event description.");
 }
 </code></pre>
 </div>

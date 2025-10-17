@@ -274,8 +274,8 @@ protected override async Task SetFormData(UserInfo infoObject, IFormFieldValuePr
     if (string.Equals(confirmationDialogFormData.ChooseOne, "submitandlog", StringComparison.OrdinalIgnoreCase))
     {
         // Logs the submitted data
-        // eventLogService is an instance of IEventLogService injected using dependency injection
-        eventLogService.LogInformation("Model submit", "SUBMIT", $"Submitted data {confirmationDialogFormData}");
+        // logger is an instance of ILogger&lt;T&gt; injected using dependency injection
+        logger.LogInformation(new EventId(0, "SUBMIT"), $"Submitted data {confirmationDialogFormData}");
     }
 
     await base.SetFormData(infoObject, fieldValueProvider); 

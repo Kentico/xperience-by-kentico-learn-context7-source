@@ -22,6 +22,16 @@
 <p>They excel in scenarios where you need to repeat the same process with different but analogous input each time.</p>
 <p>In this case, we were able to provide Copilot with the existing class mapping from our <a href="/guides/development/upgrade-deep-dives/remodel-page-types-as-reusable-field-schemas">Remodel page types as reusable field schemas</a> guide.</p>
 <p>We told Copilot to pay special attention to this file using the <strong>Add context</strong> button in the chat window.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Grinder schema example</strong></p>
+<p>At the time we created this example, the Grinder class mapping manually defined its schema fields, rather than using <code>IReusableFieldSchema.ConvertFrom</code>. In this case, manually-defined schema fields are preferable, as the KX13 <em>Article</em> page type includes several fields we do not want in our OG schema.</p>
+<p>If you’re following along with the example, you can point your coding assistant to the <code>AddReusableSchemaIntegrationSample</code> example from <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.Extensions/ClassMappings/ClassMappingSample.cs" target="_blank">ClassMappingSample.cs</a>, or provide the <a href="/docsassets/guides/speed-up-remodeling-with-ai/GrinderClassMapping.cs" download>original version of the Grinder class mapping</a> as context.</p>
+</div>
+
 <p>You can also add the code from <a href="#see-the-results">the end of this guide</a> as reference material.</p>
 <p>In similar cases, it often helps to manually complete the first repetition of a process and provide its input and output to the coding assistant as context.</p>
 <h2 id="provide-structured-input">Provide structured input</h2>
@@ -491,7 +501,7 @@ public static class ServiceCollectionExtensions
 <p>For the sake of this example, we only created a custom mapping for a single page type, but you’ll likely encounter several page types that benefit from remodeling when you upgrade larger projects.</p>
 <p>With each successful round of generation, you’ll have more context to provide your AI assistant, which will help improve the quality of output going forward and save you more time on current and future upgrades.</p>
 <h2 id="whats-next">What’s next?</h2>
-<p>The <a href="/guides/development/upgrade-deep-dives/optimize-images-during-upgrade">next guide in this series</a> illustrates how to enable Xperience by Kentico’s <a href="/documentation/developers-and-admins/development/content-types#automatically-optimize-image-assets">automatic asset optimization</a> feature for images stored as media library files and page attachments in KX13.</p>
+<p>In <a href="/guides/development/upgrade-deep-dives/transfer-page-hierarchy-to-content-hub">our next guide</a>, move pages to the Content hub creating automatic relationships to preserve parent-child structure.</p>
 
 </body>
 </html>

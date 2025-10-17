@@ -32,6 +32,14 @@
 <li>Input types with the <code>Filter</code> and <code>Sorter</code> suffixes for all included content types and scalars.</li>
 <li>Additional system types, e.g., representing fields containing linked media files, assets or pages.</li>
 </ul>
+
+<div>
+
+</div>
+<div>
+<p><a href="/documentation/developers-and-admins/customization/field-editor/data-type-management#register-custom-data-types">Custom data types</a> are not available in the GraphQL API for headless channels. Only the built-in scalar types can be used in content types provided through the API. Any custom data types will not be included in the GraphQL schema and cannot be queried via the API.</p>
+</div>
+
 <p>The schema is <strong>automatically updated</strong> when you add/remove content types for headless channels or adjust their fields.</p>
 <p>Only content retrieval is supported. The schema of headless channels does not include any GraphQL mutations for adding or modifying content.</p>
 <p>To inspect the GraphQL schema of a headless channel, access the given channel’s API endpoint, e.g.:<br>

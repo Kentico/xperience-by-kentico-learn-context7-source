@@ -188,7 +188,7 @@ var builder = new ContentItemQueryBuilder()
 </div>
 
 <h3 id="filter-pages-based-on-tags">Filter pages based on tags</h3>
-<p>You can limit the retrieval to only retrieve pages with the specified tags using the <code>additionalQueryConfiguration</code> parameter with the <code>WhereContainsTags</code> method:</p>
+<p>You can limit the retrieval to only retrieve pages with the specified tags using the <code>additionalQueryConfiguration</code> parameter with the <code>Where</code> method and its <code>WhereContainsTags</code> condition:</p>
 
 <div>
 <div>
@@ -212,9 +212,9 @@ var pages = await contentRetriever.RetrievePages&lt;ArticlePage&gt;(
     { 
         PathMatch = PathMatch.Children("/Articles") 
     },
-    query =&gt; query.WhereContainsTags("coffee", "processing"),
+    query =&gt; query.Where(where =&gt; where.WhereContainsTags("coffee", "processing")),
     new RetrievalCacheSettings(cacheItemNameSuffix:
-                                    $"{nameof(WhereParameters.WhereContainsTags)}|coffee|processing"));
+        $"{nameof(WhereParameters.Where)}|{nameof(WhereParameters.WhereContainsTags)}|coffee|processing"));
 
 </code></pre>
 </div>
@@ -331,7 +331,7 @@ builder.Services.ConfigureApplicationCookie(options =&gt;
 <pre><code>
 
 // Retrieves a page
-var page = await contentRetriever.RetrievePage&lt;ArticlePage&gt;();
+var page = await contentRetriever.RetrievePages&lt;ArticlePage&gt;();
 
 // Accesses the ID of the parent
 var parentId = page.SystemFields.WebPageItemParentID;
@@ -367,7 +367,7 @@ var pageName = page.SystemFields.WebPageItemName;
 <pre><code>
 
 // Retrieves a page
-var page = await contentRetriever.RetrievePage&lt;ArticlePage&gt;();
+var page = await contentRetriever.RetrievePages&lt;ArticlePage&gt;();
 
 // Accesses the 'Text' field of the page
 var pageText = page.ArticlePageText;

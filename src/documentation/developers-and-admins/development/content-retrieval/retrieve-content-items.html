@@ -76,7 +76,7 @@ private async Task SampleRetrieval()
 
 <p>For scenarios requiring advanced query customization, you can use the <a href="/documentation/developers-and-admins/api/content-item-api/content-item-query-api">content item query API</a> with <code>ContentItemQueryBuilder</code> and <code>IContentQueryExecutor</code>.</p>
 <h3 id="filter-content-items-based-on-tags">Filter content items based on tags</h3>
-<p>You can limit the retrieval to only content items with <a href="/documentation/developers-and-admins/configuration/taxonomies">specified tags</a> tags using the <code>additionalQueryConfiguration</code> parameter with the <code>WhereContainsTags</code> method:</p>
+<p>You can limit the retrieval to only content items with <a href="/documentation/developers-and-admins/configuration/taxonomies">specified tags</a> tags using the <code>additionalQueryConfiguration</code> parameter with the <code>Where</code> method and its <code>WhereContainsTags</code> condition:</p>
 
 <div>
 <div>
@@ -97,9 +97,10 @@ private async Task SampleRetrieval()
 IEnumerable&lt;Guid&gt; tagIdentifiers;
 
 var banners = await contentRetriever.RetrieveContent&lt;Banner&gt;(
-    query =&gt; query.WhereContainsTags("SomeTaxonomy", tagIdentifiers),
+    RetrieveContentParameters.Default,
+    query =&gt; query.Where(where =&gt; where.WhereContainsTags("SomeTaxonomy", tagIdentifiers)),
     new RetrievalCacheSettings(cacheItemNameSuffix:
-                                    $"{nameof(WhereParameters.WhereContainsTags)}|SomeTaxonomy|tagIdentifiers"));
+        $"{nameof(WhereParameters.Where)}|{nameof(WhereParameters.WhereContainsTags)}|SomeTaxonomy|tagIdentifiers"));
 
 </code></pre>
 </div>
@@ -126,9 +127,10 @@ IEnumerable&lt;Guid&gt; tagIdentifiers;
 var tagCollection = await TagCollection.Create(tagIdentifiers);
 
 var articles = await contentRetriever.RetrieveContent&lt;ArticlePage&gt;(
-    query =&gt; query.WhereContainsTags("SomeTaxonomy", tagCollection),
+    RetrieveContentParameters.Default,
+    query =&gt; query.Where(where =&gt; where.WhereContainsTags("SomeTaxonomy", tagCollection)),
     new RetrievalCacheSettings(cacheItemNameSuffix:
-        $"{nameof(WhereParameters.WhereContainsTags)}|SomeTaxonomy|Collection"));
+        $"{nameof(WhereParameters.Where)}|{nameof(WhereParameters.WhereContainsTags)}|SomeTaxonomy|Collection"));
 
 </code></pre>
 </div>
@@ -218,15 +220,15 @@ var articles = await contentRetriever.RetrieveContent&lt;ArticlePage&gt;(
 IEnumerable&lt;Guid&gt; tagIdentifiers;
 
 var banners = await contentRetriever.RetrieveContent&lt;Banner&gt;(
-
+    RetrieveContentParameters.Default,
     query =&gt; query.Where(where =&gt;
         where.WhereContainsTags("SomeTaxonomy",
-                    new List&lt;Guid&gt; { tagIdentifiers.ElementAt(0) })
-             .And()
-             .WhereContainsTags("SomeTaxonomy",
-                    new List&lt;Guid&gt; { tagIdentifiers.ElementAt(1) })),
+                new List&lt;Guid&gt; { tagIdentifiers.ElementAt(0) })
+            .And()
+            .WhereContainsTags("SomeTaxonomy",
+                new List&lt;Guid&gt; { tagIdentifiers.ElementAt(1) })),
     new RetrievalCacheSettings(cacheItemNameSuffix: 
-                                    $"{nameof(WhereParameters.Where)}|MultipleTags|tagIdentifiers"));
+        $"{nameof(WhereParameters.Where)}|MultipleTags|tagIdentifiers"));
 
 </code></pre>
 </div>
@@ -282,8 +284,8 @@ var contentItems = await contentRetriever.RetrieveContentOfContentTypes&lt;ICont
     contentTypes,
     RetrieveContentOfContentTypesParameters.Default,
     query =&gt; query.InSmartFolder(smartFolderGuid)
-                   .OrderBy(new OrderByColumn("ContentItemCommonDataLastPublishedWhen", OrderDirection.Descending))
-                   .TopN(5),
+        .OrderBy(new OrderByColumn("ContentItemCommonDataLastPublishedWhen", OrderDirection.Descending))
+        .TopN(5),
     new RetrievalCacheSettings(cacheItemNameSuffix:
         $"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{smartFolderGuid}|{nameof(RetrieveContentOfContentTypesQueryParameters.OrderBy)}|{nameof(OrderByColumn)}|{nameof(RetrieveContentQueryParameters.TopN)}|5"));
 </code></pre>
@@ -326,8 +328,8 @@ var smartFolderGuid = model?.Properties?.SmartFolderSelectorField.Identifier ?? 
 var articleItems = await contentRetriever.RetrieveContent&lt;ArticlePage&gt;(
     RetrieveContentParameters.Default,
     query =&gt; query.InSmartFolder(smartFolderGuid),
-    new RetrievalCacheSettings(
-        cacheItemNameSuffix: $"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{smartFolderGuid}|{nameof(ContentTypesQueryParameters.OfContentType)}|ArticlePage"));
+    new RetrievalCacheSettings(cacheItemNameSuffix:
+        $"{nameof(RetrieveContentQueryParameters.InSmartFolder)}|{smartFolderGuid}|{nameof(ContentTypesQueryParameters.OfContentType)}"));
 </code></pre>
 </div>
 </div>

@@ -37,25 +37,26 @@
 <pre><code>
  using System.Threading;
  using System.Threading.Tasks;
+ using Microsoft.Extensions.Logging;
 
  using CMS.Core;
  using CMS.Scheduler;
 
  public class HelloScheduledTask : IScheduledTask
  {
-     private readonly IEventLogService eventLogService;
+     private readonly ILogger&lt;HelloScheduledTask&gt; logger;
 
      // Supports dependency injection to resolve required services
-     public HelloScheduledTask(IEventLogService eventLogService)
+     public HelloScheduledTask(ILogger&lt;HelloScheduledTask&gt; logger)
      {
-         this.eventLogService = eventLogService;
+         this.logger = logger;
      }
 
-     // Called by the system when running the scheduled task.
+     // Called by the system when running the scheduled task
      public Task&lt;ScheduledTaskExecutionResult&gt; Execute(ScheduledTaskConfigurationInfo task, CancellationToken cancellationToken)
      {
-         // Creates a record in the event log application
-         eventLogService.LogInformation("SCHEDULED_TASK", "NOTIFICATION", "Hello from my scheduled task!");
+         // Logs a warning event
+         logger.LogWarning(new EventId(0, "NOTIFICATION"), "Hello from my scheduled task!");
 
          // Indicates successful task completion
          return Task.FromResult(ScheduledTaskExecutionResult.Success);
@@ -96,7 +97,7 @@ We recommend using a unique prefix in your identifiers to prevent conflicts when
 </div>
 </li>
 </ol>
-<p>In this example, the task only creates a record in the application’s <a href="/documentation/developers-and-admins/configuration/event-log">event log</a>. After configuring the task in the system, you can view the <em>Event log</em> application and see the events being logged.</p>
+<p>In this example, the task only <a href="/documentation/developers-and-admins/development/logging">logs</a> a warning event. a record in the application’s . After configuring the task in the system, you can view the <a href="/documentation/developers-and-admins/configuration/event-log">Event log</a> application and see the events being logged.</p>
 <p>Inside the <code>Execute</code> method:</p>
 <ul>
 <li><p>Use <code>ScheduledTaskConfigurationInfo</code> to access the configuration of the associated task from the <strong>Scheduled tasks</strong> application (e.g., task name and last or next run times).</p></li>

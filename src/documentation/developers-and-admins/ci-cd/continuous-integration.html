@@ -44,6 +44,16 @@
 <li>Create a backup of the instance’s database.</li>
 <li>Add the <strong><em>entire</em></strong> Xperience solution to your source control (adding only the CI repositoryfolder may lead to problems and is not recommended).</li>
 </ol>
+
+<div>
+
+</div>
+<div>
+<p><strong>Source control ignore rules</strong></p>
+<p>Certain source control systems may have ignore rules, such as <em>gitignore</em>, which can unintentionally exclude files or folders used in the CI/CD repository (for example, the <em>*.class</em> and <em>*.user</em> file and folder extensions).</p>
+<p>Such rules may prevent your environment from working correctly. We recommend that you evaluate ignore rules for the repository and disable them as required.</p>
+</div>
+
 <p>To add development instances into your environment, perform the following steps for each instance:</p>
 <ol type="1">
 <li>Connect to the source control from the development machine and load the latest version of the solution files onto the local file system.

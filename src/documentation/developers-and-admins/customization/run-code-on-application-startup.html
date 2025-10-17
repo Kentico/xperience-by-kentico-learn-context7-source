@@ -63,8 +63,8 @@
 
   protected override void OnInit(ModuleInitParameters parameters)
   {
-      // Resolve services via IServiceProvider. e.g., IEventLogService
-      parameters.Services.GetRequiredService&lt;IEventLogService&gt;();
+      // Resolve services via IServiceProvider. e.g., ILogger
+      parameters.Services.GetRequiredService&lt;ILogger&lt;CustomModule&gt;&gt;();
       ...
   }
 
@@ -122,19 +122,19 @@
 </div>
 <div>
 <pre><code>
-
 using CMS;
+using CMS.ContentEngine;
 using CMS.Core;
 using CMS.DataEngine;
-using CMS.Membership;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 [assembly: RegisterModule(typeof(CustomModule))]
 
 public class CustomModule : Module
 {
-    private IEventLogService eventLogService;
+    private ILogger&lt;CustomModule&gt; logger;
 
     // Module class constructor, inherits from the base constructor with the code name of the module as the parameter
     public CustomModule() : base(nameof(CustomModule))
@@ -143,24 +143,20 @@ public class CustomModule : Module
 
     protected override void OnInit(ModuleInitParameters parameters)
     {
-        // Access 'IServiceProvider' via ModuleInitParameters and resolve 'IEventLogService'
-        eventLogService = parameters.Services.GetRequiredService&lt;IEventLogService&gt;();
+        // Access 'IServiceProvider' via ModuleInitParameters and resolve 'ILogger'
+        logger = parameters.Services.GetRequiredService&lt;ILogger&lt;CustomModule&gt;&gt;();
 
-        // Registers an event handler 
-        UserInfo.TYPEINFO.Events.Insert.After += User_InsertAfter;
+        // Registers an event handler
+        ContentItemEvents.Publish.Execute += ContentItem_Published;
     }
 
-    private void User_InsertAfter(object sender, ObjectEventArgs e)
+    private void ContentItem_Published(object sender, PublishContentItemEventArgs e)
     {
-        // Logs an information entry into the system's event log whenever a new user is created
-        string message = "New user '" + e.Object.GetStringValue("UserName", "") +
-                        "' was created.";
-        eventLogService.LogInformation(source: "User registration",
-                                       eventCode: "NEW USER",
-                                       eventDescription: message);
+        // Logs an information event whenever a content item is published
+        string message = $"Content item '{e.DisplayName}' was published.";
+        logger.LogInformation(new EventId(0, "CONTENT_ITEM_PUBLISHED"), message);
     }
 }
-
 </code></pre>
 </div>
 
