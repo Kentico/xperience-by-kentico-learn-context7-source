@@ -237,7 +237,7 @@ namespace Custom
 </ol>
 <p>With this type of customization, the system adds emails to the database queue, and users can <a href="/documentation/business-users/email-queue">monitor emails</a> using the <strong>Email queue</strong> application in the Xperience administration. You still need to <a href="/documentation/developers-and-admins/configuration/email-configuration">register an email client</a> (e.g., the default SMTP or SendGrid client) to send out the emails from the queue.</p>
 <h3 id="example---extended-iemailservice">Example - Extended IEmailService</h3>
-<p>The following example demonstrates how to define a custom email service that extends the default implementation. This sample uses all functionality of the default <code>IEmailService</code> email service, and extends it by creating an entry in the <a href="/documentation/developers-and-admins/configuration/event-log">Event log</a> whenever the system sends an email. You can use the same approach to add any required custom functionality.</p>
+<p>The following example demonstrates how to define a custom email service that extends the default implementation. This sample uses all functionality of the default <code>IEmailService</code> email service, and extends it by <a href="/documentation/developers-and-admins/development/logging">logging an event</a> whenever the system sends an email. You can use the same approach to add any required custom functionality.</p>
 <p>Start by preparing a separate project for custom classes in your Xperience solution:</p>
 <ol type="1">
 <li>Open your project’s solution in Visual Studio.</li>
@@ -270,6 +270,7 @@ namespace Custom
 <pre><code>
 
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 using CMS;
 using CMS.Core;
@@ -284,13 +285,13 @@ namespace Custom
     {
         // Stores an instance of the default IEmailService implementation
         private readonly IEmailService defaultEmailService;
-        // Stores an instance of the event log service
-        private readonly IEventLogService eventLogService;
+        // Stores an instance of the logging service
+        private readonly ILogger&lt;CustomEmailService&gt; logger;
 
-        public CustomEmailService(IEmailService defaultEmailService, IEventLogService eventLogService)
+        public CustomEmailService(IEmailService defaultEmailService, ILogger&lt;CustomEmailService&gt; logger)
         {
             this.defaultEmailService = defaultEmailService;
-            this.eventLogService = eventLogService;
+            this.logger = logger;
         }
 
         // Indicates whether processing of emails is configured
@@ -308,9 +309,9 @@ namespace Custom
             // Adds the email message to the queue using the default email service
             Task emailTask = defaultEmailService.SendEmail(message);
 
-            // Custom action that creates an event log entry when an email is sent
+            // Custom action that creates a log entry when an email is sent
             string detail = string.Format("Email from sender {0} sent to the queue.", message.From);
-            eventLogService.LogInformation("Custom", "EMAIL SENDOUT", detail);
+            logger.LogInformation(new EventId(0, "EMAIL_SENDOUT"), detail);
 
             return emailTask;
         }
@@ -320,7 +321,8 @@ namespace Custom
 </code></pre>
 </div>
 
-<p>The system now uses the customized service to send emails. Whenever the system adds an email to the queue, an entry with the <em>Custom</em> <strong>Source</strong> value is created in the <a href="/documentation/developers-and-admins/configuration/event-log">Event log</a>.</p>
+<p>The system now uses the customized service to send emails. Whenever the system adds an email to the queue, a log entry with the <em>EMAIL_SENDOUT</em> event code is created.</p>
+<p>You can view the entry in the <a href="/documentation/developers-and-admins/configuration/event-log">Event log</a>, if you have the <code>XperienceEventLog</code> logging provider <a href="/documentation/developers-and-admins/development/logging">configured</a> to include the <code>Information</code> log level for the given event category (<code>Custom.CustomEmailService</code> in the example above).</p>
 
 </body>
 </html>

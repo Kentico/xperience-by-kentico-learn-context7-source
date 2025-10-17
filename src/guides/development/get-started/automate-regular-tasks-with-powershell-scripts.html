@@ -723,7 +723,7 @@ You can find an example of the type of migration that can be run here on <a href
 <div>
 <span>PS</span>
 </div>
-<strong>Update.ps1</strong>
+<strong>Update-XperienceDatabaseOnly.ps1</strong>
 </div>
 <div>
 <button>
@@ -863,14 +863,14 @@ Read-Host -Prompt "Press Enter to exit"
 </div>
 <div>
 <p><strong>Refactoring</strong></p>
-<p>You may have noticed the <em>Update</em> script file contains two function definitions: <code>Execute-SQL-Command</code> and <code>Execute-SQL-Data-Query.</code> If you have use for these functions elsewhere, consider extracting them into separate files and re-using them, as you did <code>Get-ConnectionString</code> earlier.</p>
+<p>You may have noticed the <em>Update-XperienceDatabaseOnly</em> script file contains two function definitions: <code>Execute-SQL-Command</code> and <code>Execute-SQL-Data-Query.</code> If you have use for these functions elsewhere, consider extracting them into separate files and re-using them, as you did <code>Get-ConnectionString</code> earlier.</p>
 <div>
 <div>
 
 </div>
 <div>
 <p><strong>SQL transactions</strong></p>
-<p>Note that unlike the SQL functionality in the <em>RestoreCI</em> script, the functions in the <em>Update</em> script close the connection immediately, rather than executing several transactions on one connection.</p>
+<p>Note that unlike the SQL functionality in the <em>RestoreCI</em> script, the functions in the <em>Update-XperienceDatabaseOnly</em> script close the connection immediately, rather than executing several transactions on one connection.</p>
 <p>This ensures no connections are left open during the update, but may be less efficient if these functions were repurposed to process several consecutive commands.</p>
 </div>
 </div>
@@ -890,6 +890,14 @@ Read-Host -Prompt "Press Enter to exit"
 </ol>
 <p>This ensures that updates to the schema of objects in the database are not in conflict with the data serialized in the CI repository.</p>
 <p>Make sure your solution builds without errors before running CI store - otherwise, the serialized data may not be in the correct format. </p>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You can also inspect <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/finished/scripts/Update-XperienceProjectWithDatabase.ps1" target="_blank">a similar sample PowerShell script</a> that updates both the Xperience project files and database.</p>
 </div>
 
 <h1 id="whats-next">What’s next?</h1>

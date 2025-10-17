@@ -39,18 +39,18 @@
 
 public class AccountController : Controller
 {
-    private readonly IEventLogService eventLogService;
+    private readonly ILogger&lt;AccountController&gt; logger;
     private readonly UserManager&lt;ApplicationUser&gt; userManager;
     private readonly SignInManager&lt;ApplicationUser&gt; signInManager;
 
     // Provides instances of required services using dependency injection
     public AccountController(UserManager&lt;ApplicationUser&gt; userManager,
                              SignInManager&lt;ApplicationUser&gt; signInManager,
-                             IEventLogService eventLogService)
+                             ILogger&lt;AccountController&gt; logger)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
-        this.eventLogService = eventLogService;
+        this.logger = logger;
     }
 
     ...  
@@ -95,7 +95,7 @@ public class AccountController : Controller
         }
         catch (Exception ex)
         {
-            eventLogService.LogException(nameof(AccountController), "Register", ex);
+            logger.LogError(new EventId(0, "REGISTRATION_ERROR"), ex, $"Registration failed for user {model.UserName}");
             ModelState.AddModelError(string.Empty, "Registration failed.");
         }
 
@@ -271,18 +271,18 @@ public class RegisterViewModel
 
 public class AccountController : Controller
 {
-    private readonly IEventLogService eventLogService;
+    private readonly ILogger&lt;AccountController&gt; logger;
     private readonly UserManager&lt;ApplicationUser&gt; userManager;
     private readonly SignInManager&lt;ApplicationUser&gt; signInManager;
 
     // Provides instances of required services using dependency injection
     public AccountController(UserManager&lt;ApplicationUser&gt; userManager,
                              SignInManager&lt;ApplicationUser&gt; signInManager,
-                             IEventLogService eventLogService)
+                             ILogger&lt;AccountController&gt; logger)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
-        this.eventLogService = eventLogService;
+        this.logger = logger;
     }
 
     ...
@@ -314,14 +314,14 @@ public class AccountController : Controller
         }
         catch (Exception ex)
         {
-            eventLogService.LogException("AccountController", "SignIn", ex);
+            logger.LogError(new EventId(0, "SIGNIN_ERROR"), ex, $"Sign in failed for user {model.UserName}");
         }
 
         if (signInResult.Succeeded)
-        {          
+        {          
             // Redirects successfully signed-in members to the home page
             return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
+        }
 
         // Returns an error in case the sign-in fails
         ModelState.AddModelError(string.Empty, "We couldn't sign you in using the provided credentials.");
@@ -336,7 +336,7 @@ public class AccountController : Controller
     public ActionResult Logout()
     {
         signInManager.SignOutAsync();
-        return Redirect("/");
+        return Redirect("/");
     }
 }
 
@@ -823,7 +823,7 @@ builder.Services.AddIdentity&lt;ApplicationUser, NoOpRoleStore&gt;(options =&gt;
 <div>
 <pre><code>
 
-private readonly IEventLogService eventLogService;
+private readonly ILogger&lt;AccountController&gt; logger;
 private readonly IEmailService emailService;
 private readonly UserManager&lt;ApplicationUser&gt; userManager;
 private readonly SignInManager&lt;ApplicationUser&gt; signInManager;
@@ -831,12 +831,12 @@ private readonly SignInManager&lt;ApplicationUser&gt; signInManager;
 // Obtains instances of required dependencies using constructor dependency injection
 public AccountController(UserManager&lt;ApplicationUser&gt; userManager,
                          SignInManager&lt;ApplicationUser&gt; signInManager,
-                         IEventLogService eventLogService,
+                         ILogger&lt;AccountController&gt; logger,
                          IEmailService emailService)
 {
     this.userManager = userManager;
     this.signInManager = signInManager;
-    this.eventLogService = eventLogService;
+    this.logger = logger;
     this.emailService = emailService;
 }    
 
@@ -880,7 +880,7 @@ public async Task&lt;IActionResult&gt; Register(RegisterViewModel model)
     }
     catch (Exception ex)
     {
-        eventLogService.LogException(nameof(AccountController), "Register", ex);
+        logger.LogError(new EventId(0, "REGISTRATION_ERROR"), ex, $"Registration failed for user {model.UserName}");
         ModelState.AddModelError(string.Empty, "Registration failed.");
     }
 
@@ -912,8 +912,8 @@ public async Task&lt;IActionResult&gt; Register(RegisterViewModel model)
             if (signInResult.Succeeded)
             {
                 // Redirects to the Home action
-                RedirectToAction(nameof(HomeController.Index), "Home");
-            }
+                RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
     }
 

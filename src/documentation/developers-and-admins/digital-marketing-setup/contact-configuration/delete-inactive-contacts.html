@@ -100,6 +100,7 @@ To learn more about the Where condition API, see <a href="/documentation/develop
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 using CMS.Core;
 using CMS.ContactManagement;
@@ -112,13 +113,13 @@ using CMS.Scheduler;
 public class CustomContactCleanerTask : IScheduledTask
 {
     private readonly IContactsBulkDeletionService contactDeletionService;
-    private readonly IEventLogService eventLogService;
+    private readonly ILogger&lt;CustomContactCleanerTask&gt; logger;
 
     // Constructor that obtains required services using dependency injection
-    public CustomContactCleanerTask(IContactsBulkDeletionService contactDeletionService, IEventLogService eventLogService)
+    public CustomContactCleanerTask(IContactsBulkDeletionService contactDeletionService, ILogger&lt;CustomContactCleanerTask&gt; logger)
     {
         this.contactDeletionService = contactDeletionService;
-        this.eventLogService = eventLogService;
+        this.logger = logger;
     }
 
     // Called by the system when running the scheduled task
@@ -140,14 +141,14 @@ public class CustomContactCleanerTask : IScheduledTask
 
             // Indicates successful task completion
             return ScheduledTaskExecutionResult.Success;
-        }        
+        }
         catch (Exception ex)
         {
-            // If an exception occurs while deleting contacts, logs an error with the exception details into the event log
-            eventLogService.LogException(nameof(CustomContactCleanerTask), nameof(Execute), ex);
+            // If an exception occurs while deleting contacts, logs an error with the exception details
+            logger.LogError(new EventId(0, nameof(Execute)), ex, "An error occurred while deleting contacts");
             return new ScheduledTaskExecutionResult("An error occurred while deleting contacts. See the event log for detailed information.");
         }
-    }    
+    }
 }
 </code></pre>
 </div>

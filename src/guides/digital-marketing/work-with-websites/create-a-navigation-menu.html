@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Create a navigation menu</title>
+</head>
+<body>
+<p>Navigation menus give your visitors a quick way to move through your website and find the content they need. In Kentico Xperience, menus are flexible. You can set up a simple list of links, build a fully customized navigation structure, or adapt menus for different devices and channels.</p>
+<p>This guide explains the options you have for building navigation menus and highlights the best practices to follow. You’ll learn how to add new navigation menu items, adjust their order, and include external links when needed. By the end, you’ll know how to create a clear, user-friendly menu that works across desktop and mobile.</p>
+
+<div>
+<p><strong>Prerequisites</strong>: you have a <a href="https://www.kentico.com/services/training/training-website-requests" target="_blank">Kbank demo site</a> Kbank demo site running to follow along with the exercise.</p>
+</div>
+
+<h2 id="create-a-new-navigation-menu-group">Create a new navigation menu group</h2>
+<p>A navigation group is a menu item that holds a set of related links. It’s often used as a top-level item in the menu bar (for example, <em>Accounts</em> with links to <em>Premium account</em> and <em>Advanced account</em>), but it can also be placed deeper in the menu wherever you want to provide expandable links. The links you add inside it appear together as part of the menu upon hover.</p>
+<ol type="1">
+<li>Go to the <strong>Personal banking</strong> channel in the <strong>Channels</strong> application.</li>
+<li>Select <em>Navigation menu -&gt; Header nav</em> in the content tree and create a <strong>New page</strong>:
+<ol type="1">
+<li>Fill in the <strong>Page name</strong>: <em>Promotions</em>
+</li>
+<li>Choose the page’s <strong>Content type</strong>: <em>Navigation menu group</em>.</li>
+</ol>
+</li>
+<li>Finally, <strong>Publish</strong> the new navigation menu.</li>
+</ol>
+<p>You can change the order of the navigation menu group by dragging it to your desired location, either in the top-level navigation menu or within subgroups.</p>
+<p>The navigation group can also link to a page. To link a page to the navigation group, edit the page representing the navigation group, search for the page you wish to link using the <strong>Add a link to</strong> selector and select the page from the navigation structure.</p>
+<p></p>
+<h3 id="add-a-new-navigation-menu-item">Add a new navigation menu item</h3>
+<p>A navigation menu item is the child item of the navigation group. To add new menu items to your <strong>Promotions</strong> navigation menu:</p>
+<ol type="1">
+<li>Click <strong>New page</strong> under the selected <strong>Promotions</strong> menu group to add a new menu item.</li>
+<li>Fill in the following details:
+<ul>
+<li>
+<strong>Page name</strong>: <em>Electric car loan</em>
+</li>
+<li>
+<strong>Content type</strong>: Select <em>Navigation menu item</em> (or the appropriate content type for menu items in your project).</li>
+</ul>
+</li>
+<li>
+<strong>Continue</strong>.</li>
+<li>In the next step, enter the <strong>Caption</strong> corresponding to the Page name.</li>
+<li>
+<strong>Add link to page</strong> by searching for the <em>Electric car loan</em> page and selecting it. With this field, you can only add pages from within the current channel. To add a page from another channel or from anywhere on the internet, see <a href="#add-a-navigation-menu-item-linking-to-an-external-page">how to add a navigation menu item linking to an external page</a>
+</li>
+<li>
+<strong>Publish</strong> your new navigation item.</li>
+</ol>
+<p>The new menu item “Electric car loan” will now appear in your navigation menu. You can reorder or further configure it as required.</p>
+<h3 id="add-a-navigation-menu-item-linking-to-an-external-page">Add a navigation menu item linking to an external page</h3>
+<p>To add a menu item that links to a page from a different channel using an external URL:</p>
+<ol type="1">
+<li>Click <strong>New page</strong> under the selected <strong>Promotions</strong> menu group to add a new menu item.</li>
+<li>Fill in the following details:
+<ul>
+<li>
+<strong>Page name</strong>: <em>Mortgages</em>
+</li>
+<li>
+<strong>Content type</strong>: Select <em>Navigation menu item</em> (or the appropriate content type for menu items in your project).</li>
+</ul>
+</li>
+<li>
+<strong>Continue</strong>.</li>
+<li>In the next step, enter the <strong>Caption</strong> corresponding to the Page name.</li>
+<li>Add a link using <strong>External URL</strong>. Enter the full URL of the page from the other channel (for example, <em>https://www.example.com/mortgages</em>).</li>
+<li>
+<strong>Publish</strong> your new navigation item.</li>
+</ol>
+<p>The new menu item “Mortgages” will now appear in your navigation menu and will link to the specified external page from another channel. You can change the order of the navigation menu items by dragging it to your desired location within the <em>Promotions</em> folder.</p>
+
+<div>
+
+</div>
+<div>
+<p>When setting up a navigation menu for another <a href="/documentation/developers-and-admins/configuration/languages">language variant</a>, ensure that each linked page in the navigation menu has a translated version available in that language. To make the translation of the content easier, you can use <a href="/documentation/business-users/aira#aira-translations">AIRA translations</a>.</p>
+</div>
+
+<p>You have now successfully created a new navigation menu group and added items.</p>
+<h2 id="tips-to-implement-your-own-navigation-menu">Tips to implement your own navigation menu</h2>
+<p>Before creating a navigation menu group, coordinate with your team on which pages to include and ensure developers have prepared the menu setup. This will help you manage the menu without issues.</p>
+<p>Navigation menus also need to work well on both desktop and mobile devices. Follow these tips to keep your menu clear, usable, and consistent across devices:</p>
+<ul>
+<li>
+<strong>Keep menus short:</strong> Aim for 3–5 main items. Long menus may look fine on desktop but are hard to use on mobile.<br>
+</li>
+<li>
+<strong>Check both views:</strong> Always preview the menu on both desktop and mobile.<br>
+</li>
+<li>
+<strong>Avoid deep nesting:</strong> Multi-level dropdowns are difficult to use on mobile.<br>
+</li>
+<li>
+<strong>Use clear labels:</strong> Short, descriptive names prevent wrapping or overlap.<br>
+</li>
+<li>
+<strong>Highlight key actions:</strong> Place important items (e.g., <em>Contact</em>, <em>Promotions</em>) where they’re easy to tap.</li>
+</ul>
+<p>With your navigation menu set up, your visitors will have a much easier time finding key content and moving through your site. Remember to review your menu regularly as your website evolves, and adjust it to keep navigation clear and user-friendly.</p>
+
+</body>
+</html>

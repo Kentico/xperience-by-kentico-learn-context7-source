@@ -1,0 +1,1027 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Transform widget properties</title>
+</head>
+<body>
+<p>This technical deep dive shows you how to transform widget properties during an upgrade from Kentico Xperience 13 (KX13) to Xperience by Kentico (XbyK). You’ll learn how to migrate properties that use different UI controls, handle custom components, and enhance the editing experience by restructuring widget properties.</p>
+<p>While the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Kentico migration tool</a> handles most standard widget properties automatically, you often need to customize the migration process when working with complex property configurations or when modernizing widgets as part of the upgrade.</p>
+<p>For comprehensive widget restructuring scenarios, see our <a href="/guides/development/upgrade-deep-dives/migrate-widget-data-to-content-hub">Migrate widget data as reusable content</a> page. This material focuses on property-level transformations.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>This guide assumes you have:</p>
+<ul>
+<li>Basic knowledge of C# and .NET framework concepts</li>
+<li>Familiarity with the basics of <a href="/documentation/developers-and-admins/development/builders/page-builder">Page Builder</a> widgets in Xperience by Kentico and in Kentico Xperience 13</li>
+<li>Basic understanding of the <a href="/guides/architecture/upgrade-from-kx13/upgrade-from-kx13-overview">KX13 to XbyK upgrade process</a> using the Kentico Migration tool.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>If you haven’t, we recommend following along with the <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough">upgrade walkthrough</a> to experience the process of getting a migrated page working in Xperience by Kentico.</p>
+</div>
+
+<h2 id="understand-the-mechanics">Understand the mechanics</h2>
+<p>Before exploring specific transformation scenarios, it’s important to understand how widget property migration works. Generally, upgrading widget properties involves two key aspects: <em>data migration</em> and <em>code migration</em>.</p>
+<p><strong>Data migration</strong> handles the transformation of existing widget property data from your KX13 database to the new XbyK structure. Most widget properties are straightforward to handle and migrate automatically as they map one-to-one between KX13 and XbyK (e.g., text fields) or have a default migration defined (e.g., pages, attachments/media files).</p>
+
+<div>
+
+</div>
+<div>
+<p>See our GitHub documentation for <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migration-details-for-specific-object-types" target="_blank">how different property types map between versions</a> of our product.</p>
+</div>
+
+<p>For properties you wish to modify, you need to define your own custom widget property migration. You can do this for properties using out-of-the-box UI controls and custom controls alike.</p>
+<p><strong>Code migration</strong> involves updating your widget property classes to use XbyK’s new form component attributes and APIs. When you use <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#source-instance-api-discovery" target="_blank">source instance API discovery</a>, you’ll need to adjust your widget properties to utilize the new controls. This is a straightforward and methodical process, where AI assistance can help – at least for the out-of-the-box UI controls.</p>
+<p>If your widgets use any custom UI controls, you’ll need to re-implement them in the target solution.</p>
+<p>Now let’s walk through concrete examples that demonstrate different types of property transformations.</p>
+<h2 id="transform-properties-to-use-a-different-ui-form-control">Transform properties to use a different UI form control</h2>
+<h3 id="keeping-the-data-type">Keeping the data type</h3>
+<p>Imagine you have a widget in your source KX13 instance with a simple text input property. During the usage of the widget it turned out that editors need to store a longer sentence or even a paragraph in this property.</p>
+<p></p>
+<p>Let’s change the UI control from a <em>text input</em> to a <em>text area</em>.</p>
+<p>Since the data type remains the same (text), you don’t need to perform any data migration work.</p>
+<p>When adjusting widget properties in the code of your target instance, simply use the <code>TextAreaComponent</code> attribute:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Source (KX13): HeroBannerWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+[EditingComponent(TextInputComponent.IDENTIFIER,
+    Label = "Content",
+    Order = 1)]
+public string Content { get; set; }
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Target (XbyK): HeroBannerWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+[TextAreaComponent(
+    Label = "Content",
+    MinRowsNumber = 10,
+    Order = 20)]
+public string Content { get; set; } = "";
+</code></pre>
+</div>
+
+<p>The result will look seamless.</p>
+<p></p>
+<h3 id="changing-the-data-type">Changing the data type</h3>
+<p>For a more complex scenario, consider a widget property that uses a page selector component in KX13:</p>
+<p></p>
+<p>The migration tool already handles differences in the Page Builder data structure for page selector properties between KX13 and XbyK, with the default <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.Extensions/DefaultMigrations/WidgetPageSelectorMigration.cs" target="_blank">page selector migration</a>. This default transformation will work for you if you’re aiming for a <a href="/guides/development/upgrade-deep-dives/upgrade-widgets-introduction#lift-and-shift-migration">lift-and-shift migration</a>.</p>
+<p>To use a different control for page selection, for example, the <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/reference-admin-ui-form-components#combined-content-selector">combined content selector</a>, which is the Kentico-recommended practice, define a <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/4533d9be2da9e494057ae666ecd26976fe590116/Migration.Tool.Extensions/README.md#customize-widget-property-migrations" target="_blank">custom widget property migration</a>.</p>
+<p>First, examine the Page Builder data structures. Both use an array, but the <em>page selector</em> in KX13 references pages by <code>nodeGuid</code>, while the <em>combined content selector</em> in XbyK uses <code>Identifier</code> (a content item GUID).</p>
+
+<div>
+<div>
+<div>
+<span>JSON</span>
+</div>
+<strong>Page selector property data structure in KX13</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="11-15"><code>
+...
+{
+    ...
+    "type": "Xperience.Widgets.HeroBannerWidget",
+    "variants": [
+        {
+            "identifier": "d9146566-6bfc-4e62-b18c-87466e6f639c",
+            "properties": {
+                "title": "Who should take this course?",
+                ...
+                "ctaUrlInternal": [
+                    {
+                        "nodeGuid": "5f4f8058-44fa-46ec-be60-01b66d7ae63c"
+                    }
+                ],
+                ...
+            }
+        }
+    ]
+}
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>JSON</span>
+</div>
+<strong>Combined content selector property data structure in XbyK</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="12-16"><code>
+...
+{
+    ...
+    "type": "Xperience.Widgets.HeroBannerWidget",
+    "variants": [
+        {
+            "identifier": "c9cd393b-8b2b-438a-9e1d-eba41be0960c",
+            "name": null,
+            "properties": {
+                "title": "Who should take this course?",
+                ...
+                "ctaUrlInternal": [
+                    {
+                        "Identifier": "17053ede-cc2c-4430-bd75-168179780a52"
+                    }
+                ],
+                "ctaTargetUrl": "https://kentico.com",
+                ...
+            },
+            "conditionTypeParameters": null
+        }
+    ]
+}
+...
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>You can view the Page Builder JSON data by selecting from <code>CMS_Document.DocumentPageBuilderWidgets</code> in a KX13 database, and by selecting <code>CMS_ContentItemCommonData.ContentItemCommonDataVisualBuilderWidgets</code> in an XbyK database.</p>
+</div>
+
+<p>Let’s write the custom data migration to transform our widget JSON accordingly.</p>
+<p>In the <em>Migration.Tool.Extensions</em> project, create a new <code>WidgetPageSelectorToCombinedSelectorMigration</code> class file. We recommend organizing custom migrations separately from default ones, for example in a <em>CustomWidgetMigrations</em> folder.</p>
+<p>Define the class as shown below.</p>
+
+<div>
+
+</div>
+<div>
+<p>Read about the custom widget migration class structure in <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.Extensions/README.md#customize-widget-property-migrations" target="_blank">our GitHub documentation</a>.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WidgetPageSelectorToCombinedSelectorMigration.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="17"><code>
+using CMS.ContentEngine;
+using CMS.Core;
+using Microsoft.Extensions.Logging;
+using Migration.Tool.Common.Enumerations;
+using Migration.Tool.Common.Services;
+using Migration.Tool.KXP.Api.Services.CmsClass;
+using Migration.Tool.Source.Services.Model;
+using Newtonsoft.Json.Linq;
+
+public class WidgetPageSelectorToCombinedSelectorMigration(
+    ISpoiledGuidContext spoiledGuidContext,
+    ILogger&lt;WidgetPageSelectorToCombinedSelectorMigration&gt; logger) : IWidgetPropertyMigration
+{
+    private const string MigratedComponent = Kx13FormComponents.Kentico_PageSelector;
+
+    // Set higher priority (lower number) than migrations you want to override 
+    public int Rank =&gt; 100;
+
+    // This migration should happen only for Page selector properties 
+    public bool ShallMigrate(WidgetPropertyMigrationContext context, string propertyName)
+        =&gt; MigratedComponent.Equals(context.EditingFormControlModel?.FormComponentIdentifier, StringComparison.InvariantCultureIgnoreCase);
+
+    // Define the property migration
+    public Task&lt;WidgetPropertyMigrationResult&gt; MigrateWidgetProperty(
+        string key, JToken? value, WidgetPropertyMigrationContext context)
+    {
+        (int siteId, _) = context;
+
+        // Read the KX13 value if it's not empty
+        if (value?.ToObject&lt;List&lt;PageSelectorItem&gt;&gt;() is { Count: &gt; 0 } items)
+        {
+            // Map each page selector object to a content item reference - the target data type
+            var result = items.Select(pageSelectorItem =&gt; new ContentItemReference
+            {
+                // Retrieve the correct GUID of the migrated page item
+                Identifier = spoiledGuidContext.EnsureNodeGuid(pageSelectorItem.NodeGuid, siteId)
+            }).ToList();
+
+            // Serialize and return the new structure
+            var resultAsJToken = JToken.FromObject(result);
+            return Task.FromResult(new WidgetPropertyMigrationResult(resultAsJToken));
+        }
+        else
+        {
+            logger.LogError("Failed to parse '{ComponentName}' json {Json}", MigratedComponent, value?.ToString() ?? "&lt;null&gt;");
+
+            // Leave value as it is
+            return Task.FromResult(new WidgetPropertyMigrationResult(value));
+        }
+    }
+}
+</code></pre>
+</div>
+
+<p>Pay attention to the <code>Rank</code> property. If you look at the default <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.Extensions/DefaultMigrations/WidgetPageSelectorMigration.cs" target="_blank">Page selector migration</a>, you’ll see that its <code>ShallMigrate</code> function looks the same - it targets page selector properties.</p>
+<p>To prioritize your custom migration over the default <code>WidgetPageSelectorMigration</code>, <strong>set the <code>Rank</code> to a lower number.</strong></p>
+
+<div>
+
+</div>
+<div>
+<p>In general, system/default migrations are ranked 100,000 or higher, allowing plenty of space to prioritize custom classes.</p>
+</div>
+
+<p>Next, register your custom migration.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Migration.Tool.Extensions/ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="11"><code>
+...
+using Migration.Tool.Extensions.CustomWidgetMigrations;
+namespace Migration.Tool.Extensions;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection UseCustomizations(this IServiceCollection services)
+    {
+        ...
+        services.AddTransient&lt;IWidgetPropertyMigration, WidgetPageSelectorMigration&gt;();        
+        services.AddTransient&lt;IWidgetPropertyMigration, WidgetPageSelectorToCombinedSelectorMigration&gt;();
+        
+        return services;
+    }
+}
+</code></pre>
+</div>
+
+<p><strong>Rebuild the migration tool</strong> for the changes to take effect.</p>
+<p>When you run the data migration now, all KX13 page selector widget properties will migrate to <em>combined content selector</em> properties in the target instance.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Apply the migration to a subset of properties</strong></p>
+<p>What if you want to use the custom migration only for specific properties or widgets, instead of across the board?</p>
+<p>You have two options:</p>
+<ol type="a">
+<li><p>Test for a specific <code>propertyName</code>, and specific <code>siteId</code> in the <code>ShallMigrate</code> method of the <code>WidgetPageSelectorToCombinedSelectorMigration</code>.</p></li>
+<li>
+<p>Make the custom migration lower priority than the default by setting the <code>Rank</code> and call it solely for specific properties in a custom widget migration.</p>
+<p>For example:</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example custom widget migration</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="24-25"><code>
+ ...
+ public class HeroBannerWidgetMigration(ILogger&lt;HeroBannerWidgetMigration&gt; logger) : IWidgetMigration
+ {
+     public int Rank =&gt; 100;
+     public const string SOURCE_WIDGET_IDENTIFIER = "Xperience.Widgets.HeroBannerWidget";
+     public const int SOURCE_SITE_ID = 1;
+     public Task&lt;WidgetMigrationResult&gt; MigrateWidget(WidgetIdentifier identifier, JToken? value, WidgetMigrationContext context)
+     {
+         value!["type"] = "Xperience.Widgets.HeroBannerWidget";
+
+         var variants = (JArray)value!["variants"]!;
+         var singleVariant = variants[0];
+         singleVariant["properties"] = new JObject
+         {
+             ["title"] = singleVariant["properties"]!["title"],
+             ["content"] = singleVariant["properties"]!["content"],
+             ...
+             ["ctaTargetPage"] = singleVariant["properties"]!["ctaUrlInternal"]
+         };
+
+         //For new properties, we must explicitly define property migration classes
+         var propertyMigrations = new Dictionary&lt;string, Type&gt;
+         {
+             // Use the custom property widget migration 
+             ["ctaTargetPage"] = typeof(WidgetPageSelectorToCombinedSelectorMigration)
+         };
+
+         return Task.FromResult(new WidgetMigrationResult(value, propertyMigrations));
+     }
+
+     public bool ShallMigrate(WidgetMigrationContext context, WidgetIdentifier identifier) =&gt;
+         string.Equals(SOURCE_WIDGET_IDENTIFIER, identifier.TypeIdentifier, StringComparison.InvariantCultureIgnoreCase)
+     &amp;&amp; SOURCE_SITE_ID == context.SiteId;
+ }
+ </code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+
+<p>Regardless of which approach you chose, let’s adjust the code in your target instance. In the widget properties file, decorate the migrated property with the <code>ContentItemSelectorComponent</code> attribute and adjust content retrieval logic:</p>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>The widget properties file</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+[ContentItemSelectorComponent(
+    Cafe.CONTENT_TYPE_NAME,
+    Label = "Select page",
+    ExplanationText = "Select a page to link to.",
+    Order = 70)]
+public IEnumerable&lt;ContentItemReference&gt; CtaTargetPage { get; set; } = new List&lt;ContentItemReference&gt;();
+...
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Retrieve the page URL to for a View Model</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+private async Task InitializeModel(HeroBannerWidgetModel model, HeroBannerWidgetProperties properties,
+        LandingPage document1)
+{
+    ...
+    // Retrieve the web page based on the migrated content item's GUID
+    var contentItemGuid = properties.CtaTargetPage.FirstOrDefault()?.Identifier ?? Guid.Empty;
+    // Call a service method that retrieves the Webpage data
+    var page = await RetrieveWebPageByContentItemGuid(contentItemGuid);
+    // assign the page URL to the model to be rendered
+    model.CtaUrl = page != null ? page.GetUrl().AbsoluteUrl : String.Empty;
+    ...
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>The content retrieval is beyond the scope of this material. See an example implementation of the <code>RetrieveWebPageByContentItemGuid</code> method in our <a href="https://github.com/Kentico/xperience-by-kentico-training-guides/blob/main/src/TrainingGuides.Web/Features/Shared/Services/ContentItemRetrieverService.cs" target="_blank">Training Guides repository</a>.</p>
+</div>
+
+<h2 id="upgrade-properties-with-custom-ui-control">Upgrade properties with custom UI control</h2>
+<p>To migrate a property implemented with a custom control, you can also define a custom property migration. Then use <code>Rank</code> or direct property assignment in widget migration as described in the previous section.</p>
+<p>Let’s look at an example. Consider a Hero banner widget in KX13 that uses a Cloudinary custom control, which allows editors to use images and media files stored in a connected Cloudinary account.</p>
+<p></p>
+<p>The control stores the file path in Cloudinary within the widget property.</p>
+
+<div>
+<div>
+<div>
+<span>JSON</span>
+</div>
+<strong>An example of KX13 widget data with custom Cloudinary UI control</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="12"><code>
+...
+{
+    "identifier": "3209a0e7-6cdc-46c2-b738-f1bf01414cb4",
+    "type": "Xperience.Widgets.HeroBannerWidget",
+    "variants": [
+        {
+            "identifier": "45e0c03d-850e-4c77-bf71-076d609683e8",
+            "properties": {
+                "title": "Kentico Xperience Developer hub",
+                "content": "The hub collects all the essential resources you need to know to develop websites in Kentico Xperience.",
+                "logo": null,
+                "image": "In-house photos/Working at computer/Kentico_010_mjtcjo",
+                "ctaText": null,
+                ...
+            }
+        }
+    ]
+}
+...
+</code></pre>
+</div>
+
+<p>You could decide to keep your data in Cloudinary and reimplement the custom control in your target instance. In that case no custom property migration would be necessary. But let’s look at a scenario where you want to migrate the referenced media to an out-of-the-box reusable content item (for example, <em>Legacy media file</em>) or to a custom reusable content item, then use an out-of-the-box combined content selector.</p>
+<p>First define a custom <code>IWidgetPropertyMigration</code> as in the previous example.</p>
+<p>For example:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>WidgetCustomSelectorMigration.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using CMS.Core;
+using Microsoft.Extensions.Logging;
+using Migration.Tool.KXP.Api.Services.CmsClass;
+using Newtonsoft.Json.Linq;
+
+public class WidgetCustomSelectorMigration(
+    ILogger&lt;WidgetCustomSelectorMigration&gt; logger) : IWidgetPropertyMigration
+{
+    private const string MigratedComponent = "CloudinarySelectorComponent"; //The code name of your custom selector
+
+    public int Rank =&gt; 100_002;
+
+    public bool ShallMigrate(WidgetPropertyMigrationContext context, string propertyName)
+        =&gt; MigratedComponent.Equals(context.EditingFormControlModel?.FormComponentIdentifier, StringComparison.InvariantCultureIgnoreCase);
+
+    // Migrate the property to combined content selector with content item references
+    public Task&lt;WidgetPropertyMigrationResult&gt; MigrateWidgetProperty(
+        string key, JToken? value, WidgetPropertyMigrationContext context)
+    {
+        (int siteId, _) = context;
+
+        var refsToMedia = new List&lt;object&gt;();
+        if (value != null &amp;&amp; !string.IsNullOrEmpty(value.ToString()))
+        {
+            refsToMedia.Add(CreateReusableContentItemFromCloudinary(value));
+        }
+        var resultAsJToken = JToken.FromObject(refsToMedia);
+        return Task.FromResult(new WidgetPropertyMigrationResult(resultAsJToken));
+    }
+
+    private ContentItemReference CreateReusableContentItemFromCloudinary(JToken value)
+    {
+        // Retrieve the necessary data from the Cloudinary platform
+        // code TODO ...
+        // Create the content item based on the Cloudinary data
+        // Reference the new content item GUID
+        return new ContentItemReference { Identifier = &lt;NEW-CONTENT-ITEM-GUID&gt; };
+    }
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>See guidance on how to create new reusable content items in our <a href="/guides/development/upgrade-deep-dives/migrate-widget-data-to-content-hub#define-custom-widget-migration-logic">migrating widget data to content hub</a> example.</p>
+</div>
+
+<strong>Remember to register your custom property migration class</strong>.
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+...
+services.AddTransient&lt;IWidgetPropertyMigration, WidgetCustomSelectorMigration&gt;();
+...
+</code></pre>
+</div>
+
+<p>If you migrated your property to an out-of-the-box combined content selector, decorate the property in your target instance and adjust content retrieval as shown in <a href="#combined-content-selector-property">the previous example</a>.</p>
+<h2 id="change-property-names-and-order">Change property names and order</h2>
+<p>Sometimes you want to rename, reorder, or consolidate widget properties to improve the editing experience in your target solution. You might also want to perform small property data changes specific to this widget without reusing them elsewhere.</p>
+<p>You can add this functionality to your custom widget migration class using simple value mapping.</p>
+<p>Consider an example:</p>
+<p>The <em>HeroBanner</em> widget in this example has the following properties in source instance:</p>
+<ul>
+<li>
+<code>Title</code> - the heading of the widget</li>
+<li>
+<code>CtaText</code> - the label for the widget’s call-to-action button</li>
+<li>
+<code>CtaTarget</code> - a dropdown selector with a value <em>‘_blank’</em> to open target page in a new tab, or <em>‘_self’</em> to open target page in the same tab</li>
+<li>
+<code>CtaUrlInternal</code> - a page to navigate to when a visitor clicks the call-to-action button</li>
+<li>
+<code>CtaUrlExternal</code> - an external URL to navigate to when a visitor clicks the call-to-action button</li>
+</ul>
+<p>The widget’s code contains internal conditional logic to prioritize navigating to the <strong>CtaUrlExternal</strong> before <strong>CtaUrlInternal</strong> if it’s set.</p>
+<p></p>
+<p>The resulting <em>HeroBanner</em> widget should feature an improved user experience for editors:</p>
+<ul>
+<li>
+<code>Title</code> - stays the same</li>
+<li>
+<code>CtaText</code> - stays the same</li>
+<li>
+<code>CtaOpenInNewTab</code> - a new check box, if checked (true), the page or link will open in a new tab</li>
+<li>
+<code>CtaTargetType</code> - a new a radio button group property; the editor can use this property to decide whether to reference a page or an external URL</li>
+<li>
+<code>CtaTargetPage</code> - still holds the page reference, but displays conditionally, based on <em>CtaTargetType</em>
+</li>
+<li>
+<code>CtaTargetUrl</code> - still holds the external absolute URL, but displays conditionally, based on <em>CtaTargetType</em>
+</li>
+</ul>
+<p></p>
+<p>Here’s the sample code for the custom migration and widget property file in the target XbyK instance:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>HeroBannerWidgetMigration.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using Microsoft.Extensions.Logging;
+using Migration.Tool.KXP.Api.Services.CmsClass;
+using Newtonsoft.Json.Linq;
+
+namespace Migration.Tool.Extensions.CustomWidgetMigrations;
+
+public class HeroBannerWidgetMigration(ILogger&lt;HeroBannerWidgetMigration&gt; logger) : IWidgetMigration
+{
+    public int Rank =&gt; 100;
+    public const string SOURCE_WIDGET_IDENTIFIER = "Xperience.Widgets.HeroBannerWidget";
+    public const int SOURCE_SITE_ID = 1; // Dancing goat site ID in the source instance
+    public Task&lt;WidgetMigrationResult&gt; MigrateWidget(WidgetIdentifier identifier, JToken? value, WidgetMigrationContext context)
+    {
+        value!["type"] = "Xperience.Widgets.HeroBannerWidget";
+
+        var variants = (JArray)value!["variants"]!;
+        var singleVariant = variants[0];
+        singleVariant["properties"] = new JObject
+        {
+            ["title"] = singleVariant["properties"]!["title"],
+            ["ctaText"] = singleVariant["properties"]!["ctaText"],
+            // Change the property name and convert to a boolean value
+            ["ctaOpenInNewTab"] = CtaTargetToBool(singleVariant["properties"]!["ctaTarget"]),
+            // Add property for better UX - to select between internal and external link in the target instance
+            ["ctaTargetType"] = singleVariant["properties"]!["ctaUrlExternal"] != null &amp;&amp; !string.IsNullOrEmpty(singleVariant["properties"]!["ctaUrlExternal"]!.ToString())
+                ? "absolute" : "page",
+            ["ctaTargetPage"] = singleVariant["properties"]!["ctaUrlInternal"],
+            ["ctaTargetUrl"] = singleVariant["properties"]!["ctaUrlExternal"],
+        };
+
+        var propertyMigrations = new Dictionary&lt;string, Type&gt;
+        { };
+
+        return Task.FromResult(new WidgetMigrationResult(value, propertyMigrations));
+    }
+
+    public bool ShallMigrate(WidgetMigrationContext context, WidgetIdentifier identifier) =&gt;
+        string.Equals(SOURCE_WIDGET_IDENTIFIER, identifier.TypeIdentifier, StringComparison.InvariantCultureIgnoreCase)
+    &amp;&amp; SOURCE_SITE_ID == context.SiteId;
+
+    // A simple method making a widget-specific property transformation that's not intended to be reused across widgets/solution
+    private bool CtaTargetToBool(JToken? value) =&gt; value?.ToString() == "_blank";
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>HeroBannerWidgetProperties.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using CMS.ContentEngine;
+using CMS.Websites;
+using DancingGoatCore;
+using Kentico.Components.Web.Mvc.FormComponents;
+using Kentico.Forms.Web.Mvc;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+using Kentico.Xperience.Admin.Websites.FormAnnotations;
+
+namespace Xperience.PageBuilder.Widgets
+{
+    public class HeroBannerWidgetProperties : IWidgetProperties
+    {
+        // The guide will point to the docs for widget properties
+        // highlight adding the explanation text as a good practice
+        [TextInputComponent(
+            Label = "Title",
+            ExplanationText = "The title is displayed as a heading at the top of the banner. Avoid ending the title with a period.",
+            Order = 10)]
+        [Required]
+        public string Title { get; set; } = "";
+
+        [TextInputComponent(
+            Label = "Call-to-action Text",
+            Order = 20)]
+        public string CtaText { get; set; } = "";
+
+        // Display a checkbox instead of a dropdown with technical values
+        [CheckBoxComponent(
+            Label = "Open in a new tab",
+            Order = 30)]
+        public bool CtaOpenInNewTab { get; set; } = false;
+
+        //Conditionally show selector vs text input for a link
+        [RadioGroupComponent(
+            Label = "Call-to-action target type",
+            Options = "page;Page\nabsolute;Absolute URL",
+            Order = 35)]
+        public string CtaTargetType { get; set; } = "page";
+
+        [VisibleIfEqualTo(nameof(CtaTargetType), "page", StringComparison.OrdinalIgnoreCase)]
+        [ContentItemSelectorComponent(
+            Cafe.CONTENT_TYPE_NAME,
+            Label = "Select page",
+            ExplanationText = "Select a page to link to.",
+            Order = 40)]
+        public IEnumerable&lt;ContentItemReference&gt; CtaTargetPage { get; set; } = new List&lt;ContentItemReference&gt;();
+
+        [VisibleIfEqualTo(nameof(CtaTargetType), "absolute", StringComparison.OrdinalIgnoreCase)]
+        [TextInputComponent(
+            Label = "Absolute URL",
+            ExplanationText = "Enter a full URL, including http:// or https://",
+            Order = 50)]
+        public string CtaTargetUrl { get; set; } = "";
+    }
+}
+</code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+You can set default values with simple property initialization, for example:
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public string CtaTargetUrl { get; set; } = "";
+</code></pre>
+</div>
+</div>
+</div>
+
+<h2 id="migrate-inline-properties">Migrate inline properties</h2>
+<p>Some of your widgets in KX13 contain so-called <a href="/13/developing-websites/distributing-custom-builder-components#inline-property-editors">inline properties</a>, values which the editor can modify in Page Builder edit mode without visiting the widget configuration. A good example is the CTA button widget in the Dancing Goat sample site:</p>
+<p></p>
+<p>Inline properties with out-of-the-box data types migrate automatically. In this example, the property is of type Text.</p>
+<p>The inline property needs no special decoration in the properties file. Here’s comparison of the CTA button widget properties file in KX13 and in XbyK:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CTAButtonWidgetProperties.cs - KX13 source instance</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="10"><code>
+using Kentico.Components.Web.Mvc.FormComponents;
+using Kentico.Forms.Web.Mvc;
+using Kentico.PageBuilder.Web.Mvc;
+
+namespace DancingGoat.Widgets
+{
+    public class CTAButtonWidgetProperties : IWidgetProperties
+    {
+        // Inline property - button text
+        public string Text { get; set; }
+
+        [EditingComponent(UrlSelector.IDENTIFIER, Order = 1, Label = "Link URL")]
+        [EditingComponentProperty(nameof(UrlSelectorProperties.Placeholder), "Please enter a URL or select a page...")]
+        [EditingComponentProperty(nameof(UrlSelectorProperties.Tabs), ContentSelectorTabs.Page)]
+        public string LinkUrl { get; set; }
+
+        [EditingComponent(CheckBoxComponent.IDENTIFIER, Order = 2, Label = "Open in a new tab")]
+        public bool OpenInNewTab { get; set; }
+    }
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>CTAButtonWidgetProperties.cs - XbyK target instance</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="11"><code>
+using Kentico.Components.Web.Mvc.FormComponents;
+using Kentico.Forms.Web.Mvc;
+using Kentico.PageBuilder.Web.Mvc;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
+
+namespace DancingGoat.Widgets
+{
+    public class CTAButtonWidgetProperties : IWidgetProperties
+    {
+        // Inline property - button text
+        public string Text { get; set; }
+
+        [TextInputComponent(
+        Label = "Link URL",
+        ExplanationText = "Please enter a URL or select a page, for example, \"https://your-doma.in/contact-us#form\"",
+        Order = 10)]
+        public string LinkUrl { get; set; }
+
+        [CheckBoxComponent(
+        Label = "Open in a new tab",
+        ExplanationText = "If enabled, the link will open in a new tab.",
+        Order = 20)]
+        public bool OpenInNewTab { get; set; }
+    }
+}
+</code></pre>
+</div>
+
+<p>However, for inline editing to work properly in your XbyK instance, you have to implement the text editor partial view (or port it from the KX13 instance).</p>
+<p>For example, let’s migrate the CTA button widget from the Dancing Goat sample site:</p>
+<p>Copy the <em>_TextEditor.cshtml</em> view and <em>TextEditorViewModel.cs</em> view model into your solution.</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>_TextEditor.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+@model DancingGoat.InlineEditors.TextEditorViewModel
+
+@using (Html.Kentico().BeginInlineEditor("text-editor", Model.PropertyName,
+    new
+    {
+        @class = "text-editor",
+        contenteditable = "true",
+        data_placeholder_text = Model.PlaceholderText
+    }))
+{
+    @Model.Text
+}
+</code></pre>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>TextEditorViewModel.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+namespace DancingGoat.InlineEditors
+{
+    /// &lt;summary&gt;
+    /// View model for Text editor.
+    /// &lt;/summary&gt;
+    public sealed class TextEditorViewModel : InlineEditorViewModel
+    {
+        /// &lt;summary&gt;
+        /// Editor text.
+        /// &lt;/summary&gt;
+        public string Text { get; set; }
+
+        /// &lt;summary&gt;
+        /// Placeholder text.
+        /// &lt;/summary&gt;
+        public string PlaceholderText { get; set; } = "Type your text";
+    }
+}
+</code></pre>
+</div>
+
+<p>Render the text editor as a partial view in your CTA button widget view when the Page Builder is in edit mode:</p>
+
+<div>
+<div>
+<div>
+<span>cshtml</span>
+</div>
+<strong>CTAButtonWidget.cshtml</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="10-15"><code>
+@using DancingGoat.InlineEditors
+@using DancingGoat.Widgets
+
+@model ComponentViewModel&lt;CTAButtonWidgetProperties&gt;
+
+&lt;div class="clear center-text"&gt;
+    @if (Context.Kentico().PageBuilder().GetMode() == PageBuilderMode.Edit)
+    {
+        &lt;div class="btn btn-more"&gt;
+            &lt;partial name="~/Components/InlineEditors/TextEditor/_TextEditor.cshtml"
+                     model="new TextEditorViewModel
+                        {
+                            PropertyName = nameof(CTAButtonWidgetProperties.Text),
+                            Text = Model.Properties.Text,
+                        }" /&gt;
+        &lt;/div&gt;
+    }
+    else
+    {
+        &lt;a href="@(Model.Properties.LinkUrl ?? "#")" class="btn btn-more" @(Model.Properties.OpenInNewTab ? "target=_blank" : "")&gt;
+            @Model.Properties.Text
+        &lt;/a&gt;
+    }
+&lt;/div&gt;
+</code></pre>
+</div>
+
+<p>Now the CTA button widget in XbyK looks nearly identical to its KX13 counterpart:</p>
+<p></p>
+<p>What about inline properties using custom data types?</p>
+<p>Currently, the Kentico Migration Tool doesn’t support custom property migrations for inline properties. However, if your widget uses an inline property of a custom type, you can work with the JSON data in a <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.Extensions/README.md#customize-widget-migrations" target="_blank">custom widget migration</a>.</p>
+<h2 id="improve-editing-experience">Improve editing experience</h2>
+<p>An upgrade provides an excellent opportunity to improve not only your content model, but also the robustness and editing experience of your Xperience solution.</p>
+
+<p>Consider these tips when migrating your widget properties:</p>
+<ul>
+<li>Use a <a href="/guides/development/page-builder/map-enum-to-dropdown">dropdown provider</a> to fill dropdowns with dynamic data instead of hardcoded values.</li>
+<li>Add meaningful explanation texts.</li>
+<li>Set meaningful default values.</li>
+<li>Reevaluate control types, for example, checkbox versus dropdown.</li>
+<li>Use <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components/ui-form-component-visibility-conditions">visibility conditions</a>.</li>
+</ul>
+
+<h2 id="whats-next">What’s next?</h2>
+<p>This guide focused on scenarios around widget properties. Check out our other <a href="/guides/development/upgrade-deep-dives">deep dive guides</a> for additional widget migration topics, migration strategies, and transforming widget data into reusable content items.</p>
+<p>If you haven’t already, consider following along with the <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough">upgrade walkthrough</a> to experience the process of getting a migrated page working in Xperience by Kentico from start to finish.</p>
+<p>If you encounter any challenging scenarios during your own widget migrations, or if you have ideas for subjects we haven’t covered, don’t hesitate to reach out to us through the <strong>Send us feedback</strong> button at the bottom of this page.</p>
+
+</body>
+</html>

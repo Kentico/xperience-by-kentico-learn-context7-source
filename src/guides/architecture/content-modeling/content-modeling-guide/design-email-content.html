@@ -17,58 +17,115 @@
 </div>
 <div>
 <p><strong>Email license requirements</strong></p>
-<p>The license tier required for email features depends on the size of the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channels</a> that you use:</p>
+<p>To create and send emails from Xperience administration, you need a license. The required license tier depends on the size of the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channels</a> you use:</p>
 <ul>
 <li>Email microchannels – available for all license tiers</li>
-<li>Standard size email channels – require the <strong>Advanced</strong> license tier</li>
+<li>Standard-size email channels – require the <strong>Advanced</strong> license tier</li>
 </ul>
+<p>Each <em>email channel</em> represents a separate email campaign or newsletter email activity, similar to an <a href="/13/on-line-marketing-features/managing-your-on-line-marketing-features/email-marketing">email feed</a> you might know from Kentico Xperience 13. If you need to send multilingual emails, plan to create one channel for each language.</p>
 <p>To learn more, see the description of the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management#create-and-configure-email-channels">Channel size</a> property for email channels.</p>
 </div>
 
 <h2 id="types-of-emails">Types of emails</h2>
-<p>Xperience by Kentico allows you to prepare <a href="/documentation/business-users/digital-marketing/emails">emails</a> and edit their content directly in the administration interface. All emails managed by the system are based on <a href="/documentation/developers-and-admins/development/content-types">content types</a>, which define what data marketers can specify when creating or editing an email.</p>
-<p>Only emails with the following purposes can be managed in the Xperience administration. Other system emails need to be created by developers. For example, user password reset and registration emails are described in <a href="/documentation/developers-and-admins/configuration/users/administration-registration-and-authentication/administration-forms-authentication">Administration - Forms authentication</a>.</p>
+<p>Xperience by Kentico allows you to prepare <a href="/documentation/business-users/digital-marketing/emails">emails</a> and edit their content directly in the administration interface. All emails within the administration interface that editors manage are based on a <a href="/documentation/developers-and-admins/development/content-types">content type</a> and have a specific <strong>email purpose</strong>.</p>
+<p>Xperience supports the following types of emails:</p>
 <ul>
 <li>
 <strong>Regular</strong> – emails sent as part of a regular series to subscribed recipients. These emails serve to build a reliable communication channel with an engaged audience. See <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">Send regular emails to subscribers</a> for detailed information and instructions.</li>
 <li>
-<strong>Form autoresponder</strong> – sent automatically to visitors after they submit a <a href="/documentation/business-users/digital-marketing/forms">form</a>. Also used to set up email marketing subscription when a double opt-in link is added to the content.</li>
+<strong>Form autoresponder</strong> – sent automatically to visitors after they submit a <a href="/documentation/business-users/digital-marketing/forms">form</a>. These emails also <a href="/documentation/developers-and-admins/digital-marketing-setup/enable-email-subscriptions">confirm email marketing subscription</a> if their content includes <a href="/guides/digital-marketing/xperience-essentials/email-marketing-essentials">double opt-in link</a> the content.</li>
 <li>
-<strong>Confirmation</strong> – confirmation messages sent to users after they subscribe or unsubscribe from email marketing to provide an immediate feedback.</li>
+<strong>Confirmation</strong> – <a href="/guides/digital-marketing/work-with-email/create-newsletter-confirmation-and-unsubscription-emails">confirmation messages</a> sent to users after they <em>subscribe</em> or <em>unsubscribe</em> from email marketing to provide immediate feedback.</li>
 <li>
-<strong>Automation</strong> – sent out by an <a href="/documentation/business-users/digital-marketing/automation">automation process</a>. Cannot be sent manually.</li>
+<strong>Automation</strong> – sent out by an <a href="/documentation/business-users/digital-marketing/automation">automation process</a>. These emails cannot be sent manually.</li>
+<li>
+<strong>Notification</strong> – represent emails sent to administration users about <a href="/documentation/developers-and-admins/configuration/notifications">system events</a>, or to customers about <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses">order-related events</a>.</li>
 </ul>
+
+<div>
+
+</div>
+<div>
+<p>Other system emails that are not part of Xperience administration need to be created by developers and sent programmatically. For example, user password reset and registration emails are described in <a href="/documentation/developers-and-admins/configuration/users/administration-registration-and-authentication/administration-forms-authentication">Administration - Forms authentication</a>.</p>
+</div>
+
 <h2 id="design-emails-using-email-templates">Design emails using email templates</h2>
-<p>From a developer’s perspective, emails are strongly typed and stored in dedicated database tables per content type. This allows developers to programatically retrieve data from email content type fields and display it using <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">email templates</a>. Email templates define the overall layout of <a href="/documentation/business-users/digital-marketing/emails">emails</a> and add fixed content, such as a header or footer. You can reuse a single template for any number of emails. The template content is defined through HTML code and CSS styles. In many cases, the template code can be prepared in an external tool by a designer and then copied into Xperience.</p>
-<p>Simple emails are composed only using simple structured content, such as simple text fields (e.g., title) and rich text fields (e.g., email content). To create more elaborate emails that reuse content from the content hub and allow marketers to add links to pages, you need to model email content types to include content item and page fields, see the <a href="#reusable-content-in-emails">Reusable content in emails</a> section.</p>
-<p>The following diagram shows the structure of a sample email, with the template including pieces of content loaded from individual email fields and linked content items used to display social platform links:</p>
+<p><a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">Email templates</a> define the overall layout of <a href="/documentation/business-users/digital-marketing/emails">emails</a> and add fixed content, such as a header or footer. Editors can reuse a single template for multiple emails.</p>
+<p>From a developer’s perspective, emails are <em>strongly typed</em> and stored in <a href="/documentation/developers-and-admins/api/content-item-api/content-item-database-structure">dedicated database tables</a> according to their <a href="/documentation/developers-and-admins/development/content-types">content type</a>. Developers can programmatically retrieve data from the <em>email content type fields</em> and display it using any number of different <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">email templates</a>. They define the <em>template content</em> using the <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#mjml-markup">MJML markup</a> or standard HTML, and CSS. Each email template is tied to specific allowed email content types to ensure Xperience correctly displays the email data.</p>
+
+<div>
+<p>A common workflow for creating templates is for a designer to prepare and optimize the template code using an external tool. Developers then transfer and map the template code onto Xperience artifacts, depending on the email’s purpose.</p>
+</div>
+
+<h3 id="email-builder-and-structured-emails">Email Builder and structured emails</h3>
+<p>The <em>content model for emails</em> depends on the approach you select when you define the email content type. This approach influences how editors compose emails in their email channels.</p>
+
+<div>
+
+</div>
+<div>
+<p>The <a href="/documentation/business-users/aira">AIRA AI assistant</a> is currently available only for <strong>structured data fields</strong> when editing emails in <strong>Content</strong> view mode. You can enable it for the email <strong>Subject</strong> and <strong>Preview</strong> text fields, as well as for other structured content fields within the email.</p>
+<p>At this time, AIRA is <strong>not supported in the Email Builder</strong>, so it cannot assist with editing content directly within the builder’s drag-and-drop interface.</p>
+</div>
+
+<h4 id="email-builder">Email Builder</h4>
+<p>Similar to <a href="/guides/architecture/content-modeling/content-modeling-guide/design-website-content">page builder</a>, editors create emails visually in a user-friendly interface from components that developers prepared. They arrange email widgets inside email sections on top of the email template.</p>
+<p>Developers build widgets, sections, and the overall email template which they register against content types. From code perspective, sections and widgets are <a href="/documentation/developers-and-admins/development/builders/email-builder/develop-email-builder-components#sections">Razor components</a> that layout and display the email content with the MJLM or standard HTML markup, depending on the implementation.</p>
+
+<div>
+
+</div>
+<div>
+<p>Email Builder is currently supported for emails with the <em>Regular</em>, <em>Automation</em>, or <em>Order status change</em> purposes.</p>
+</div>
+
 <p></p>
-<h2 id="reusable-content-in-emails">Reusable content in emails</h2>
-<p>As it is explained on the <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">Store content</a> page, it is recommended to store reusable content in the content hub. Any piece of content that could possibly be used in multiple emails (e.g., company icon in a signature, tracking pixel) or in any other channel (e.g., description of an event, article teaser image) should be modeled as a reusable content item and stored in the content hub.</p>
-<h3 id="link-content-items">Link content items</h3>
-<p>In addition to directly adding content to content type fields of emails, you can also enable marketers to add content items from the content hub to emails by adding a field with the <em>Pages and reusable content</em> data type to the email’s content type.</p>
-<p>The following example shows an email field that enables marketers to add links to various social media platforms at the end of emails.</p>
+
+<div>
+
+</div>
+<div>
+<p><em>Email widgets and sections</em> differ technically from the <em>Page Builder widgets and sections</em>. Although developers can reuse similar visual designs to keep emails and web pages consistent with the brand, they need to redevelop email components from scratch to fit the limited set of features supported by <a href="https://www.caniemail.com/" target="_blank">email clients</a>.</p>
+</div>
+
+<h4 id="structured-emails">Structured emails</h4>
+<p>Editors fill in predefined form fields in the <em>Content</em> view mode, such as <em>Hero image</em>, <em>Intro text</em>, or <em>Featured articles</em>.</p>
+<p>Each of the fields defines email content or a block of content within the email, and developers control how this content looks through the <em>email template</em>. The template retrieves data from the content type fields and displays it using HTML and CSS. Editors cannot rearrange the different template blocks, but they can reorder the content within the section if the email content type reuses content from a <em>website channel</em> or <em>Content hub</em>. Developers can <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates#create-email-templates">define the email template</a> in the <strong>Email templates</strong> application within the administration UI using <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates#email-template-macros">email template macros</a>, or create an <em>Email Builder</em> template in the project codebase with no editable areas.</p>
 <p></p>
+<h4 id="hybrid-emails">Hybrid emails</h4>
+<p>To benefit from <em>Email Builder</em> and <em>structured emails</em>, you can define email content types that combine both. <em>Hybrid emails</em> allow editors to use the drag-n-drop interface from <em>Email Builder</em>, while also displaying structured data from your content types.</p>
+<p>This combinations allows developers and marketers to balance design flexibility with consistency. Editors can build their one-off email content in a user-friendly interface, while developers can still ensure consistency in the display of all required data. Meanwhile, both widgets and content types can reuse existing content through the <em>Combined content selector</em>.</p>
+<h2 id="define-email-content-types">Define email content types</h2>
+<p>Before you start building email content types, verify your marketing team’s plans for writing and managing email content. You want to make editors efficient and provide flexible email editing experience that is consistent with the rest of the content model.</p>
+<h3 id="check-the-business-requirements">Check the business requirements</h3>
+<p>When you define email content types, identify emails your team will send, including newsletters, emails targeted at specific contacts groups, product updates, order updates, or other transactional messages. Each type may need its own structure, visual layout, and approval workflow.</p>
+<h3 id="validate-editor-roles-and-workflows">Validate editor roles and workflows</h3>
+<p>Discuss with stakeholders who create and maintain the emails. Are marketers responsible for editing content directly, or do developers prepare most of the structure? The answer determines how much flexibility you should allow through <em>Email Builder</em>, <em>structured data fields</em>, or <em>a combination of both</em>.</p>
+<h3 id="review-existing-and-planned-digital-channels">Review existing and planned digital channels</h3>
+<p>Align the email content model with the broader content modeling approach you use across websites and <em>Content hub</em>. Whether your project follows a page-based or atomic (content item–based) model, aim for a unified editing experience. Editors should feel comfortable while editing emails. They should be working with familiar content types, follow the same naming conventions, and rely on similar field behaviors, such as validation.</p>
+<h3 id="aim-for-scalability">Aim for scalability</h3>
+<p>Plan email content types for reuse and future expansion. For instance, if the same “Featured article” or “Hero image” blocks appear with the same content on both the website and in emails, define them as reusable content types, and provide a way to override stored values in each channel. This will reduce content duplication and keep digital marketing assets consistent across the ecosystem.</p>
+<h2 id="channel-specific-content-vs-content-reusability">Channel-specific content vs content reusability</h2>
+<p>Depending on the project requirements, you will need to create different types of emails. Before we dive into more complex types, consider creating a simple email composed only with structured content. For example, use simple text field for values like <em>title</em> and rich text field for <em>email body</em>, and display their values in a simple email template. Editors can use this Simple email to quickly craft email and focus on content. If you want to add complexity and allow for flexible layout and design, create this email as a hybrid one with <em>Email Builder</em> containing at least one section and a <em>Text</em> widget. Editors will be able to quickly craft message and provide additional content if necessary.</p>
+<p>The following image shows the structure of a sample email. The template includes content loaded from email content type fields and linked content items used to display social platform links:</p>
+<p></p>
+<h3 id="reusable-content-in-emails">Reusable content in emails</h3>
+<p>Editors can speed up how they compose emails by reusing existing content. They can build their emails from any structured content stored as pages in a <a href="/guides/architecture/content-modeling/content-modeling-guide/design-page-based-content-model#identify-reusable-data">any website channel</a>, or as reusable items in the <em>Content hub</em>.</p>
+<p>We recommend storing content in a <a href="/guides/architecture/content-modeling/content-modeling-guide/store-content">structured way</a> to support content reusability and improve <a href="/guides/digital-marketing/content-governance-in-xbyk">governance</a>.</p>
+<p>To sum up the principle: You should model any piece of content that could possibly be used in multiple emails (e.g., company icon in a signature, social links with icons, company logo) or in any other channel (e.g., event description, article teaser with a title, summary and teaser image) in a reusable manner. Use structured content type fields in <em>Content hub</em> or a website channel to store it.</p>
+<h3 id="link-content-items-strategically">Link content items strategically</h3>
+<p>To reference reusable content from your email content type, add a field with the <strong>Pages and reusable content</strong> data type in the <strong>Content types</strong> application. The following example shows an email field that enables marketers to add links to various social media platforms at the end of emails.</p>
+<p></p>
+
+<div>
+
+</div>
+<div>
 <p>Linked content items need to be correctly displayed in the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">email template</a>.</p>
+</div>
+
 <h3 id="link-pages">Link pages</h3>
-<p>Pages from the content tree of any website channel can also be linked from emails. However, it is only possible to retrieve the URL and content type directly from the page object in the email template. To add more information about the linked page, you can create a reusable content type to display links to <a href="/documentation/business-users/website-content">website channel pages</a> in your emails:</p>
-<ol type="1">
-<li>Create a reusable <a href="/documentation/developers-and-admins/development/content-types">content type</a> representing page links.
-<ul>
-<li>Include a title/name field to store the text of the page link.</li>
-<li>Add a field with the <strong>Pages</strong> data type to select the target page.</li>
-</ul>
-</li>
-<li>In your email content type, add a field with the <strong>Pages and reusable content</strong> data type, and allow your page link content type.</li>
-</ol>
-<p>In your email templates, use field macros, iteration (loops) and/or indexing to access the linked pages. The linked page objects provide the following macro fields:</p>
-<ul>
-<li>
-<code>Url</code> – the absolute URL of the page, containing the main domain name assigned to the given <a href="/documentation/developers-and-admins/configuration/website-channel-management">website channel</a>.</li>
-<li>
-<code>Type</code> – the code name of the page’s <a href="/documentation/developers-and-admins/development/content-types">content type</a>.</li>
-</ul>
-<p>See <a href="/documentation/developers-and-admins/configuration/macro-expressions/macro-syntax">Macro syntax</a> and the example below for more details.</p>
+<p>Pages from the content tree of any website channel can also be linked from emails. You can either define widgets in which editors select the referenced content or use email <em>Content</em> view mode. Developers can retrieve the structured data and the page’s URL and display the data accordingly.</p>
 <p><strong>Example</strong></p>
 <p>Content types:</p>
 
@@ -140,8 +197,29 @@
 </table>
 
 <p>For more information about displaying <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">content items</a> and <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates#linked-pages-and-content-items">pages</a> in email templates, see the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-templates">Email templates</a> page.</p>
+<h2 id="recommendations-for-modeling-emails">Recommendations for modeling emails</h2>
+<p>You can follow these recommended practices to define email content types that help marketers stay on brand and provide the flexibility they need to create compelling emails.</p>
+<h3 id="leverage-structured-content-and-email-builder">Leverage structured content and Email builder</h3>
+<p>Many projects benefit from combining both structured and builder-based approaches to email design. This hybrid model allows teams to balance flexibility for marketers with consistency that brand managers require.</p>
+<p>To design effective email content types:</p>
+<ul>
+<li>Keep critical brand elements, such as the <em>logo</em>, <em>email header</em>, <em>footer</em>, and company’s main <em>social links</em>, as structured content. These assets rarely change and marketers need to adhere to approved design and compliance standards. If the project requires editors to vary between different branding requirements, e.g., different headers and logo sizes per email purpose, you have different options to support this requirement. You might create an <em>Email brand defaults</em> content type. Editors will then store possible branding variants into dedicated content items and then select the one they need when they create the email. Or, you can create an email template for each variant and hardcode these brand elements into the template’s code.</li>
+<li>For the main body of the email, allow flexibility through the <em>Email Builder</em>, where editors can add and arrange widgets to suit each campaign’s message and layout.</li>
+<li>Whenever possible, allow editors to reuse content items across both structured and builder-based emails. This ensures that key assets like article teasers, product descriptions, or event details remain consistent across all channels.</li>
+<li>Developers should define <em>widgets</em> and <em>sections</em> with <em>properties</em> that allow editors change the email design, but still stay aligned with the organization’s design system.</li>
+<li>During content modeling, establish clear governance guidelines that describe when to use the different email content types you have provided. Clear rules help teams maintain consistency and avoid duplication of effort.</li>
+</ul>
+<p>This combined strategy keeps emails on brand and gives editors the creative freedom they need to deliver engaging email content.</p>
+<h3 id="define-override-fields-for-reusable-email-content">Define override fields for reusable email content</h3>
+<p>Building emails with reusable content doesn’t mean editors are locked into always using the same values. They often need to fine-tune details to suit a specific message. For example, when reusing a product teaser or article summary from the website, editors might want to adapt the headline or description to better match the email’s tone and tailor it for a specific <a href="/guides/digital-marketing/work-with-contacts/contact-groups-overview">contact group</a>.</p>
+<p>To support this capability, define email content fields or widget properties that allow editors to override selected values in the email without altering the source content. We recommend using structured fields or <em>Email Builder</em> widget properties editors will use to, for example, create an alternative title, select an image, or adjust a call-to-action text tailored to email experience.</p>
+<p>This approach keeps shared content unified across the digital ecosystem, while also giving editors enough flexibility to tailor each email for its audience and purpose.</p>
+<h3 id="use-dedicated-content-type-to-define-email-defaults">Use dedicated content type to define email defaults</h3>
+<p>Emails typically contain header logo and social links. If you don’t want to force editors to recreate this content for every email, you can store this information directly in the template. This will, however, limit their flexibility, and your developer might need to, from time to time, adjust the email template.</p>
+<p>To avoid additional developer time, consider creating a dedicated reusable content type to store these values, along with CSS definitions and other email design-related assets. Editors will select the appropriate email configuration to answer their needs.</p>
+<p>We do not recommend creating dedicated fields to control email layout, such as <em>Show as a left column</em>, <em>Align right</em>, or <em>Additional padding</em>, in the email content type. If you want editors to influence the layout of their emails, use the <em>Email Builder</em> instead.</p>
 <h2 id="whats-next">What’s next?</h2>
-<p>You’ve learned absolute essentials about modeling content types for emails. In the <a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">next section</a>, you’ll learn how headless content works in Xperience, and what are the recommendations to follow when modeling content types for headless.</p>
+<p>You’ve learned absolute essentials about modeling content types for emails. In the <a href="/guides/architecture/content-modeling/content-modeling-guide/design-headless-content">next section</a>, you’ll learn how headless content works in Xperience, and the recommendations to follow when modeling content types for headless.</p>
 
 </body>
 </html>

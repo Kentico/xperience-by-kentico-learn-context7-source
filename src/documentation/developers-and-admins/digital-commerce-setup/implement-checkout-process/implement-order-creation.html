@@ -1,0 +1,471 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Implement order creation</title>
+</head>
+<body>
+<p>The Order Creation Service provides a streamlined way to create orders from shopping cart data. It automates the entire order creation workflow, including customer management, price calculation, and order persistence.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Developer preview</strong></p>
+<p>This feature is released as an <strong>experimental developer preview feature</strong> and is subject to change in future updates. Use it for evaluation purposes and provide feedback to help shape its final design.</p>
+<p>What should you do with this feature?</p>
+<ul>
+<li>
+<strong>DO</strong> try out development of price calculation service and calculation steps.</li>
+<li>
+<strong>DO</strong> feel free to share your feedback with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</li>
+<li>
+<strong>DO NOT</strong> use the feature in production projects.</li>
+</ul>
+</div>
+
+<p>The Order Creation Service (<code>IOrderCreationService</code>) is a high-level API that handles the complete order creation process. When you call the service with order data, it automatically:</p>
+<ol type="1">
+<li>
+<strong>Manages customers and addresses</strong> – Creates or updates customer records and their addresses based on the order data.</li>
+<li>
+<strong>Calculates prices</strong> – Integrates with the <a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process/implement-price-calculation">Price Calculation Service</a> to calculate order totals, taxes, and shipping costs.</li>
+<li>
+<strong>Creates order records</strong> – Generates and persists the order, order items, and order addresses in the database.</li>
+<li>
+<strong>Sends notifications</strong> – Triggers external and internal order notifications for corresponding order states.</li>
+</ol>
+<h2 id="key-concepts">Key concepts</h2>
+<h3 id="order-data-model">Order data model</h3>
+<p>Order data is represented by the <code>IOrderData</code> interface and its implementation <code>OrderData</code>. It contains:</p>
+<ul>
+<li>
+<strong>Customer information</strong> – Member ID (for authenticated users)</li>
+<li>
+<strong>Order items</strong> – Products and quantities using <code>IOrderItem&lt;ProductIdentifier&gt;</code>
+</li>
+<li>
+<strong>Addresses</strong> – Billing and shipping addresses as <code>AddressDto</code> objects</li>
+<li>
+<strong>Payment and shipping</strong> – Selected payment and shipping method IDs</li>
+<li>
+<strong>Language</strong> – Language name for product data localization</li>
+<li>
+<strong>Order number</strong> – Unique identifier for the order</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Basic order data structure</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+var orderData = new OrderData
+{
+    MemberId = currentMemberId,
+    OrderNumber = "ORD-2024-0001",
+    LanguageName = "en",
+    BillingAddress = new AddressDto { /* address fields */ },
+    ShippingAddress = new AddressDto { /* address fields */ },
+    PaymentMethodId = 1,
+    ShippingMethodId = 2,
+    OrderItems = new[]
+    {
+        new OrderItem
+        {
+            ProductIdentifier = new ProductIdentifier { Identifier = 123 },
+            Quantity = 2
+        }
+    }
+};
+</code></pre>
+</div>
+
+<h3 id="address-handling">Address handling</h3>
+<p>Addresses are represented by the <code>AddressDto</code> record, which includes:</p>
+<ul>
+<li>Contact information – First name, last name, company, email, phone</li>
+<li>Location details – Address lines, city, postal code, country, and state</li>
+</ul>
+<p>The service automatically:</p>
+<ul>
+<li>Creates customer addresses if they don’t already exist</li>
+<li>Compares addresses to avoid duplicates (case-insensitive, trimmed comparison)</li>
+<li>Uses shipping address data as primary source for customer information when available</li>
+</ul>
+<h3 id="customer-management">Customer management</h3>
+<p>The service handles both authenticated and anonymous users:</p>
+<ul>
+<li>
+<strong>Authenticated users (members)</strong> – Retrieves existing customer records by member ID or creates new ones.</li>
+<li>
+<strong>Anonymous users</strong> – Creates a new customer record for each order using email or billing address as the identifier.</li>
+</ul>
+<p>Customer addresses are stored separately and reused across orders when they match existing addresses.</p>
+<h3 id="price-calculation-integration">Price calculation integration</h3>
+<p>The Order Creation Service integrates with the Price Calculation Service to compute order totals. You can customize the price calculation by:</p>
+<ul>
+<li>Implementing <code>IPriceCalculationRequestMapper&lt;TCalculationRequest, TOrderData&gt;</code> to add custom data to calculation requests.</li>
+<li>Using custom calculation steps to modify pricing logic.</li>
+</ul>
+<p>For more information on price calculation, see <a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process/implement-price-calculation">Implement price calculation</a>.</p>
+<h2 id="using-the-order-creation-service">Using the Order Creation Service</h2>
+<h3 id="basic-usage">Basic usage</h3>
+<p>To use the Order Creation Service in your checkout process:</p>
+<ol type="1">
+<li>Inject <code>IOrderCreationService&lt;TOrderData, TCalculationRequest, TCalculationResult, TAddressDto&gt;</code> into your controller or service.</li>
+<li>Prepare the <code>OrderData</code> object with cart items, addresses, and selected methods.</li>
+<li>Call <code>CreateOrder</code> to process the order.</li>
+</ol>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Basic order creation</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class CheckoutController : Controller
+{
+    private readonly IOrderCreationService&lt;OrderData, PriceCalculationRequest,
+        PriceCalculationResult, AddressDto&gt; orderCreationService;
+
+    public CheckoutController(
+        IOrderCreationService&lt;OrderData, PriceCalculationRequest,
+            PriceCalculationResult, AddressDto&gt; orderCreationService)
+    {
+        this.orderCreationService = orderCreationService;
+    }
+
+    public async Task&lt;IActionResult&gt; ConfirmOrder(
+        CustomerViewModel customer,
+        CustomerAddressViewModel billingAddress,
+        ShippingAddressViewModel shippingAddress,
+        int paymentMethodId,
+        int shippingMethodId,
+        CancellationToken cancellationToken)
+    {
+        // Retrieve shopping cart items (implementation depends on your cart model)
+        var cartItems = await GetShoppingCartItems(cancellationToken);
+
+        // Prepare order data
+        var orderData = new OrderData
+        {
+            MemberId = User.GetMemberId(), // null for anonymous users
+            OrderNumber = await GenerateOrderNumber(cancellationToken),
+            LanguageName = currentLanguage,
+            BillingAddress = MapToAddressDto(billingAddress, customer),
+            ShippingAddress = shippingAddress.IsSameAsBilling
+                ? null
+                : MapToAddressDto(shippingAddress, customer),
+            PaymentMethodId = paymentMethodId,
+            ShippingMethodId = shippingMethodId,
+            OrderItems = cartItems.Select(item =&gt; new OrderItem
+            {
+                ProductIdentifier = item.ProductIdentifier,
+                Quantity = item.Quantity
+            })
+        };
+
+        // Create the order
+        int orderId = await orderCreationService.CreateOrder(orderData, cancellationToken);
+
+        // Clear the shopping cart and redirect to confirmation page
+        await ClearShoppingCart(cancellationToken);
+
+        return RedirectToAction("OrderConfirmation", new { orderId });
+    }
+
+    private AddressDto MapToAddressDto(
+        CustomerAddressViewModel address,
+        CustomerViewModel customer)
+    {
+        return new AddressDto
+        {
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            Company = customer.Company,
+            Email = customer.Email,
+            Phone = customer.PhoneNumber,
+            Line1 = address.Line1,
+            Line2 = address.Line2,
+            City = address.City,
+            Zip = address.PostalCode,
+            CountryID = address.CountryId,
+            StateID = address.StateId
+        };
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="working-with-custom-product-identifiers">Working with custom product identifiers</h3>
+<p>If your product catalog uses <a href="/documentation/developers-and-admins/digital-commerce-setup/model-product-catalog#product-variants">product variants</a> or custom identifiers, you can extend <code>ProductIdentifier</code> and <code>OrderItem</code>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Custom product identifier with variants</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// Custom identifier that includes variant information
+public record ProductVariantIdentifier : ProductIdentifier
+{
+    public int? VariantIdentifier { get; init; }
+}
+
+// Custom order item using the variant identifier
+public record ProductVariantOrderItem : OrderItemBase&lt;ProductVariantIdentifier&gt;
+{
+}
+
+// Custom order data using the variant items
+public class VariantOrderData : OrderDataBase&lt;ProductVariantOrderItem, AddressDto&gt;
+{
+}
+
+// Usage in checkout
+var orderData = new VariantOrderData
+{
+    OrderItems = new[]
+    {
+        new ProductVariantOrderItem
+        {
+            ProductIdentifier = new ProductVariantIdentifier
+            {
+                Identifier = 123,
+                VariantIdentifier = 5 // Size Large, Color Blue
+            },
+            Quantity = 1
+        }
+    },
+    // ... other properties
+};
+
+await orderCreationService.CreateOrder(orderData, cancellationToken);
+</code></pre>
+</div>
+
+<h2 id="customization-points">Customization points</h2>
+<p>The Order Creation Service provides several interfaces that allow you to customize the order creation process without modifying core functionality.</p>
+<h3 id="customer-information-mapping">Customer information mapping</h3>
+<p>Implement <code>ICustomerInfoMapper&lt;TOrderData&gt;</code> to add custom fields to customer records:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Custom customer mapper</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class CustomCustomerInfoMapper : ICustomerInfoMapper&lt;OrderData&gt;
+{
+    public CustomerInfo PopulateInfo(CustomerInfo customerInfo, OrderData orderData)
+    {
+        // Add custom logic to populate additional customer fields
+        // Example: customerInfo.SetValue("CustomerLoyaltyPoints", orderData.LoyaltyPoints);
+
+        return customerInfo;
+    }
+}
+
+// Register in Program.cs
+builder.Services.AddSingleton&lt;ICustomerInfoMapper&lt;OrderData&gt;, CustomCustomerInfoMapper&gt;();
+</code></pre>
+</div>
+
+<h3 id="order-information-mapping">Order information mapping</h3>
+<p>Implement <code>IOrderInfoMapper&lt;TOrderData, TCalculationResult&gt;</code> to add custom fields to order records:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Custom order mapper</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class CustomOrderInfoMapper : IOrderInfoMapper&lt;OrderData, PriceCalculationResult&gt;
+{
+    public OrderInfo PopulateInfo(
+        OrderInfo orderInfo,
+        OrderData orderData,
+        PriceCalculationResult calculationResult)
+    {
+        // Add custom logic to populate additional order fields
+        // Example: orderInfo.SetValue("OrderDiscountCode", orderData.DiscountCode);
+
+        return orderInfo;
+    }
+}
+
+// Register in Program.cs
+builder.Services.AddSingleton&lt;IOrderInfoMapper&lt;OrderData, PriceCalculationResult&gt;,
+    CustomOrderInfoMapper&gt;();
+</code></pre>
+</div>
+
+<h3 id="address-mapping">Address mapping</h3>
+<p>Implement <code>ICustomerAddressInfoMapper&lt;TAddressDto&gt;</code> or <code>IOrderAddressInfoMapper&lt;TAddressDto&gt;</code> to add custom fields to address records:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Custom address mapper</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class CustomAddressInfoMapper : IOrderAddressInfoMapper&lt;AddressDto&gt;
+{
+    public OrderAddressInfo PopulateInfo(
+        OrderAddressInfo orderAddressInfo,
+        AddressDto addressDto)
+    {
+        // Add custom logic to populate additional address fields
+        // Example: orderAddressInfo.SetValue("AddressNotes", addressDto.DeliveryNotes);
+
+        return orderAddressInfo;
+    }
+
+    public AddressDto PopulateDto(AddressDto addressDto, OrderAddressInfo orderAddressInfo)
+    {
+        // Reverse mapping if needed for reading order addresses
+        return addressDto;
+    }
+}
+
+// Register in Program.cs
+builder.Services.AddSingleton&lt;IOrderAddressInfoMapper&lt;AddressDto&gt;, CustomAddressInfoMapper&gt;();
+</code></pre>
+</div>
+
+<h3 id="order-item-mapping">Order item mapping</h3>
+<p>Implement <code>IOrderItemInfoMapper&lt;TOrderData, TCalculationResult&gt;</code> to add custom fields to order items:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Custom order item mapper</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class CustomOrderItemInfoMapper :
+    IOrderItemInfoMapper&lt;OrderData, PriceCalculationResult&gt;
+{
+    public OrderItemInfo PopulateInfo(
+        OrderItemInfo orderItemInfo,
+        OrderData orderData,
+        PriceCalculationResult calculationResult,
+        ProductIdentifier productIdentifier)
+    {
+        // Add custom logic to populate additional order item fields
+        // Example: orderItemInfo.SetValue("ItemWarrantyMonths", 24);
+
+        return orderItemInfo;
+    }
+}
+
+// Register in Program.cs
+builder.Services.AddSingleton&lt;IOrderItemInfoMapper&lt;OrderData, PriceCalculationResult&gt;,
+    CustomOrderItemInfoMapper&gt;();
+</code></pre>
+</div>
+
+<h3 id="price-calculation-customization">Price calculation customization</h3>
+<p>Implement <code>IPriceCalculationRequestMapper&lt;TCalculationRequest, TOrderData&gt;</code> to add custom data to price calculation requests:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Example - Custom calculation request mapper</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public class CustomCalculationRequestMapper :
+    IPriceCalculationRequestMapper&lt;PriceCalculationRequest, OrderData&gt;
+{
+    public PriceCalculationRequest PopulateCalculationRequest(
+        PriceCalculationRequest calculationRequest,
+        OrderData orderData)
+    {
+        // Add custom logic to modify the calculation request
+        // Example: Add discount codes, customer tier information, etc.
+
+        return calculationRequest;
+    }
+}
+
+// Register in the dependency injection container
+builder.Services.AddSingleton&lt;IPriceCalculationRequestMapper&lt;PriceCalculationRequest, OrderData&gt;,
+    CustomCalculationRequestMapper&gt;();
+</code></pre>
+</div>
+
+
+</body>
+</html>

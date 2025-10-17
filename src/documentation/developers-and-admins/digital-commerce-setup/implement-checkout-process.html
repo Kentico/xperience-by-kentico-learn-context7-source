@@ -18,10 +18,10 @@
 </div>
 <div>
 <p><strong>Commerce object types</strong></p>
-<p>Object types used by the commerce feature (Shopping cart, Order, Order address, Order item, Customer, Customer address …):</p>
 <ul>
-<li>are considered live-site data and are not supported by the <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> feature</li>
-<li>can be <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extended</a> by adding custom fields</li>
+<li>Certain objects (Shopping cart, Order, Order address, Order item, Customer, Customer address) are considered live-site data and are not supported by the <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> feature</li>
+<li>Configuration objects (Order statuses, Shipping methods, Payment methods) support <a href="/documentation/developers-and-admins/ci-cd">CI/CD</a> and can be deployed across environments</li>
+<li>All objects can be <a href="/documentation/developers-and-admins/customization/object-types/extend-system-object-types">extended</a> by adding custom fields</li>
 </ul>
 </div>
 
@@ -241,9 +241,11 @@ await currentShoppingCartService.Delete();
 <div>
 <p><strong>Notes</strong></p>
 <ul>
+<li>Orders reference shipping methods, payment methods, and order statuses configured in the system. Before creating orders, ensure that these are properly set up. For more information, see <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-shipping-and-payment-methods">Configure shipping and payment methods</a>.</li>
 <li>It is recommended to implement the checkout process as a separate service, such as <code>OrderService</code>, which handles the logic of creating orders from shopping carts. This service can be injected into your controllers or other components where you need to create orders.</li>
 <li>It is recommended to perform the checkout process in a transaction scope (using the <code>CMSTransactionScope</code> class) to ensure that all operations succeed or fail together. This prevents partial updates in case of errors during order creation.</li>
 <li>This scenario uses the architecture of the commerce solution in the Dancing Goat project template. You can view a complete example of the order creation process in the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat</a> project template’s <code>OrderService.cs</code> file.</li>
+<li>You can also use the <code>IOrderCreationService</code> that is currently released as a developer preview feature. For more information, see a sample in the <em>OrderService.cs</em> file of the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat sample site</a>.</li>
 </ul>
 </div>
 
@@ -291,6 +293,10 @@ await currentShoppingCartService.Delete();
 <li><p>Retrieve <a href="#manage-the-current-shopping-cart">current shopping cart</a> and data about <a href="#manage-shopping-cart-data">products contained in the shopping cart</a>.</p></li>
 <li>
 <p>Calculate the total price and any additional charges (e.g., shipping, taxes).</p>
+<ul>
+<li>
+<strong>Tip</strong>: Price calculation service is currently released as a developer preview feature. See <a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process/implement-price-calculation">Implement price calculation</a>.</li>
+</ul>
 
 <div>
 <div>

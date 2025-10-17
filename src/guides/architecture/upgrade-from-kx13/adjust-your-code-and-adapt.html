@@ -109,7 +109,7 @@ public string TextProperty { get; set; }
 <p>If you choose to enable <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#source-instance-api-discovery" target="_blank">Source instance API discovery</a> during data migration, which we recommend, you will need to change the attributes used by the properties of your Page Builder components to the new UI form components. Otherwise, your project will continue to use Page Builder in <em>Legacy mode</em>, which won’t require these changes but lacks many benefits for the content editors.</p>
 <h3 id="rehome-custom-tables">Rehome custom tables</h3>
 <p>Xperience by Kentico does not have a direct analog for the <a href="/13/developing-websites/defining-website-content-structure/managing-custom-tables">Custom tables</a> functionality in legacy Kentico products.</p>
-<p>The Kentico Migration Tool creates a <a href="/documentation/developers-and-admins/customization/object-types">custom object type</a> for each custom table, but leaves you in charge of defining their user interface.</p>
+<p>By default, the Kentico Migration Tool creates a <a href="/documentation/developers-and-admins/customization/object-types">custom object type</a> for each custom table, but leaves you in charge of defining their user interface.</p>
 <p>If you choose to do so, each <em>custom table</em> will correspond to an <em>object type</em> or class, and each <em>custom table row</em> will correspond to an <em>object</em> of that type. You’ll need a UI application page to host one or more custom tables to define the following parts for each of these custom table types:</p>
 <ul>
 <li>An alternative form that determines which form controls Xperience should render for each field of the object type</li>
@@ -119,9 +119,9 @@ public string TextProperty { get; set; }
 </ul>
 <p>You can choose whether each type should have its own <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages/ui-application-pages">UI application page</a> or if they should be located collectively beneath the same application page.</p>
 <p>This may sound complicated, but these basic operations are fairly simple to implement, and you can find an example of building such a UI in our <a href="/guides/development/customizations-and-integrations/create-basic-module#build-the-module-ui">training guides</a>. The CLI tools in <a href="https://github.com/seangwright/xperience-community-dotnet-item-templates" target="_blank">this repository</a> can help to speed up the process.</p>
-<p>We recommend this approach when it is important for your client to edit the values in a dedicated area of the UI.</p>
-<p>If custom table data does not need to be separate from other content, we recommend using <a href="/documentation/business-users/content-hub">reusable content items</a> instead.</p>
-<p>If you define a <a href="/guides/architecture/content-modeling/model-reusable-content/model-a-reusable-article">reusable content type</a> corresponding to each custom table and write a one-time script that <a href="/api/content-management/content-items#create-content-items">creates reusable content items</a> you will not need to build a dedicated UI for the existing types, or any similar types your client might want in the future.</p>
+<p>We recommend this approach when the data in the table is more procedural than content-focused, or your client needs to edit the values through a dedicated admin UI.</p>
+<p>When custom tables contain structured content, we recommend using <a href="/documentation/business-users/content-hub">reusable content items</a> instead.</p>
+<p>You can use the <code>ConvertClassesToContentHub</code> configuration in the <strong>appsettings.json</strong> file of the <em>Migration.Tool.CLI</em> project to <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/tree/master/Migration.Tool.CLI#convert-pages-or-custom-tables-to-content-hub" target="_blank">automatically convert your custom tables to reusable content types</a>. Then you will not need to build a dedicated UI for the existing types, or any similar types your client might want in the future.</p>
 <p>Editors can use the <a href="/documentation/business-users/content-hub">Content hub</a> to manage the items. By selecting a content type in the Content hub’s filter, they can view the custom table’s data.</p>
 <h3 id="convert-custom-module-pages">Convert custom module pages</h3>
 <p>Xperience by Kentico’s admin UI no longer runs on web forms, so you’ll need to recreate any <a href="/13/custom-development/creating-custom-modules">custom module pages</a> as <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-pages">UI pages</a> in XbyK.</p>
@@ -156,10 +156,26 @@ public string TextProperty { get; set; }
 <li><p><strong>Implement your own custom module</strong> - If your project requires a specific way of handling resource strings, your team can create a custom implementation using the XbyK <a href="/guides/development/customizations-and-integrations/create-basic-module">custom module</a> that suits your client’s needs.</p></li>
 </ul>
 <h3 id="migrate-commerce">Migrate commerce</h3>
-<p>Xperience by Kentico now supports digital commerce natively. However, many components do not map directly between KX13 and XbyK, as we redesigned the system from scratch. Therefore, you should count on some level of redevelopment. The complexity will vary project-by-project.</p>
-<p>If you choose the <a href="https://github.com/Kentico/xperience-by-kentico-k13ecommerce" target="_blank">E-commerce bridge integration</a> instead, you can leave the calculation logic unchanged on the KX13 side. Then, you can use the approaches exemplified in the repo to list products and interface with the KX13 shopping cart from the XbyK side.</p>
-<p>If you choose to migrate your commerce to Shopify and use the <a href="https://github.com/Kentico/xperience-by-kentico-shopify" target="_blank">Shopify integration</a>, you won’t need your calculation and checkout code, as these things are handled directly in Shopify. From the Xperience side, you’ll need to add code to manage the contents of shopping carts and discount coupons.</p>
-<p>How your code changes will depend heavily on which of the above options you choose.</p>
+<p>Xperience by Kentico now includes native support for digital commerce. The commerce capabilities have been completely rewritten, which means many components from KX13 do not map directly to XbyK capabilities. As a result, your existing implementations will require updates, and the level of effort will depend on the complexity of each project.</p>
+<h4 id="key-implementation-requirements">Key implementation requirements</h4>
+<p>To use XbyK commerce features, you first enable and configure the <a href="/documentation/developers-and-admins/digital-commerce-setup">commerce</a> module. From there, you’ll <a href="/documentation/developers-and-admins/digital-commerce-setup/model-product-catalog">set up the product catalog</a> and <a href="/documentation/developers-and-admins/digital-commerce-setup/model-product-catalog#general-recommendations">define products</a>. Then, you’ll need to <em>upgrade the code that displays the product catalog</em>. Next, you’ll configure <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses">order statuses</a> and the built-in <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-order-statuses#enable-notifications-for-order-statuses">notifications</a>.</p>
+<p>The new XbyK approach offers flexibility, but it also means you’ll need to budget for custom development. Beyond displaying the catalog and handling order-related entities, you must upgrade your existing code for:</p>
+<ul>
+<li>
+<a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process">Checkout and shopping cart</a> flows.</li>
+<li>
+<a href="/documentation/developers-and-admins/digital-commerce-setup/configure-shipping-and-payment-methods">Shipping and payment</a> methods.</li>
+<li>Any additional functionality that your KX13 project leverages, for example, <em>integrations</em> with 3rd-party systems or <em>discounts and coupons</em>.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p>As we are extending commerce features in XbyK, follow the <a href="https://roadmap.kentico.com/tabs/6-next-refreshes" target="_blank">product roadmap</a> to plan for upcoming functionality.</p>
+</div>
+
+<p>If you choose to migrate your commerce to <a href="https://www.shopify.com/" target="_blank">Shopify</a> and use the <a href="https://github.com/Kentico/xperience-by-kentico-shopify" target="_blank">Shopify integration</a>, you won’t need your calculation and checkout code, as these things are handled directly in Shopify. From the Xperience side, you’ll need to add code to manage the contents of shopping carts and discount coupons.</p>
 <h3 id="handle-marketing-changes">Handle marketing changes</h3>
 <p>XbyK and KX13 both feature online marketing, but key differences exist. Let’s take a look into some of them.</p>
 <p>When you log custom activities from server-side code in Xperience by Kentico, use <code>ICustomActivityLogger</code> instead of <code>IActivityLogService</code>. Custom activities no longer need an <em>initializer</em> class for the logger to work. Note that XbyK also allows you to log custom activities with <em>client-side code</em>.</p>

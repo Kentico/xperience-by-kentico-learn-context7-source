@@ -69,10 +69,8 @@
 <div>
 <pre><code>
 using CMS.DataEngine;
-using CMS.FormEngine;
 using Microsoft.Extensions.DependencyInjection;
 using Migration.Tool.Common.Builders;
-using Migration.Tool.KXP.Api.Auxiliary;
 
 namespace Migration.Tool.Extensions.ClassMappings;
 
@@ -132,6 +130,10 @@ public static class GrinderClassMapping
     private const string Target_ClassName_Electric = "DancingGoat.ElectricGrinder";
     private const string Target_ClassName_Manual = "DancingGoat.ManualGrinder";
 
+    // Target class GUIDs
+    public const string Target_ClassGuid_Electric = "5A97ED6D-8A5A-415C-A464-A257298E6724";
+    public const string Target_ClassGuid_Manual = "3C47B7BB-E86C-40A9-8B61-6A78A840D6AD";
+
     // Target class display names
     private const string Target_DisplayName_Schema = "Common Grinder Fields";
     private const string Target_DisplayName_Electric = "Electric Grinder";
@@ -152,19 +154,6 @@ public static class GrinderClassMapping
     private const string Target_FieldName_Electric_ID = "ElectricGrinderID";
     private const string Target_FieldName_Manual_ID = "ManualGrinderID";
 
-    // Target class field display names
-    private const string Target_FieldDisplayName_Schema_PromotionTitle = "Promotion title";
-    private const string Target_FieldDisplayName_Schema_PromotionDescription = "Promotion description";
-    private const string Target_FieldDisplayName_Schema_BannerText = "Banner text";
-
-    // Target class field GUIDs
-    private const string Target_FieldGuid_Schema_PromotionTitle = "8E6C956F-FD45-42B3-A675-A7D39069A57B";
-    private const string Target_FieldGuid_Schema_PromotionDescription = "8AC6414E-0AA5-40D8-830E-2B090F0C4723";
-    private const string Target_FieldGuid_Schema_BannerText = "1804B982-59AB-459D-806E-AC55863116FE";
-
-    // Setting names
-    private const string Target_Setting_Schema_ControlName = "controlname";
-
     ...
 </code></pre>
 </div>
@@ -172,8 +161,7 @@ public static class GrinderClassMapping
 <p>With these constants in place, we can begin to define the classes and mappings.</p>
 <h3 id="create-the-schema">Create the schema</h3>
 <p>Let’s start with the reusable field schema that will hold data common to both electric and manual grinders.</p>
-<p>Schema fields defined during the migration can copy their details from fields in the source instance using the <code>CreateFrom</code> method.</p>
-<p>In this case, let’s define the fields manually so we can set custom names for them, rather than taking the names from the source page type in KX13.</p>
+<p>We can use the <code>IReusableSchemaBuilder.ConvertFrom</code> method to take the fields from the <em>Manual grinder</em> page type and rename them with the <code>transformFieldName</code> parameter.</p>
 
 <div>
 <div>
@@ -193,54 +181,84 @@ public static class GrinderClassMapping
 // Build schema for shared grinder fields
 private static ReusableSchemaBuilder BuildSchema()
 {
+    // Build schema for shared grinder fields
     var schemaBuilder = new ReusableSchemaBuilder(Target_ClassName_Schema, Target_DisplayName_Schema, Target_Description_Schema);
-
-    schemaBuilder
-        .BuildField(Target_FieldName_Schema_PromotionTitle)
-        .WithFactory(() =&gt; new FormFieldInfo
+    schemaBuilder.ConvertFrom(Source_ClassName_Manual, x =&gt; x switch
         {
-            Name = Target_FieldName_Schema_PromotionTitle,
-            Caption = Target_FieldDisplayName_Schema_PromotionTitle,
-            Guid = new Guid(Target_FieldGuid_Schema_PromotionTitle),
-            DataType = FieldDataType.Text,
-            Size = 200,
-            Settings =
-            {
-                [Target_Setting_Schema_ControlName] = FormComponents.AdminTextInputComponent
-            }
-        });
-    schemaBuilder
-        .BuildField(Target_FieldName_Schema_PromotionDescription)
-        .WithFactory(() =&gt; new FormFieldInfo
-        {
-            Name = Target_FieldName_Schema_PromotionDescription,
-            Caption = Target_FieldDisplayName_Schema_PromotionDescription,
-            Guid = new Guid(Target_FieldGuid_Schema_PromotionDescription),
-            DataType = FieldDataType.Text,
-            Size = 200,
-            Settings =
-            {
-                [Target_Setting_Schema_ControlName] = FormComponents.AdminTextInputComponent
-            }
-        });
-    schemaBuilder
-        .BuildField(Target_FieldName_Schema_BannerText)
-        .WithFactory(() =&gt; new FormFieldInfo
-        {
-            Name = Target_FieldName_Schema_BannerText,
-            Caption = Target_FieldDisplayName_Schema_BannerText,
-            Guid = new Guid(Target_FieldGuid_Schema_BannerText),
-            DataType = FieldDataType.Text,
-            Size = 200,
-            Settings =
-            {
-                [Target_Setting_Schema_ControlName] = FormComponents.AdminTextInputComponent
-            }
-        });
+            Source_FieldName_Manual_PromotionTitle =&gt; Target_FieldName_Schema_PromotionTitle,
+            Source_FieldName_Manual_PromotionDescription =&gt; Target_FieldName_Schema_PromotionDescription,
+            Source_FieldName_Manual_BannerText =&gt; Target_FieldName_Schema_BannerText,
+            _ =&gt; null
+        }
+    );
 
     return schemaBuilder;
 }
 </code></pre>
+</div>
+
+
+<div>
+
+</div>
+<div>
+<p>If you don’t want to copy an entire class as a schema, individual fields defined during the migration can copy their details from fields in the source page type using the <code>CreateFrom</code> method.</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Schema field defined with CreateFrom</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+schemaBuilder
+    .BuildField(Target_FieldName_Schema_PromotionTitle)
+    .CreateFrom(Source_ClassName_Manual, Source_FieldName_Manual_PromotionTitle);
+</code></pre>
+</div>
+</div>
+<p>If you need more control over each field’s attributes, you can define them manually.</p>
+<div>
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Manually defined schema field</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+schemaBuilder
+    .BuildField(Target_FieldName_Schema_PromotionTitle)
+    .WithFactory(() =&gt; new FormFieldInfo
+    {
+        Name = Target_FieldName_Schema_PromotionTitle,
+        Caption = Target_FieldDisplayName_Schema_PromotionTitle,
+        Guid = new Guid(Target_FieldGuid_Schema_PromotionTitle),
+        DataType = FieldDataType.Text,
+        Size = 200,
+        Settings =
+        {
+            [Target_Setting_Schema_ControlName] = FormComponents.AdminTextInputComponent
+        }
+    });
+</code></pre>
+</div>
+</div>
 </div>
 
 <h3 id="map-the-electric-grinder-content-type">Map the electric grinder content type</h3>
@@ -315,14 +333,14 @@ private static MultiClassMapping BuildElectricGrinderMapping()
 </div>
 
 <h3 id="map-the-manual-grinder-content-type">Map the manual grinder content type</h3>
-<p>The process for the manual grinder is very similar, except it has no additional fields outside the schema.</p>
+<p>The process for the <em>Manual grinder</em> type is very similar, except it has no additional fields outside the schema.</p>
 
 <div>
 
 </div>
 <div>
-<p>Due to a bug, certain versions of the migration tool may require you to include a non-schema field in your content type, or have at least one field that uses the KX13 counterpart as a template.</p>
-<p>If you experience errors related the data class of your XbyK content types during data migration, you may need to include something like the <code>testField</code> example in the following code. You can delete the field from XbyK after your successful data migration.</p>
+<p>Due to a bug, certain older versions of the migration tool may require you to include a non-schema field in your content type, or have at least one field that uses the KX13 counterpart as a template.</p>
+<p>If you experience errors related the data class of your XbyK content types during data migration, you may need to include something like the commented-out <code>testField</code> example in the following code. You can delete the field from XbyK after your successful data migration.</p>
 </div>
 
 
@@ -367,12 +385,12 @@ private static MultiClassMapping BuildManualGrinderMapping()
     mappingManual.BuildField(Target_FieldName_Schema_BannerText)
         .SetFrom(Source_ClassName_Manual, Source_FieldName_Manual_BannerText);
 
-    // Setting a non-schema field to the content type may be necessary in some versions of the migration tool.
+    // Setting a non-schema field to the content type may be necessary in some older versions of the migration tool.
     // You can delete this field from XbyK after data migration is complete
-    var testField = mappingManual.BuildField("TestField");
-    testField.ConvertFrom(Source_ClassName_Manual, Source_FieldName_Manual_PromotionTitle, true,
-        (value, context) =&gt; "TestValue - Delete this field in XbyK");
-    testField.WithFieldPatch(field =&gt; field.Caption = "Test - Delete this field in XbyK");
+    // var testField = mappingManual.BuildField("TestField");
+    // testField.ConvertFrom(Source_ClassName_Manual, Source_FieldName_Manual_PromotionTitle, true,
+    //     (value, context) =&gt; "TestValue - Delete this field in XbyK");
+    // testField.WithFieldPatch(field =&gt; field.Caption = "Test - Delete this field in XbyK");
 
     return mappingManual;
 }
@@ -461,8 +479,18 @@ public static class ServiceCollectionExtensions
 
 </div>
 <div>
+<p><strong>Page name fields</strong></p>
 <p>You can see that the new content types include a <em>DocumentName</em> field, corresponding to the field of the same name in KX13’s <em>CMS.Document</em> class. The migration tool automatically adds this field to content types created from pages, to hold the un-altered display name from the KX13 page.</p>
 <p>If you have no use for this field, you can delete it from your content types in Xperience by Kentico.</p>
+<div>
+<div>
+
+</div>
+<div>
+<p>Certain versions of the migration tool may create multiple page name fields (<em>DocumentName</em> and <em>DocumentName1</em>) when you use a KX13 page type for a schema, then convert it to a content type utilizing that schema. For example, this may happen to the <em>Manual grinder</em> content type in this example.</p>
+<p>You can simply delete the duplicate field in these cases.</p>
+</div>
+</div>
 </div>
 
 <h2 id="whats-next">What’s next?</h2>

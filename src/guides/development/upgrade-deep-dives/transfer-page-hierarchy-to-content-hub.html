@@ -2,13 +2,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Transfer parent-child page hierarchy to the content hub</title>
+<title>Transfer parent-child page hierarchy to the Content hub</title>
 </head>
 <body>
-<p>When you upgrade from Kentico Xperience 13 (KX13) to Xperience by Kentico (XbyK), you’ll likely want to take advantage of the new features it offers, such as the <a href="/documentation/business-users/content-hub">content hub</a>: a central repository in XbyK for managing reusable content across multiple channels.</p>
+<p>When you upgrade from Kentico Xperience 13 (KX13) to Xperience by Kentico (XbyK), you’ll likely want to take advantage of the new features it offers, such as the <a href="/documentation/business-users/content-hub">Content hub</a>: a central repository in XbyK for managing reusable content across multiple channels.</p>
 <p>However, the parent-child relationships of your pages in the content tree might be important for your use case.</p>
-<p>Let’s configure the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Kentico migration tool</a> to automatically preserve parent-child relationships when moving certain pages to the content hub.</p>
-<p>For this example, we’ll use the KX13 <em>Dancing Goat</em> sample site, transferring the <em>Store</em> section of the content tree to the content hub in XbyK.</p>
+<p>Let’s configure the <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool" target="_blank">Kentico migration tool</a> to automatically preserve parent-child relationships when moving certain pages to the Content hub.</p>
+<p>For this example, we’ll use the KX13 <em>Dancing Goat</em> sample site, transferring the <em>Store</em> section of the content tree to the Content hub in XbyK.</p>
 <h2 id="before-you-start">Before you start</h2>
 <p>To follow along with the example in this guide, we recommend you have the following:</p>
 <ul>
@@ -179,6 +179,40 @@ public class TrainingGuidesContentItemDirector : ContentItemDirectorBase
 </ul>
 </div>
 
+<p>Remember to register the class with the migration <em>Migration.Tool.Extensions</em> project’s dependency injection container.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>ServiceCollectionExtensions.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="12"><code>
+...
+using Migration.Tool.Extensions.ContentItemDirectors;
+
+namespace Migration.Tool.Extensions;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection UseCustomizations(this IServiceCollection services)
+    {
+        ...
+
+        services.AddTransient&lt;ContentItemDirectorBase, TrainingGuidesContentItemDirector&gt;();
+
+        ...
+</code></pre>
+</div>
+
 <h2 id="see-the-results">See the results</h2>
 <p>Run a migration that <a href="https://github.com/Kentico/xperience-by-kentico-kentico-migration-tool/blob/master/Migration.Tool.CLI/README.md#migrate-command-parameters" target="_blank">includes pages</a> on the KX13 Dancing Goat site to observe the results.</p>
 <p>Here is the command for full migration, for example:</p>
@@ -198,12 +232,12 @@ public class TrainingGuidesContentItemDirector : ContentItemDirectorBase
 </div>
 <div>
 <pre><code>
-.\Migration.Tool.CLI.exe  migrate --sites --custom-modules --users --settings-keys --page-types --pages --attachments --contact-management --forms --media-libraries --data-protection --countries --custom-tables --members --categories
+.\Migration.Tool.CLI.exe  migrate --sites --custom-modules --users --settings-keys --page-types --pages --contact-management --forms --media-libraries --data-protection --custom-tables --members --categories
 </code></pre>
 </div>
 
 <h2 id="combine-with-other-migration-features">Combine with other migration features</h2>
-<p>The director approach described in this example is compatible with the custom class mapping approach we’ve used in earlier upgrade deep dives. When you migrate your content tree hierarchy to the content hub, you can still restructure the affected types with custom class mappings.</p>
+<p>The director approach described in this example is compatible with the custom class mapping approach we’ve used in earlier upgrade deep dives. When you migrate your content tree hierarchy to the Content hub, you can still restructure the affected types with custom class mappings.</p>
 <p>For example, let’s revisit the <a href="/guides/development/upgrade-deep-dives/remodel-page-types-as-reusable-field-schemas">grinder class mapping example</a> from earlier in the upgrade deep dives. We simply need to change the <code>ClassContentTypeType</code> for each content type, and the other code can remain the same.</p>
 
 <div>
@@ -263,7 +297,7 @@ private static MultiClassMapping BuildManualGrinderMapping()
 </div>
 <div>
 <p><strong>Class mappings and ConvertClassesToContentHub</strong></p>
-<p>If you set a content type to <code>ClassContentTypeType.REUSABLE</code> in a custom class mapping, the migration tool will put its items in the content hub regardless of whether or not the KX13 page type appears in the <code>ConvertClassesToContentHub</code> value in <strong>appsettings.json</strong>.</p>
+<p>If you set a content type to <code>ClassContentTypeType.REUSABLE</code> in a custom class mapping, the migration tool will put its items in the Content hub regardless of whether or not the KX13 page type appears in the <code>ConvertClassesToContentHub</code> value in <strong>appsettings.json</strong>.</p>
 <p>However, if you map a KX13 page type to a content type with <code>ClassContentTypeType.WEBSITE</code> in a custom class mapping, you <strong>must not</strong> include its codename in the <code>ConvertClassesToContentHub</code> value in <strong>appsettings.json</strong> if you want the migration tool to create web page items in XbyK.</p>
 </div>
 
@@ -276,7 +310,7 @@ private static MultiClassMapping BuildManualGrinderMapping()
 <div>
 <ul>
 <li>Query the database to quickly find the classes located in a certain subtree, or use the <strong>Properties → General</strong> tab in the Pages app.</li>
-<li>Specify which page types to migrate to content hub in <strong>appsettings.json</strong> with <code>ConvertClassesToContentHub</code>.</li>
+<li>Specify which page types to migrate to Content hub in <strong>appsettings.json</strong> with <code>ConvertClassesToContentHub</code>.</li>
 <li>Create a class that inherits from <code>ContentItemDirectorBase</code> to specify where child item references should go.</li>
 <li>Filter both parent and child items by various attributes, like class name and tree location, to fully control the process.</li>
 <li>Use <code>MultiClassMapping</code> objects in combination with the director to remodel classes as needed.</li>
@@ -284,6 +318,9 @@ private static MultiClassMapping BuildManualGrinderMapping()
 </div>
 
 <p>If you have any questions or upgrade scenarios you’d like us to cover in the future, please let us know with the “Send us feedback” button at the bottom of this page.</p>
+<h2 id="whats-next">What’s next?</h2>
+<p>If you haven’t already, we recommend checking out our <a href="/guides/architecture/upgrade-from-kx13/upgrade-walkthrough">upgrade walkthrough</a>, to see content retrieval migration in context of the whole upgrade process, including more caching examples.</p>
+<p>You can find more advanced upgrade and data migration use cases in our other <a href="/guides/development/upgrade-deep-dives">Upgrade deep dive guides</a>.</p>
 
 </body>
 </html>

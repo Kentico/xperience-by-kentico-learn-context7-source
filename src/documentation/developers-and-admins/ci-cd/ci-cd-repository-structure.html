@@ -47,8 +47,8 @@
 </div>
 <div>
 <p><strong>Source control ignore rules</strong></p>
-<p>Certain source control systems may have ignore rules, such as <em>gitignore</em>, which exclude files or folders used in the CI/CD repository (for example the <em>*.class</em> and <em>*.user</em> file and folder extensions).</p>
-<p>Such rules may prevent your environment from working correctly. We recommend that you evaluate ignore rules for the repository location and disable them as required.</p>
+<p>Certain source control systems may have ignore rules, such as <em>gitignore</em>, which can unintentionally exclude files or folders used in the CI/CD repository (for example, the <em>*.class</em> and <em>*.user</em> file and folder extensions).</p>
+<p>Such rules may prevent your environment from working correctly. We recommend that you evaluate ignore rules for the repository and disable them as required.</p>
 </div>
 
 <h2 id="example---repository-structure">Example - Repository structure</h2>
@@ -216,8 +216,6 @@
 <li>
 <em>cms.contentitemlanguagemetadata</em> – metadata for specific language variants of the item. Organized under subfolders matching the parent content item.</li>
 <li>
-<em>cms.contentitemreference</em> – references to content items linked from the item’s fields.</li>
-<li>
 <em>contentitemdata.&lt;content type code name&gt;</em> – data stored in the <a href="/documentation/developers-and-admins/customization/field-editor">fields</a> of the item’s <a href="/documentation/developers-and-admins/development/content-types">content type</a>. Items with fields of the <em>Content item asset</em> data type also contain the referenced asset binary next to the XML definition.</li>
 </ul>
 <p>For example, a <em>“Bolivia Finca Illimani</em>” reusable content item of the <em>DancingGoat.Coffee</em> content type could be, depending on the type’s fields and supported language variants, serialized into the following XML files:</p>
@@ -250,11 +248,6 @@
 </li>
 </ul>
 </li>
-<li>cms.contentitemreference
-<ul>
-<li>boliviafincaillima..7d-3e1918ae8436_en@f22af72b2b</li>
-</ul>
-</li>
 <li>contentitemdata.dancinggoat.coffee
 <ul>
 <li>boliviafincaillima..7d-3e1918ae8436_en@f22af72b2b
@@ -279,8 +272,6 @@
 <em>cms.contentitemcommondata</em> – stores metadata about the page such as the current workflow and version statuses. Organized under subfolders matching the parent content item for the page.</li>
 <li>
 <em>cms.contentitemlanguagemetadata</em> – metadata for specific language variants of the page. Organized under subfolders matching the parent content item for the page.</li>
-<li>
-<em>cms.contentitemreference</em> – references to content items linked from the page’s fields. Organized under subfolders matching the parent content item for the page.</li>
 <li>
 <em>cms.webpageitem</em> – data about the page’s position in the website channel’s content tree. Organized into subfolders matching the parent-child hierarchy of the page tree.</li>
 <li>
@@ -317,16 +308,6 @@
 <li>coffeebeveragesexplained-ouq66na8@229b3e934c
 <ul>
 <li>0a9c1cfb-bc49-4de7-9cd6-bcb72a271515_en@198d133b1e.xml</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p>cms.contentitemreference</p>
-<ul>
-<li>coffeebeveragesexplained-ouq66na8@229b3e934c
-<ul>
-<li>96d3df60-fff0-4e3b-b130-87b7ce42a721_en@90457a51cb.xml</li>
 </ul>
 </li>
 </ul>
@@ -378,20 +359,20 @@
 <li>
 <em>cms.contentitemlanguagemetadata</em> – metadata for specific language variants of the email. Organized under subfolders matching the parent content item for the email.</li>
 <li>
-<em>cms.contentitemreference</em> – references to content items linked from the email’s fields. Organized under subfolders matching the parent content item for the email.</li>
-<li>
 <em>contentitemdata.&lt;content type code name&gt;</em> – data stored in the <a href="/documentation/developers-and-admins/customization/field-editor">fields</a> of the email’s <a href="/documentation/developers-and-admins/development/content-types">content type</a>.</li>
 <li>
 <em>emaillibrary.emailconfiguration</em> – stores the email purpose and other assorted metadata.</li>
 <li>
 <em>emaillibrary.sendconfiguration</em> – sendout settings for <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">regular emails</a>.</li>
+<li>
+<em>emaillibrary.sendconfigurationcontactgroup</em> – included and excluded <a href="/documentation/business-users/digital-marketing/contact-groups">contact groups</a> in the sendount settings for <a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">regular emails</a>.</li>
 </ul>
 <p>For example, a <em>“Dancing Goat Regular”</em> email with the <em>DancingGoat.Email</em> content type under the <em>DancingGoatEmail</em> email channel could be, depending on the type’s <a href="/documentation/developers-and-admins/customization/field-editor">fields</a>, serialized into the following XML files:</p>
 
 <div>
 <p>App_Data\CIRepository</p>
 <ul>
-<li>DancingGoatEmail
+<li>DancingGoatEmails
 <ul>
 <li>cms.contentitem
 <ul>
@@ -416,11 +397,6 @@
 </li>
 </ul>
 </li>
-<li>cms.contentitemreference
-<ul>
-<li>dancinggoatregular..f8f325852_en_draft@3c1dc19108.xml</li>
-</ul>
-</li>
 <li>emaillibrary.emailconfiguration
 <ul>
 <li>dancinggoatregular-jspvrlaw.xml</li>
@@ -433,6 +409,11 @@
 <li>715d8987-f654-4bbc-9add-6f90add97072.xml</li>
 </ul>
 </li>
+</ul>
+</li>
+<li>emaillibrary.sendconfigurationcontactgroup
+<ul>
+<li>dancinggoatregular..-9cbf-562d43bcefb3@6edd158a18.xml</li>
 </ul>
 </li>
 </ul>
@@ -450,8 +431,6 @@
 <em>cms.contentitemcommondata</em> – stores metadata about the item such as the current workflow and version statuses. Organized under subfolders matching the parent headless item.</li>
 <li>
 <em>cms.contentitemlanguagemetadata</em> – metadata for specific language variants of the item. Organized under subfolders matching the parent headless item.</li>
-<li>
-<em>cms.contentitemreference</em> – references to content items linked from the headless item’s fields.</li>
 <li>
 <em>contentitemdata.&lt;content type code name&gt;</em> – data stored in the <a href="/documentation/developers-and-admins/customization/field-editor">fields</a> of the item’s <a href="/documentation/developers-and-admins/development/content-types">content type</a>.</li>
 </ul>

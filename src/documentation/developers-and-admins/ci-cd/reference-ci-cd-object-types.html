@@ -729,7 +729,7 @@ cms.webpageitem</p>
 <td>
 <p>Supported child objects:</p>
 <ul>
-<li>Email channel sender address</li>
+<li>Email channel sender address (emaillibrary.emailchannelsender)</li>
 </ul>
 </td>
 </tr>
@@ -757,6 +757,10 @@ emaillibrary.emailconfiguration</p>
 </td>
 <td>
 <p>The system uses multiple files to store email data. See the <strong>Emails</strong> section of <a href="/documentation/developers-and-admins/ci-cd/ci-cd-repository-structure#emails">CI/CD repository structure</a> for more information.</p>
+<p>Supported child objects:</p>
+<ul>
+<li>Regular email sendout configuration (emaillibrary.sendconfiguration)</li>
+</ul>
 <p><strong>Important:</strong> To include or exclude emails from the repository, use the <code>IncludedContentItemsOfType</code> or <code>ExcludedContentItemsOfType</code> <a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories#includeexclude-content-items">filters</a>. (<a href="/documentation/developers-and-admins/ci-cd/configure-ci-cd-repositories/config-v2-migration">Available from Xperience 30.4.0</a>)</p>
 <hr>
 <p>CI/CD data does <strong>not include</strong> changes made to new versions of previously published emails. While an email is in the <em>Draft (New version)</em> status (or a custom <a href="/documentation/developers-and-admins/configuration/workflows">workflow step</a>), CI/CD stores the original published version, until the new changes are published. Consequently, the <strong>published</strong> version of emails is always restored by CI/CD – any changes made in <em>Draft (New version)</em> or custom workflow steps are <strong>lost</strong> when the email is restored.</p>
@@ -855,6 +859,17 @@ cms.formclass</p>
 <td>
 <p>Stores the approval and unsubscribe settings of recipient lists.</p>
 <p>Child object type of <strong>Recipient list</strong> objects.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><a href="/documentation/business-users/digital-marketing/emails/send-regular-emails-to-subscribers">Regular email sendout configuration</a></p>
+</td>
+<td>
+<p>emaillibrary.sendconfiguration</p>
+</td>
+<td>
+<p>Child object type of <strong>Email</strong> objects (emaillibrary.emailconfiguration).</p>
 </td>
 </tr>
 <tr>
@@ -996,20 +1011,6 @@ cms.formclass</p>
 </tr>
 <tr>
 <td>
-<p><a href="/documentation/business-users/content-hub/content-items#link-content-items">Content item reference</a></p>
-</td>
-<td>
-<p>cms.contentitemreference</p>
-</td>
-<td>
-<p>Content item</p>
-</td>
-<td>
-<p>Content item</p>
-</td>
-</tr>
-<tr>
-<td>
 <p>Allowed content types for channels</p>
 </td>
 <td>
@@ -1038,16 +1039,16 @@ cms.formclass</p>
 </tr>
 <tr>
 <td>
-<p>Email sendout settings</p>
+<p>Email sendout contact group configuration</p>
 </td>
 <td>
-<p>emaillibrary.sendconfiguration</p>
+<p>emaillibrary.sendconfigurationcontactgroup</p>
 </td>
 <td>
-<p>Email</p>
+<p>Regular email sendout configuration</p>
 </td>
 <td>
-<p>Recipient list</p>
+<p>Contact group</p>
 </td>
 </tr>
 <tr>

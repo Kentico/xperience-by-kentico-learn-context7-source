@@ -146,18 +146,18 @@ if (signInProviders.Any())
 
 public class AccountController : Controller
 {
-    private readonly IEventLogService eventLogService;
+    private readonly ILogger&lt;AccountController&gt; logger;
     private readonly UserManager&lt;ApplicationUser&gt; userManager;
     private readonly SignInManager&lt;ApplicationUser&gt; signInManager;
 
     // Gets required services using dependency injection
     public AccountController(UserManager&lt;ApplicationUser&gt; userManager,
                              SignInManager&lt;ApplicationUser&gt; signInManager,
-                             IEventLogService eventLogService)
+                             ILogger&lt;AccountController&gt; logger)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
-        this.eventLogService = eventLogService;
+        this.logger = logger;
     }
 
     // Redirects authentication requests to an external service
@@ -264,13 +264,11 @@ public class AccountController : Controller
         // and has signed in using the given external service
         if (result.Succeeded)
         {
-            eventLogService.LogInformation("External authentication",
-                "EXTERNALAUTH", $"Visitor signed in via {loginInfo.LoginProvider}.");
+            logger.LogInformation(new EventId(0, "EXTERNALAUTH"), $"Visitor signed in via {loginInfo.LoginProvider}");
         }
         else
         {
-            eventLogService.LogError("External authentication",
-                "EXTERNALAUTH", $"External sign in error.");
+            logger.LogError(new EventId(0, "EXTERNALAUTH_ERROR"), "External sign in error");
         }
     }
 
@@ -467,6 +465,8 @@ var externalAuthApiKey = builder.Configuration["Project:ExternalAuthProvider"];
 </ul>
 <h4 id="private-cloud-hosting">Private cloud hosting</h4>
 <ul>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/standard/security/how-to-use-data-protection" target="_blank">DataProtection API</a></li>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/security/key-vault-configuration#use-application-id-and-x509-certificate-for-non-azure-hosted-apps" target="_blank">Azure KeyVault</a></li>
 <li><a href="https://learn.microsoft.com/en-us/dotnet/standard/security/how-to-use-data-protection" target="_blank">DataProtection API</a></li>
 <li><a href="https://learn.microsoft.com/en-us/aspnet/core/security/key-vault-configuration#use-application-id-and-x509-certificate-for-non-azure-hosted-apps" target="_blank">Azure KeyVault</a></li>
 </ul>

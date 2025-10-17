@@ -36,6 +36,20 @@
 </li>
 </ul>
 <h2 id="assign-and-configure-editing-components">Assign and configure editing components</h2>
+
+<div>
+
+</div>
+<div>
+<p><strong>Editing component namespaces</strong></p>
+<p>Unless specified otherwise, all classes and members mentioned in this section can be found in the following namespaces:</p>
+<ul>
+<li><code>Kentico.Xperience.Admin.Base.Forms</code></li>
+<li><code>Kentico.Xperience.Admin.Base.FormAnnotations</code></li>
+</ul>
+<p>Do <strong>not</strong> use API from the <em>Kentico.Forms.Web.Mvc</em> namespace, which contains some classes with matching names (e.g., <code>FormComponentAttribute</code>).</p>
+</div>
+
 <p>Editing components are assigned using <strong>C# attributes</strong> specific to each UI form component. Annotating a configuration property of one of the supported components with a form component attribute sets that component as the editor of the property’s input.</p>
 <p>For example, to assign the text input form component as an editing component, use the <code>TextInputComponent</code> attribute.</p>
 
@@ -158,7 +172,7 @@ public class WidgetModelClass : IWidgetProperties
 <div>
 <pre><code>
 
-using Kentico.Xperience.Admin.Base.Forms;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 public class MyComponentAttribute : FormComponentAttribute
 {
@@ -193,7 +207,7 @@ public class MyComponentAttribute : FormComponentAttribute
 <div>
 <pre><code>
 
-using Kentico.Xperience.Admin.Base.Forms;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 public class MyComponentAttribute : FormComponentAttribute
 {
@@ -230,6 +244,7 @@ public class MyComponentAttribute : FormComponentAttribute
 <div>
 <pre><code>
 
+using Kentico.Xperience.Admin.Base.Forms;
 using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 [ComponentAttribute(typeof(MyComponentAttribute))]

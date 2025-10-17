@@ -10,7 +10,21 @@
 <p>Each validation rule also carries an error message that is displayed to users when their input fails to pass the given rule’s validation logic.</p>
 <p>Default Xperience installations come with a set of validation rules ready to be used immediately. Additionally, the admin UI customization framework allows you to define custom rules suitable for your use cases and scenarios.</p>
 <h2 id="define-validation-rules">Define validation rules</h2>
-<p>In Xperience, each validation rule consists of a main class that contains the rule’s validation logic – implemented in the rule’s <code>Validate</code> method – and two properties classes – one to enable client-side validation and the other to allow for the rule’s configuration (via the <a href="/documentation/developers-and-admins/customization/field-editor">field editor</a> or <a href="#assign-validation-rules-using-attributes">custom attributes</a>).</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Validation rule namespaces</strong></p>
+<p>Unless specified otherwise, all classes and members mentioned in this section can be found in the following namespaces:</p>
+<ul>
+<li><code>Kentico.Xperience.Admin.Base.Forms</code></li>
+<li><code>Kentico.Xperience.Admin.Base.FormAnnotations</code></li>
+</ul>
+<p>Do <strong>not</strong> use API from the <em>Kentico.Forms.Web.Mvc</em> namespace, which contains some classes with matching names (e.g., <code>ValidationRule</code>, <code>RegisterFormValidationRule</code>).</p>
+</div>
+
+<p>In Xperience, each validation rule consists of a main class that contains the rule’s validation logic – implemented in the rule’s <code>Validate</code> method – and two properties classes – one to enable client-side validation and the other to allow for the rule’s configuration (via the <a href="/documentation/developers-and-admins/customization/field-editor">field editor</a> or <a href="#assign-validation-rules-using-attributes">custom attributes</a>).</p>
 <p>Validation rules are <strong>strongly typed</strong>. A rule defined for <em>decimal</em> value types can only be applied to fields that use <a href="/documentation/developers-and-admins/customization/extend-the-administration-interface/ui-form-components">form components</a> of the corresponding type. The type must match exactly, including <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/nullable-value-types" target="_blank">nullability</a> for value types.</p>
 <p>A validation rule consists of:</p>
 <ol type="1">
@@ -376,6 +390,7 @@ export const MyValidationRule: ValidationRule&lt;MyValidationRuleProps, string&g
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base.Forms;
 
 [assembly: RegisterFormValidationRule("Acme.Administration.MyVisibilityCondition", typeof(MyVisibilityCondition), 
            "Rule name", "Rule description")]
@@ -481,7 +496,7 @@ public class CafeCardProperties : IWidgetProperties
 <div>
 <pre><code>
 
-using Kentico.Xperience.Admin.Base.Forms;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 public class ValueIsBetweenValidationRuleAttribute : ValidationRuleAttribute
 {   
@@ -525,6 +540,7 @@ public class ValueIsBetweenValidationRuleAttribute : ValidationRuleAttribute
 <div>
 <pre><code>
 
+using Kentico.Xperience.Admin.Base.Forms;
 using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 [ValidationRuleAttribute(typeof(ValueIsBetweenValidationRuleAttribute))]
@@ -814,6 +830,7 @@ public class ValueIsBetweenValidationRuleProperties : ValidationRuleProperties
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base.Forms;
 
 public class ValueIsBetweenValidationRuleClientProperties : ValidationRuleClientProperties {
     public int Min { get; set; }
@@ -878,7 +895,7 @@ export const ValueIsBetweenValidationRule: ValidationRule&lt;ValueIsBetweenValid
 <div>
 <pre><code>
 
-using Kentico.Xperience.Admin.Base.Forms;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 public class ValueIsBetweenValidationRuleAttribute : ValidationRuleAttribute
 {
@@ -920,6 +937,7 @@ public class ValueIsBetweenValidationRuleAttribute : ValidationRuleAttribute
 <div>
 <pre><code>
 
+using Kentico.Xperience.Admin.Base.Forms;
 using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 [ValidationRuleAttribute(typeof(ValueIsBetweenValidationRuleAttribute))]

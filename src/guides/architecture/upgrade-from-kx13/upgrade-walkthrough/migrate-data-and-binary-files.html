@@ -9,7 +9,7 @@
 <p>In the video we run the data migration in <strong>two iterations</strong>:</p>
 <ul>
 <li>first to migrate <em>sites</em> only.</li>
-<li>then to migrate the rest of the data necessary to display the <strong>Contacts</strong> page: <em>settings keys</em>, <em>page types</em>, <em>pages</em>, <em>attachments</em> and <em>forms</em>.</li>
+<li>then to migrate the rest of the data necessary to display the <strong>Contacts</strong> page: <em>settings keys</em>, <em>page types</em>, <em>pages</em> and <em>forms</em>.</li>
 </ul>
 
 <div>
@@ -191,7 +191,7 @@ app.UseEndpoints(endpoints =&gt;
 </div>
 <div>
 <pre><code>
-.\Migration.Tool.CLI.exe  migrate --custom-modules --users --settings-keys --page-types --pages --attachments --forms --bypass-dependency-check
+.\Migration.Tool.CLI.exe  migrate --custom-modules --users --settings-keys --page-types --pages --forms --bypass-dependency-check
 </code></pre>
 </div>
 

@@ -121,6 +121,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Required for projects that will be deployed to the SaaS environment
 builder.Services.AddXperienceCloudApplicationInsights(builder.Configuration);
+builder.Services.AddXperienceCloudChannelRequirements();
 
 // Required for projects that will be deployed to the SaaS environment
 if (builder.Environment.IsQa() || builder.Environment.IsUat() || builder.Environment.IsProduction() || builder.Environment.IsEnvironment(CloudEnvironments.Custom))

@@ -110,7 +110,13 @@
 
 </div>
 <div>
-<p>Unless specified otherwise, all classes and members mentioned in this section can be found in the <code>Kentico.Xperience.Admin.Base.Forms</code> namespace.</p>
+<p><strong>Form component namespaces</strong></p>
+<p>Unless specified otherwise, all classes and members mentioned in this section can be found in the following namespaces:</p>
+<ul>
+<li><code>Kentico.Xperience.Admin.Base.Forms</code></li>
+<li><code>Kentico.Xperience.Admin.Base.FormAnnotations</code></li>
+</ul>
+<p>Do <strong>not</strong> use API from the <em>Kentico.Forms.Web.Mvc</em> namespace, which contains some classes with matching names (e.g., <code>FormComponent</code>, <code>RegisterFormComponent</code>).</p>
 </div>
 
 <p>Form component back end is formed around a class that inherits from the <code>FormComponent&lt;TProperties, TClientProperties, TType&gt;</code> base class.</p>
@@ -131,6 +137,7 @@
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base.Forms;
 
 // Creates a new form component
 public class InputFormComponent : FormComponent&lt;TProperties, TClientProperties, TType&gt;
@@ -251,6 +258,8 @@ public class InputFormComponent : FormComponent&lt;TProperties, TClientPropertie
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base.Forms;
+using Kentico.Xperience.Admin.Base.FormAnnotations;
 
 public class InputComponentProperties : FormComponentProperties
 {
@@ -289,6 +298,7 @@ public class InputComponentProperties : FormComponentProperties
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base.Forms;
 
 public class InputComponentClientProperties : FormComponentClientProperties&lt;string&gt;
 {
@@ -316,6 +326,7 @@ public class InputComponentClientProperties : FormComponentClientProperties&lt;s
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base.Forms;
 
 // Creates a new form component
 // Component configuration is provided by the 'InputComponentProperties' class
@@ -324,7 +335,7 @@ public class InputComponentClientProperties : FormComponentClientProperties&lt;s
 public class InputFormComponent : FormComponent&lt;InputComponentProperties, InputComponentClientProperties, string&gt;
 {   
     // Set to the name of the React component used to render the form component interface  
-    public override string ClientComponentName =&gt; "@acme/web-admin-custom/InputFormComponent";     
+    public override string ClientComponentName =&gt; "@acme/web-admin-custom/InputFormComponent";
 
     // Fills the component's properties class with required data
     protected override Task ConfigureClientProperties(InputComponentClientProperties clientProperties)
@@ -429,14 +440,17 @@ public override string GetValue()
 <div>
 <pre><code>
 
-private readonly MaximumLengthValidationRule validationRule;
+using Kentico.Xperience.Admin.Base.Forms;
+
+private readonly MaxLengthValidationRule validationRule;
 
 // Component configuration method
-protected override Task ConfigureComponent() 
+protected override void ConfigureComponent() 
 {
     // Adds a validation on input length to the component. 
     // This validation is always active for all instances of the component.
-    validationRule = new MaximumLengthValidationRule(localizationService) { MaxLength = 50 };
+    validationRule = new MaxLengthValidationRule(localizationService);
+    validationRule.Properties.MaxLength = 50;
     AddValidationRule(validationRule);
 
     return base.ConfigureComponent();
@@ -856,6 +870,7 @@ return (
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base.Forms;
 
 [assembly: RegisterFormComponent("Acme.AdminComponents.MyFormComponent", typeof(MyFormComponent), "My form component")]
 
@@ -1034,6 +1049,8 @@ public async Task&lt;ICommandResponse&lt;TResult&gt;&gt; GetDataForSelector(GetD
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.Base.Forms;
 
 public class MyCommandArguments
 {
@@ -1080,6 +1097,8 @@ public class MyComponent : FormComponent&lt;MyComponentProperties, string&gt;
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.Base.Forms;
 
 [FormComponentCommand]
 public ICommandResponse CommandHandler(ClientArguments args)
@@ -1114,6 +1133,8 @@ public ICommandResponse CommandHandler(ClientArguments args)
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.Base.Forms;
 
 // Data object class representing the command handler response to the client
 public class MyCommandResult
@@ -1359,6 +1380,8 @@ return ResponseFrom().UseCommand('Componentcommand');
 </div>
 <div>
 <pre><code>
+using Kentico.Xperience.Admin.Base;
+using Kentico.Xperience.Admin.Base.Forms;
 
 // Designates the 'GetDataForSelector' method as the handler for the 'GetDataForSelector' command invoked from the client component
 [FormComponentCommand]

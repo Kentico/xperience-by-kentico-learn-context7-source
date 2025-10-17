@@ -81,6 +81,14 @@
 </ul>
 <h3 id="add-fields">Add fields</h3>
 <p>Content type fields are used to store structured data. Each field corresponds to a database column and is of a certain <a href="/documentation/developers-and-admins/customization/field-editor/data-type-management">data type</a>. Developers access the content of fields from the code to format and display stored data.</p>
+
+<div>
+
+</div>
+<div>
+<p>Fields that use custom data types are not supported by the GraphQL API for <a href="/documentation/developers-and-admins/configuration/headless-channel-management">headless channels</a> and their values cannot be retrieved. Only built-in scalar types are available in content types exposed through the API. See <a href="/documentation/developers-and-admins/development/content-retrieval/retrieve-headless-content">Retrieve headless content</a> to learn more about what is included in the GraphQL schema.</p>
+</div>
+
 <p>You can create content type fields via the <a href="/documentation/developers-and-admins/customization/field-editor">field editor</a> on the <strong>Fields</strong> tab when editing a content type in the <strong>Content types</strong> application:</p>
 <ol type="1">
 <li>Select <strong>New field</strong>.</li>
@@ -225,6 +233,7 @@
 </div>
 <div>
 <p>The maximum supported number of image variant definitions is 63. Exceeding this limit may result in unexpected behavior.</p>
+<p>When using <em>Scaled variants</em>, images can be scaled up if the specified dimensions exceed the original image dimensions. This may result in blurry images or increased file sizes due to image upscaling. Developers who need to avoid upscaling should handle this behavior within their implementation.</p>
 </div>
 
 <p>To define a new variant for images in the system:</p>

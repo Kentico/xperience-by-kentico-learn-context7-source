@@ -47,6 +47,8 @@
 <li><a href="#prepare-subscription-pages">Prepare subscription pages</a></li>
 <li><a href="#create-recipient-lists">Create recipient lists</a></li>
 <li><a href="#add-a-subscription-form">Add a subscription form</a></li>
+<li>(Optional) <a href="#create-contact-groups-for-recipient-filtering">Create contact groups for recipient filtering</a>
+</li>
 </ol>
 <h3 id="prepare-subscription-pages">Prepare subscription pages</h3>
 <p>Start by adding the following subscription-related <a href="/documentation/business-users/website-content">pages</a> to your website:</p>
@@ -66,7 +68,7 @@
 <p>Add suitable content to the pages, depending on your site’s branding and audience.</p>
 <h3 id="create-recipient-lists">Create recipient lists</h3>
 <p>Contacts who decide to subscribe and receive your emails are stored within <strong>recipient lists</strong>. When sending out regular emails, marketers choose the target audience by selecting a recipient list.</p>
-<p>You can either use a single recipient list for all email communication, or create multiple lists for different newsletters or email groups (each with its own separate subscription and unsubscription process).</p>
+<p>You can either use a single recipient list for all email communication, or create multiple lists for different newsletters or email groups (each with its own separate subscription and unsubscription process). If you prefer to share a single recipient list for multiple types of email communication, you can use <a href="#create-contact-groups-for-recipient-filtering">contact groups to filter recipients</a> when sending regular emails.</p>
 <p>To add a recipient list:</p>
 <ol type="1">
 <li>Open the <strong>Recipient lists</strong> application.</li>
@@ -152,7 +154,33 @@ You can also send the autoresponder as part of a more complex <a href="/document
 
 </div>
 <div>
-<p>If you plan to use <a href="/documentation/business-users/digital-marketing/automation">automation processes</a> that send emails based on recipient lists, ensure that the process is fully predefined and includes all necessary steps, such as double opt-in confirmations. This approach is not suitable for ongoing or indefinite email campaigns, as the automation cannot be extended once a contact completes the sequence.</p>
+<p>If you plan to use <a href="/documentation/business-users/digital-marketing/automation">automation processes</a> that send emails based on recipient lists, ensure that the process includes all necessary steps, such as double opt-in confirmations, before it is enabled. Automation processes are not a suitable approach for ongoing or indefinite email campaigns, as the process cannot be extended once a contact completes the sequence.</p>
+</div>
+
+<h3 id="create-contact-groups-for-recipient-filtering">Create contact groups for recipient filtering</h3>
+<p>When <a href="#send-regular-emails">sending regular emails</a>, you can filter the recipients from your selected recipient list using <a href="/documentation/business-users/digital-marketing/contact-groups">contact groups</a>. This allows you to target specific audience segments without creating and maintaining separate recipient lists.</p>
+<ol type="1">
+<li>
+<a href="/documentation/business-users/digital-marketing/contact-groups#set-up-dynamic-contact-groups">Add contact groups</a> with appropriate conditions.</li>
+<li>Set the <strong>Send only to recipients from contact groups</strong> and/or <strong>Exclude recipients from contact groups</strong> properties before you send your <a href="#create-regular-emails">regular emails</a>.</li>
+</ol>
+<p>For example, you could use a recipient list together with contact groups in the following scenario:</p>
+<ul>
+<li>Maintain a single recipient list containing all contacts who have done business with your company and subscribed to email communication.</li>
+<li>Segment these contacts into contact groups based on criteria, such as engagement level, purchase history, or generated revenue (e.g., using <a href="/documentation/developers-and-admins/digital-marketing-setup/set-up-activities/custom-activities">custom activities</a>).</li>
+<li>Send separate versions of promotional emails about new products or services, with targeted content for each group of contacts.</li>
+</ul>
+
+<div>
+
+</div>
+<div>
+<p><strong>Avoid email duplication</strong></p>
+<p>Be careful when setting up your contact group conditions. If you send different versions of the same email based on contact groups, a single contact may receive multiple copies if they fulfill the conditions of multiple groups. The system does <strong>not perform frequency capping</strong> to limit how many emails contacts receive over a given time period.</p>
+<p><strong>Coordinate email sendout</strong></p>
+<p>When sending separate variants of the same email to recipients from different contact groups, you can coordinate the delivery by scheduling the mailout at the same time in the future. Use the <strong>Schedule for later</strong> option in the <strong>Review and send</strong> dialog.</p>
+<p><strong>Unsubscription when using a shared recipient list</strong></p>
+<p>If you use a shared recipient list for different types of email communication, any recipients who <a href="#unsubscription">unsubscribe</a> will stop receiving all emails that you send via the given recipient list. This may or may not be desired behavior. Depending on your mailing requirements, you need to maintain and use an appropriate number of recipient lists.</p>
 </div>
 
 <h2 id="send-regular-emails">Send regular emails</h2>
@@ -208,41 +236,46 @@ You can also send the autoresponder as part of a more complex <a href="/document
 </div>
 
 <ol type="1">
-<li>
-<p>Create an <a href="/documentation/business-users/digital-marketing/emails">email</a>.</p>
+<li>Create an <a href="/documentation/business-users/digital-marketing/emails">email</a>.
 <ul>
 <li>Set the <strong>Email purpose</strong> to <em>Regular</em>.</li>
 <li>Select a <strong>Template</strong> containing an unsubscribe link.</li>
 </ul>
 </li>
-<li>
-<p>Prepare the email’s content:</p>
+<li>Prepare the email’s content:
 <ul>
 <li>You can fill in the email’s subject, preview text and other content fields in the <strong>Content</strong> view mode.</li>
 <li>If using an Email Builder template, you can compose the email’s content using configurable components in the <strong>Email Builder</strong> view mode. For detailed information, see <a href="/documentation/business-users/digital-marketing/emails/create-emails-in-email-builder">Create emails in Email Builder</a>.</li>
 </ul>
 </li>
-<li><p>Once the content is ready, select the <strong>Continue</strong> button (or <strong>Properties</strong> in the option panel on the right).</p></li>
-<li><p>Select a <strong>Sender</strong> (senders are predefined for the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channel</a>).</p></li>
-<li><p>In the <strong>Send to</strong> property, choose the <a href="#create-recipient-lists">recipient list</a> to which you want to send the email.</p></li>
-<li><p>Select <strong>Save</strong>.<br>
-</p></li>
-<li>
-<p>If the email’s content type is under <a href="/documentation/developers-and-admins/configuration/workflows">workflow</a>, you need to go through the workflow’s steps before the email becomes ready to be sent. Users who belong to roles with full control for the given workflow can directly send the email from any step.</p>
+<li>Once the content is ready, select the <strong>Continue</strong> button (or <strong>Properties</strong> in the option panel on the right).</li>
+<li>Select a <strong>Sender</strong> (senders are predefined for the <a href="/documentation/developers-and-admins/digital-marketing-setup/email-channel-management">email channel</a>).</li>
+<li>In the <strong>Send to</strong> property, choose the <a href="#create-recipient-lists">recipient list</a> to which you want to send the email.</li>
+<li>(Optional) Configure additional recipient filtering based on <a href="/documentation/business-users/digital-marketing/contact-groups">contact groups</a>:
 <ul>
-<li>When you move the email to a custom workflow step with <a href="/documentation/developers-and-admins/configuration/workflows#workflow-notifications">workflow notifications</a> enabled, you can enter a comment about your action. The comment will be included in the notification email.</li>
+<li>
+<strong>Send only to recipients from contact groups</strong> – limits email delivery to contacts who belong to at least one of the selected groups (in addition to belonging to the target recipient list).</li>
+<li>
+<strong>Exclude recipients from contact groups</strong> – prevents email delivery to contacts who belong to any of the selected groups (even if they belong to the target recipient list and <em>Send only to</em> contact groups).<br>
+</li>
 </ul>
 </li>
-<li><p>To send the email, select <strong>Review and send</strong>. For emails under workflow, select <strong>Change workflow step</strong> and choose the <strong>Schedule / Send</strong> step.</p></li>
-<li>
-<p>Choose one of the options:</p>
+<li>Select <strong>Save</strong>.</li>
+<li>If the email’s content type is under <a href="/documentation/developers-and-admins/configuration/workflows">workflow</a>, you need to go through the workflow’s steps before the email becomes ready to be sent. Users who belong to roles with full control for the given workflow can directly send the email from any step.
+<ul>
+<li>When you move the email to a custom workflow step with <a href="/documentation/developers-and-admins/configuration/workflows#workflow-notifications">workflow notifications</a> enabled, you can enter a comment about your action. The comment will be included in the notification email.<br>
+</li>
+</ul>
+</li>
+<li>To send the email, select <strong>Review and send</strong>. For emails under workflow, select <strong>Change workflow step</strong> and choose the <strong>Schedule / Send</strong> step.</li>
+<li>Choose one of the options:
 <ul>
 <li>
 <strong>Schedule for later</strong> – choose a date and time in the future when the system will send the email.</li>
 <li><strong>Send now</strong></li>
 </ul>
 </li>
-<li><p>Select <strong>Send</strong>.</p></li>
+<li>Select <strong>Send</strong>.</li>
 </ol>
 
 <div>
@@ -252,7 +285,7 @@ You can also send the autoresponder as part of a more complex <a href="/document
 <p><strong>Publishing linked content items</strong></p>
 <p>If the email has fields linking to reusable content items or pages, you need to select <strong>Continue</strong> instead of <em>Send</em>. The cascade publishing dialog opens, showing all linked items that are currently not published. You can select any of the listed items to <strong>immediately</strong> publish them.</p>
 <p>Carefully consider which items are ready to be published. If you cannot publish linked items immediately, you can open (<span></span>) each of them in a new tab and individually <a href="/documentation/business-users/content-hub/content-items#scheduled-publishing">schedule</a> items to be published just before the email’s sendout time.</p>
-<p><strong>Note</strong>: The system cannot guarantee all items will be published exactly at the scheduled time. If there’s a large volume of content scheduled to be published at the same time, there may be a delay before all items are published. To ensure that linked content items are published in time, we advise scheduling the publishing of linked items with a “buffer period” before the email’s sendount. The length of this buffer period depends on the number of items that are scheduled to be published. The publishing process may take several seconds for around 100 items, or a few minutes when publishing many thousands of items.</p>
+<p><strong>Note</strong>: The system cannot always publish all items at the exact scheduled time. If many items are scheduled to publish at once, some of them may be published with a short delay. To ensure that all linked content is ready before an email is sent, schedule linked items to publish at a slightly earlier time. This extra time is called a buffer period. The length of the buffer period depends on the total number of items scheduled to publish – 100 items may take several seconds, thousands of items may take a few minutes.</p>
 </div>
 
 <p>When an email is scheduled to be sent in the future, it becomes read-only and editing is not possible. If you need to make further changes, you have the following options:</p>

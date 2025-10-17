@@ -210,13 +210,30 @@ if (builder.Environment.IsProduction())
 </div>
 
 <h3 id="synchronization-of-linked-content">Synchronization of linked content</h3>
-<p>Synchronization of linked content items and pages relies on the system’s usage tracking features:</p>
+<p>Synchronization of linked content items, pages, and forms relies on the system’s usage tracking features:</p>
 <ul>
 <li><a href="/documentation/business-users/content-hub/content-items#track-usage-of-content-items">Track usage of content items</a></li>
 <li><a href="/documentation/business-users/website-content/track-page-usages">Track page usages</a></li>
+<li><a href="/documentation/business-users/digital-marketing/forms/create-and-edit-forms#track-usage-of-forms">Track usage of forms</a></li>
 </ul>
-<p>The limitations described for usage tracking also apply to content sync. Content items or pages that are “linked” in an untracked manner are not automatically synchronized together with the linking item or page.</p>
-<p>If your Xperience by Kentico instance was updated from a version older than <strong>29.3.0</strong>, which introduced the usage tracking feature, you need to manually run the <strong>Track missing content item usages</strong> <a href="/documentation/developers-and-admins/customization/scheduled-tasks">scheduled task</a> to track missing content item usages.</p>
+<p>The limitations described for usage tracking also apply to content sync. Content items, pages or forms that are “linked” in an untracked manner are not automatically synchronized together with the linking item or page.</p>
+<p>If your Xperience by Kentico instance was updated from an older version, you need to manually run the following <a href="/documentation/developers-and-admins/customization/scheduled-tasks">scheduled tasks</a> to track the missing content item or form usages:</p>
+<ul>
+<li>
+<strong>Track missing content item usages</strong> scheduled task
+<ul>
+<li>Generates content item and page usage references when updating from a version older than <strong>29.3.0</strong>
+</li>
+</ul>
+</li>
+<li>
+<strong>Track missing object usages</strong> scheduled task
+<ul>
+<li>Generates form usage references when updating from a version older than <strong>30.11.0</strong>
+</li>
+</ul>
+</li>
+</ul>
 <h2 id="content-sync-internals">Content sync internals</h2>
 <p>When a target application receives content through content sync, the updates are not immediately applied. Every synchronization is represented and stored in the following way:</p>
 <ul>

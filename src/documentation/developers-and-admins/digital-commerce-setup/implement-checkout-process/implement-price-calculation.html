@@ -1,0 +1,715 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Implement price calculation</title>
+</head>
+<body>
+
+<div>
+
+</div>
+<div>
+<p><strong>Developer preview feature</strong></p>
+<p>The price calculation service is currently not fully functional, and primarily intended to allow technical users to familiarize themselves with the development process. Expect the feature to be updated and extended in upcoming releases.</p>
+<p>The related API is <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/general#experimental-attributes" target="_blank">marked as experimental</a> and usage will result in warnings when compiling your project. The warnings are treated as errors for reporting purposes. To use the code, you need to <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/syslib-diagnostics/experimental-overview#suppress-warnings" target="_blank">suppress</a> the warnings.</p>
+<p>What should you do with this feature?</p>
+<ul>
+<li>
+<strong>DO</strong> try out development of price calculation service and calculation steps.</li>
+<li>
+<strong>DO</strong> feel free to share your feedback with the Kentico <a href="https://roadmap.kentico.com/" target="_blank">Product team</a>.</li>
+<li>
+<strong>DO NOT</strong> use the feature in production projects.</li>
+</ul>
+</div>
+
+<p>The price calculation service <code>IPriceCalculationService</code> is responsible for calculating prices, taxes, shipping costs, and totals for shopping carts and orders.</p>
+<p>This page describes the price calculation flow the service uses to calculate the order price at various phases of the checkout process, and introduces available customization options.</p>
+<h2 id="getting-started">Getting started</h2>
+<p>To quickly get a price calculation service usable in your project, you need to implement two essential components:</p>
+<ol type="1">
+<li>
+<strong>Product data retriever</strong> – Create a class that implements <code>IProductDataRetriever&lt;TProductIdentifier, TProductData&gt;</code> to load product information and pricing data from your content management system. This is required because the service needs access to your <a href="/documentation/developers-and-admins/digital-commerce-setup/model-product-catalog">product catalog</a> to perform calculations.</li>
+</ol>
+<ul>
+<li>See <em>ProductDataRetriever.cs</em> in the <a href="/documentation/developers-and-admins/installation#available-project-templates">DancingGoat</a> sample project for an example of a possible real-world implementation.</li>
+<li>See <a href="#implement-product-data-retrieval">Implement product data retrieval</a> for more details.</li>
+</ul>
+<ol start="2" type="1">
+<li>
+<strong>Tax calculation</strong> – Override the default <code>ITaxPriceCalculationStep</code> implementation, which doesn’t perform any operations by default. Without this, your price calculations will not include any tax calculations.</li>
+</ol>
+<ul>
+<li>See <em>DancingGoatTaxPriceCalculationStep.cs</em> in the <a href="/documentation/developers-and-admins/installation#available-project-templates">DancingGoat</a> sample project for an example of a possible real-world implementation.</li>
+<li>See <a href="#modify-existing-calculation-steps">Modify existing calculation steps</a> for more details.</li>
+</ul>
+<p>Once you’ve implemented and registered these two components, the price calculation service automatically handles the rest of the calculation pipeline, including unit price calculations, subtotals, shipping costs, and final totals.</p>
+<p>To calculate the price of an order, use <code>IPriceCalculationService.Calculate(PriceCalculationRequest)</code>. Prepare a <code>PriceCalculationRequest</code> by collecting shopping cart data, selected <a href="/documentation/developers-and-admins/digital-commerce-setup/configure-shipping-and-payment-methods">shipping and payment</a> methods, and customer details from the context of the current order.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Info</strong>: This example uses <code>ShoppingCartData</code>, <code>ShoppingCartDataItem</code>, and <code>ShoppingCartDataModel</code> classes from the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat sample site</a> to demonstrate a typical implementation.</p>
+<p>For a complete implementation example, examine the <em>CalculationService.cs</em> file of the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat sample site</a>, which demonstrates the full shopping cart calculation implementation with proper error handling and integration with other services.</p>
+</div>
+
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Calculate the price of an order</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre data-line="20"><code>
+// An instance of the price calculation service, obtained via dependency injection
+private readonly IPriceCalculationService&lt;PriceCalculationRequest, PriceCalculationResult&gt; priceCalculationService;
+
+// Creates the calculation request with contextual data from the current order
+var calculationRequest = new PriceCalculationRequest
+{
+    Items = [.. shoppingCartData.Items.Select(item =&gt; new PriceCalculationRequestItem
+    {
+        ProductIdentifier = item.ProductIdentifier,
+        Quantity = item.Quantity,
+    })],
+    ShippingMethodId = shippingMethodId,
+    PaymentMethodId = paymentMethodId,
+    BillingAddress = customerAddress,
+    CustomerId = customerId,
+    LanguageName = "en"
+};
+
+// Calculates the prices based on the request
+PriceCalculationResult calculationResult = await priceCalculationService.Calculate(calculationRequest, cancellationToken);
+
+// Total price of items from the shopping cart
+decimal totalPrice = calculationResult.TotalPrice;
+// Total tax amount on items from the shopping cart
+decimal totalTax = calculationResult.TotalTax;
+// TotalTax + TotalPrice
+decimal subTotal = calculationResult.Subtotal;
+// The price for shipping
+decimal shippingPrice = calculationResult.ShippingPrice;
+// Grand total to be paid by the customer, including shipping and taxes and applied discounts
+decimal grandTotal = calculationResult.GrandTotal;
+// Items with detailed pricing information
+ICollection&lt;PriceCalculationResultItem&gt; items = calculationResult.Items;
+</code></pre>
+</div>
+
+<h2 id="price-calculation-flow">Price calculation flow</h2>
+<p>The price calculation service transforms a <code>PriceCalculationRequest</code> into a complete <code>PriceCalculationResult</code> through a series of sequential steps:</p>
+<ol type="1">
+<li><p><strong>Input preparation</strong> – You provide a <code>PriceCalculationRequest</code> created from an order <a href="/documentation/developers-and-admins/digital-commerce-setup/implement-checkout-process">checkout step</a>. The object contains items to be priced (with their product identifiers and quantities), customer details, selected shipping and payment methods, and delivery addresses.</p></li>
+<li><p><strong>Price calculation steps</strong> – The <code>IPriceCalculationService</code> coordinates the execution of calculation steps. Each calculation step performs a specific pricing task, modifying the <code>PriceCalculationResult</code> as it progresses through the pipeline. Steps execute sequentially, with each step building upon previous calculations.</p></li>
+<li><p><strong>Result compilation</strong> – The service returns a <code>PriceCalculationResult</code> containing itemized pricing details, subtotals, shipping costs, taxes, and the grand total.</p></li>
+</ol>
+<p>The following diagram illustrates the high-level data flow:</p>
+<p></p>
+<p> The price calculation service executes the following default calculation steps in order:</p>
+<ol type="1">
+<li>
+<strong>Load product data</strong> – loads product information and pricing data using the registered implementation of the <code>IProductDataRetriever</code> interface. This step retrieves product information from your content management system, loading essential pricing data such as unit prices and any additional product attributes needed for subsequent calculations.</li>
+<li>
+<strong>Calculate unit price</strong> – calculates base unit prices for items by multiplying the product’s unit price by the requested quantity. Sets the <code>LineTotal</code> property on each result item.</li>
+<li>
+<strong>Calculate total value</strong> – performs an initial calculation of order totals. Calculates the <code>Subtotal</code> (sum of all line totals) and sets preliminary values for <code>TotalPrice</code> and <code>GrandTotal</code> before shipping and taxes are applied.</li>
+<li>
+<strong>Calculate shipping</strong> – determines the shipping cost based on the selected shipping method. If a shipping method ID is provided in the calculation request, this step retrieves the corresponding shipping method and sets the <code>ShippingPrice</code>.</li>
+<li>
+<strong>Calculate taxes</strong> – calculates applicable taxes for the order. The default implementation is a no-op – you must provide a custom implementation with your specific tax calculation logic. This step should calculate and set the <code>TotalTax</code> on the result.</li>
+<li>
+<strong>Calculate total value including shipping and taxes</strong> – recalculates the final totals to include shipping costs and taxes. Updates <code>TotalPrice</code> to include shipping and sets the final <code>GrandTotal</code>. Executing this step twice (before and after shipping/tax) maintains accurate totals at each stage.</li>
+</ol>
+<p>The following diagram illustrates the complete calculation flow of the default pipeline, from the initial request through each calculation step to the final result:</p>
+<p></p>
+<p>You can customize the default flow by implementing <a href="#implement-custom-calculation-steps">custom calculation steps</a> or <a href="#modify-existing-calculation-steps">modifying existing ones</a>.</p>
+<h3 id="shopping-cart-price-calculation">Shopping cart price calculation</h3>
+<p>When calculating the intermediate price of a shopping cart, the shipping and payment method price is usually not included in the calculation, as these methods are typically selected during the checkout process. To calculate the price of a shopping cart, use the <code>Calculate</code> method of the <code>IPriceCalculationService</code>, but the shipping and payment method IDs, as well as customer address, can be set to <code>null</code> in the price calculation request.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Calculate price of a shopping cart</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+// An instance of the price calculation service, obtained via dependency injection
+private readonly IPriceCalculationService&lt;PriceCalculationRequest, PriceCalculationResult&gt; priceCalculationService;
+
+// Shopping cart content retrieved from the current shopping cart
+ShoppingCartDataModel shoppingCartData;
+// The customer ID of the current user
+int customerId;
+
+// Creates the calculation request
+var calculationRequest = new PriceCalculationRequest
+{
+    Items = [.. shoppingCartData.Items.Select(item =&gt; new PriceCalculationRequestItem
+    {
+        ProductIdentifier = item.ProductIdentifier,
+        Quantity = item.Quantity,
+    })],
+    ShippingMethodId = null,
+    PaymentMethodId = null,
+    BillingAddress = null,
+    CustomerId = customerId,
+    LanguageName = "en"
+};
+
+// Calculates the prices based on the request
+var calculationResult = await priceCalculationService.Calculate(calculationRequest, cancellationToken);
+
+// Total price of items from the shopping cart
+decimal totalPrice = calculationResult.TotalPrice;
+// Total tax amount on items from the shopping cart
+decimal totalTax = calculationResult.TotalTax;
+// TotalTax + TotalPrice
+decimal subTotal = calculationResult.Subtotal;
+// Items with detailed pricing information
+ICollection&lt;PriceCalculationResultItem&gt; items = calculationResult.Items;
+</code></pre>
+</div>
+
+<p>For a complete implementation example, examine the <em>CalculationService.cs</em> file of the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat sample site</a>, which demonstrates the full shopping cart calculation implementation with proper error handling and integration with other services.</p>
+<h2 id="implement-product-data-retrieval">Implement product data retrieval</h2>
+<p>The price calculation service requires a custom implementation of <code>IProductDataRetriever&lt;TProductIdentifier, TProductData&gt;</code> to provide product information for pricing calculations. The product data retriever is data store agnostic – you can retrieve product data from any source, including Xperience’s <a href="/documentation/developers-and-admins/digital-commerce-setup/model-product-catalog">content hub</a>, external databases, third-party APIs, or custom data stores, as long as you return the data in the expected format.</p>
+<p>The <code>IProductDataRetriever</code> interface defines a single method that you must implement:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>IProductDataRetriever interface</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public interface IProductDataRetriever&lt;TProductIdentifier, TProductData&gt;
+{
+    Task&lt;IDictionary&lt;TProductIdentifier, TProductData&gt;&gt; Get(
+        IEnumerable&lt;TProductIdentifier&gt; productIdentifiers,
+        string languageName,
+        CancellationToken cancellationToken = default
+    );
+}
+</code></pre>
+</div>
+
+<p>The <code>Get</code> method accepts the following parameters:</p>
+<ul>
+<li>
+<code>productIdentifiers</code> – collection of product identifiers from the calculation request items. The method receives all identifiers at once, allowing efficient bulk retrieval.</li>
+<li>
+<code>languageName</code> – the language for localized product data (from <code>PriceCalculationRequest.LanguageName</code>). Use this to retrieve language-specific product information such as names or region-specific pricing.</li>
+<li>
+<code>cancellationToken</code> – pass this token to async operations to support request cancellation.</li>
+</ul>
+<p>And must return a dictionary mapping each product identifier to its corresponding product data. The dictionary keys must match the identifiers from the input parameter. If a product cannot be found, you can either omit it from the dictionary or include it with null values, depending on your error handling strategy.</p>
+<h3 id="productdata-and-productidentifier-objects">ProductData and ProductIdentifier objects</h3>
+<p>The product data retriever uses two objects for storing retrieved product information:</p>
+<p><strong>ProductIdentifier</strong></p>
+<p>A record that identifies a product in your catalog. The default <code>ProductIdentifier</code> contains a single <code>ProductId</code> property:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Default ProductIdentifier</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public record ProductIdentifier
+{
+    public int ProductId { get; init; }
+}
+</code></pre>
+</div>
+
+<p>If you need additional identification fields (such as variant identifiers, SKU codes, or multi-part keys), <a href="#extend-data-transfer-objects">extend the ProductIdentifier record</a>:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Extended ProductIdentifier for variants</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public record ProductWithVariantIdentifier : ProductIdentifier
+{
+    public int? VariantId { get; init; }
+}
+</code></pre>
+</div>
+
+<p><strong>ProductData</strong></p>
+<p>A record containing the product information needed for price calculations. The default <code>ProductData</code> requires a <code>UnitPrice</code> property (used by the unit price calculation step):</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Default ProductData</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public record ProductData
+{
+    public decimal UnitPrice { get; init; }
+}
+</code></pre>
+</div>
+
+<p>You can <a href="#extend-data-transfer-objects">extend ProductData</a> to include additional fields required by your pricing logic, such as product weight for shipping calculations, tax categories, or discount eligibility:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Extended ProductData with custom fields</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+public record CustomProductData : ProductData
+{
+    public decimal Weight { get; init; }
+    public string TaxCategory { get; init; }
+    public string ProductCategory { get; init; }
+}
+</code></pre>
+</div>
+
+<h3 id="implementation-steps">Implementation steps</h3>
+<p>Follow these steps to implement the product data retriever:</p>
+<ol type="1">
+<li><p>Decide whether to use the default <code>ProductIdentifier</code> and <code>ProductData</code> types or <a href="#extend-data-transfer-objects">extend them</a> with additional fields required by your pricing logic.</p></li>
+<li>
+<p>Implement the <code>IProductDataRetriever&lt;TProductIdentifier, TProductData&gt;</code> interface using your chosen types:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Product data retriever class</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ public class ProductDataRetriever : IProductDataRetriever&lt;ProductIdentifier, ProductData&gt;
+ {
+     public async Task&lt;IDictionary&lt;ProductIdentifier, ProductData&gt;&gt; Get(
+         IEnumerable&lt;ProductIdentifier&gt; productIdentifiers,
+         string languageName,
+         CancellationToken cancellationToken)
+     {
+         // Implementation goes here
+     }
+ }
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Use the <a href="/documentation/developers-and-admins/api/content-item-api">content API</a> to query Xperience’s content hub, or retrieve data from your external data source. For optimal performance, retrieve all products in a single bulk query rather than individual requests:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Bulk retrieval example using content retriever API</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ var productIds = productIdentifiers.Select(p =&gt; p.ProductId).ToList();
+
+ var products = await contentRetriever.RetrieveContent&lt;ProductItem&gt;(
+     RetrieveContentParameters.Default,
+     queryParameters =&gt; queryParameters
+         .WhereIn(nameof(IContentItemFieldsSource.SystemFields.ContentItemID), productIds),
+     new RetrievalCacheSettings(cacheItemNameSuffix: $"{nameof(ContentTypesQueryParameters.WhereIn)}|ByContentItemIDs"),
+     cancellationToken: cancellationToken);
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Transform the retrieved data into <code>ProductData</code> objects with the required <code>UnitPrice</code> property and any custom fields:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Mapping to ProductData</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ return products.ToDictionary(
+     p =&gt; new ProductIdentifier { ProductId = p.SystemFields.ContentItemID },
+     p =&gt; new ProductData { UnitPrice = p.GetValue&lt;decimal&gt;("ProductPrice") }
+ );
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Register your implementation in the <a href="/documentation/developers-and-admins/development/website-development-basics/dependency-injection">dependency injection</a> container:</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ builder.Services.AddTransient&lt;IProductDataRetriever&lt;ProductIdentifier, ProductData&gt;, ProductDataRetriever&gt;();
+ </code></pre>
+</div>
+</li>
+</ol>
+<h3 id="calculation-pipeline-integration">Calculation pipeline integration</h3>
+<p>The <code>ProductDataLoaderCalculationStep</code> automatically calls your retriever implementation during the calculation process:</p>
+<ol type="1">
+<li>The step extracts product identifiers from all <code>PriceCalculationRequestItem</code> objects in the request</li>
+<li>It calls your retriever’s <code>Get</code> method with these identifiers and the request’s language name</li>
+<li>The retrieved <code>ProductData</code> is attached to each corresponding <code>PriceCalculationResultItem</code>
+</li>
+<li>Subsequent calculation steps (unit price, tax, etc.) can access this product data</li>
+</ol>
+<p>This automatic integration means you only need to implement the retriever – the price calculation service handles calling it at the appropriate time.</p>
+<h2 id="preparing-calculation-requests">Preparing calculation requests</h2>
+<p>How you create and populate <code>PriceCalculationRequest</code> objects depends entirely on your checkout process implementation. The price calculation service does not prescribe a specific approach – you control how data flows from your shopping cart, checkout forms, and user sessions into the calculation request. This section highlights common implementation patterns you can use.</p>
+<p><strong>Create a dedicated service layer</strong><br>
+Create a dedicated service (such as <code>CalculationService</code> in the Dancing Goat sample) that handles the complexity of gathering data from multiple sources and constructing the calculation request. This approach centralizes request creation logic and makes it easier to maintain and test.</p>
+<p><strong>Dynamic data gathering</strong><br>
+Retrieve customer information, shipping selections, and cart contents from various sources at the time of calculation:</p>
+<ul>
+<li>Shopping cart data from session storage or a database</li>
+<li>Customer ID from the authenticated user’s identity</li>
+<li>Shipping and payment method selections from checkout form state</li>
+<li>Billing/shipping addresses from user profiles or form submissions</li>
+<li>Language and currency preferences from the current request context</li>
+</ul>
+<p><strong>Incremental calculations</strong><br>
+Call the price calculation service at different points in your checkout flow with progressively more data as it becomes available from the customer:</p>
+<ul>
+<li>Initial cart view – Calculate with items only, no shipping or customer details</li>
+<li>Shipping selection – Recalculate with shipping method included</li>
+<li>Final checkout – Calculate with complete data including customer address and payment method</li>
+</ul>
+<p>The Dancing Goat sample site demonstrates this approach in its <code>CalculationService</code> class, which provides separate methods for calculations with and without shipping information. The service gathers customer data from ASP.NET Core Identity, retrieves customer records from the database, and transforms address view models into <code>PriceCalculationRequestAddress</code> objects.</p>
+<p>For a complete working example that shows how to integrate request creation with user authentication, form data, and session state, examine the <em>CalculationService.cs</em> file in the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat sample site</a>.</p>
+<h2 id="customization-options">Customization options</h2>
+<p>You can customize the price calculation service by implementing custom calculation steps or modifying existing ones to fit your business requirements. Additionally, you can extend the core data transfer objects to include additional fields required by your pricing logic.</p>
+<h3 id="extend-data-transfer-objects">Extend data transfer objects</h3>
+<p>To customize a data transfer object, create a new class that inherits from the respective object, add your custom fields, and use the custom class in your calculation steps and services. Note that when you extend these classes, you also need to update any related classes or services that utilize them to ensure compatibility with your custom fields.</p>
+<p>The following objects are available for extension:</p>
+<ul>
+<li><code>PriceCalculationRequest</code></li>
+<li><code>PriceCalculationResult</code></li>
+<li><code>PriceCalculationRequestItem</code></li>
+<li><code>PriceCalculationResultItem</code></li>
+<li><code>ProductIdentifier</code></li>
+<li><code>ProductData</code></li>
+</ul>
+<h3 id="modify-existing-calculation-steps">Modify existing calculation steps</h3>
+<p>You can modify the behavior of existing <a href="#PriceCalculationSteps">calculation steps</a> to implement custom pricing logic without creating entirely new steps. When you register a custom step implementation, it automatically replaces the default step implementation in the calculation pipeline.</p>
+<p>The following calculation step interfaces can be overridden:</p>
+<ul>
+<li>
+<code>IProductDataLoaderPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;</code> – loads product information and pricing data using the given implementation of <a href="#implement-product-data-retrieval">IProductDataRetriever</a>.</li>
+<li>
+<code>IUnitPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;</code> – calculates base unit prices for items.</li>
+<li>
+<code>ITotalValuesPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;</code> – calculates subtotals and totals.</li>
+<li>
+<code>IShippingPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;</code> – calculates shipping costs.</li>
+<li>
+<code>ITaxPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;</code> – calculates applicable taxes.</li>
+</ul>
+<p>To customize an existing calculation step, follow these steps:</p>
+<ol type="1">
+<li>
+<p>Implement a custom class that inherits from the respective interface of an existing calculation step you want to modify. Override the <code>Execute</code> method to implement your custom logic while optionally calling the base implementation.</p>
+<ul>
+<li>For example, when customizing the <code>TaxCalculationStep</code>, you need to create a class that inherits from <code>ITaxPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;</code> and override the <code>Execute</code> method to apply your custom tax logic.</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ public sealed class CustomTaxCalculationStep&lt;TCalculationRequest, TCalculationResult&gt; : ITaxPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;
+     where TCalculationRequest : PriceCalculationRequest
+     where TCalculationResult : PriceCalculationResult
+ {
+     public Task Execute(IPriceCalculationData&lt;TCalculationRequest, TCalculationResult&gt; calculationData, CancellationToken cancellationToken)
+     {
+         // Custom tax calculation logic
+         return Task.CompletedTask;
+     }
+ }
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Register your implementation in the <a href="/documentation/developers-and-admins/development/website-development-basics/dependency-injection">dependency injection</a> container to make it available to the price calculation service. When you register a custom step implementation, it automatically replaces the default step implementation in the calculation pipeline.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ builder.services.AddTransient&lt;ITaxPriceCalculationStep&lt;,&gt;, CustomTaxCalculationStep&gt;();
+ </code></pre>
+</div>
+</li>
+</ol>
+<p>For a complete implementation example, examine the <em>DancingGoatTaxPriceCalculationStep.cs</em> file in the <a href="/documentation/developers-and-admins/installation#available-project-templates">Dancing Goat sample site</a>, which demonstrates a custom tax calculation step implementation.</p>
+<h3 id="implement-custom-calculation-steps">Implement custom calculation steps</h3>
+<p>Custom calculation steps allow you to add specialized pricing logic such as volume-based discounts, loyalty program benefits, handling fees, gift wrapping charges, or complex tax calculations. Custom steps are typically inserted between the initial total calculation (step 3) and shipping calculation (step 4) in the pipeline. To implement a custom calculation step, follow these steps:</p>
+<ol type="1">
+<li>
+<p>Implement a custom class that implements <code>IPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;</code>. In the <code>Execute</code> method, implement your custom logic to modify the calculation result based on the calculation request.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong></strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ public sealed class CustomCalculationStep&lt;TRequest, TResult&gt; : IPriceCalculationStep&lt;TCalculationRequest, TCalculationResult&gt;
+     where TRequest : PriceCalculationRequest
+     where TResult : PriceCalculationResult
+ {
+     public Task Execute(IPriceCalculationData&lt;TRequest, TResult&gt; calculationData, CancellationToken cancellationToken)
+     {
+         // Custom calculation logic
+         return Task.CompletedTask;
+     }
+ }
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Register your implementation in the <a href="/documentation/developers-and-admins/development/website-development-basics/dependency-injection">dependency injection</a> container to make it available to the price calculation service.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ builder.services.AddTransient&lt;IPriceCalculationStep&lt;,&gt;, CustomCalculationStep&gt;();
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Implement a custom calculation steps provider that implements <code>IPriceCalculationStepsProvider&lt;TCalculationRequest, TCalculationResult&gt;</code> and includes your new step in the calculation pipeline. This allows you to control which steps execute and in what order, reorganize the default pipeline, add custom steps, or conditionally include steps based on request properties.</p>
+<ul>
+<li>When you register a custom implementation of the <code>IPriceCalculationStepsProvider</code>, you need to ensure that all required calculation steps are included in the custom provider, including the default calculation steps. If any required step is omitted, the price calculation service may not function correctly, leading to incomplete or incorrect price calculations. See the top of this page for a <a href="#PriceCalculationSteps">complete list of default calculation steps</a>.</li>
+</ul>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Custom calculation steps provider</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ public class CustomCalculationStepsProvider : IPriceCalculationStepsProvider&lt;PriceCalculationRequest, PriceCalculationResult&gt;
+ {
+     private readonly IProductDataLoaderPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; productDataLoader;
+     private readonly IUnitPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; unitPriceStep;
+     private readonly ITotalValuesPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; totalValuesStep;
+     private readonly IShippingPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; shippingStep;
+     private readonly ITaxPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; taxStep;
+     private readonly IPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; customDiscountStep;
+
+     public CustomCalculationStepsProvider(
+         IProductDataLoaderPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; productDataLoader,
+         IUnitPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; unitPriceStep,
+         ITotalValuesPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; totalValuesStep,
+         IShippingPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; shippingStep,
+         ITaxPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; taxStep,
+         IPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt; customDiscountStep)
+     {
+         this.productDataLoader = productDataLoader;
+         this.unitPriceStep = unitPriceStep;
+         this.totalValuesStep = totalValuesStep;
+         this.shippingStep = shippingStep;
+         this.taxStep = taxStep;
+         this.customDiscountStep = customDiscountStep;
+     }
+
+     public IEnumerable&lt;IPriceCalculationStep&lt;PriceCalculationRequest, PriceCalculationResult&gt;&gt; Get()
+     {
+         // Step 1: Load product data (default)
+         yield return productDataLoader;
+         // Step 2: Calculate unit prices (default)
+         yield return unitPriceStep;
+         // Step 3: Calculate initial totals (default)
+         yield return totalValuesStep;
+         // Step 4: Apply custom discount logic (newly added custom step)
+         yield return customDiscountStep;
+         // Step 5: Calculate shipping costs (default)
+         yield return shippingStep;
+         // Step 6: Calculate taxes (default)
+         yield return taxStep;
+         // Step 7: Recalculate final totals (default)
+         yield return totalValuesStep;
+     }
+ }
+ </code></pre>
+</div>
+</li>
+<li>
+<p>Register the custom steps provider to replace the default calculation pipeline. When you register your custom steps provider, the calculation service automatically detects and uses your custom steps provider, executing your custom step during calculations.</p>
+
+<div>
+<div>
+<div>
+<span>C#</span>
+</div>
+<strong>Program.cs</strong>
+</div>
+<div>
+<button>
+<span></span><span></span> <span>Copy</span>
+</button>
+</div>
+</div>
+<div>
+<pre><code>
+ builder.services.AddTransient&lt;IPriceCalculationStepsProvider&lt;PriceCalculationRequest, PriceCalculationResult&gt;, CustomCalculationStepsProvider&gt;();
+ </code></pre>
+</div>
+</li>
+</ol>
+
+</body>
+</html>

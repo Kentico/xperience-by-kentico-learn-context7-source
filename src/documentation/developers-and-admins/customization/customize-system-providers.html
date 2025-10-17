@@ -22,7 +22,6 @@ Generic providers are instances of <code>IInfoProvider&lt;TInfo&gt;</code>, wher
 <p>The info provider customization pattern differs depending on provider type. See <a href="#providers-based-on-iinfoprovider-interfaces">Providers based on I*InfoProvider interfaces</a> for dedicated providers and <a href="#providers-based-on-iinfoprovidertinfo">Providers based on IInfoProvider&lt;TInfo&gt;</a> for generic providers. For general overview of both types of providers, see <a href="/documentation/developers-and-admins/api/database-table-api">Database table API</a>.</p>
 </div>
 </li>
-<li><p><strong>Data provider</strong> – handles low-level database operations. <em>Info</em> providers are built on top of the Data provider and use it to store and fetch data.</p></li>
 <li><p><strong>File system providers</strong> – allow you to access various file systems. For more information, see <a href="/documentation/developers-and-admins/api/files-api-and-cms-io">Files API and CMS.IO</a>.</p></li>
 <li><p><strong>BizFormItemProvider</strong> – allows you to <a href="/documentation/developers-and-admins/development/content-retrieval#retrieve-form-data">retrieve</a> data submitted through <a href="/documentation/business-users/digital-marketing/forms">forms</a> and contains methods for basic management of form data. <code>BizFormItemProvider</code> is <em>not</em> compatible with the Info provider customization approaches described on this page. For example, you may wish to adjust or extend how form data submitted by visitors is saved. For these scenarios, we recommend implementing handlers for <a href="/documentation/developers-and-admins/customization/handle-global-events/handle-form-events">BizFormItemEvents events</a>.</p></li>
 </ul>
@@ -128,7 +127,7 @@ namespace Sample
 <h3 id="providers-based-on-iinfoprovider-interfaces">Providers based on I*InfoProvider interfaces</h3>
 <p>While using <a href="#providers-based-on-iinfoprovidertinfo">providers based on IInfoProvider&lt;TInfo&gt;</a> is strongly recommended for all custom providers, not all system providers currently support this customization pattern. Use the approach described in this section to customize such providers.</p>
 <h4 id="write-the-custom-code">Write the custom code</h4>
-<p>Custom provider classes must <strong>inherit from the original implementation</strong>. See <a href="/documentation/developers-and-admins/customization/decorate-system-services#decorate-services-via-inheritance">Decorate system services</a> for more information.</p>
+<p>Custom provider classes must <strong>inherit from the original implementation</strong>.</p>
 <h4 id="register-custom-providers">Register custom providers</h4>
 <p>Registering the customized provider replaces its default system implementation. To register custom providers, use the <code>RegisterCustomProvider</code> assembly attribute.</p>
 
@@ -211,9 +210,6 @@ public class MyInfoValidator : IInfoValidator&lt;MyInfo&gt;
 </code></pre>
 </div>
 
-<h2 id="other-provider-types">Other provider types</h2>
-<p>Data and file system providers must customize the default implementation by <strong>inheriting from the original implementation</strong>. See <a href="/documentation/developers-and-admins/customization/decorate-system-services#decorate-services-via-inheritance">Decorate system services</a> for more information.</p>
-<p>To replace the default system implementation, you must register the customized provider classes using the <code>RegisterCustomProvider</code> assembly attribute. See <a href="/documentation/developers-and-admins/customization/customize-system-providers/register-custom-providers">Register custom providers</a> for details about the registration attribute.</p>
 <h2 id="additional-customization-options">Additional customization options</h2>
 <p>In addition to providers, you can also customize the following helper classes:</p>
 

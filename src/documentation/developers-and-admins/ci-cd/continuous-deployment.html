@@ -164,6 +164,16 @@ The <code>--kxp-cd-store</code> command has the following parameters:
 <p>When the process completes, the CD repository contains XML files with the serialized data of objects from the database, based on the specified configuration file. Objects are stored from the database specified by the <code>CMSConnectionString</code> in the application’s configuration file (<em>appsettings.json</em> by default).</p>
 <p>After the store operation, the root of the CD repository always contains a configuration file named <strong>repository.config</strong> (the content is copied/overwritten from the file provided in the <code>--config-path</code> parameter).</p>
 <p>The CD repository can then be used to <a href="#restore-the-cd-repository-to-the-database">restore the data</a> to a target environment’s database.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>Source control ignore rules</strong></p>
+<p>Certain source control systems may have ignore rules, such as <em>gitignore</em>, which can unintentionally exclude files or folders used in the CI/CD repository (for example, the <em>*.class</em> and <em>*.user</em> file and folder extensions).</p>
+<p>Such rules may prevent your environment from working correctly. We recommend that you evaluate ignore rules for the repository and disable them as required.</p>
+</div>
+
 <h2 id="synchronize-macro-signatures">Synchronize macro signatures</h2>
 <p>To ensure that <a href="/documentation/developers-and-admins/configuration/macro-expressions">macro expressions</a> (for example used in <a href="/documentation/business-users/digital-marketing/contact-groups">contact group</a> conditions) have valid <a href="/documentation/developers-and-admins/configuration/macro-expressions/macro-signatures">signatures</a> and work correctly after deployment, the source instance from which you create the CD repository must use the same hash salt as the target instance.</p>
 <p>You can check and configure the hash salt in the value of the <code>CMSHashStringSalt</code> key within the project configuration file (<em>appsettings.json</em> by default). New Xperience projects have a randomly generated <a href="https://en.wikipedia.org/wiki/GUID" target="_blank">GUID</a> as their hash salt.</p>

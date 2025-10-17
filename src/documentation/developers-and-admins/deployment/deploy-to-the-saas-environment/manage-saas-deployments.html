@@ -53,7 +53,21 @@
 </ul>
 <h2 id="restore-points">Restore points</h2>
 <p>The SaaS environment uses a two-tier system consisting of <strong>restore points</strong> and <strong>exports</strong> to ensure data protection and disaster recovery. This system allows you to restore previous versions of your project for a particular environment.</p>
-<p>Xperience Portal creates <a href="#automatic-restore-points-and-exports">automatic restore points and exports</a>, and you can also <a href="#create-a-manual-restore-point">create manual restore points</a> for production and non-production environments. Restore points can be viewed, managed and <a href="#restore-from-a-restore-point">restored</a> under <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</p>
+<p>Xperience Portal creates <a href="#automatic-restore-points-and-exports">automatic restore points and exports</a>, and you can also <a href="#create-a-manual-restore-point">create manual restore points</a> for production and non-production environments. Restore points can be viewed, managed and <a href="#restore-from-a-restore-point">restored</a> under <strong>Data Management</strong> → <strong>Restore points</strong>.</p>
+
+<div>
+
+</div>
+<div>
+<p><strong>SaaS application components</strong></p>
+<p>Applications deployed in the SaaS environment consist of the following services:</p>
+<ul>
+<li>Application service – application binaries and runtime files</li>
+<li>Database – reflects the current state of the environment’s database</li>
+<li>Storage and files – reflects the current state of files in the environment’s Azure Blob storage</li>
+</ul>
+</div>
+
 <h3 id="restore-points-vs.-exports">Restore points vs. exports</h3>
 <p>Understanding the difference between restore points and exports is crucial for effective data management:</p>
 <p><strong>Restore points:</strong></p>
@@ -63,7 +77,7 @@
 <li>Created automatically before deployments, manually on demand, or on a regular schedule</li>
 <li>Always contain all services (application, database, and storage)</li>
 <li>Faster creation process as files aren’t physically copied</li>
-<li>Most services can be downloaded directly; the database needs to be exported to access the files</li>
+<li>Storage files can be downloaded directly; application service files cannot be downloaded or exported; database needs to be exported to access the data.</li>
 </ul>
 <p><strong>Exports:</strong></p>
 <ul>
@@ -74,14 +88,8 @@
 </ul>
 </li>
 <li>Can be downloaded and stored locally for long-term storage</li>
-<li>Limited to 30 exports per environment per project per month (may be adjusted with custom plans)</li>
+<li>Limited to 30 database exports per environment per month and 30 application service exports per environment per month (may be adjusted with custom plans)</li>
 <li>The files are retained for 60 hours after the export is created and you need to download them before they are removed</li>
-</ul>
-<p>Applications deployed in the SaaS environment consist of the following services:</p>
-<ul>
-<li>Application service – application binaries and runtime files</li>
-<li>Database – reflects the current state of the environment’s database</li>
-<li>Storage and files – reflects the current state of files in the environment’s Azure Blob storage</li>
 </ul>
 <h3 id="automatic-restore-points-and-exports">Automatic restore points and exports</h3>
 <p>Kentico automatically creates the following <strong>restore points and exports</strong>:</p>
@@ -136,7 +144,7 @@
 </ul>
 <p>To create a manual restore point:</p>
 <ol type="1">
-<li><p>Navigate to <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</p></li>
+<li><p>Navigate to <strong>Data Management</strong> → <strong>Restore points</strong>.</p></li>
 <li><p>Select <strong>Create restore point</strong> in the upper-right corner.</p></li>
 <li>
 <p>Select the environment for which you want to create a restore point.</p>
@@ -161,10 +169,10 @@
 </ol>
 <p>Your restore point is now available in the <strong>Restore points</strong> application under <strong>Data Management</strong>. To access the files or download the data, you need to create an export from this restore point.</p>
 <h3 id="create-a-manual-export">Create a manual export</h3>
-<p>The export process creates physical copies of the data, which can then be downloaded. Exports are limited to 30 exports per environment per project per month (may be adjusted with custom plans).</p>
+<p>The export process creates physical copies of the data, which can then be downloaded. Exports are limited to 30 database exports per environment per month and 30 application service exports per environment per month (may be adjusted with custom plans).</p>
 <p>To create a manual export:</p>
 <ol type="1">
-<li><p>Navigate to <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</p></li>
+<li><p>Navigate to <strong>Data Management</strong> → <strong>Restore points</strong>.</p></li>
 <li><p>Select <strong>Create restore point</strong> in the upper-right corner.</p></li>
 <li>
 <p>Select the environment for which you want to create an export.</p>
@@ -200,9 +208,14 @@
 </div>
 
 <h3 id="export-and-download-from-restore-points">Export and download from restore points</h3>
-<p>You can also download data from restore points. Application service and storage files can be downloaded directly, while the database needs to be exported to access the files. Exports are limited to 30 exports per environment per project per month (may be adjusted with custom plans).</p>
+<p>You can also download some data from restore points:</p>
+<ul>
+<li>Storage files can be downloaded directly.</li>
+<li>Database needs to be exported to access the data. Database exports are limited to 30 exports per environment per month (may be adjusted with custom plans).</li>
+<li>Application service files cannot be downloaded or exported from restore points. However, you can create manual exports of application services using the <a href="#create-a-manual-export">manual export process</a>.</li>
+</ul>
 <ol type="1">
-<li>Navigate to <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</li>
+<li>Navigate to <strong>Data Management</strong> → <strong>Restore points</strong>.</li>
 <li>Select an environment and select <strong>Apply</strong>. A list of restore points for the environment is displayed.</li>
 <li>Select <strong>Create export</strong> next to the database of a restore point you want to download.</li>
 <li>Once the export is ready, download it by selecting <strong>Download</strong> () under <strong>Actions</strong>.</li>
@@ -219,7 +232,7 @@
 <h3 id="restore-from-a-restore-point">Restore from a restore point</h3>
 <p>You can restore your application to a previous state using restore points. This is useful if you need to revert changes or recover from an issue.</p>
 <ol type="1">
-<li>Navigate to <strong>Data Management</strong> -&gt; <strong>Restore points</strong>.</li>
+<li>Navigate to <strong>Data Management</strong> → <strong>Restore points</strong>.</li>
 <li>Select an environment and select <strong>Apply</strong>. A list of restore points for the environment is displayed.</li>
 <li>Restore from a restore point by selecting <strong>Restore</strong> (<i></i>) next to a restore point.</li>
 <li>On the <strong>Restore a restore point or an export</strong> page:
@@ -255,7 +268,7 @@
 <li>
 <p>Create a restore session.</p>
 <ol type="a">
-<li>Navigate to <strong>Data Management</strong> -&gt; <strong>Custom restore</strong>.</li>
+<li>Navigate to <strong>Data Management</strong> → <strong>Custom restore</strong>.</li>
 <li>Select <strong>Create session</strong>.</li>
 </ol>
 <p></p>
